@@ -1766,6 +1766,8 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 	 */
 	private boolean isZoomEnabled = false;
 
+	private String last_titleStr=null; //cache of title - to prevent the need to add update on UI thread
+
 	/**
 	 * Set the zoom for the plot as enabled or not
 	 * 
@@ -1860,6 +1862,9 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 	 *            new Title String
 	 */
 	public void setTitle(final String titleStr) {
+		if( last_titleStr != null && last_titleStr.equals(titleStr))
+			return;
+		last_titleStr = titleStr;
 		if(plotter != null) {
 			plotter.setTitle(titleStr);
 			if (infoBox != null) {
