@@ -80,6 +80,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.GlobalColourMaps;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
+import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView.HistrogramUIUpdater;
 
 /**
  * View that shows a histogram of a DataSet object, it allows to navigate in 
@@ -89,6 +90,18 @@ import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 public class HistogramView extends ViewPart implements SelectionListener,
 		IObservable, IObserver {
 	
+	public class HistrogramUIUpdater implements Runnable {
+
+		public boolean inqueue=true;
+
+		@Override
+		public void run() {
+			inqueue = false;
+			// Set the ranges from the data max and min
+			histrogramUIUpdate();
+		}
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(HistogramView.class);
 
 	/**
@@ -159,6 +172,8 @@ public class HistogramView extends ViewPart implements SelectionListener,
 	private Group expertGroup;
 	private Group threshPanel;
 	private Group rangePanel;
+
+	private HistrogramUIUpdater latestHistrogramUIUpdater=null; //used to prevent putting many events to update histogram on UI thread. -on e1 at a time
 
 	/**
 	 * Default constructor
@@ -727,51 +742,10 @@ public class HistogramView extends ViewPart implements SelectionListener,
 				autoRangeHistogram();
 		}
 
-		parent.getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				// Set the ranges from the data max and min
-				if (!hasData()) {
-					System.err.println("No data available in histogram view!");
-					return;
-				}
-				double max = data.max().doubleValue();
-				double min = data.min().doubleValue();
-				double step = max - min;
-				if (step != 0) {
-					int prec = (int) Math.ceil(-Math.log10(step/100));
-					int wide = (int) Math.ceil(Math.log10(Math.max(Math.abs(max), Math.abs(min))));
-					if (wide <= 0)
-						wide = 2;
-					if (prec <= 0)
-						prec = 1;
-					spnRangeStart.setFormat(prec+wide, prec);
-					spnRangeStop.setFormat(prec+wide, prec);
-				}
-				spnRangeStart.setMaximum(max);
-				spnRangeStart.setMinimum(min);
-				spnRangeStop.setMaximum(max);
-				spnRangeStop.setMinimum(min);
-
-				// Set the values from the max and min which were specified by the colour table (this persists locked values)
-				spnRangeStop.setDouble(currentMaxMin.max);
-				spnRangeStart.setDouble(currentMaxMin.min);
-
-				// Now the slider positions need to be calculated
-				double minProportion = (currentMaxMin.min - min)/step;
-				sldMinValue.setSelection((int) Math.floor((sldMinValue.getMaximum() * minProportion)));
-				double maxProportion = (currentMaxMin.max - min) / step;
-				sldMaxValue.setSelection((int) Math.floor((sldMinValue.getMaximum() * maxProportion)));
-
-				spnRangeStart.setEnabled(true);
-				spnRangeStop.setEnabled(true);
-				sldMinValue.setEnabled(true);
-				sldMaxValue.setEnabled(true);
-
-				updateHistogramGraph(currentMaxMin.min, currentMaxMin.max);
-				buildGradientImage();
-			}
-		});
+		if( latestHistrogramUIUpdater == null || !latestHistrogramUIUpdater.inqueue){
+			latestHistrogramUIUpdater = new HistrogramUIUpdater();
+			parent.getDisplay().asyncExec(latestHistrogramUIUpdater);
+		}
 	}
 	
 	@Override
@@ -930,5 +904,47 @@ public class HistogramView extends ViewPart implements SelectionListener,
 				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_HITHRESHOLD)
 				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_HITHRESHOLD);
 		return v/100.0;
+	}
+
+	private void histrogramUIUpdate() {
+		if (!hasData()) {
+			System.err.println("No data available in histogram view!");
+			return;
+		}
+		double max = data.max().doubleValue();
+		double min = data.min().doubleValue();
+		double step = max - min;
+		if (step != 0) {
+			int prec = (int) Math.ceil(-Math.log10(step/100));
+			int wide = (int) Math.ceil(Math.log10(Math.max(Math.abs(max), Math.abs(min))));
+			if (wide <= 0)
+				wide = 2;
+			if (prec <= 0)
+				prec = 1;
+			spnRangeStart.setFormat(prec+wide, prec);
+			spnRangeStop.setFormat(prec+wide, prec);
+		}
+		spnRangeStart.setMaximum(max);
+		spnRangeStart.setMinimum(min);
+		spnRangeStop.setMaximum(max);
+		spnRangeStop.setMinimum(min);
+
+		// Set the values from the max and min which were specified by the colour table (this persists locked values)
+		spnRangeStop.setDouble(currentMaxMin.max);
+		spnRangeStart.setDouble(currentMaxMin.min);
+
+		// Now the slider positions need to be calculated
+		double minProportion = (currentMaxMin.min - min)/step;
+		sldMinValue.setSelection((int) Math.floor((sldMinValue.getMaximum() * minProportion)));
+		double maxProportion = (currentMaxMin.max - min) / step;
+		sldMaxValue.setSelection((int) Math.floor((sldMinValue.getMaximum() * maxProportion)));
+
+		spnRangeStart.setEnabled(true);
+		spnRangeStop.setEnabled(true);
+		sldMinValue.setEnabled(true);
+		sldMaxValue.setEnabled(true);
+
+		updateHistogramGraph(currentMaxMin.min, currentMaxMin.max);
+		buildGradientImage();
 	}
 }
