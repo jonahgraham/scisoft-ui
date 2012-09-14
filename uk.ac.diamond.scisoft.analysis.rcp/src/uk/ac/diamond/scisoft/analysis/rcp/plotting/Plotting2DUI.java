@@ -18,6 +18,8 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import gda.observable.IObserver;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -26,6 +28,8 @@ import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.region.IRegion;
+import org.dawb.common.ui.plot.trace.IImageTrace;
+import org.dawb.common.ui.plot.trace.ITrace;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,8 +48,6 @@ import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
 import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
 import uk.ac.diamond.scisoft.analysis.roi.SectorROIList;
 
-//import gda.observable.IObserver;
-
 /**
  * Class to create the a 2D/image plotting
  */
@@ -61,39 +63,63 @@ public class Plotting2DUI extends AbstractPlotUI {
 	/**
 	 * @param plotter
 	 */
-	public Plotting2DUI(PlotWindow window, final AbstractPlottingSystem plotter){
+	public Plotting2DUI(PlotWindow window, final AbstractPlottingSystem plotter) {
 		this.plotWindow = window;
 		this.plottingSystem = plotter;
 	}
 
 	@Override
-	public void processPlotUpdate(final DataBean dbPlot, boolean isUpdate){
+	public void processPlotUpdate(final DataBean dbPlot, boolean isUpdate) {
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
 				Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
 				if (plotData != null) {
 					Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
-					final List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+					final List<AbstractDataset> yDatasets = Collections
+							.synchronizedList(new LinkedList<AbstractDataset>());
 
 					final AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
 					final AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
 					final List<AbstractDataset> axes = Collections.synchronizedList(new LinkedList<AbstractDataset>());
 					axes.add(0, xAxisValues);
 					axes.add(1, yAxisValues);
-			
+
+					String xAxisName = xAxisValues.getName();
+					String yAxisName = yAxisValues.getName();
+
 					while (iter.hasNext()) {
 						DataSetWithAxisInformation dataSetAxis = iter.next();
 						AbstractDataset data = dataSetAxis.getData();
 						yDatasets.add(data);
 					}
 
-					if(yDatasets.get(0) != null){
-						if(xAxisValues!=null && yAxisValues!=null)
-							plottingSystem.updatePlot2D(yDatasets.get(0), axes, null);
-						else
-							plottingSystem.updatePlot2D(yDatasets.get(0), null, null);
-						logger.debug("Plot 2D updated");
+					AbstractDataset data = yDatasets.get(0);
+					if (data != null) {
+					
+						final Collection<ITrace> traces = plottingSystem.getTraces();
+						final List<ITrace> traceList =new ArrayList<ITrace>(traces);
+						if (traces != null && traces.size() > 0 
+								&& traceList.size()>0
+								&& traceList.get(0) instanceof IImageTrace) {
+							final IImageTrace image = (IImageTrace) traces.iterator().next();
+							final int[] shape = image.getData() != null ? image.getData().getShape() : null;
+							String lastXAxisName = image.getAxes().get(0).getName();
+							String lastYAxisName = image.getAxes().get(1).getName();
+							
+							if (shape != null && Arrays.equals(shape, data.getShape())
+									&& lastXAxisName.equals(xAxisName)
+									&& lastYAxisName.equals(yAxisName)) {
+								plottingSystem.updatePlot2D(data, axes, null);
+								logger.debug("Plot 2D updated");
+							} else {
+								plottingSystem.createPlot2D(data, axes, null);
+								logger.debug("Plot 2D created");
+							}
+						}else{
+							plottingSystem.createPlot2D(data, axes, null);
+							logger.debug("Plot 2D created");
+						}
 
 					} else
 						logger.debug("No data to plot");
