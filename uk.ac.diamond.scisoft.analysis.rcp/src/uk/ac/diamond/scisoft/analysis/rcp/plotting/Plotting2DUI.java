@@ -82,11 +82,16 @@ public class Plotting2DUI extends AbstractPlotUI {
 					final AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
 					final AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
 					final List<AbstractDataset> axes = Collections.synchronizedList(new LinkedList<AbstractDataset>());
-					axes.add(0, xAxisValues);
-					axes.add(1, yAxisValues);
-
-					String xAxisName = xAxisValues.getName();
-					String yAxisName = yAxisValues.getName();
+					
+					String xAxisName = "", yAxisName = "";
+					if(xAxisValues!=null){
+						axes.add(0, xAxisValues);
+						xAxisName = xAxisValues.getName();
+					}
+					if(yAxisValues!=null){
+						axes.add(1, yAxisValues);
+						yAxisName = yAxisValues.getName();
+					}
 
 					while (iter.hasNext()) {
 						DataSetWithAxisInformation dataSetAxis = iter.next();
@@ -104,20 +109,31 @@ public class Plotting2DUI extends AbstractPlotUI {
 								&& traceList.get(0) instanceof IImageTrace) {
 							final IImageTrace image = (IImageTrace) traces.iterator().next();
 							final int[] shape = image.getData() != null ? image.getData().getShape() : null;
-							String lastXAxisName = image.getAxes().get(0).getName();
-							String lastYAxisName = image.getAxes().get(1).getName();
+							
+							List<AbstractDataset> currentAxes = image.getAxes(); 
+							String lastXAxisName = "", lastYAxisName = "";
+							if(currentAxes!=null)
+								lastXAxisName = currentAxes.get(0).getName();
+							if(currentAxes!=null)
+								lastYAxisName = currentAxes.get(1).getName();
 							
 							if (shape != null && Arrays.equals(shape, data.getShape())
 									&& lastXAxisName.equals(xAxisName)
 									&& lastYAxisName.equals(yAxisName)) {
-								plottingSystem.updatePlot2D(data, axes, null);
+								if(axes.size()>0)
+									plottingSystem.updatePlot2D(data, axes, null);
+								else
+									plottingSystem.updatePlot2D(data, null, null);
 								logger.debug("Plot 2D updated");
 							} else {
 								plottingSystem.createPlot2D(data, axes, null);
 								logger.debug("Plot 2D created");
 							}
 						}else{
-							plottingSystem.createPlot2D(data, axes, null);
+							if(axes.size()>0)
+								plottingSystem.createPlot2D(data, axes, null);
+							else
+								plottingSystem.createPlot2D(data, null, null);
 							logger.debug("Plot 2D created");
 						}
 
