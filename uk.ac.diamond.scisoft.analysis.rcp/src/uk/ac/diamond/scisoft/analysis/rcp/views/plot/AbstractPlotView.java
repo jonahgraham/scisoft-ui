@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
@@ -55,6 +56,7 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 	protected StackLayout stack;
 	protected Composite plotterComposite;
 	protected Composite stackComposite;
+	protected Label positionLabel;
 	
 	protected abstract String getYAxis();
 
@@ -89,18 +91,18 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 						}
 					});
 				} else {
-
 					parent.getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							plotter.getComposite().setToolTipText(event.toString() + "\nRight click to view data.");
+							double x = event.getPosition()[0];
+							double y = event.getPosition()[1];
+							positionLabel.setText(String.format("X:%.6g Y:%.6g", x, y));
 						}
 					});
 				}
 			}
 		};
 	}
-	
 
 	/**
 	 * Use this after the first data is received to hide the default message and show the plotter.
@@ -131,7 +133,11 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 		stackComposite.setLayout(stack);
 		
 		plotterComposite = new Composite(stackComposite,SWT.NONE);
-		GridLayoutFactory.fillDefaults().applyTo(plotterComposite);
+		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(plotterComposite);
+		
+		positionLabel = new Label(plotterComposite, SWT.LEFT);
+		positionLabel.setText("X: Y:");
+		GridDataFactory.fillDefaults().applyTo(positionLabel);
 
 		this.plotter = new DataSetPlotter(PlottingMode.ONED, plotterComposite, false);
 		plotter.getComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
