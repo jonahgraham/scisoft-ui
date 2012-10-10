@@ -53,9 +53,9 @@ public class Plotting1DUI extends AbstractPlotUI {
 	private AbstractPlottingSystem plottingSystem;
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
 	private String currentDataName;
-	private String dataName;
+	private String previousDataName;
 	private String currentXAxisName;
-	private String xAxisName;
+	private String previousXAxisName;
 
 	/**
 	 * Constructor of a plotting 1D 
@@ -72,60 +72,49 @@ public class Plotting1DUI extends AbstractPlotUI {
 			public void run() {
 				Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
 				if (plotData != null) {
-					Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
-					final List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
 
-					final AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
-			
+					final List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+					Collection<ITrace> previousTraces = plottingSystem.getTraces();
+					final ArrayList<ITrace> traceList = new ArrayList<ITrace>(previousTraces);
+
+					int i=0;
+					String title = "";
+					Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
 					while (iter.hasNext()) {
 						DataSetWithAxisInformation dataSetAxis = iter.next();
 						AbstractDataset data = dataSetAxis.getData();
 						yDatasets.add(data);
 						currentDataName = data.getName();
+						if(i>0)
+							title += ", "+ data.getName();
+						else
+							title += data.getName();
+
 						if(currentDataName.equals("")) // if no name given set default name
 							currentDataName = "Y-Axis";
-					}
-					currentXAxisName = xAxisValues.getName();
-					if(currentXAxisName.equals("")) // if no name given set default name
-						currentXAxisName = "X-Axis";
+						final AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
+						currentXAxisName = xAxisValues.getName();
+						if(currentXAxisName.equals("")) // if no name given set default name
+							currentXAxisName = "X-Axis";
 
-					Collection<ITrace> currentTraces = plottingSystem.getTraces();
-					final ArrayList<ITrace> traceList = new ArrayList<ITrace>(currentTraces);
-
-					// remove the traces that are not part of the yDataset anymore 
-					// (in the case of the stack plot item number decrease for instance)
-					if(yDatasets.size()<traceList.size()){
-						for(int j=yDatasets.size(); j<traceList.size(); j++){
-							plottingSystem.removeTrace(traceList.get(j));
-						}
-					}
-
-					for (ITrace iTrace : currentTraces) {
-						dataName = iTrace.getName();
-						if(iTrace instanceof ILineTrace)
-							xAxisName = ((ILineTrace)iTrace).getXData().getName();
-					}
-
-					int i=0;
-					for (final AbstractDataset yData : yDatasets) {
 						if(!traceList.isEmpty()&&traceList.size()>i){
-							dataName = traceList.get(i).getName();
-							if(traceList.get(i) instanceof ILineTrace)
-								xAxisName = ((ILineTrace)traceList.get(i)).getXData().getName();
+							previousDataName = traceList.get(i).getName();
+							if(traceList.get(i) instanceof ILineTrace){
+								AbstractDataset xData = ((ILineTrace)traceList.get(i)).getXData();
+								if(xData!=null)
+									previousXAxisName = xData.getName();
+							}
 						} else {
-							dataName = "";
-							xAxisName = "";
+							previousDataName = "";
+							previousXAxisName = "";
 						}
-						currentDataName = yData.getName();
-						if(currentDataName.equals("")) // if no name given set default name
-							currentDataName = "Y-Axis";
-						
+
 						// if same data being pushed to plot, we do an update instead of recreating the plot
-						if(currentDataName.equals(dataName)&&currentXAxisName.equals(xAxisName)){
+						if(currentDataName.equals(previousDataName)&&currentXAxisName.equals(previousXAxisName)){
 							ITrace plotTrace = plottingSystem.getTrace(currentDataName);
 							if(plotTrace instanceof ILineTrace){
 								ILineTrace lineTrace = (ILineTrace) plotTrace;
-								lineTrace.setData(xAxisValues, yData);
+								lineTrace.setData(xAxisValues, data);
 								lineTrace.repaint();
 							}
 //							TODO : perform an auto scale only if no zoom has been previously done
@@ -135,24 +124,32 @@ public class Plotting1DUI extends AbstractPlotUI {
 								plottingSystem.getSelectedXAxis().setRange(xAxisValues.getDouble(xAxisValues.minPos()), xAxisValues.getDouble(xAxisValues.maxPos()));
 							// autoscale yAxis (in the stack plot use case)
 							if(isAbsractPlottingYAxisAutoscaled())
-								plottingSystem.getSelectedYAxis().setRange(yData.getDouble(yData.minPos()), yData.getDouble(yData.maxPos()));
+								plottingSystem.getSelectedYAxis().setRange(data.getDouble(data.minPos()), data.getDouble(data.maxPos()));
+							plottingSystem.setTitle("Plot of "+title+" against "+currentXAxisName);
 							logger.debug("Plot 1D updated");
+						}// if x or y axis change then we create a new plot
+						else if((!currentDataName.equals(previousDataName)||!currentXAxisName.equals(previousXAxisName))){
+							plottingSystem.getSelectedYAxis().setTitle("");
+							plottingSystem.clear();
+							xAxisValues.setName(currentXAxisName);
+							data.setName(currentDataName);
+							Collection<ITrace> traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
+							//plottingSystem.setShowLegend(false);
+							for (ITrace iTrace : traces) {
+								final ILineTrace lineTrace = (ILineTrace)iTrace;
+								lineTrace.setTraceType(TraceType.SOLID_LINE);
+							}
+							logger.debug("Plot 1D created");
 						}
 						i++;
 					}
-					// if x or y axis change then we create a new plot
-					if((!currentDataName.equals(dataName)||!currentXAxisName.equals(xAxisName))){
-						plottingSystem.getSelectedYAxis().setTitle("");
-						plottingSystem.clear();
-						xAxisValues.setName(currentXAxisName);
-						yDatasets.get(0).setName(currentDataName);
-						Collection<ITrace> traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
-						//plottingSystem.setShowLegend(false);
-						for (ITrace iTrace : traces) {
-							final ILineTrace lineTrace = (ILineTrace)iTrace;
-							lineTrace.setTraceType(TraceType.SOLID_LINE);
+
+					// remove the traces that are not part of the yDataset anymore 
+					// (in the case of the stack plot item number decrease for instance)
+					if(yDatasets.size()<traceList.size()){
+						for(int j=yDatasets.size(); j<traceList.size(); j++){
+							plottingSystem.removeTrace(traceList.get(j));
 						}
-						logger.debug("Plot 1D created");
 					}
 				}
 			}

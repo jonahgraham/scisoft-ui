@@ -299,6 +299,7 @@ public class DataWindowOverlay implements Overlay2DConsumer, IObservable {
 			IObserver observer = iter.next();
 			observer.update(this, update);
 		}
+		notifyObservers();
 	}
 
 	@Override

@@ -136,6 +136,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 								plottingSystem.createPlot2D(data, null, null);
 							logger.debug("Plot 2D created");
 						}
+						plottingSystem.repaint();
 
 					} else
 						logger.debug("No data to plot");
