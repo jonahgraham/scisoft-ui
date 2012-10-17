@@ -164,7 +164,7 @@ public class FileView extends ViewPart {
 		
 		final Composite top = new Composite(parent, SWT.NONE);
 		top.setLayout(new GridLayout(2, false));
-		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		final Label fileLabel = new Label(top, SWT.NONE);
 		fileLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
