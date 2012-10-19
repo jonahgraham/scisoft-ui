@@ -96,7 +96,7 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 						public void run() {
 							double x = event.getPosition()[0];
 							double y = event.getPosition()[1];
-							positionLabel.setText(String.format("X:%.6g Y:%.6g", x, y));
+							positionLabel.setText(String.format("X:%.7g Y:%.7g", x, y));
 						}
 					});
 				}
