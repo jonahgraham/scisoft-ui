@@ -450,8 +450,7 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 					EclipseUtils.getActivePage().showView("uk.ac.diamond.scisoft.analysis.rcp.plotView2");
 					SDAPlotter.plot("Plot 2", viewer.getXValues(), viewer.getYValues().toArray(new AbstractDataset[0]));
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
+					logger.error("Error plotting to DerivitiveViewer", e);
 				}
 			}
 
