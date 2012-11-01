@@ -38,7 +38,6 @@ import org.eclipse.jface.fieldassist.ContentProposalAdapter;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
-import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -357,7 +356,7 @@ public class FileView extends ViewPart {
 	private void createContent(boolean setItemCount) {
 		
 		if (setItemCount) tree.getTree().setItemCount(File.listRoots().length);
-		tree.setContentProvider(new FileContentProvider());
+		tree.setContentProvider(new FileContentProvider(getViewSite().getActionBars().getStatusLineManager()));
 		if (File.listRoots().length==1) {
 			tree.setInput(File.listRoots()[0]);
 		} else {

@@ -26,6 +26,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.dawb.common.util.io.SortingUtils;
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.viewers.ILazyTreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -41,8 +42,8 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	
 	private TreeViewer treeViewer;
 	private FileSortType sort = FileSortType.ALPHA_NUMERIC_DIRS_FIRST;
-	private BlockingQueue<UpdateRequest> elementQueue;
-	private BlockingQueue<UpdateRequest> childQueue;
+	private LinkedBlockingDeque<UpdateRequest> elementQueue;
+	private LinkedBlockingDeque<UpdateRequest> childQueue;
 	
 	/**
 	 * Two threads with different priorities used.
@@ -60,8 +61,10 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	 * NOTE Is there a better way of doing this.
 	 */
 	private Map<File, List<File>> cachedSorting;
+	private IStatusLineManager statusManager;
 
-	public FileContentProvider() {
+	public FileContentProvider(final IStatusLineManager statusManager) {
+		this.statusManager = statusManager;
 		this.cachedSorting = new WeakHashMap<File, List<File>>(89);
 		this.elementQueue  = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
 		this.childQueue    = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
@@ -83,10 +86,10 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	
 	public void clearAndStop() {
 		clear();
-		elementQueue.add(new BlankUpdateRequest()); // break the queue
+		elementQueue.offerFirst(new BlankUpdateRequest()); // break the queue
 		updateElementThread = null;
 		
-		childQueue.add(new BlankUpdateRequest()); // break the queue
+		childQueue.offerFirst(new BlankUpdateRequest()); // break the queue
 		updateChildThread = null;
 	}
 
@@ -103,7 +106,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		if (elementQueue==null) return;
 		if (PlatformUI.isWorkbenchRunning()) {
 			if (updateElementThread==null) updateElementThread = createUpdateThread(elementQueue, 9, "Update directory contents");
-			elementQueue.add(new ElementUpdateRequest(parent, index));
+			elementQueue.offerFirst(new ElementUpdateRequest(parent, index));
 		} else {
 			final File node = (File) parent;
 			final List<File> fa = getFileList(node);
@@ -122,7 +125,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 			if (element.isDirectory()) {
 				treeViewer.setChildCount(element, 1); // 1 for now
 				if (updateChildThread==null) updateChildThread = createUpdateThread(childQueue, 2, "Update child size");
-				childQueue.add(new ChildUpdateRequest(element, false)); // process size from queue
+				childQueue.offerFirst(new ChildUpdateRequest(element, false)); // process size from queue
 			} else {
 				treeViewer.setChildCount(element, 0);
 			}
@@ -141,7 +144,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		
 		if (PlatformUI.isWorkbenchRunning()) {
 			if (updateChildThread==null) updateChildThread = createUpdateThread(childQueue, 2, "Update child size");
-			childQueue.add(new ChildUpdateRequest(element, true));
+			childQueue.offerFirst(new ChildUpdateRequest(element, true));
 		} else {
 			updateChildCountInternal(element, currentChildCount);
 		}
@@ -302,7 +305,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	
 
 				if (treeViewer.getControl().isDisposed()) return false;
-				treeViewer.getControl().getDisplay().asyncExec(new Runnable() {
+				treeViewer.getControl().getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
 						if (treeViewer.getControl().isDisposed()) return;
@@ -343,6 +346,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 				
 				if (updateBusyRequired) updateBusy(childQueue, true);
 				
+				//statusManager.setMessage("Reading "+((File)element).getName());
 				final Object[] fa = element instanceof File  
 						            ? ((File)element).list()// Only way speed up - use JNA and rely on unix command which has been tuned.
 						            : File.listRoots();
@@ -350,7 +354,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 				final int    size = fa==null||fa.length<1 ? 0 : fa.length;
 
 				if (treeViewer.getControl().isDisposed()) return false;
-				treeViewer.getControl().getDisplay().asyncExec(new Runnable() {
+				treeViewer.getControl().getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
 						if (treeViewer.getControl().isDisposed()) return;
