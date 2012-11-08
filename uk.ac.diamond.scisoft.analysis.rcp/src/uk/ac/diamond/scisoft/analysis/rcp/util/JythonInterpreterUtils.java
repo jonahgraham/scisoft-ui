@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.dawb.common.util.eclipse.BundleUtils;
+import org.python.core.PyList;
 import org.python.core.PyString;
 import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
@@ -60,7 +61,7 @@ public class JythonInterpreterUtils {
 		
 		File libsLocation;
 		try {
-			libsLocation = BundleUtils.getBundleLocation("uk.ac.gda.libs");
+			libsLocation = BundleUtils.getBundleLocation("uk.ac.diamond.jython");
 		} catch (Exception ignored) {
 			libsLocation = null;
 		}
@@ -69,16 +70,16 @@ public class JythonInterpreterUtils {
 			libsLocation = new File(System.getProperty("test.libs.location"));
 		}
 
-		String jyLib = libsLocation.getAbsolutePath()+"/jython2.5.1/Lib/";
-		state.path.append(new PyString(jyLib));
-		state.path.append(new PyString(jyLib+"dist-utils"));
-		state.path.append(new PyString(jyLib+"site-packages"));
-		state.path.append(new PyString(jyLib+"site-packages/decorator-3.2.0-py2.5.egg"));
-		state.path.append(new PyString(jyLib+"nose-0.11.1-py2.5.egg/nose/ext"));
+		File jyLib = new File(new File(libsLocation, "jython2.5"), "Lib");
+		PyList path = state.path;
+//		path.clear();
+		path.append(new PyString(jyLib.getAbsolutePath()));
+		path.append(new PyString(new File(jyLib, "distutils").getAbsolutePath()));
+		path.append(new PyString(new File(jyLib, "site-packages").getAbsolutePath()));
 
 		try {
-			File pythonPlugin = new File(libsLocation.getParentFile(), "uk.ac.diamond.scisoft.python");
-			state.path.append(new PyString(new File(pythonPlugin, "bin").getAbsolutePath()));
+			File pythonPlugin = BundleUtils.getBundleLocation("uk.ac.diamond.scisoft.python");
+			path.append(new PyString(new File(pythonPlugin, "bin").getAbsolutePath()));
 		} catch (Exception e) {
 			logger.error("Could not find Scisoft Python plugin", e);
 		}

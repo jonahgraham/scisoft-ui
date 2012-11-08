@@ -41,9 +41,8 @@ public class JythonInterpreterUtilsTest {
 	public void test() throws Exception {
 		
 		PythonInterpreter interpreter = JythonInterpreterUtils.getInterpreter();
-		if (interpreter == null) throw new Exception("Cannot be sure that python scripts for scisoft are loadable by the provided Jython version!");
-		
-		
+		if (interpreter == null) throw new Exception("No Jython interpreter found!");
+
 		interpreter.set("fred", 10d);
 		interpreter.exec("fred = dnp.Sciwrap(fred)");
         
