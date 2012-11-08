@@ -257,7 +257,7 @@ public class DiffractionViewerResolutionRings extends Composite implements Selec
 				double step = longestVector.length() / numberEvenSpacedRings.getSelection();
 				double d, twoThetaSpacing;
 				Vector3d toDetectorVector = new Vector3d();
-				Vector3d beamVector = diffView.detConfig.getBeamPosition();
+				Vector3d beamVector = diffView.detConfig.getBeamCentrePosition();
 				for (int i = 0; i < numberEvenSpacedRings.getSelection() - 1; i++) {
 					// increase the length of the vector by step.
 					longestVector.normalize();

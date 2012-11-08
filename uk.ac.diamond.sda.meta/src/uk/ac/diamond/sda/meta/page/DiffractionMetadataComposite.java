@@ -75,7 +75,9 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 	private AbstractDataset dataset;
 	private IMetaData metadata;
 	private DetectorProperties detprop;
+	private DetectorProperties oDetprop;
 	private DiffractionCrystalEnvironment diffenv;
+	private DiffractionCrystalEnvironment oDiffenv;
 	private boolean editable;
 	private HashSet<IDiffractionMetadataCompositeListener> diffMetaCompListeners; 
 
@@ -101,19 +103,19 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		beam = points;
 		xBeam.setDouble(beam[0] * detprop.getHPxSize());
 		yBeam.setDouble(beam[1] * detprop.getVPxSize());
-		detprop.setBeamLocation(beam);
+		detprop.setBeamCentreCoords(beam);
 	}
 	
 	void updateBeamX(double millimeter) {
 		// Calculate and set the new property value
 		beam[0] = millimeter / detprop.getHPxSize();
-		detprop.setBeamLocation(beam);
+		detprop.setBeamCentreCoords(beam);
 	}
 	
 	void updateBeamY(double millimeter) {
 		// Calculate and set the new property value
 		beam[1] = millimeter / detprop.getVPxSize();
-		detprop.setBeamLocation(beam);
+		detprop.setBeamCentreCoords(beam);
 	}
 	
 	void updateWavelength(double angstrom) {
@@ -126,12 +128,16 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		detprop.setOrigin(origin);
 	}
 	
+	@SuppressWarnings("unused")
 	void updateMaxPxVal(double value) {
 	}
+	@SuppressWarnings("unused")
 	void updateMinPxVal(double value) {
 	}
+	@SuppressWarnings("unused")
 	void updateMeanPxVal(double value) {
 	}
+	@SuppressWarnings("unused")
 	void updateOverload(double value) {
 	}
 	
@@ -155,32 +161,29 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 
 	
 	public double[] getBeamCentre() {
-		return detprop.getBeamLocation();
+		return detprop.getBeamCentreCoords();
 	}
 	
 	public void resetWavelengthToOriginal() {
-		DiffractionCrystalEnvironment diffenvO = diffenv.getOriginal();
-		if (diffenvO != null) {
-			double wavelengthOriginal = diffenvO.getWavelength();
+		if (oDiffenv != null) {
+			double wavelengthOriginal = oDiffenv.getWavelength();
 			updateWavelength(wavelengthOriginal);
 			wavelength.setDouble(wavelengthOriginal);
 		}
 	}
 
 	public void resetDistanceToDetectorToOriginal() {
-		DetectorProperties detpropO = detprop.getOriginal();
-		if (detpropO != null) {
-			double distanceToDetectorOriginal = detprop.getOriginal().getOrigin().z;
+		if (oDetprop != null) {
+			double distanceToDetectorOriginal = oDetprop.getOrigin().z;
 			updateDistanceToDetector(distanceToDetectorOriginal);
 			distanceToDetector.setDouble(distanceToDetectorOriginal);
 		}
 	}
 	
 	public void resetXBeamToOriginal() {
-		DetectorProperties detpropO = detprop.getOriginal();
-		if (detpropO != null) {
-			double [] beam = detpropO.getBeamLocation();
-			double hPxSize = detpropO.getHPxSize();
+		if (oDetprop != null) {
+			double [] beam = oDetprop.getBeamCentreCoords();
+			double hPxSize = oDetprop.getHPxSize();
 			double xBeamOriginal = beam[0] * hPxSize;
 			updateBeamX(xBeamOriginal);
 			xBeam.setDouble(xBeamOriginal);
@@ -188,10 +191,9 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 	}
 	
 	public void resetYBeamToOriginal() {
-		DetectorProperties detpropO = detprop.getOriginal();
-		if (detpropO != null) {
-			double [] beam = detpropO.getBeamLocation();
-			double vPxSize = detpropO.getVPxSize();
+		if (oDetprop != null) {
+			double [] beam = oDetprop.getBeamCentreCoords();
+			double vPxSize = oDetprop.getVPxSize();
 			double yBeamOriginal = beam[1] * vPxSize;
 			updateBeamY(yBeamOriginal);
 			yBeam.setDouble(yBeamOriginal);
@@ -199,19 +201,17 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 	}
 	
 	public void resetPixelSizeXToOriginal() {
-		DetectorProperties detpropO = detprop.getOriginal();
-		if (detpropO != null) {
-			pixelSizeX.setDouble(detpropO.getHPxSize());
+		if (oDetprop != null) {
+			pixelSizeX.setDouble(oDetprop.getHPxSize());
 		}
-		detprop.restoreHPxSize();
+		detprop.setHPxSize(oDetprop.getHPxSize());
 	}
 	
 	public void resetPixelSizeYToOriginal() {
-		DetectorProperties detpropO = detprop.getOriginal();
-		if (detpropO != null) {
-			pixelSizeY.setDouble(detpropO.getVPxSize());
+		if (oDetprop != null) {
+			pixelSizeY.setDouble(oDetprop.getVPxSize());
 		}
-		detprop.restoreVPxSize();
+		detprop.setVPxSize(oDetprop.getVPxSize());
 	}
 
 	public void resetAllToOriginal() {
@@ -655,7 +655,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 				
 				
 
-				beam = detprop.getBeamLocation();
+				beam = detprop.getBeamCentreCoords();
 				xBeam.setDouble(beam[0] * detprop.getHPxSize());
 				yBeam.setDouble(beam[1] * detprop.getVPxSize());
 
@@ -724,14 +724,12 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 	@Override
 	public void setMetaData(IMetaData metadata) {
 		this.metadata = metadata;
-		DetectorProperties detprop = null;
-		DiffractionCrystalEnvironment diffenv = null;
 
 		if (metadata instanceof IDiffractionMetadata) {
 			detprop = ((IDiffractionMetadata)metadata).getDetector2DProperties();
 			diffenv = ((IDiffractionMetadata)metadata).getDiffractionCrystalEnvironment();
-			this.detprop = detprop;  
-			this.diffenv = diffenv; 
+			oDetprop = detprop.clone();
+			oDiffenv = diffenv.clone();
 		}
 		
 		updateGUI();

@@ -620,7 +620,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 
 	private void updateMask(IImagePositionEvent event) {
 		int[] point = event.getImagePosition();
-		int[] beam = detConfig.pixelCoords(detConfig.getBeamPosition());
+		int[] beam = detConfig.pixelCoords(detConfig.getBeamCentrePosition());
 		int radius = (int) Math.sqrt(((point[0] - beam[0]) * (point[0] - beam[0]))
 				+ ((point[1] - beam[1]) * (point[1] - beam[1])));
 
@@ -724,7 +724,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 		oProvider.begin(OverlayType.VECTOR2D);
 		for (int i = 0; i < ringList.size(); i++) {
 			int tempID = oProvider.registerPrimitive(PrimitiveType.CIRCLE);
-			int[] beam = detConfig.pixelCoords(detConfig.getBeamPosition());
+			int[] beam = detConfig.pixelCoords(detConfig.getBeamCentrePosition());
 			int radius = (int) Resolution.circularResolutionRingRadius(detConfig, diffEnv, ringList.get(i).getResolution());
 			oProvider.setColour(tempID, ringList.get(i).getAWTColour());
 			oProvider.setStyle(tempID, VectorOverlayStyles.OUTLINE);
@@ -747,7 +747,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 				beamCentrePrimitive[0] = oProvider.registerPrimitive(PrimitiveType.CIRCLE);
 			if (beamCentrePrimitive[1] == -1)
 				beamCentrePrimitive[1] = oProvider.registerPrimitive(PrimitiveType.CIRCLE);
-			int[] beamCentre = detConfig.pixelCoords(detConfig.getBeamPosition());
+			int[] beamCentre = detConfig.pixelCoords(detConfig.getBeamCentrePosition());
 			int radius = (int) (1 + Math.sqrt(detConfig.getPx() * detConfig.getPx() + detConfig.getPy()
 					* detConfig.getPy()) * 0.01);
 			oProvider.setColour(beamCentrePrimitive[0], Color.RED);
@@ -827,7 +827,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 		if (detConfig == null)
 			return;
 
-		int[] beamCentre = detConfig.pixelCoords(detConfig.getBeamPosition());
+		int[] beamCentre = detConfig.pixelCoords(detConfig.getBeamCentrePosition());
 		oProvider.begin(OverlayType.VECTOR2D);
 		if (maskPrimID == -1) {
 			int radius = detConfig.distToClosestEdgeInPx();
