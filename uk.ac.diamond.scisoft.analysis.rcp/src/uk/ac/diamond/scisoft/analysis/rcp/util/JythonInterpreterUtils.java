@@ -35,6 +35,8 @@ start a separate debug/run process to start the script.
  */
 public class JythonInterpreterUtils {
 
+	private static final String SCISOFTPY = "uk.ac.diamond.scisoft.python";
+	private static final String JYTHON_BUNDLE = "uk.ac.diamond.jython";
 	private static Logger logger = LoggerFactory.getLogger(JythonInterpreterUtils.class);
 	
 	static {
@@ -59,18 +61,19 @@ public class JythonInterpreterUtils {
 		final ClassLoader classLoader = uk.ac.diamond.scisoft.analysis.PlotServer.class.getClassLoader();
 		state.setClassLoader(classLoader);
 		
-		File libsLocation;
+		File jyBundleLoc;
 		try {
-			libsLocation = BundleUtils.getBundleLocation("uk.ac.diamond.jython");
+			jyBundleLoc = BundleUtils.getBundleLocation(JYTHON_BUNDLE);
+			logger.debug("Jython bundle found: {}", jyBundleLoc.getAbsolutePath());
 		} catch (Exception ignored) {
-			libsLocation = null;
+			jyBundleLoc = null;
 		}
-		if (libsLocation == null) {
+		if (jyBundleLoc == null) {
 			if (System.getProperty("test.libs.location")==null) throw new Exception("Please set the property 'test.libs.location' for this test to work!");
-			libsLocation = new File(System.getProperty("test.libs.location"));
+			jyBundleLoc = new File(System.getProperty("test.libs.location"));
 		}
 
-		File jyLib = new File(new File(libsLocation, "jython2.5"), "Lib");
+		File jyLib = new File(new File(jyBundleLoc, "jython2.5"), "Lib");
 		PyList path = state.path;
 //		path.clear();
 		path.append(new PyString(jyLib.getAbsolutePath()));
@@ -78,7 +81,16 @@ public class JythonInterpreterUtils {
 		path.append(new PyString(new File(jyLib, "site-packages").getAbsolutePath()));
 
 		try {
-			File pythonPlugin = BundleUtils.getBundleLocation("uk.ac.diamond.scisoft.python");
+			File pythonPlugin = new File(jyBundleLoc.getParentFile(), SCISOFTPY);
+			if (!pythonPlugin.exists()) {
+				logger.debug("No scisoftpy found - now trying to find git workspace");
+				File gitws = jyBundleLoc.getParentFile().getParentFile();
+				logger.debug("Git workspace found: {}", gitws.getAbsolutePath());
+				pythonPlugin = new File(new File(gitws, "scisoft-core.git"), SCISOFTPY);
+				if (!pythonPlugin.exists()) {
+					throw new IllegalStateException("Can't find scisoftpy!");
+				}
+			}
 			path.append(new PyString(new File(pythonPlugin, "bin").getAbsolutePath()));
 		} catch (Exception e) {
 			logger.error("Could not find Scisoft Python plugin", e);
