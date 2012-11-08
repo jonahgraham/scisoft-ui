@@ -38,6 +38,7 @@ import org.dawb.common.ui.plot.region.IRegion;
 import org.dawb.common.ui.plot.region.IRegionListener;
 import org.dawb.common.ui.plot.region.ROIEvent;
 import org.dawb.common.ui.plot.region.RegionEvent;
+import org.dawb.common.ui.plot.roi.ROIMetadataComposite;
 import org.dawb.common.ui.plot.tool.IProfileToolPage;
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
 import org.dawb.common.ui.plot.tool.ToolPageFactory;
@@ -58,7 +59,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -87,6 +87,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.ROIPair;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile.BoxLineType;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
@@ -103,21 +104,22 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	static private Logger logger = LoggerFactory.getLogger(PlotWindow.class);
 
 	private DataSetPlotter mainPlotter;
-	private IPlotUI plotUI = null;
-	private boolean isUpdatePlot = false;
+	protected IPlotUI plotUI = null;
+	protected boolean isUpdatePlot = false;
 	private Composite parentComp;
-	private IWorkbenchPage page = null;
-	private IActionBars bars;
-	private String name;
+	protected IWorkbenchPage page = null;
+	protected IActionBars bars;
+	protected String name;
 
 	private AbstractPlottingSystem plottingSystem;
 	private IProfileToolPage sideProfile1;
 	private IProfileToolPage sideProfile2;
+	private ROIMetadataComposite metaDataComp;
 
-	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
-	private IGuiInfoManager manager = null;
-	private IUpdateNotificationListener notifyListener = null;
-	private DataBean myBeanMemory;
+	protected List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
+	protected IGuiInfoManager manager = null;
+	protected IUpdateNotificationListener notifyListener = null;
+	protected DataBean myBeanMemory;
 
 	protected Action saveGraphAction;
 	protected Action copyGraphAction;
@@ -150,6 +152,10 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	private Composite mainPlotterComposite;
 
 	private GuiPlotMode previousPlotMode;
+
+	protected List<ROIPair<String, ROIBase>> roiPairList = new ArrayList<ROIPair<String, ROIBase>>();
+	protected ROIPair<String, ROIBase> currentRoiPair;
+	protected ROIPair<String, ROIBase> previousRoiPair;
 	
 	/**
 	 * Obtain the IPlotWindowManager for the running Eclipse.
@@ -160,6 +166,31 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		// get the private manager for use only within the framework and
 		// "upcast" it to IPlotWindowManager
 		return PlotWindowManager.getPrivateManager();
+	}
+
+	/**
+	 * default constructor
+	 */
+	public PlotWindow(){
+		
+	}
+
+	/**
+	 * Constructor used in children class ROIProfilePlotWindow
+	 * @param manager
+	 * @param notifyListener
+	 * @param bars
+	 * @param page
+	 * @param name
+	 */
+	public PlotWindow(IGuiInfoManager manager, IUpdateNotificationListener notifyListener, IActionBars bars,
+			IWorkbenchPage page, String name) {
+		this.manager = manager;
+		this.notifyListener = notifyListener;
+		this.page = page;
+		this.bars = bars;
+		this.name = name;
+		this.registeredTraces = new HashMap<String,Collection<ITrace>>(7);
 	}
 
 	public PlotWindow(Composite parent, GuiPlotMode plotMode, IActionBars bars, IWorkbenchPage page, String name) {
@@ -331,8 +362,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			sideProfile2.createControl(sashForm3);
 			sideProfile2.activate();
 			
-			Label metaDataLabel = new Label(sashForm3, SWT.BORDER | SWT.CENTER);
-			metaDataLabel.setText("Metadata");
+			//metadata
+			metaDataComp = new ROIMetadataComposite(sashForm3);
+			
 			sashForm.setWeights(new int[]{1, 1});
 			this.regionListener = getRegionListener();
 			this.plottingSystem.addRegionListener(this.regionListener);
@@ -609,7 +641,10 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		
 	}
 
-	private void addDuplicateAction(){
+	/**
+	 * Create the PlotView duplicating actions
+	 */
+	protected void addDuplicateAction(){
 		if (duplicateWindowCCI == null) {
 			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
 					.getActiveWorkbenchWindow(), null, DuplicatePlotAction.COMMAND_ID,
@@ -621,7 +656,10 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		bars.getMenuManager().add(duplicateWindowCCI);
 	}
 
-	private void addScriptingAction(){
+	/**
+	 * create the scripting actions
+	 */
+	protected void addScriptingAction(){
 		
 		if (openPyDevConsoleCCI == null) {
 			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
@@ -716,7 +754,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 				axes2.add(1, xAxisValues);
 			}
 			sideProfile1.setAxes(axes1);
-			sideProfile2.setAxes(axes2);
+			sideProfile2.setAxes(axes1);
 		}
 		previousPlotMode = GuiPlotMode.TWOD_ROIPROFILES;
 	}
@@ -1276,10 +1314,10 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	}
 
 	// Make the PlotWindow a RegionListener (new plotting)
-	private IRegionListener regionListener;
-	private Map<String,Collection<ITrace>> registeredTraces;
+	protected IRegionListener regionListener;
+	protected Map<String,Collection<ITrace>> registeredTraces;
 
-	private IRegionListener getRegionListener(){
+	protected IRegionListener getRegionListener(){
 		return new IRegionListener.Stub() {
 			@Override
 			public void regionRemoved(RegionEvent evt) {
@@ -1382,8 +1420,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	public void roiDragged(ROIEvent evt) {
 		ROIBase roi = evt.getROI();
 		if(roi!=null){
-			// TODO with a timer
-			//updateGuiBean(roi);
+			if(metaDataComp != null && !metaDataComp.isDisposed())
+				metaDataComp.setEditingRegion(roi);
 		}
 	}
 
@@ -1411,14 +1449,12 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 					}
 				}
 				updateGuiBean(roi);
+				if(metaDataComp != null && !metaDataComp.isDisposed())
+					metaDataComp.setEditingRegion(roi);
 			}
 		}
 	}
 
-	protected List<ROIPair<String, ROIBase>> roiPairList = new ArrayList<ROIPair<String, ROIBase>>();
-	protected ROIPair<String, ROIBase> currentRoiPair;
-	protected ROIPair<String, ROIBase> previousRoiPair;
-	
 	protected void updateGuiBean(ROIBase roib){
 		manager.removeGUIInfo(GuiParameters.ROIDATA);
 		manager.putGUIInfo(GuiParameters.ROIDATA, roib);
@@ -1494,54 +1530,5 @@ class SimpleLock {
 
 	void unlock() {
 		state = false;
-	}
-}
-
-/**
- * Class to store key-value (name-RoiBase) pairs for handling ROIs
- */
-class ROIPair<A, B> {
-	private final A name;
-	private final B roi;
-
-	public ROIPair(A name, B roi) {
-		super();
-		this.name = name;
-		this.roi = roi;
-	}
-
-	@Override
-	public int hashCode() {
-		int hashFirst = name != null ? name.hashCode() : 0;
-		int hashSecond = roi != null ? roi.hashCode() : 0;
-		return (hashFirst + hashSecond) * hashSecond + hashFirst;
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		if (other instanceof ROIPair) {
-			ROIPair<?, ?> otherPair = (ROIPair<?, ?>) other;
-			return 
-					((this.name == otherPair.name ||
-					(this.name != null && otherPair.name != null &&
-					this.name.equals(otherPair.name))) &&
-					(this.roi == otherPair.roi ||
-					(this.roi != null && otherPair.roi != null &&
-					this.roi.equals(otherPair.roi))) );
-		}
-		return false;
-	}
-
-	@Override
-	public String toString(){ 
-		return "(" + name + ", " + roi + ")"; 
-	}
-
-	public A getName() {
-		return name;
-	}
-
-	public B getRoi() {
-		return roi;
 	}
 }
