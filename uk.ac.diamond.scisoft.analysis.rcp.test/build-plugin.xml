@@ -17,7 +17,7 @@
          ==================================================================== -->
 
     <target name="junit-tests" depends="toolCheck, set-ncsa-hdf-context-SDA-else-GDA, set-test-base">
-        <property name="test.libs.location" value="${plugins.dir}/uk.ac.gda.libs" />  <!-- required by JythonInterpreterUtils in uk.ac.diamond.scisoft.analysis.rcp -->
+        <property name="test.libs.location" value="${workspace.git.loc}/diamond-jython.git/uk.ac.diamond.jython" />  <!-- required by JythonInterpreterUtils in uk.ac.diamond.scisoft.analysis.rcp -->
         <junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1024m">
             <formatter type="xml" />
             <classpath>
