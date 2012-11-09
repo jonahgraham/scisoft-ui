@@ -726,10 +726,11 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		this.metadata = metadata;
 
 		if (metadata instanceof IDiffractionMetadata) {
-			detprop = ((IDiffractionMetadata)metadata).getDetector2DProperties();
-			diffenv = ((IDiffractionMetadata)metadata).getDiffractionCrystalEnvironment();
-			oDetprop = detprop.clone();
-			oDiffenv = diffenv.clone();
+			IDiffractionMetadata diffmeta = (IDiffractionMetadata) metadata;
+			detprop = diffmeta.getDetector2DProperties();
+			diffenv = diffmeta.getDiffractionCrystalEnvironment();
+			oDetprop = diffmeta.getOriginalDetector2DProperties();
+			oDiffenv = diffmeta.getOriginalDiffractionCrystalEnvironment();
 		}
 		
 		updateGUI();
