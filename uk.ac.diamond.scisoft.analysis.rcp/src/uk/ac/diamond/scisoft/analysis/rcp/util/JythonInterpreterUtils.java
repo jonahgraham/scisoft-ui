@@ -83,13 +83,14 @@ public class JythonInterpreterUtils {
 		try {
 			File pythonPlugin = new File(jyBundleLoc.getParentFile(), SCISOFTPY);
 			if (!pythonPlugin.exists()) {
-				logger.debug("No scisoftpy found - now trying to find git workspace");
+				logger.debug("No scisoftpy found at {} - now trying to find git workspace", pythonPlugin);
 				File gitws = jyBundleLoc.getParentFile().getParentFile();
 				logger.debug("Git workspace found: {}", gitws.getAbsolutePath());
 				pythonPlugin = new File(new File(gitws, "scisoft-core.git"), SCISOFTPY);
 				if (!pythonPlugin.exists()) {
-					throw new IllegalStateException("Can't find scisoftpy!");
+					throw new IllegalStateException("Can't find scisoftpy at " + pythonPlugin);
 				}
+				logger.debug("Found Scisoft Python plugin at {}", pythonPlugin);
 			}
 			path.append(new PyString(new File(pythonPlugin, "bin").getAbsolutePath()));
 		} catch (Exception e) {
