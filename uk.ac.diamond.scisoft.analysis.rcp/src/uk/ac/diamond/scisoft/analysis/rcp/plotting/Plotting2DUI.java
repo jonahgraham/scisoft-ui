@@ -112,9 +112,9 @@ public class Plotting2DUI extends AbstractPlotUI {
 							
 							List<AbstractDataset> currentAxes = image.getAxes(); 
 							String lastXAxisName = "", lastYAxisName = "";
-							if(currentAxes!=null)
+							if(currentAxes!=null && currentAxes.size()> 0)
 								lastXAxisName = currentAxes.get(0).getName();
-							if(currentAxes!=null)
+							if(currentAxes!=null && currentAxes.size()> 1)
 								lastYAxisName = currentAxes.get(1).getName();
 							
 							if (shape != null && Arrays.equals(shape, data.getShape())
