@@ -69,8 +69,8 @@ public class JythonInterpreterUtils {
 			jyBundleLoc = null;
 		}
 		if (jyBundleLoc == null) {
-			if (System.getProperty("test.libs.location")==null) throw new Exception("Please set the property 'test.libs.location' for this test to work!");
-			jyBundleLoc = new File(System.getProperty("test.libs.location"));
+			if (System.getProperty("uk.ac.diamond.jython.location")==null) throw new Exception("Please set the property 'uk.ac.diamond.jython.location' for this test to work!");
+			jyBundleLoc = new File(System.getProperty("uk.ac.diamond.jython.location"));
 		}
 
 		File jyLib = new File(new File(jyBundleLoc, "jython2.5"), "Lib");
