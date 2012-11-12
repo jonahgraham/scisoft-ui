@@ -50,9 +50,7 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 	private Spinner maxNumPeaks;
 	private Spinner spnPixeloverloadThreshold;
 	private List standardType;
-	private Button add;
 	private StringFieldEditor sfeNewCal, sfeNewCalDSpacing;
-	private Button remove;
 	private ArrayList<String> standardNames;
 	private ArrayList<String> standardDistances;
 	private Button autoStopping;
@@ -143,65 +141,65 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 
 		peakTab.setControl(comp);
 
-		TabItem cal = new TabItem(tabfolder, SWT.NONE);
-		cal.setText("Calibration");
-
-		Composite calComp = new Composite(tabfolder, SWT.NONE);
-		calComp.setLayout(new GridLayout(1, false));
-		GridData calgd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		calComp.setLayoutData(calgd);
-
-		Group calibrationStandard = new Group(calComp, SWT.NONE);
-		calibrationStandard.setText("Detector Calibration Samples:");
-		GridData csgd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		calibrationStandard.setLayoutData(csgd);
-
-		GridData data = new GridData(GridData.FILL_BOTH);
-		standardType = new List(calibrationStandard, SWT.BORDER);
-		standardType.setLayoutData(data);
-		standardType.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				sfeNewCal.setStringValue(standardNames.get(standardType.getSelectionIndex()));
-				sfeNewCalDSpacing.setStringValue(standardDistances.get(standardType.getSelectionIndex()));
-
-			}
-		});
-
-		Group addNewCalibrant = new Group(calComp, SWT.NONE);
-		addNewCalibrant.setText("Add New Calibrant");
-
-		calibrationStandard.setLayout(new GridLayout(2, false));
-		GridData ncsgd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		addNewCalibrant.setLayoutData(ncsgd);
-
-		sfeNewCal = new StringFieldEditor(PreferenceConstants.DIFFRACTION_VIEWER_STANDARD_NAME, "Calibrant Name: ",
-				addNewCalibrant);
-		sfeNewCalDSpacing = new StringFieldEditor(PreferenceConstants.DIFFRACTION_VIEWER_STANDARD_DISTANCES,
-				"Calibrant d spacing", addNewCalibrant);
-		sfeNewCalDSpacing.setStringValue("Separated by commas");
-
-		add = new Button(addNewCalibrant, SWT.NONE);
-		add.setText("Add");
-		add.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				validateStandard();
-			}
-		});
-
-		remove = new Button(addNewCalibrant, SWT.NONE);
-		remove.setText("Remove");
-		remove.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				standardDistances.remove(standardType.getSelectionIndex());
-				standardNames.remove(standardType.getSelectionIndex());
-				updateGUIList();
-			}
-		});
-
-		cal.setControl(calComp);
+//		TabItem cal = new TabItem(tabfolder, SWT.NONE);
+//		cal.setText("Calibration");
+//
+//		Composite calComp = new Composite(tabfolder, SWT.NONE);
+//		calComp.setLayout(new GridLayout(1, false));
+//		GridData calgd = new GridData(SWT.FILL, SWT.FILL, true, true);
+//		calComp.setLayoutData(calgd);
+//
+//		Group calibrationStandard = new Group(calComp, SWT.NONE);
+//		calibrationStandard.setText("Detector Calibration Samples:");
+//		GridData csgd = new GridData(SWT.FILL, SWT.FILL, true, true);
+//		calibrationStandard.setLayoutData(csgd);
+//
+//		GridData data = new GridData(GridData.FILL_BOTH);
+//		standardType = new List(calibrationStandard, SWT.BORDER);
+//		standardType.setLayoutData(data);
+//		standardType.addSelectionListener(new SelectionAdapter() {
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				sfeNewCal.setStringValue(standardNames.get(standardType.getSelectionIndex()));
+//				sfeNewCalDSpacing.setStringValue(standardDistances.get(standardType.getSelectionIndex()));
+//
+//			}
+//		});
+//
+//		Group addNewCalibrant = new Group(calComp, SWT.NONE);
+//		addNewCalibrant.setText("Add New Calibrant");
+//
+//		calibrationStandard.setLayout(new GridLayout(2, false));
+//		GridData ncsgd = new GridData(SWT.FILL, SWT.FILL, true, false);
+//		addNewCalibrant.setLayoutData(ncsgd);
+//
+//		sfeNewCal = new StringFieldEditor(PreferenceConstants.DIFFRACTION_VIEWER_STANDARD_NAME, "Calibrant Name: ",
+//				addNewCalibrant);
+//		sfeNewCalDSpacing = new StringFieldEditor(PreferenceConstants.DIFFRACTION_VIEWER_STANDARD_DISTANCES,
+//				"Calibrant d spacing", addNewCalibrant);
+//		sfeNewCalDSpacing.setStringValue("Separated by commas");
+//
+//		add = new Button(addNewCalibrant, SWT.NONE);
+//		add.setText("Add");
+//		add.addSelectionListener(new SelectionAdapter() {
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				validateStandard();
+//			}
+//		});
+//
+//		remove = new Button(addNewCalibrant, SWT.NONE);
+//		remove.setText("Remove");
+//		remove.addSelectionListener(new SelectionAdapter() {
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				standardDistances.remove(standardType.getSelectionIndex());
+//				standardNames.remove(standardType.getSelectionIndex());
+//				updateGUIList();
+//			}
+//		});
+//
+//		cal.setControl(calComp);
 
 		TabItem other = new TabItem(tabfolder, SWT.NONE);
 		other.setText("Other");
@@ -282,23 +280,23 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 
 	}
 
-	private void validateStandard() {
-		boolean valid = false;
-		if (sfeNewCal.getStringValue().isEmpty())
-			sfeNewCal.setStringValue("Enter Standard Name");
-		if (sfeNewCalDSpacing.getStringValue().equalsIgnoreCase("Separated my comas"))
-			sfeNewCalDSpacing.setStringValue("Enter d values");
-		if (Pattern.matches("([\\d]*\\.?[\\d]+)(\\s*\\,\\s*[\\d]*\\.?[\\d]+)*", sfeNewCalDSpacing.getStringValue())
-				&& checkUnique())
-			valid = true;
-		if (!valid)
-			sfeNewCalDSpacing.setStringValue("Duplicate or incorrect entery");
-		if (valid && !sfeNewCal.getStringValue().isEmpty()) {
-			standardNames.add(sfeNewCal.getStringValue());
-			standardDistances.add(sfeNewCalDSpacing.getStringValue());
-			updateGUIList();
-		}
-	}
+//	private void validateStandard() {
+//		boolean valid = false;
+//		if (sfeNewCal.getStringValue().isEmpty())
+//			sfeNewCal.setStringValue("Enter Standard Name");
+//		if (sfeNewCalDSpacing.getStringValue().equalsIgnoreCase("Separated my comas"))
+//			sfeNewCalDSpacing.setStringValue("Enter d values");
+//		if (Pattern.matches("([\\d]*\\.?[\\d]+)(\\s*\\,\\s*[\\d]*\\.?[\\d]+)*", sfeNewCalDSpacing.getStringValue())
+//				&& checkUnique())
+//			valid = true;
+//		if (!valid)
+//			sfeNewCalDSpacing.setStringValue("Duplicate or incorrect entery");
+//		if (valid && !sfeNewCal.getStringValue().isEmpty()) {
+//			standardNames.add(sfeNewCal.getStringValue());
+//			standardDistances.add(sfeNewCalDSpacing.getStringValue());
+//			updateGUIList();
+//		}
+//	}
 
 	private boolean checkUnique() {
 		for (String s : standardNames) {
