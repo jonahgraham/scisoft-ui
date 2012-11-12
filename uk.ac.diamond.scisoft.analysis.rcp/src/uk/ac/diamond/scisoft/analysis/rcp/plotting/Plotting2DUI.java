@@ -58,13 +58,28 @@ public class Plotting2DUI extends AbstractPlotUI {
 	private AbstractPlottingSystem plottingSystem;
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
 	private PlotWindow plotWindow;
+
+	private ROIProfilePlotWindow roiProfilePlotWindow;
+
 	private static final Logger logger = LoggerFactory.getLogger(Plotting2DUI.class);
 
 	/**
+	 * Constructor for the plotwindow
+	 * @param window
 	 * @param plotter
 	 */
 	public Plotting2DUI(PlotWindow window, final AbstractPlottingSystem plotter) {
 		this.plotWindow = window;
+		this.plottingSystem = plotter;
+	}
+
+	/**
+	 * Constructor for the roiprofileplotwindow
+	 * @param window
+	 * @param plotter
+	 */
+	public Plotting2DUI(ROIProfilePlotWindow window, final AbstractPlottingSystem plotter) {
+		this.roiProfilePlotWindow = window;
 		this.plottingSystem = plotter;
 	}
 
@@ -178,7 +193,8 @@ public class Plotting2DUI extends AbstractPlotUI {
 					for (final IRegion iRegion : regions) {
 				
 						// current region
-						if(plotWindow.currentRoiPair.getName().equals(iRegion.getName())){
+						if((plotWindow != null && plotWindow.currentRoiPair.getName().equals(iRegion.getName()))
+								|| (roiProfilePlotWindow != null && roiProfilePlotWindow.currentRoiPair.getName().equals(iRegion.getName()))){
 							iRegion.setROI(currentRoi);
 						}
 						//roidatalist regions
@@ -199,7 +215,8 @@ public class Plotting2DUI extends AbstractPlotUI {
 					for (final IRegion iRegion : regions) {
 				
 						// current region
-						if(plotWindow.currentRoiPair.getName().equals(iRegion.getName())){
+						if((plotWindow != null && plotWindow.currentRoiPair.getName().equals(iRegion.getName()))
+								|| (roiProfilePlotWindow != null && roiProfilePlotWindow.currentRoiPair.getName().equals(iRegion.getName()))){
 							iRegion.setROI(currentRoi);
 						}
 						//roidatalist regions
