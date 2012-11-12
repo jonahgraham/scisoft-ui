@@ -16,12 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-import java.util.regex.Pattern;
-
 import org.eclipse.jface.preference.PreferencePage;
-import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -34,7 +29,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -49,10 +43,6 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 	private Combo pullDownPeaks;
 	private Spinner maxNumPeaks;
 	private Spinner spnPixeloverloadThreshold;
-	private List standardType;
-	private StringFieldEditor sfeNewCal, sfeNewCalDSpacing;
-	private ArrayList<String> standardNames;
-	private ArrayList<String> standardDistances;
 	private Button autoStopping;
 	private Spinner stoppingThreshold;
 	private Button mxImageGlobal;
@@ -238,80 +228,6 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 		return tabfolder;
 	}
 
-	private void populateLists(boolean defaultValues) {
-		StringTokenizer stdNames;
-		StringTokenizer stdDistances;
-		if (defaultValues) {
-			stdNames = new StringTokenizer(getDefaultStandardList(), STRING_DELIMITER);
-			stdDistances = new StringTokenizer(getDefaultStandardDistanceList(), STRING_DELIMITER);
-		} else {
-			stdNames = new StringTokenizer(getStandardList(), STRING_DELIMITER);
-			stdDistances = new StringTokenizer(getStandardDistanceList(), STRING_DELIMITER);
-		}
-		standardNames = new ArrayList<String>();
-		standardDistances = new ArrayList<String>();
-
-		int names = 0, dist = 0;
-		while (stdNames.hasMoreTokens()) {
-			String tempname = stdNames.nextToken();
-			standardNames.add(tempname);
-			names++;
-		}
-		while (stdDistances.hasMoreTokens()) {
-			standardDistances.add(stdDistances.nextToken());
-			dist++;
-		}
-		if (dist != names) {
-			System.err.println("There was a difference beteween the number od samples and the cooresponding distances");
-		}
-		updateGUIList();
-	}
-
-	private void updateGUIList() {
-		standardType.removeAll();
-		String defaultName = getDefaultStandardName();
-		int i = 0;
-		for (String s : standardNames) {
-			standardType.add(s);
-			if (defaultName.compareToIgnoreCase(s) == 0)
-				standardType.select(i);
-			i++;
-		}
-
-	}
-
-//	private void validateStandard() {
-//		boolean valid = false;
-//		if (sfeNewCal.getStringValue().isEmpty())
-//			sfeNewCal.setStringValue("Enter Standard Name");
-//		if (sfeNewCalDSpacing.getStringValue().equalsIgnoreCase("Separated my comas"))
-//			sfeNewCalDSpacing.setStringValue("Enter d values");
-//		if (Pattern.matches("([\\d]*\\.?[\\d]+)(\\s*\\,\\s*[\\d]*\\.?[\\d]+)*", sfeNewCalDSpacing.getStringValue())
-//				&& checkUnique())
-//			valid = true;
-//		if (!valid)
-//			sfeNewCalDSpacing.setStringValue("Duplicate or incorrect entery");
-//		if (valid && !sfeNewCal.getStringValue().isEmpty()) {
-//			standardNames.add(sfeNewCal.getStringValue());
-//			standardDistances.add(sfeNewCalDSpacing.getStringValue());
-//			updateGUIList();
-//		}
-//	}
-
-	private boolean checkUnique() {
-		for (String s : standardNames) {
-			if (s.equalsIgnoreCase(sfeNewCal.getStringValue())) {
-				return false;
-			}
-		}
-		for (String s : standardDistances) {
-			if (s.equalsIgnoreCase(sfeNewCalDSpacing.getStringValue())) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	private void initializePage() {
 		maxNumPeaks.setSelection(getMaxNumPeaks());
 		pullDownPeaks.select(getPeakNumber(getPeakType()));
@@ -320,7 +236,6 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 		stoppingThreshold.setSelection(getStoppingThreshold());
 		autoStopping.setSelection(getAutoStopping());
 		controlAutoStoppingGUI();
-		populateLists(false);
 	}
 
 	protected void controlAutoStoppingGUI() {
@@ -351,7 +266,6 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 		pullDownPeaks.select(getPeakNumber(getDefaultPeakType()));
 		maxNumPeaks.setSelection(getDefaultMaxNumPeaks());
 		stoppingThreshold.setSelection(getDefaultStoppingThreshold());
-		populateLists(true);
 	}
 
 	// Standard Name
@@ -529,26 +443,7 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 		setMXImageGlobal(mxImageGlobal.getSelection());
 		setAutoStopping(autoStopping.getSelection());
 		setStoppingThreshold(stoppingThreshold.getSelection());
-		storeLists();
-		storeSelectedStandard();
 	}
 
-	private void storeSelectedStandard() {
-		setStandardName(standardNames.get(standardType.getSelectionIndex()));
-		setStandardDistance(standardDistances.get(standardType.getSelectionIndex()));
-	}
-
-	private void storeLists() {
-		String currentStandardNameList = "";
-		String currentStandardDistancesList = "";
-		for (String s : standardNames) {
-			currentStandardNameList += s + STRING_DELIMITER;
-		}
-		for (String s : standardDistances) {
-			currentStandardDistancesList += s + STRING_DELIMITER;
-		}
-		setStandardList(currentStandardNameList);
-		setStandardDistanceList(currentStandardDistancesList);
-	}
 
 }
