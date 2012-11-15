@@ -44,28 +44,25 @@ import uk.ac.diamond.scisoft.analysis.optimize.GeneticAlg;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
 
+/**
+ * Class for optimising sector region position to increase base on 1D radial profile
+ */
 public class BeamCenterRefinement implements MultivariateFunction {
-	
+
 	private IProgressMonitor monitor;
 	private ArrayList<IPeak> initPeaks;
 	private ArrayList<IPeak> peaks;
-	
+
 	private AbstractDataset dataset, mask;
 	private SectorROI sroi;
-	
-	int cmaesLambda = 5;
-	double[] cmaesInputSigma = new double[] { 3.0, 3.0 };
-	int cmaesMaxIterations = 1000;
-	int cmaesCheckFeasableCount = 10;
-	ConvergenceChecker<PointValuePair> cmaesChecker = new SimplePointChecker<PointValuePair>(1e-4, 1e-2);
-	
+
+	private int cmaesLambda = 5;
+	private double[] cmaesInputSigma = new double[] { 3.0, 3.0 };
+	private int cmaesMaxIterations = 1000;
+	private int cmaesCheckFeasableCount = 10;
+	private ConvergenceChecker<PointValuePair> cmaesChecker = new SimplePointChecker<PointValuePair>(1e-4, 1e-2);
+
 	private static final Logger logger = LoggerFactory.getLogger(BeamCenterRefinement.class);
-	
-	public void setInitPeaks(List<IPeak> initPeaks) {
-		this.initPeaks = new ArrayList<IPeak>(initPeaks.size());
-		this.peaks = new ArrayList<IPeak>(initPeaks.size());
-		Collections.copy(this.initPeaks, initPeaks);
-	}
 
 	public BeamCenterRefinement(AbstractDataset dataset, AbstractDataset mask, SectorROI sroi) {
 		super();
@@ -74,7 +71,25 @@ public class BeamCenterRefinement implements MultivariateFunction {
 		this.sroi = sroi;
 	}
 
-	public void configureOptimizer(Integer cmaesLambda, double[] cmaesInputSigma, Integer cmaesMaxIterations, Integer cmaesCheckFeasableCount, ConvergenceChecker<PointValuePair> cmaesChecker) {
+	/**
+	 * Method for setting CMA-ES optimiser parameters.
+	 * 
+	 * @see <a
+	 *      href="http://commons.apache.org/math/apidocs/org/apache/commons/math3/optimization/direct/CMAESOptimizer.html">Apache
+	 *      Commons Math CMAESOptimiser class</a>
+	 * @param cmaesLambda
+	 *            Population size
+	 * @param cmaesInputSigma
+	 *            Initial search volume
+	 * @param cmaesMaxIterations
+	 *            Maximal number of iterations
+	 * @param cmaesCheckFeasableCount
+	 *            Number of times new random objective variables are generated when they are out of bounds
+	 * @param cmaesChecker
+	 *            Convergence checker
+	 */
+	public void configureOptimizer(Integer cmaesLambda, double[] cmaesInputSigma, Integer cmaesMaxIterations,
+			Integer cmaesCheckFeasableCount, ConvergenceChecker<PointValuePair> cmaesChecker) {
 		if (cmaesLambda != null)
 			this.cmaesLambda = cmaesLambda;
 		if (cmaesInputSigma != null)
@@ -86,42 +101,60 @@ public class BeamCenterRefinement implements MultivariateFunction {
 		if (cmaesChecker != null)
 			this.cmaesChecker = cmaesChecker;
 	}
-	
+
+	/**
+	 * Method for setting initial positions of peaks on radial profiles that will be used in optimisation process.
+	 * 
+	 * @param initPeaks
+	 *            List of peaks on radial profile
+	 */
+	public void setInitPeaks(List<IPeak> initPeaks) {
+		this.initPeaks = new ArrayList<IPeak>(initPeaks.size());
+		this.peaks = new ArrayList<IPeak>(initPeaks.size());
+		Collections.copy(this.initPeaks, initPeaks);
+	}
+
 	private void setMonitor(IProgressMonitor monitor) {
 		this.monitor = monitor;
 	}
-	
+
+	/**
+	 * Method that calculates penalty function for a given sector region position. This function makes Gaussian profile
+	 * fit to every peak included in optimisation process and calculates penalty function based on I/sigma values of the
+	 * fitted peaks.
+	 * 
+	 * @param beamxy
+	 *            Position of sector region origin
+	 * @return Sum of log(1 + I/sigma) values for all selected peaks
+	 */
 	@Override
 	public double value(double[] beamxy) {
-		
+
 		if (monitor.isCanceled())
 			return Double.NaN;
-		
-		SectorROI tmpRoi = new SectorROI(beamxy[0], beamxy[1], sroi.getRadius(0), sroi.getRadius(1), sroi.getAngle(0), sroi.getAngle(1), 1.0, true, sroi.getSymmetry());
+
+		SectorROI tmpRoi = new SectorROI(beamxy[0], beamxy[1], sroi.getRadius(0), sroi.getRadius(1), sroi.getAngle(0),
+				sroi.getAngle(1), 1.0, true, sroi.getSymmetry());
 		AbstractDataset[] intresult = ROIProfile.sector(dataset, mask, tmpRoi, true, false, true);
-		AbstractDataset axis = DatasetUtils.linSpace(tmpRoi.getRadius(0), tmpRoi.getRadius(1),
-				intresult[0].getSize(), AbstractDataset.INT32);
+		AbstractDataset axis = DatasetUtils.linSpace(tmpRoi.getRadius(0), tmpRoi.getRadius(1), intresult[0].getSize(),
+				AbstractDataset.INT32);
 		double error = 0.0;
 		peaks.clear();
 		for (int idx = 0; idx < initPeaks.size(); idx++) {
 			IPeak refPeak = initPeaks.get(idx);
-			// logger.info("idx {} peak start position {}", idx, peak.getParameterValues());
 			double pos = refPeak.getPosition();
 			double fwhm = refPeak.getFWHM() / 2.0;
 			int startIdx = DatasetUtils.findIndexGreaterThanorEqualTo(axis, pos - fwhm);
 			int stopIdx = DatasetUtils.findIndexGreaterThanorEqualTo(axis, pos + fwhm) + 1;
 
 			AbstractDataset axisSlice = axis.getSlice(new int[] { startIdx }, new int[] { stopIdx }, null);
-			AbstractDataset peakSlice = intresult[0].getSlice(new int[] { startIdx }, new int[] { stopIdx },
-					null);
+			AbstractDataset peakSlice = intresult[0].getSlice(new int[] { startIdx }, new int[] { stopIdx }, null);
 			try {
-				CompositeFunction peakFit = Fitter.fit(axisSlice, peakSlice, new GeneticAlg(0.0001),
-						new Gaussian(refPeak.getParameters()));
-				IPeak fitPeak = new Gaussian(peakFit.getParameters()); 
-				//logger.info("idx {} peak fitting result {}", idx, peakFit.getParameterValues());
+				CompositeFunction peakFit = Fitter.fit(axisSlice, peakSlice, new GeneticAlg(0.0001), new Gaussian(
+						refPeak.getParameters()));
+				IPeak fitPeak = new Gaussian(peakFit.getParameters());
 				peaks.set(idx, fitPeak);
 				error += Math.log(1.0 + fitPeak.getHeight() / fitPeak.getFWHM());
-				//error += (Double) peakSlice.max();// peak.getHeight();// / peak.getFWHM();
 			} catch (Exception e) {
 				logger.error("Peak fitting failed", e);
 				return Double.NaN;
@@ -130,11 +163,11 @@ public class BeamCenterRefinement implements MultivariateFunction {
 		}
 		if (checkPeakOverlap(peaks))
 			return Double.NaN;
-		
+
 		logger.info("Error value for beam postion ({}, {}) is {}", new Object[] { beamxy[0], beamxy[1], error });
 		return error;
 	}
-	
+
 	private boolean checkPeakOverlap(ArrayList<IPeak> peaks) {
 		if (peaks.size() < 2)
 			return false;
@@ -151,7 +184,12 @@ public class BeamCenterRefinement implements MultivariateFunction {
 		}
 		return false;
 	}
-	
+
+	/**
+	 * Run optimisation of sector region position in a separate job. 
+	 * 
+	 * @param startPosition Initial position of sector region
+	 */
 	public void optimize(final double[] startPosition) {
 		final int cmaesLambda = this.cmaesLambda;
 		final double[] cmaesInputSigma = this.cmaesInputSigma;
@@ -164,15 +202,15 @@ public class BeamCenterRefinement implements MultivariateFunction {
 			protected IStatus run(IProgressMonitor monitor) {
 
 				function.setInitPeaks(initPeaks);
-				setMonitor(monitor);
+				function.setMonitor(monitor);
 
 				CMAESOptimizer beamPosOptimizer = new CMAESOptimizer(cmaesLambda, cmaesInputSigma, cmaesMaxIterations,
 						0.0, true, 0, cmaesCheckFeasableCount, new Well19937a(), false, cmaesChecker);
-				final double[] newBeamPos = beamPosOptimizer.optimize(cmaesMaxIterations, function,
-						GoalType.MAXIMIZE, startPosition).getPoint();
-				
-				value(newBeamPos);
-				
+				final double[] newBeamPos = beamPosOptimizer.optimize(cmaesMaxIterations, function, GoalType.MAXIMIZE,
+						startPosition).getPoint();
+
+				function.value(newBeamPos);
+
 				return Status.OK_STATUS;
 			}
 		};
