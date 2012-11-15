@@ -17,7 +17,6 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.utils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
@@ -31,6 +30,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +40,7 @@ import uk.ac.diamond.scisoft.analysis.fitting.Fitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Gaussian;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.IPeak;
+import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
 import uk.ac.diamond.scisoft.analysis.optimize.GeneticAlg;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
@@ -51,14 +52,13 @@ public class BeamCenterRefinement implements MultivariateFunction {
 
 	private IProgressMonitor monitor;
 	private ArrayList<IPeak> initPeaks;
-	private ArrayList<IPeak> peaks;
 
 	private AbstractDataset dataset, mask;
 	private SectorROI sroi;
 
-	private int cmaesLambda = 5;
+	private int cmaesLambda = 15;
 	private double[] cmaesInputSigma = new double[] { 3.0, 3.0 };
-	private int cmaesMaxIterations = 1000;
+	private int cmaesMaxIterations = 10000;
 	private int cmaesCheckFeasableCount = 10;
 	private ConvergenceChecker<PointValuePair> cmaesChecker = new SimplePointChecker<PointValuePair>(1e-4, 1e-2);
 
@@ -109,9 +109,7 @@ public class BeamCenterRefinement implements MultivariateFunction {
 	 *            List of peaks on radial profile
 	 */
 	public void setInitPeaks(List<IPeak> initPeaks) {
-		this.initPeaks = new ArrayList<IPeak>(initPeaks.size());
-		this.peaks = new ArrayList<IPeak>(initPeaks.size());
-		Collections.copy(this.initPeaks, initPeaks);
+		this.initPeaks = new ArrayList<IPeak>(initPeaks);
 	}
 
 	private void setMonitor(IProgressMonitor monitor) {
@@ -128,7 +126,7 @@ public class BeamCenterRefinement implements MultivariateFunction {
 	 * @return Sum of log(1 + I/sigma) values for all selected peaks
 	 */
 	@Override
-	public double value(double[] beamxy) {
+	public double value(final double[] beamxy) {
 
 		if (monitor.isCanceled())
 			return Double.NaN;
@@ -139,7 +137,7 @@ public class BeamCenterRefinement implements MultivariateFunction {
 		AbstractDataset axis = DatasetUtils.linSpace(tmpRoi.getRadius(0), tmpRoi.getRadius(1), intresult[0].getSize(),
 				AbstractDataset.INT32);
 		double error = 0.0;
-		peaks.clear();
+		ArrayList<IPeak> peaks = new ArrayList<IPeak>(initPeaks.size());
 		for (int idx = 0; idx < initPeaks.size(); idx++) {
 			IPeak refPeak = initPeaks.get(idx);
 			double pos = refPeak.getPosition();
@@ -153,10 +151,10 @@ public class BeamCenterRefinement implements MultivariateFunction {
 				CompositeFunction peakFit = Fitter.fit(axisSlice, peakSlice, new GeneticAlg(0.0001), new Gaussian(
 						refPeak.getParameters()));
 				IPeak fitPeak = new Gaussian(peakFit.getParameters());
-				peaks.set(idx, fitPeak);
+				peaks.add(fitPeak);
 				error += Math.log(1.0 + fitPeak.getHeight() / fitPeak.getFWHM());
 			} catch (Exception e) {
-				logger.error("Peak fitting failed", e);
+				logger.warn("Peak fitting failed during beam position optimisation", e);
 				return Double.NaN;
 			}
 
@@ -206,10 +204,20 @@ public class BeamCenterRefinement implements MultivariateFunction {
 
 				CMAESOptimizer beamPosOptimizer = new CMAESOptimizer(cmaesLambda, cmaesInputSigma, cmaesMaxIterations,
 						0.0, true, 0, cmaesCheckFeasableCount, new Well19937a(), false, cmaesChecker);
-				final double[] newBeamPos = beamPosOptimizer.optimize(cmaesMaxIterations, function, GoalType.MAXIMIZE,
-						startPosition).getPoint();
-
-				function.value(newBeamPos);
+				
+				final PointValuePair result = beamPosOptimizer.optimize(cmaesMaxIterations, function, GoalType.MAXIMIZE,
+						startPosition);
+				
+				final double[] newBeamPosition = result.getPoint();
+				logger.info("Optimiser terminated at beam position ({}, {}) with the value {}", new Object[] { newBeamPosition[0], newBeamPosition[1], result.getValue() });
+				Display.getDefault().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						((IDiffractionMetadata) dataset.getMetadata()).getDetector2DProperties().setBeamCentreCoords(
+								newBeamPosition);
+						sroi.setPoint(newBeamPosition);
+					}
+				});
 
 				return Status.OK_STATUS;
 			}
