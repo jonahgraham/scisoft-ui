@@ -132,12 +132,6 @@ limitations under the License.
          unpack="false"/>
 
    <plugin
-         id="uk.ac.diamond.scisoft.customprojects.rcp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="uk.ac.diamond.scisoft.qstatMonitor"
          download-size="0"
          install-size="0"
