@@ -61,13 +61,10 @@ public class BeamCenterRefinement implements MultivariateFunction {
 	
 	private static final Logger logger = LoggerFactory.getLogger(BeamCenterRefinement.class);
 	
-	private MultivariateFunctionSourceProvider beamxySourceProvider, peaksSourceProvider;
-	
 	public void setInitPeaks(List<IPeak> initPeaks) {
 		this.initPeaks = new ArrayList<IPeak>(initPeaks.size());
 		this.peaks = new ArrayList<IPeak>(initPeaks.size());
 		Collections.copy(this.initPeaks, initPeaks);
-		//Collections.copy(this.peaks, initPeaks);
 	}
 
 	public BeamCenterRefinement(AbstractDataset dataset, AbstractDataset mask, SectorROI sroi) {
@@ -133,11 +130,6 @@ public class BeamCenterRefinement implements MultivariateFunction {
 		}
 		if (checkPeakOverlap(peaks))
 			return Double.NaN;
-		
-		if (beamxySourceProvider != null)
-			beamxySourceProvider.putBeamPosition(beamxy);
-		if (peaksSourceProvider != null)
-			peaksSourceProvider.putPeaks(peaks);
 		
 		logger.info("Error value for beam postion ({}, {}) is {}", new Object[] { beamxy[0], beamxy[1], error });
 		return error;
