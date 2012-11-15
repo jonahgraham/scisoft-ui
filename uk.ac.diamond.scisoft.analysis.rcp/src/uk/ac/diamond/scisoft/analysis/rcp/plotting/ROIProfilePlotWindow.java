@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
@@ -419,21 +419,19 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 	// AbstractPlottingSystem
 	private void setupAxes(){
 		// set the profiles axes
-		if(myBeanMemory != null){
-			AbstractDataset xAxisValues = myBeanMemory.getAxis(AxisMapBean.XAXIS);
-			AbstractDataset yAxisValues = myBeanMemory.getAxis(AxisMapBean.YAXIS);
-			List<AbstractDataset> axes1 = Collections.synchronizedList(new LinkedList<AbstractDataset>());
-			List<AbstractDataset> axes2 = Collections.synchronizedList(new LinkedList<AbstractDataset>());
-			if(xAxisValues!=null){
-				axes1.add(0, xAxisValues);
-				axes2.add(0, yAxisValues);
+		Collection<ITrace> traces = plottingSystem.getTraces();
+
+		Iterator<ITrace> it = traces.iterator();
+		while (it.hasNext()) {
+			ITrace iTrace = it.next();
+			if(iTrace instanceof IImageTrace){
+				IImageTrace image = (IImageTrace)iTrace;
+
+				List<AbstractDataset> axes = image.getAxes();
+
+				sideProfile1.setAxes(axes);
+				sideProfile2.setAxes(axes);
 			}
-			if(yAxisValues!=null){
-				axes1.add(1, yAxisValues);
-				axes2.add(1, xAxisValues);
-			}
-			sideProfile1.setAxes(axes1);
-			sideProfile2.setAxes(axes1);
 		}
 	}
 
