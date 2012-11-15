@@ -59,6 +59,9 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.forms.events.ExpansionAdapter;
+import org.eclipse.ui.forms.events.ExpansionEvent;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.slf4j.Logger;
@@ -246,17 +249,67 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 			contentComposite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
 			contentComposite.setLayout(new GridLayout(1, false));
 			
+			ExpansionAdapter expansionAdapter = new ExpansionAdapter() {
+				@Override
+				public void expansionStateChanged(ExpansionEvent e) {
+					logger.trace("regionsExpander");
+					Rectangle r = scrollComposite.getClientArea();
+					scrollComposite.setMinSize(contentComposite.computeSize(r.width, SWT.DEFAULT));
+					contentComposite.layout();
+				}
+			};
+			
 			Label metadataLabel = new Label(contentComposite, SWT.NONE);
 			metadataLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 1, 1));
 			metadataLabel.setAlignment(SWT.CENTER);
 			metadataLabel.setText("ROI MetaData");
 			
-			mainROIMetadata = new RROITableInfo(contentComposite, "Rectangular ROI", plottingSystem, false);
+			//main
+			ExpandableComposite mainRegionInfoExpander = new ExpandableComposite(contentComposite, SWT.NONE);
+			mainRegionInfoExpander.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
+			mainRegionInfoExpander.setLayout(new GridLayout(1, false));
+			mainRegionInfoExpander.setText("Main Region Of Interest");
 			
-			xaxisMetadataHorizontal = new RROITableInfo(contentComposite, "Vertical", 
+			Composite mainRegionComposite = new Composite(mainRegionInfoExpander, SWT.BORDER);
+			GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+			mainRegionComposite.setLayout(new GridLayout(1, false));
+			mainRegionComposite.setLayoutData(gridData);
+			
+			mainROIMetadata = new RROITableInfo(mainRegionComposite, "Main ROI", plottingSystem, false);
+			
+			mainRegionInfoExpander.setClient(mainRegionComposite);
+			mainRegionInfoExpander.addExpansionListener(expansionAdapter);
+			mainRegionInfoExpander.setExpanded(false);
+			
+			//vertical
+			ExpandableComposite verticalRegionInfoExpander = new ExpandableComposite(contentComposite, SWT.NONE);
+			verticalRegionInfoExpander.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
+			verticalRegionInfoExpander.setLayout(new GridLayout(1, false));
+			verticalRegionInfoExpander.setText("Vertical Profile Region Of Interest");
+			
+			Composite verticalProfileComposite = new Composite(verticalRegionInfoExpander, SWT.BORDER);
+			verticalProfileComposite.setLayout(new GridLayout(1, false));
+			verticalProfileComposite.setLayoutData(gridData);
+			xaxisMetadataVertical = new RROITableInfo(verticalProfileComposite, "Vertical Profile", 
 					(AbstractPlottingSystem)sideProfile2.getToolPlottingSystem(), true);
-			xaxisMetadataVertical = new RROITableInfo(contentComposite, "Horizontal", 
+			verticalRegionInfoExpander.setClient(verticalProfileComposite);
+			verticalRegionInfoExpander.addExpansionListener(expansionAdapter);
+			verticalRegionInfoExpander.setExpanded(false);
+			
+			//horizontal
+			ExpandableComposite horizontalRegionInfoExpander = new ExpandableComposite(contentComposite, SWT.NONE);
+			horizontalRegionInfoExpander.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
+			horizontalRegionInfoExpander.setLayout(new GridLayout(1, false));
+			horizontalRegionInfoExpander.setText("Horizontal Profile Region Of Interest");
+			
+			Composite horizontalProfileComposite = new Composite(horizontalRegionInfoExpander, SWT.BORDER);
+			horizontalProfileComposite.setLayout(new GridLayout(1, false));
+			horizontalProfileComposite.setLayoutData(gridData);
+			xaxisMetadataHorizontal = new RROITableInfo(horizontalProfileComposite, "Horizontal Profile", 
 					(AbstractPlottingSystem)sideProfile1.getToolPlottingSystem(), true);
+			horizontalRegionInfoExpander.setClient(horizontalProfileComposite);
+			horizontalRegionInfoExpander.addExpansionListener(expansionAdapter);
+			horizontalRegionInfoExpander.setExpanded(false);
 			
 			scrollComposite.setContent(contentComposite);
 			scrollComposite.setExpandHorizontal(true);
