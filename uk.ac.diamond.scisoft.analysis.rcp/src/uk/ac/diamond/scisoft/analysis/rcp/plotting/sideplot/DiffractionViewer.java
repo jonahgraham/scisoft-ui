@@ -46,10 +46,10 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.diffraction.DSpacing;
 import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
 import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionCrystalEnvironment;
 import uk.ac.diamond.scisoft.analysis.diffraction.QSpace;
-import uk.ac.diamond.scisoft.analysis.diffraction.Resolution;
 import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
@@ -725,7 +725,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 		for (int i = 0; i < ringList.size(); i++) {
 			int tempID = oProvider.registerPrimitive(PrimitiveType.CIRCLE);
 			int[] beam = detConfig.pixelCoords(detConfig.getBeamCentrePosition());
-			int radius = (int) Resolution.circularResolutionRingRadius(detConfig, diffEnv, ringList.get(i).getResolution());
+			int radius = (int) DSpacing.radiusFromDSpacing(detConfig, diffEnv, ringList.get(i).getResolution());
 			oProvider.setColour(tempID, ringList.get(i).getAWTColour());
 			oProvider.setStyle(tempID, VectorOverlayStyles.OUTLINE);
 			oProvider.setTransparency(tempID, oTransparency);

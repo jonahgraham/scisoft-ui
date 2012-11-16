@@ -52,7 +52,7 @@ import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.diffraction.Resolution;
+import uk.ac.diamond.scisoft.analysis.diffraction.DSpacing;
 import uk.ac.diamond.scisoft.analysis.fitting.Generic1DFitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.APeak;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
@@ -381,7 +381,7 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 			peakPixVal[i * 2 + 1] = tempPeakPxLoc[1];
 		}
 		try {
-			dSpacing = Resolution.peakDistances(peakPixVal, diffView.detConfig, diffView.diffEnv);
+			dSpacing = DSpacing.dSpacingsFromPixelCoords(diffView.detConfig, diffView.diffEnv, peakPixVal);
 		} catch (IllegalArgumentException e) {
 			logger.warn("pixel values were found to be identical");
 		} catch (Exception e) {
