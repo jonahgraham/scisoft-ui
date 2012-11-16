@@ -44,7 +44,7 @@ public class Activator extends AbstractUIPlugin {
 	transient private static final Logger logger = LoggerFactory.getLogger(Activator.class);
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "uk.ac.diamond.scisoft";
+	public static final String PLUGIN_ID = "uk.ac.diamond.scisoft.feedback";
 
 	// The shared instance
 	private static Activator plugin;
@@ -194,7 +194,5 @@ public class Activator extends AbstractUIPlugin {
 		public boolean isFinishedChecking() {
 			return finishedCheck;
 		}
-
 	}
-
 }
