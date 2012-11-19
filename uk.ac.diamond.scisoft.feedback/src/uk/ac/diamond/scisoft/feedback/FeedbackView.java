@@ -81,7 +81,7 @@ public class FeedbackView extends ViewPart {
 	private Text messageText;
 	private Text subjectText;
 	
-	private static final String EMAIL_PREF = FeedbackView.class.getName()+".emailAddress";
+	private static final String FROM_PREF = FeedbackView.class.getName()+".emailAddress";
 	private static final String SUBJ_PREF  = FeedbackView.class.getName()+".subject";
 
 	private static final int MAX_SIZE = 10000 * 1024;
@@ -108,7 +108,7 @@ public class FeedbackView extends ViewPart {
 			emailAddress.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 			
 			final String email = Activator.getDefault()!=null
-					           ? Activator.getDefault().getPreferenceStore().getString(EMAIL_PREF)
+					           ? Activator.getDefault().getPreferenceStore().getString(FROM_PREF)
 					           : null;
 			if (email!=null && !"".equals(email)) emailAddress.setText(email);
 		}
@@ -201,7 +201,7 @@ public class FeedbackView extends ViewPart {
 								fromvalue = "user";
 							} else {
 								if (Activator.getDefault()!=null) {
-									Activator.getDefault().getPreferenceStore().setValue(EMAIL_PREF, fromvalue);
+									Activator.getDefault().getPreferenceStore().setValue(FROM_PREF, fromvalue);
 								}
 
 							}
@@ -231,7 +231,7 @@ public class FeedbackView extends ViewPart {
 							File logpath = new File(System.getProperty("user.home"), "dawnlog.html");
 
 							// get the mail to address from the properties
-							String mailTo = System.getProperty("org.dawnsci.feedbackmail", MAIL_TO);
+							String mailTo = System.getProperty("uk.ac.diamond.scisoft.feedback.recipient", MAIL_TO);
 														
 							//sendMail(mailserver, from, mailTo, subject, messageBody.toString(), "log.html", logpath, monitor);
 							if(logpath.length() > MAX_SIZE) {

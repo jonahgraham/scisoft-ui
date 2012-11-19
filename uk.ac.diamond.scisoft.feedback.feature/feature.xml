@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="uk.ac.diamond.scisoft.customprojects.feature"
-      label="Custom Project Feature"
-      version="1.4.0.qualifier"
+      id="uk.ac.diamond.scisoft.feedback.feature"
+      label="Scisoft Feedback feature"
+      version="1.0.0.qualifier"
       provider-name="Diamond Light Source">
 
    <description url="http://www.example.com/description">
@@ -18,9 +18,37 @@
    </license>
 
    <plugin
-         id="uk.ac.diamond.scisoft.feeback"
+         id="uk.ac.diamond.scisoft.feedback"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
+
+   <plugin
+         id="uk.ac.diamond.scisoft.system.info"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.proxyvole"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.httpcomponents.httpclient"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.httpcomponents.httpcore"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>
