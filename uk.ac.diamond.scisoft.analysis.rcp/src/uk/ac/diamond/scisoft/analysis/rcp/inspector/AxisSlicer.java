@@ -57,7 +57,6 @@ public class AxisSlicer {
 	private ILazyDataset axisData;
 	private PropertyChangeListener listener;
 	private String name;
-	private static Boolean SelectionIs1Dplot=false;
 
 	public static final int COLUMNS = 6;
 	private static final Image undo = AnalysisRCPActivator.getImageDescriptor("icons/arrow_undo.png").createImage();
@@ -204,7 +203,7 @@ public class AxisSlicer {
 	 * @param properties slices that axis dataset depends on
 	 * @param used true if axis is used in plot
 	 */
-	public void setParameters(final String name, final SliceProperty property, final ILazyDataset axis, final SliceProperty[] properties, boolean used, boolean is1Dplot) {
+	public void setParameters(final String name, final SliceProperty property, final ILazyDataset axis, final SliceProperty[] properties, boolean used) {
 		this.name = name;
 		slice = property;
 		if (axisSlices != null)
@@ -214,7 +213,6 @@ public class AxisSlicer {
 		axisSlices = properties;
 		mode = used;
 		axisData = axis;
-		SelectionIs1Dplot=is1Dplot;
 		createAxisDataset();
 		init(false);
 	}
@@ -286,37 +284,7 @@ public class AxisSlicer {
 		}
 		value.setText(String.format("%-20s", initValue));
 		int l = s != null ? s.getNumSteps() : length;
-			
-				if (SelectionIs1Dplot){ //default value to 1 stack plot
-				l=10;
-				
-				if (slice == null)
-					return;
-				final Slice s1 = slice.getValue();
-				
-				final Integer st1 = s1.getStart();
-				int start = st1 == null ? 0 : st1;
-				
-				// check end
-				final int d1 = s1.getStep();
-				final int n1 = 10;
-			
-				
-				int stop = start + (n1-1)*d1 + 1;
-				if (stop > length) {
-					stop = length;
-					start = stop - 1 - (n1-1)*d1;
-					s1.setStart(start);
-					if (slider != null)
-						slider.setValue(start);
-					if (value != null)
-						value.setText(String.format("%-20s", adata.getString(start)));
-				}
-				
-				slice.setStop(stop);
-			}
-		
-		
+
 		if (mode) {
 			slider.setThumb(l);
 		} else {
