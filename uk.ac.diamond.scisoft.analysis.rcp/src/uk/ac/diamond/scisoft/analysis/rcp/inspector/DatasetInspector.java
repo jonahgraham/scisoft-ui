@@ -483,7 +483,7 @@ public class DatasetInspector extends Composite {
 		slComp.setContent(iComp);
 
 		ecomp.setClient(slComp);
-		ecomp.setExpanded(true);
+		ecomp.setExpanded(false);
 		layout();
 
 		slicerListener = new PropertyChangeListener() {
@@ -705,7 +705,7 @@ public class DatasetInspector extends Composite {
 			}
 			
 			slicers.get(i).createAxisSlicer();
-			slicers.get(i).setParameters(n, p, axis, props, true,false);
+			slicers.get(i).setParameters(n, p, axis, props, true);
 		}
 
 		parent.pack();
@@ -742,11 +742,7 @@ public class DatasetInspector extends Composite {
 			for (int j = 0; j < imap.length; j++) {
 				props[j] = properties.get(imap[j]);
 			}
-			//detect 1D stack plot and call setParameters methods to inform AxisSlicer class to put a default value instead of the first case
-			if(cInspectionTab.getTabTitle().equals("1D stack plot") && i==0)								
-				slicers.get(i).setParameters(n, p, axis, props, used[i],true);					
-			else
-				slicers.get(i).setParameters(n, p, axis, props, used[i],false);
+			slicers.get(i).setParameters(n, p, axis, props, used[i]);
 		}
 		Composite parent = slicers.get(0).getParent();
 		parent.pack();
