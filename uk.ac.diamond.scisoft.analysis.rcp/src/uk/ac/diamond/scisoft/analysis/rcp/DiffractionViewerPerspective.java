@@ -45,7 +45,7 @@ public class DiffractionViewerPerspective implements IPerspectiveFactory {
 		explorerLayout.addPlaceholder("org.dawb.workbench.views.imageMonitorView");
 		
 		IFolderLayout toolPageLayout = layout.createFolder("toolPageFolder", IPageLayout.RIGHT, 0.50f, layout.getEditorArea());
-		toolPageLayout.addPlaceholder("*");
+		toolPageLayout.addView("org.dawb.workbench.plotting.views.toolPageView.fixed:org.dawb.workbench.plotting.tools.diffraction.Diffraction");
 		
 		
 		if (layout.getViewLayout("uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView") != null)
