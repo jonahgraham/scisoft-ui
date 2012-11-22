@@ -62,7 +62,7 @@ public class JythonCreator implements IStartup {
 		try {
 			initialiseConsole();
 			initialiseInterpreter(new NullProgressMonitor());
-		} catch (CoreException e) {
+		} catch (Throwable e) {
 			logger.error("Cannot create interpreter!", e);
 		}
 	}
