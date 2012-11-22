@@ -625,7 +625,11 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 				+ ((point[1] - beam[1]) * (point[1] - beam[1])));
 
 		oProvider.begin(OverlayType.VECTOR2D);
-		oProvider.drawRing(maskPrimID, beam[0], beam[1], radius, detConfig.distToClosestEdgeInPx() * 2);
+		try {
+			oProvider.drawRing(maskPrimID, beam[0], beam[1], radius, detConfig.distToClosestEdgeInPx() * 2);
+		} catch (IllegalStateException e) {
+			// do nothing when no ring
+		}
 		oProvider.end(OverlayType.VECTOR2D);
 	}
 
@@ -830,12 +834,16 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 		int[] beamCentre = detConfig.pixelCoords(detConfig.getBeamCentrePosition());
 		oProvider.begin(OverlayType.VECTOR2D);
 		if (maskPrimID == -1) {
-			int radius = detConfig.distToClosestEdgeInPx();
-			maskPrimID = oProvider.registerPrimitive(PrimitiveType.RING);
-			oProvider.setColour(maskPrimID, Color.RED);
-			oProvider.setTransparency(maskPrimID, 0.8);
-			oProvider.setLineThickness(maskPrimID, 3);
-			oProvider.drawRing(maskPrimID, beamCentre[0], beamCentre[1], radius, radius * 5);
+			try {
+				int radius = detConfig.distToClosestEdgeInPx();
+				maskPrimID = oProvider.registerPrimitive(PrimitiveType.RING);
+				oProvider.setColour(maskPrimID, Color.RED);
+				oProvider.setTransparency(maskPrimID, 0.8);
+				oProvider.setLineThickness(maskPrimID, 3);
+				oProvider.drawRing(maskPrimID, beamCentre[0], beamCentre[1], radius, radius * 5);
+			} catch (IllegalStateException e) {
+				// do nothing when no ring
+			}
 		}
 		oProvider.setPrimitiveVisible(maskPrimID, true);
 		oProvider.end(OverlayType.VECTOR2D);
