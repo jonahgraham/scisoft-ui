@@ -20,10 +20,13 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.preferences.ConfigurationScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,17 +88,14 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 
 	@Override
 	public void portAssigned(ServerPortEvent evt) {
-		//if (PlatformUI.isWorkbenchRunning()) { // Not workflow IApplication
-			logger.info("Setting "+PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO+" to: ",  evt.getPort());
-		    getPreferenceStore().setValue(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO, evt.getPort());
-
-		    try {
-		    	IWorkspace ws = ResourcesPlugin.getWorkspace();
-		    	ws.save(true, new NullProgressMonitor());
-		    } catch (CoreException e) {
-		    	logger.error("Cannot save "+PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO, e);
-		    }
-		//}
+		logger.info("Setting "+PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO+" to: " +  evt.getPort());
+		IEclipsePreferences node = ConfigurationScope.INSTANCE.getNode("uk.ac.diamond.scisoft.analysis.rpc");
+		node.putInt(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO, evt.getPort());
+		try {
+			node.flush();
+		} catch (BackingStoreException e) {
+			logger.error("Error saving preference", e);
+		}
 	}
 	
 
