@@ -84,7 +84,7 @@ public class FeedbackRequest {
 			entity.addPart("to", new StringBody(to));
 			entity.addPart("subject", new StringBody(subject));
 			entity.addPart("message", new StringBody(messageBody));
-			entity.addPart("log.html", new FileBody(file));
+			if (file != null) entity.addPart("log.html", new FileBody(file));
 			httpost.setEntity(entity);
 			
 			//HttpPost post = new HttpPost("http://dawnsci-feedback.appspot.com/dawnfeedback?name=baha&email=baha@email.com&subject=thisisasubject&message=thisisthemessage");
