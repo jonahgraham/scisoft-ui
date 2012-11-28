@@ -137,8 +137,6 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	private Composite plotSystemComposite;
 	private Composite mainPlotterComposite;
 
-	private GuiPlotMode previousPlotMode;
-
 	protected List<ROIPair<String, ROIBase>> roiPairList = new ArrayList<ROIPair<String, ROIBase>>();
 	protected ROIPair<String, ROIBase> currentRoiPair;
 	protected ROIPair<String, ROIBase> previousRoiPair;
@@ -194,31 +192,24 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 				setup1D();
 			else
 				setupPlotting1D();
-			previousPlotMode = GuiPlotMode.ONED;
 		} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
 			setupMulti1DPlot();
-			previousPlotMode = GuiPlotMode.ONED_THREED;
 		} else if (plotMode.equals(GuiPlotMode.TWOD)) {
 			if(getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
 				setup2D();
 			else
 				setupPlotting2D();
-			previousPlotMode = GuiPlotMode.TWOD;
 		} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
 			setup2DSurface();
-			previousPlotMode = GuiPlotMode.SURF2D;
 		} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
 			if(getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
 				setupScatter2DPlot();
 			else
 				setupScatterPlotting2D();
-			previousPlotMode = GuiPlotMode.SCATTER2D;
 		} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
 			setupScatter3DPlot();
-			previousPlotMode = GuiPlotMode.SCATTER3D;
 		} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
 			setupMulti2D();
-			previousPlotMode = GuiPlotMode.MULTI2D;
 		}
 
 		parentAddControlListener();
@@ -414,20 +405,17 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	 * before the setting up of a datasetPlotter
 	 */
 	private void cleanUpPlottingSystem(){
-		if((previousPlotMode == GuiPlotMode.ONED
-				|| previousPlotMode == GuiPlotMode.TWOD
-				|| previousPlotMode == GuiPlotMode.SCATTER2D))
-			if(!plottingSystem.isDisposed()){
-				bars.getToolBarManager().removeAll();
-				bars.getMenuManager().removeAll();
-				for (Iterator<IRegion> iterator = plottingSystem.getRegions().iterator(); iterator.hasNext();) {
-					IRegion region = iterator.next();
-					plottingSystem.removeRegion(region);
-				}
-				plottingSystem.removeRegionListener(regionListener);
-				plottingSystem.dispose();
-				plotSystemComposite.dispose();
+		if(!plottingSystem.isDisposed()){
+			bars.getToolBarManager().removeAll();
+			bars.getMenuManager().removeAll();
+			for (Iterator<IRegion> iterator = plottingSystem.getRegions().iterator(); iterator.hasNext();) {
+				IRegion region = iterator.next();
+				plottingSystem.removeRegion(region);
 			}
+			plottingSystem.removeRegionListener(regionListener);
+			plottingSystem.dispose();
+			plotSystemComposite.dispose();
+		}
 	}
 
 	private void addCommonActions() {
@@ -571,7 +559,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		plotUI = new Plot1DUIComplete(this, manager, bars, parentComp, getPage(), name);
 		addCommonActions();
 		bars.updateActionBars();
-		previousPlotMode = GuiPlotMode.ONED;
+		updateGuiBeanPlotMode(GuiPlotMode.ONED);
 	}
 
 	//Abstract plotting System
@@ -579,7 +567,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		plotUI = new Plotting1DUI(plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
-		previousPlotMode = GuiPlotMode.ONED;
+		updateGuiBeanPlotMode(GuiPlotMode.ONED);
 	}
 
 	//Datasetplotter
@@ -588,7 +576,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		plotUI = new Plot2DUI(this, mainPlotter, manager, parentComp, getPage(), bars, name);
 		addCommonActions();
 		bars.updateActionBars();
-		previousPlotMode = GuiPlotMode.TWOD;
+		updateGuiBeanPlotMode(GuiPlotMode.TWOD);
 	}
 
 	//Abstract plotting System
@@ -596,7 +584,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		plotUI = new Plotting2DUI(this, plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
-		previousPlotMode = GuiPlotMode.TWOD;
+		updateGuiBeanPlotMode(GuiPlotMode.TWOD);
 	}
 
 	private void setupMulti2D() {
@@ -604,7 +592,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		plotUI = new Plot2DMultiUI(this, mainPlotter, manager, parentComp, getPage(), bars, name);
 		addCommonActions();
 		bars.updateActionBars();
-		previousPlotMode = GuiPlotMode.MULTI2D;
+		updateGuiBeanPlotMode(GuiPlotMode.MULTI2D);
 	}
 
 	private void setup2DSurface() {
@@ -613,7 +601,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		plotUI = new PlotSurf3DUI(this, mainPlotter, parentComp, getPage(), bars, name);
 		addCommonActions();
 		bars.updateActionBars();
-		previousPlotMode = GuiPlotMode.SURF2D;
+		updateGuiBeanPlotMode(GuiPlotMode.SURF2D);
 	}
 
 	private void setupMulti1DPlot() {
@@ -621,7 +609,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		plotUI = new Plot1DStackUI(this, bars, mainPlotter, parentComp, page);
 		addCommonActions();
 		bars.updateActionBars();
-		previousPlotMode = GuiPlotMode.ONED_THREED;
+		updateGuiBeanPlotMode(GuiPlotMode.ONED_THREED);
 	}
 
 	private void setupScatter2DPlot() {
@@ -629,7 +617,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		plotUI = new PlotScatter2DUI(this, bars, mainPlotter, parentComp, page, name);
 		addCommonActions();
 		bars.updateActionBars();
-		previousPlotMode = GuiPlotMode.SCATTER2D;
+		updateGuiBeanPlotMode(GuiPlotMode.SCATTER2D);
 	}
 
 	//Abstract plotting System
@@ -637,7 +625,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		plotUI = new PlottingScatter2DUI(plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
-		previousPlotMode = GuiPlotMode.SCATTER2D;
+		updateGuiBeanPlotMode(GuiPlotMode.SCATTER2D);
 	}
 
 	private void setupScatter3DPlot() {
@@ -645,7 +633,16 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		plotUI = new PlotScatter3DUI(this, mainPlotter, parentComp, getPage(), bars, name);
 		addCommonActions();
 		bars.updateActionBars();
-		previousPlotMode = GuiPlotMode.SCATTER3D;
+		updateGuiBeanPlotMode(GuiPlotMode.SCATTER3D);
+	}
+
+	/**
+	 * Needed to correctly create the guibean the first time a plot is set,
+	 * otherwise the guibean will be null
+	 */
+	private void updateGuiBeanPlotMode(GuiPlotMode mode){
+		manager.removeGUIInfo(GuiParameters.PLOTMODE);
+		manager.putGUIInfo(GuiParameters.PLOTMODE, mode);
 	}
 
 	/**
