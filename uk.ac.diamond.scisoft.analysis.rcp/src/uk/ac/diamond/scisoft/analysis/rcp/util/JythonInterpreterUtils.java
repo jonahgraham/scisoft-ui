@@ -54,8 +54,8 @@ public class JythonInterpreterUtils {
 	public static PythonInterpreter getInterpreter() throws Exception {
 		
 		final long start = System.currentTimeMillis();
-		
-		logger.debug("Starting new Jython Interpreter.");
+		// FIXME switch back logging to debug
+		logger.info("Starting new Jython Interpreter.");
 		PySystemState     state       = new PySystemState();
 		
 		final ClassLoader classLoader = uk.ac.diamond.scisoft.analysis.PlotServer.class.getClassLoader();
@@ -64,7 +64,7 @@ public class JythonInterpreterUtils {
 		File jyBundleLoc;
 		try {
 			jyBundleLoc = BundleUtils.getBundleLocation(JYTHON_BUNDLE);
-			logger.debug("Jython bundle found: {}", jyBundleLoc.getAbsolutePath());
+			logger.info("Jython bundle found: {}", jyBundleLoc.getAbsolutePath());
 		} catch (Exception ignored) {
 			jyBundleLoc = null;
 		}
@@ -83,14 +83,18 @@ public class JythonInterpreterUtils {
 		try {
 			File pythonPlugin = new File(jyBundleLoc.getParentFile(), SCISOFTPY);
 			if (!pythonPlugin.exists()) {
-				logger.debug("No scisoftpy found at {} - now trying to find git workspace", pythonPlugin);
+				logger.info("No scisoftpy found at {} - now trying to find git workspace", pythonPlugin);
 				File gitws = jyBundleLoc.getParentFile().getParentFile();
-				logger.debug("Git workspace found: {}", gitws.getAbsolutePath());
-				pythonPlugin = new File(new File(gitws, "scisoft-core.git"), SCISOFTPY);
-				if (!pythonPlugin.exists()) {
-					throw new IllegalStateException("Can't find scisoftpy at " + pythonPlugin);
+				if (gitws.exists()) {
+					logger.info("Git workspace found: {}", gitws.getAbsolutePath());
+					pythonPlugin = new File(new File(gitws, "scisoft-core.git"), SCISOFTPY);
+					if (!pythonPlugin.exists()) {
+						throw new IllegalStateException("Can't find scisoftpy at " + pythonPlugin);
+					}
+					logger.info("Found Scisoft Python plugin at {}", pythonPlugin);
+				} else {
+					throw new IllegalStateException("No git workspace at " + gitws);
 				}
-				logger.debug("Found Scisoft Python plugin at {}", pythonPlugin);
 			}
 			path.append(new PyString(new File(pythonPlugin, "bin").getAbsolutePath()));
 		} catch (Exception e) {
@@ -102,7 +106,7 @@ public class JythonInterpreterUtils {
 		
 		final long end = System.currentTimeMillis();
 		
-		logger.debug("Created new Jython Interpreter in "+(end-start)+"ms.");
+		logger.info("Created new Jython Interpreter in {}ms.", end-start);
 	
 		return interpreter;
 	}
