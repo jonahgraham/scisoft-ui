@@ -17,9 +17,7 @@
 package uk.ac.diamond.scisoft;
 
 import java.io.File;
-import java.net.URL;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
+import java.io.IOException;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -87,9 +85,7 @@ public class Activator extends AbstractUIPlugin {
 			System.out.println("Logger Context Reset");
 			
 			// now find the configuration file			
-			final Bundle bundle = Platform.getBundle(PLUGIN_ID);
-			File dir =  FileLocator.getBundleFile(bundle);
-
+			final File dir = getBundleLocation(PLUGIN_ID);
 			File logDir = new File(dir, "logging");
 			File file   = new File(logDir, "log_configuration.xml");
 			
@@ -117,6 +113,42 @@ public class Activator extends AbstractUIPlugin {
 		// done in earlystartup extension point. Look at history if you want this code back.
 	}
 
+	public static File getBundleLocation(final String bundle_id) throws IOException {
+		
+
+        // Just in case...
+        final String eclipseDir = cleanPath(System.getProperty("eclipse.home.location"));
+  
+        final File   plugins = new File(eclipseDir+"/plugins/");
+        if (plugins.exists()) {
+	        final File[] fa = plugins.listFiles();
+	        for (int i = 0; i < fa.length; i++) {
+				final File file = fa[i];
+				if (file.getName().equals(bundle_id)) return file;
+				if (file.getName().startsWith(bundle_id+"_")) return file;
+			}
+        }
+		final Bundle bundle = Platform.getBundle(PLUGIN_ID);
+        return FileLocator.getBundleFile(bundle);
+	}
+
+	private static String cleanPath(String loc) {
+		
+		// Remove reference:file: from the start. TODO find a better way,
+	    // and test that this works on windows (it might have ///)
+        if (loc.startsWith("reference:file:")){
+        	loc = loc.substring(15);
+        } else if (loc.startsWith("file:")) {
+        	loc = loc.substring(5);
+        } else {
+        	return loc;
+        }
+        
+        loc = loc.replace("//", "/");
+        loc = loc.replace("\\\\", "\\");
+
+        return loc;
+	}
 
 	/**
 	 * (non-Javadoc)
