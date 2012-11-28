@@ -21,8 +21,11 @@ import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.MisconfigurationException;
@@ -44,7 +47,7 @@ public class Activator extends AbstractUIPlugin {
 	transient private static final Logger logger = LoggerFactory.getLogger(Activator.class);
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "uk.ac.diamond.scisoft.feedback";
+	public static final String PLUGIN_ID = "uk.ac.diamond.scisoft";
 
 	// The shared instance
 	private static Activator plugin;
@@ -83,26 +86,22 @@ public class Activator extends AbstractUIPlugin {
 			
 			System.out.println("Logger Context Reset");
 			
-			// now find the configuration file
-			ProtectionDomain pd = Activator.class.getProtectionDomain();
-			CodeSource cs = pd.getCodeSource();
-			URL url = cs.getLocation();
-			File file = new File(url.getFile(), "logging/log_configuration.xml");
-			url = file.toURI().toURL();
+			// now find the configuration file			
+			final Bundle bundle = Platform.getBundle(PLUGIN_ID);
+			File dir =  FileLocator.getBundleFile(bundle);
+
+			File logDir = new File(dir, "logging");
+			File file   = new File(logDir, "log_configuration.xml");
 			
 			if (file.exists()) {
-				System.out.println("Logging Configuration File found at '"+url+"'");
+				System.out.println("Logging Configuration File found at '"+file+"'");
 			} else {
-				System.out.println("Logging Configuration File Not found at '"+url+"'");
+				System.out.println("Logging Configuration File Not found at '"+file+"'");
 			}
 
 			JoranConfigurator configurator = new JoranConfigurator();
 			configurator.setContext(loggerContext);
-			String host = url.getHost(); // workaround Windows issue with local files
-			if (host == null || host.length() == 0)
-				configurator.doConfigure(file);
-			else
-				configurator.doConfigure(url);
+			configurator.doConfigure(file);
 			
 			System.out.println("Logging Configuration complete");
 			
