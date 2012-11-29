@@ -81,7 +81,7 @@ public class JythonInterpreterUtils {
 		path.append(new PyString(new File(jyLib, "site-packages").getAbsolutePath()));
 
 		try {
-			File pythonPlugin = new File(jyBundleLoc.getParentFile(), SCISOFTPY);
+			File pythonPlugin = BundleUtils.getBundleLocation(SCISOFTPY);
 			if (!pythonPlugin.exists()) {
 				logger.info("No scisoftpy found at {} - now trying to find git workspace", pythonPlugin);
 				File gitws = jyBundleLoc.getParentFile().getParentFile();
@@ -91,12 +91,18 @@ public class JythonInterpreterUtils {
 					if (!pythonPlugin.exists()) {
 						throw new IllegalStateException("Can't find scisoftpy at " + pythonPlugin);
 					}
-					logger.info("Found Scisoft Python plugin at {}", pythonPlugin);
 				} else {
 					throw new IllegalStateException("No git workspace at " + gitws);
 				}
 			}
-			path.append(new PyString(new File(pythonPlugin, "bin").getAbsolutePath()));
+			logger.info("Found Scisoft Python plugin at {}", pythonPlugin);
+			File bin = new File(pythonPlugin, "bin");
+			if (bin.exists()) {
+				logger.info("Found bin directory at {}", bin);
+				path.append(new PyString(bin.getAbsolutePath()));
+			} else {
+				path.append(new PyString(pythonPlugin.getAbsolutePath()));
+			}
 		} catch (Exception e) {
 			logger.error("Could not find Scisoft Python plugin", e);
 		}
