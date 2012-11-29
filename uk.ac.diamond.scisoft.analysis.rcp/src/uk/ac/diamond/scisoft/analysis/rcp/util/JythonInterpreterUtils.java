@@ -18,6 +18,8 @@ package uk.ac.diamond.scisoft.analysis.rcp.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 import org.dawb.common.util.eclipse.BundleUtils;
 import org.python.core.PyList;
@@ -60,7 +62,13 @@ public class JythonInterpreterUtils {
 		
 		final ClassLoader classLoader = uk.ac.diamond.scisoft.analysis.PlotServer.class.getClassLoader();
 		state.setClassLoader(classLoader);
-		
+		System.err.println("Class loader is " + classLoader);
+		if (classLoader instanceof URLClassLoader) {
+			logger.info("URL classpath:");
+			for (URL u : ((URLClassLoader) classLoader).getURLs()) {
+				logger.info("\t{}", u.getPath());
+			}
+		}
 		File jyBundleLoc;
 		try {
 			jyBundleLoc = BundleUtils.getBundleLocation(JYTHON_BUNDLE);
@@ -72,13 +80,24 @@ public class JythonInterpreterUtils {
 			if (System.getProperty("uk.ac.diamond.jython.location")==null) throw new Exception("Please set the property 'uk.ac.diamond.jython.location' for this test to work!");
 			jyBundleLoc = new File(System.getProperty("uk.ac.diamond.jython.location"));
 		}
+		logger.info("Classpath:");
+		for (String p : System.getProperty("java.class.path").split(":")) {
+			logger.info("\t{}", p);
+		}
 
-		File jyLib = new File(new File(jyBundleLoc, "jython2.5"), "Lib");
 		PyList path = state.path;
 //		path.clear();
+		path.append(new PyString(new File(jyBundleLoc, "jython.jar").getAbsolutePath()));
+		File jyLib = new File(new File(jyBundleLoc, "jython2.5"), "Lib");
 		path.append(new PyString(jyLib.getAbsolutePath()));
 		path.append(new PyString(new File(jyLib, "distutils").getAbsolutePath()));
-		path.append(new PyString(new File(jyLib, "site-packages").getAbsolutePath()));
+		File site = new File(jyLib, "site-packages");
+		path.append(new PyString(site.getAbsolutePath())); // TODO? iterate over sub-directories
+
+		logger.info("Class path:");
+		for (PyString p : (PyString[])path.toArray(new PyString[0])) {
+			logger.info("\t {}", p);
+		}
 
 		try {
 			File pythonPlugin = BundleUtils.getBundleLocation(SCISOFTPY);
@@ -108,6 +127,8 @@ public class JythonInterpreterUtils {
 		}
 		
 		PythonInterpreter interpreter = new PythonInterpreter(new PyStringMap(), state);
+		interpreter.exec("import sys");
+		interpreter.exec("for p in sys.path: print '\t%s' % p");
 		interpreter.exec("import scisoftpy as dnp");
 		
 		final long end = System.currentTimeMillis();
