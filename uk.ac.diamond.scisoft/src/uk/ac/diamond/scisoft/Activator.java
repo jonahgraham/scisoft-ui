@@ -18,6 +18,8 @@ package uk.ac.diamond.scisoft;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -117,9 +119,9 @@ public class Activator extends AbstractUIPlugin {
 		
 
         // Just in case...
-        final String eclipseDir = cleanPath(System.getProperty("eclipse.home.location"));
+        final String eclipseDir = getEclipseHome();
   
-        final File   plugins = new File(eclipseDir+"/plugins/");
+        final File   plugins = new File(eclipseDir, "plugins");
         if (plugins.exists()) {
 	        final File[] fa = plugins.listFiles();
 	        for (int i = 0; i < fa.length; i++) {
@@ -132,22 +134,26 @@ public class Activator extends AbstractUIPlugin {
         return FileLocator.getBundleFile(bundle);
 	}
 
-	private static String cleanPath(String loc) {
-		
-		// Remove reference:file: from the start. TODO find a better way,
-	    // and test that this works on windows (it might have ///)
-        if (loc.startsWith("reference:file:")){
-        	loc = loc.substring(15);
-        } else if (loc.startsWith("file:")) {
-        	loc = loc.substring(5);
-        } else {
-        	return loc;
-        }
-        
-        loc = loc.replace("//", "/");
-        loc = loc.replace("\\\\", "\\");
+	/**
+	 * Gets eclipse home in debug and in deployed application mode.
+	 * @return eclipseHome
+	 */
+	public static String getEclipseHome() {
+		File hDirectory;
+		try {
+			URI u = new URI(System.getProperty("eclipse.home.location"));
+			hDirectory = new File(u);
+		} catch (URISyntaxException e) {
+			return null;
+		}
 
-        return loc;
+		String path = hDirectory.getName();
+		if (path.equals("plugins") || path.equals("bundles")) {
+			path = hDirectory.getParentFile().getParentFile().getAbsolutePath();
+		} else{
+			path = hDirectory.getAbsolutePath();
+		}
+        return path;
 	}
 
 	/**
