@@ -21,6 +21,8 @@ import java.util.StringTokenizer;
 
 import javax.vecmath.Vector3d;
 
+import org.dawb.common.ui.plot.roi.ResolutionRing;
+import org.dawb.common.ui.plot.roi.ResolutionRingList;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ICellEditorListener;
@@ -43,8 +45,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ResolutionRingTableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
-import uk.ac.diamond.scisoft.analysis.roi.ResolutionRing;
-import uk.ac.diamond.scisoft.analysis.roi.ResolutionRingList;
 
 public class DiffractionViewerResolutionRings extends Composite implements SelectionListener, ICellEditorListener {
 

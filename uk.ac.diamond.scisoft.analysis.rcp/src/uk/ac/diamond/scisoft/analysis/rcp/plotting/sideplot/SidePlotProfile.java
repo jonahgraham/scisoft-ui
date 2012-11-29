@@ -20,6 +20,8 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dawb.common.ui.plot.roi.data.IRowData;
+import org.dawb.common.ui.plot.roi.data.ROIData;
 import org.dawnsci.plotting.jreality.overlay.Overlay2DConsumer;
 import org.dawnsci.plotting.jreality.overlay.Overlay2DProvider;
 import org.dawnsci.plotting.jreality.overlay.OverlayProvider;
@@ -60,8 +62,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.roi.MaskingBean;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.ROIList;
-import uk.ac.diamond.scisoft.analysis.roi.data.IRowData;
-import uk.ac.diamond.scisoft.analysis.roi.data.ROIData;
 import uk.ac.diamond.scisoft.analysis.roi.handler.ROIHandler;
 
 /**

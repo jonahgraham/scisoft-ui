@@ -18,6 +18,8 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.roi;
 
 import java.util.List;
 
+import org.dawb.common.ui.plot.roi.ResolutionRing;
+import org.dawb.common.ui.plot.roi.data.ROIData;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnViewer;
@@ -44,8 +46,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.roi.ResolutionRing;
-import uk.ac.diamond.scisoft.analysis.roi.data.ROIData;
 
 /**
  * Class that extends a table viewer for linear regions of interests

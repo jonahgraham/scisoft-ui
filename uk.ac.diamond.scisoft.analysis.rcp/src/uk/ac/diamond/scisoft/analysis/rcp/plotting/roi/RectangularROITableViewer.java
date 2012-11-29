@@ -16,12 +16,12 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.roi;
 
+import org.dawb.common.ui.plot.roi.data.RectangularROIData;
 import org.eclipse.jface.viewers.ICellEditorListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
-import uk.ac.diamond.scisoft.analysis.roi.data.RectangularROIData;
 
 /**
  * Class that extends a table viewer for linear regions of interests

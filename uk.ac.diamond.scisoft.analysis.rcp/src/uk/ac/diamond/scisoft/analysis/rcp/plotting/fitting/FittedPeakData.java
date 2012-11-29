@@ -18,10 +18,10 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.fitting;
 
 import java.awt.Color;
 
+import org.dawb.common.ui.plot.roi.data.IRowData;
 import org.eclipse.swt.graphics.RGB;
 
 import uk.ac.diamond.scisoft.analysis.fitting.functions.APeak;
-import uk.ac.diamond.scisoft.analysis.roi.data.IRowData;
 
 public class FittedPeakData implements IRowData {
 

@@ -20,6 +20,8 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dawb.common.ui.plot.roi.data.GridROIData;
+import org.dawb.common.ui.plot.roi.data.ROIData;
 import org.dawnsci.plotting.jreality.overlay.OverlayType;
 import org.dawnsci.plotting.jreality.overlay.VectorOverlayStyles;
 import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
@@ -57,8 +59,6 @@ import uk.ac.diamond.scisoft.analysis.roi.GridPreferences;
 import uk.ac.diamond.scisoft.analysis.roi.GridROI;
 import uk.ac.diamond.scisoft.analysis.roi.GridROIList;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
-import uk.ac.diamond.scisoft.analysis.roi.data.GridROIData;
-import uk.ac.diamond.scisoft.analysis.roi.data.ROIData;
 import uk.ac.diamond.scisoft.analysis.roi.handler.GridROIHandler;
 import uk.ac.diamond.scisoft.analysis.roi.handler.HandleStatus;
 

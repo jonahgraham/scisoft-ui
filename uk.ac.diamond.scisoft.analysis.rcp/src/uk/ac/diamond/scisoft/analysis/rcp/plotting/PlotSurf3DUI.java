@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.dawb.common.ui.plot.roi.data.SurfacePlotROI;
 import org.dawnsci.plotting.jreality.core.AxisMode;
 import org.dawnsci.plotting.jreality.core.ScaleType;
 import org.dawnsci.plotting.jreality.impl.PlotException;
@@ -62,7 +63,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
-import uk.ac.diamond.scisoft.analysis.roi.data.SurfacePlotROI;
 
 /**
  * A very general UI for 2D surface plotting using SWT / Eclipse RCP

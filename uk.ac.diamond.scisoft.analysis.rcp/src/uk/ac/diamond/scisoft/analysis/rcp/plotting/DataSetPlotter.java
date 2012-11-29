@@ -31,6 +31,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JApplet;
 import javax.swing.JPanel;
 
+import org.dawb.common.ui.plot.roi.data.SurfacePlotROI;
 import org.dawnsci.plotting.jreality.compositing.CompositeEntry;
 import org.dawnsci.plotting.jreality.compositing.CompositeOp;
 import org.dawnsci.plotting.jreality.compositing.CompositingControl;
@@ -109,7 +110,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PlotPrintPreviewDialog;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PrintSettings;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
-import uk.ac.diamond.scisoft.analysis.roi.data.SurfacePlotROI;
 import de.jreality.math.MatrixBuilder;
 import de.jreality.scene.Camera;
 import de.jreality.scene.SceneGraphComponent;

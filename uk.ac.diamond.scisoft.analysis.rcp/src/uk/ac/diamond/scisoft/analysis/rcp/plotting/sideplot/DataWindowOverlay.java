@@ -23,6 +23,7 @@ import gda.observable.IObserver;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.dawb.common.ui.plot.roi.data.SurfacePlotROI;
 import org.dawnsci.plotting.jreality.impl.DataSet3DPlot3D;
 import org.dawnsci.plotting.jreality.overlay.Overlay2DConsumer;
 import org.dawnsci.plotting.jreality.overlay.Overlay2DProvider;
@@ -37,7 +38,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
-import uk.ac.diamond.scisoft.analysis.roi.data.SurfacePlotROI;
 
 /**
  *

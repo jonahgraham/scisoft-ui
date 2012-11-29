@@ -21,6 +21,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dawb.common.ui.plot.roi.data.ROIData;
+import org.dawb.common.ui.plot.roi.data.SectorROIData;
 import org.dawb.common.ui.util.EclipseUtils;
 import org.dawnsci.plotting.jreality.core.AxisMode;
 import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
@@ -87,8 +89,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
 import uk.ac.diamond.scisoft.analysis.roi.SectorROIList;
-import uk.ac.diamond.scisoft.analysis.roi.data.ROIData;
-import uk.ac.diamond.scisoft.analysis.roi.data.SectorROIData;
 import uk.ac.diamond.scisoft.analysis.roi.handler.HandleStatus;
 import uk.ac.diamond.scisoft.analysis.roi.handler.SectorROIHandler;
 

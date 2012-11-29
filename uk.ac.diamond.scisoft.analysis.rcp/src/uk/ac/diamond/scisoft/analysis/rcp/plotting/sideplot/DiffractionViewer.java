@@ -23,6 +23,8 @@ import java.util.HashMap;
 
 import javax.vecmath.Vector3d;
 
+import org.dawb.common.ui.plot.roi.ResolutionRingList;
+import org.dawb.common.ui.plot.roi.data.ROIData;
 import org.dawnsci.plotting.jreality.impl.DataSet3DPlot3D;
 import org.dawnsci.plotting.jreality.overlay.OverlayType;
 import org.dawnsci.plotting.jreality.overlay.VectorOverlayStyles;
@@ -64,8 +66,6 @@ import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.ROIList;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
-import uk.ac.diamond.scisoft.analysis.roi.ResolutionRingList;
-import uk.ac.diamond.scisoft.analysis.roi.data.ROIData;
 import uk.ac.diamond.scisoft.analysis.roi.handler.HandleStatus;
 import uk.ac.diamond.scisoft.analysis.roi.handler.LinearROIHandler;
 import uk.ac.diamond.scisoft.analysis.roi.handler.RectangularROIHandler;
