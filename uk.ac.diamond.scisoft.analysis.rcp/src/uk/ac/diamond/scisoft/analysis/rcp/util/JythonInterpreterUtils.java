@@ -18,6 +18,8 @@ package uk.ac.diamond.scisoft.analysis.rcp.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 import org.dawb.common.util.eclipse.BundleUtils;
 import org.python.core.PyList;
@@ -60,7 +62,13 @@ public class JythonInterpreterUtils {
 		
 		final ClassLoader classLoader = uk.ac.diamond.scisoft.analysis.PlotServer.class.getClassLoader();
 		state.setClassLoader(classLoader);
-		
+		System.err.println("Class loader is " + classLoader);
+		if (classLoader instanceof URLClassLoader) {
+			logger.info("URL classpath:");
+			for (URL u : ((URLClassLoader) classLoader).getURLs()) {
+				logger.info("\t{}", u.getPath());
+			}
+		}
 		File jyBundleLoc;
 		try {
 			jyBundleLoc = BundleUtils.getBundleLocation(JYTHON_BUNDLE);
@@ -71,6 +79,10 @@ public class JythonInterpreterUtils {
 		if (jyBundleLoc == null) {
 			if (System.getProperty("uk.ac.diamond.jython.location")==null) throw new Exception("Please set the property 'uk.ac.diamond.jython.location' for this test to work!");
 			jyBundleLoc = new File(System.getProperty("uk.ac.diamond.jython.location"));
+		}
+		logger.info("Classpath:");
+		for (String p : System.getProperty("java.class.path").split(":")) {
+			logger.info("\t{}", p);
 		}
 
 		PyList path = state.path;
