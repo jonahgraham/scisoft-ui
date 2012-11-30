@@ -117,8 +117,9 @@ public class Plotting1DUI extends AbstractPlotUI {
 								lineTrace.setData(xAxisValues, data);
 								lineTrace.repaint();
 							}
-//							TODO : perform an auto scale only if no zoom has been previously done
-							plottingSystem.autoscaleAxes();
+							// if rescale axis option is checked in the x/y plot menu
+							if(plottingSystem.isRescale())
+								plottingSystem.autoscaleAxes();
 							// autoscale xAxis (in the stack plot use case)
 							if(isAbsractPlottingXAxisAutoscaled())
 								plottingSystem.getSelectedXAxis().setRange(xAxisValues.getDouble(xAxisValues.minPos()), xAxisValues.getDouble(xAxisValues.maxPos()));
