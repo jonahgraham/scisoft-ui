@@ -66,7 +66,7 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 //			layout.getViewLayout(tool1D2D).setCloseable(false);
 //			metaFolderLayout.addView(tool2D);
 //			layout.getViewLayout(tool2D).setCloseable(false);
-			metaFolderLayout.addView("org.dawb.workbench.views.dataSetView");
+//			metaFolderLayout.addView("org.dawb.workbench.views.dataSetView");
 
 			//layout.addView(METADATAPAGE_ID, IPageLayout.BOTTOM, 0.6f, "toolPageFolder");
 			metaFolderLayout.addView(METADATAPAGE_ID);
