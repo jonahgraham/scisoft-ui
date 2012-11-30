@@ -284,15 +284,15 @@ public class AxisSlicer {
 		}
 		value.setText(String.format("%-20s", initValue));
 		int l = s != null ? s.getNumSteps() : length;
+		int t = s != null ? s.getStep() : maxSize;
 
 		if (mode) {
 			slider.setThumb(l);
 		} else {
-			int t = s == null ? maxSize : s.getStep();
 			slider.setThumb(t); // thumb size is step-sized when not used
 		}
 		size.setValues(l, 1, maxSize, 0, 1, 5 > maxSize ? maxSize : 5);
-		step.setValues(1, 1, length, 0, 1, 1);
+		step.setValues(t, 1, length, 0, 1, 1);
 		step.setEnabled(mode);
 		size.setEnabled(mode);
 		this.reset.setEnabled(resetable);
