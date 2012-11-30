@@ -582,8 +582,7 @@ public class DatasetInspector extends Composite {
 		}
 
 		if (inspection == null) {
-			inspection = oldSelection == null ? new Inspection(dSelection) :
-				new Inspection(dSelection, oldSelection.getType()); // allow old selection to override type
+			inspection = new Inspection(dSelection);
 			storedInspections.put(dSelection, inspection);
 			int[] shape = cData.getShape();
 			int rank = shape.length;
