@@ -947,12 +947,15 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.diffractionViewerPreferencePage"
             name="Diffraction Viewer">
       </page>
+      
+      <!-- Commented out old preference page for now as defect logged that this causes confusion
       <page
             category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
             class="uk.ac.diamond.scisoft.analysis.rcp.preference.Fitting1DPreferencePage"
             id="uk.ac.diamond.scisoft.analysis.rcp.fitting1DPreferencePage"
             name="Fitting 1D">
       </page>
+      -->
       <page
             category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
             class="uk.ac.diamond.scisoft.analysis.rcp.preference.AnalysisRpcAndRmiPreferencePage"
