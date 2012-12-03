@@ -92,7 +92,37 @@ public class AxisSelection extends InspectorProperty implements Iterable<String>
 				return -1;
 			return order - cOrder;
 		}
-		
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((data == null) ? 0 : data.hashCode());
+			result = prime * result + order;
+			result = prime * result + (selected ? 1231 : 1237);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			AxisSelData other = (AxisSelData) obj;
+			if (data == null) {
+				if (other.data != null)
+					return false;
+			} else if (!data.equals(other.data))
+				return false;
+			if (order != other.order)
+				return false;
+			if (selected != other.selected)
+				return false;
+			return true;
+		}
 	}
 
 	private final static String propName = "axisselection";
@@ -429,7 +459,7 @@ public class AxisSelection extends InspectorProperty implements Iterable<String>
 			if (!that.names.equals(names))
 				return false;
 			
-			if (!CollectionUtils.isEqualCollection(asData, that.asData))
+			if (!asData.equals(that.asData))
 				return false;
 			
 			return true;

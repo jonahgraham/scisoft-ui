@@ -582,10 +582,12 @@ public class DatasetInspector extends Composite {
 		}
 
 		if (inspection == null) {
-			inspection = new Inspection(dSelection);
-			storedInspections.put(dSelection, inspection);
-			int[] shape = cData.getShape();
+			int[] shape = cData.squeeze().getShape();
 			int rank = shape.length;
+			
+            inspection = (oldSelection == null || oldSelection.getAxes().size() != rank) ? new Inspection(dSelection) :
+            	new Inspection(dSelection, oldSelection.getType()); // allow old selection to override type
+			storedInspections.put(dSelection, inspection);
 
 			int aNum = inspection.getNumAxes();
 			if (aNum < rank) { // add auto-axes if necessary
