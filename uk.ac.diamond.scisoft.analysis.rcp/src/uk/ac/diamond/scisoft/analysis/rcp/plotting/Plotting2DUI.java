@@ -28,6 +28,8 @@ import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.region.IRegion;
+import org.dawb.common.ui.plot.region.IRegion.RegionType;
+import org.dawb.common.ui.plot.region.RegionUtils;
 import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.dawb.common.ui.plot.trace.ITrace;
 import org.eclipse.swt.widgets.Display;
@@ -40,13 +42,8 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
-import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
-import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
-import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
-import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
-import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
-import uk.ac.diamond.scisoft.analysis.roi.SectorROIList;
+import uk.ac.diamond.scisoft.analysis.roi.ROIList;
 
 /**
  * Class to create the a 2D/image plotting
@@ -57,30 +54,18 @@ public class Plotting2DUI extends AbstractPlotUI {
 
 	private AbstractPlottingSystem plottingSystem;
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
-	private PlotWindow plotWindow;
-
-	private ROIProfilePlotWindow roiProfilePlotWindow;
+	private ROIManager manager;
 
 	private static final Logger logger = LoggerFactory.getLogger(Plotting2DUI.class);
 
 	/**
-	 * Constructor for the plotwindow
-	 * @param window
+	 * Constructor for the ROI manager
+	 * @param roiManager
 	 * @param plotter
 	 */
-	public Plotting2DUI(PlotWindow window, final AbstractPlottingSystem plotter) {
-		this.plotWindow = window;
-		this.plottingSystem = plotter;
-	}
-
-	/**
-	 * Constructor for the roiprofileplotwindow
-	 * @param window
-	 * @param plotter
-	 */
-	public Plotting2DUI(ROIProfilePlotWindow window, final AbstractPlottingSystem plotter) {
-		this.roiProfilePlotWindow = window;
-		this.plottingSystem = plotter;
+	public Plotting2DUI(ROIManager roiManager, final AbstractPlottingSystem plotter) {
+		manager = roiManager;
+		plottingSystem = plotter;
 	}
 
 	@Override
@@ -177,77 +162,138 @@ public class Plotting2DUI extends AbstractPlotUI {
 	
 	@Override
 	public void processGUIUpdate(GuiBean guiBean) {
-		
-		final Collection<IRegion> regions = plottingSystem.getRegions();
-		final ROIBase currentRoi = (ROIBase)guiBean.get(GuiParameters.ROIDATA);
+
+		final ROIBase roi = (ROIBase)guiBean.get(GuiParameters.ROIDATA);
 
 		logger.debug("There is a guiBean update:"+ guiBean.toString());
 
-		if(currentRoi instanceof LinearROI){
-			final LinearROIList rois = (LinearROIList)guiBean.get(GuiParameters.ROIDATALIST);
-			
-			Display.getDefault().asyncExec(new Runnable(){
-				@Override
-				public void run() {
-					int roiListIdx = 0;
-					for (final IRegion iRegion : regions) {
-				
-						// current region
-						if((plotWindow != null && plotWindow.currentRoiPair.getName().equals(iRegion.getName()))
-								|| (roiProfilePlotWindow != null && roiProfilePlotWindow.currentRoiPair.getName().equals(iRegion.getName()))){
-							iRegion.setROI(currentRoi);
-						}
-						//roidatalist regions
-						else{
-							iRegion.setROI(rois.get(roiListIdx));
-							roiListIdx++;
+		final String cname = manager.getName();
+		final ROIBase croi = manager.getROI();
+		final Collection<IRegion> regions = plottingSystem.getRegions();
+
+		// Same as in SidePlotProfile with onSwitch = false
+		// logic is for each GUI parameter
+		//     if null and parameter exists
+		//         if not onSwitch
+		//             delete parameter
+		//         signal updating of parameter
+		//     else if same class
+		//         replace parameter
+		//         signal updating of parameter
+		//     else if onSwitch
+		//         signal updating of parameter
+
+		if (roi == null) {
+			if (cname != null && croi != null) {
+				for (final IRegion r : regions) {
+					if (cname.equals(r.getName())) {
+						Display.getDefault().asyncExec(new Runnable(){
+							@Override
+							public void run() {
+								plottingSystem.removeRegion(r);
+							}
+						});
+						break;
+					}
+				}
+			}		
+		} else {
+			boolean found = false; // found existing?
+			if (cname != null && croi != null) {
+				if (roi.getClass().equals(croi.getClass())) { // replace current ROI
+					for (final IRegion r : regions) {
+						if (cname.equals(r.getName())) {
+							Display.getDefault().asyncExec(new Runnable() {
+								@Override
+								public void run() {
+									r.setROI(roi);
+								}
+							});
+							found = true;
+							break;
 						}
 					}
 				}
-			});
-		} else if(currentRoi instanceof RectangularROI){
-			final RectangularROIList rois = (RectangularROIList)guiBean.get(GuiParameters.ROIDATALIST);
-			
-			Display.getDefault().asyncExec(new Runnable(){
-				@Override
-				public void run() {
-					int roiListIdx = 0;
-					for (final IRegion iRegion : regions) {
-				
-						// current region
-						if((plotWindow != null && plotWindow.currentRoiPair.getName().equals(iRegion.getName()))
-								|| (roiProfilePlotWindow != null && roiProfilePlotWindow.currentRoiPair.getName().equals(iRegion.getName()))){
-							iRegion.setROI(currentRoi);
-						}
-						//roidatalist regions
-						else{
-							iRegion.setROI(rois.get(roiListIdx));
-							roiListIdx++;
-						}
+			}
+			if (!found) { // create new region
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						createRegion(roi);
 					}
-				}
-			});
-		} else if(currentRoi instanceof SectorROI){
-			final SectorROIList rois = (SectorROIList)guiBean.get(GuiParameters.ROIDATALIST);
-			
-			Display.getDefault().asyncExec(new Runnable(){
-				@Override
-				public void run() {
-					int roiListIdx = 0;
-					for (final IRegion iRegion : regions) {
-				
-						// current region
-						if(plotWindow.currentRoiPair.getName().equals(iRegion.getName())){
-							iRegion.setROI(currentRoi);
-						}
-						//roidatalist regions
-						else{
-							iRegion.setROI(rois.get(roiListIdx));
-							roiListIdx++;
-						}
-					}
-				}
-			});
+				});
+			}
 		}
+
+		@SuppressWarnings("unchecked")
+		final ROIList<? extends ROIBase> list = (ROIList<? extends ROIBase>) guiBean.get(GuiParameters.ROIDATALIST);
+
+		final ROIBase roib = roi != null ? roi : (croi != null ? croi : null);
+		if (roib != null) {
+			if (list == null || list.size() == 0) {
+				// prune regions of given type
+				final List<IRegion> rList = createRegionsList(regions, roib.getClass());
+				if (rList.size() > 0) {
+					Display.getDefault().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							for (IRegion r : rList) {
+								plottingSystem.removeRegion(r);
+							}
+						}
+					});
+				}
+			} else {
+				ROIBase froi = list.get(0);
+				if (roib.getClass().equals(froi.getClass())) {
+					final List<IRegion> rList = createRegionsList(regions, roib.getClass());
+					final int nr = rList.size();
+					if (nr > 0) {
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								int nl = list.size();
+								if (nl < nr) {
+									for (int i = nr - 1; i >= nl; i--) {
+										plottingSystem.removeRegion(rList.remove(i));
+									}
+								}
+								for (int i = 0; i < nl; i++) {
+									rList.get(i).setROI(list.get(i));
+								}
+								if (nl > nr) {
+									// create regions
+									for (int i = nr; i < nl; i++) {
+										createRegion(list.get(i));
+									}
+								}
+							}
+						});
+					}
+				}
+			}
+		}
+	}
+
+	private void createRegion(ROIBase roib) {
+		try {
+			RegionType type = RegionType.getRegion(roib.getClass());
+			IRegion region = plottingSystem.createRegion(RegionUtils.getUniqueName(type.getName(), plottingSystem), type);
+			region.setROI(roib);
+			plottingSystem.addRegion(region);
+		} catch (Exception e) {
+			logger.error("Problem creating new region from ROI", e);
+		}
+	}
+
+	private List<IRegion> createRegionsList(Collection<IRegion> regions, Class<? extends ROIBase> roiClass) {
+		List<IRegion> list = new ArrayList<IRegion>();
+		for (IRegion r : regions) {
+			ROIBase rr = r.getROI();
+			if (rr.getClass().equals(roiClass)) {
+				list.add(r);
+			}
+		}
+		return list;
 	}
 }
