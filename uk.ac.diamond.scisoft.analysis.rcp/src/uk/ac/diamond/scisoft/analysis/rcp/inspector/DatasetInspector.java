@@ -54,6 +54,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.AggregateDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
@@ -582,7 +583,12 @@ public class DatasetInspector extends Composite {
 		}
 
 		if (inspection == null) {
-			int[] shape = cData.squeeze().getShape();
+			int[] shape;
+			if(cData instanceof AggregateDataset){
+				shape = cData.getShape();
+			} else {
+				shape = cData.squeeze().getShape();
+			}
 			int rank = shape.length;
 			
             inspection = (oldSelection == null || oldSelection.getAxes().size() != rank) ? new Inspection(dSelection) :
