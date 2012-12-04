@@ -65,7 +65,7 @@
                                     </cheatsheet>
                                  </extension>
                                  <extension
-                                       point="uk.ac.diamond.scisoft.introRegister">
+                                       point="org.dawnsci.introRegister">
                                     <introPageRegister
                                           class="uk.ac.diamond.scisoft.rp.Render3DPerspectiveLauch"
                                           description="Opens the Render 3D perspective"
