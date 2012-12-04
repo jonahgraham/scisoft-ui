@@ -682,7 +682,10 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 			else if(i>=0&&i<252)
 				imageData.set(value, i);
 		}
-		plotter.handleColourCast(imageData, graph, update.getMinValue(), update.getMaxValue());
+		if(plotter != null)
+			plotter.handleColourCast(imageData, graph, update.getMinValue(), update.getMaxValue());
+		else
+			logger.debug("Plotter is null: cannot update colour map");
 	}
 
 	/**
@@ -1041,7 +1044,8 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 	/**
 	 * Replace all the current datasets that are have been plotted with a whole set of new ones
 	 * This is used when in new plotting mode
-	 * TODO do not reset the camera perspective
+	 * TODO do not reset the camera perspective in surface mode
+	 * TODO slicing in surface mode does not work
 	 * @param datasets
 	 * @throws PlotException
 	 *             throws a PlotException when something goes wrong
@@ -1049,14 +1053,32 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 	public void replacePlot(Collection<? extends IDataset> datasets) throws PlotException {
 
 		if (currentDataSet != null) {
-			currentDataSets.remove(0);
-			currentDataSets.addAll(0, datasets);
-
-			if (checkForNan(currentDataSets.get(0)) || checkForInf(currentDataSets.get(0)))
-				throw new PlotException(ERROR_MESG);
-
 			checkAndAddLegend(currentDataSets);
-			plotter.updateGraph(currentDataSets);
+			if (currentDataSets.size() > 0) {
+				for (int i = currentDataSets.size() - (historyCounter + 1); i >= 0; i--)
+					currentDataSets.remove(i);
+				currentDataSets.addAll(0, datasets);
+				if (checkForNan(currentDataSets.get(0)) || checkForInf(currentDataSets.get(0)))
+					throw new PlotException(ERROR_MESG);
+				plotter.updateGraph(currentDataSets);
+			} else if(currentDataSets.size() == 0){
+				currentDataSets.addAll(datasets);
+				coordAxes = plotter.buildCoordAxis(coordAxes);
+				graph = plotter.buildGraph(currentDataSets, graph);
+				hasData = true;
+				plotter.setXAxisLabel(xAxisLabel);
+				plotter.setYAxisLabel(yAxisLabel);
+				plotter.setZAxisLabel(zAxisLabel);
+			}
+
+//			currentDataSets.remove(0);
+//			currentDataSets.addAll(0, datasets);
+//
+//			if (checkForNan(currentDataSets.get(0)) || checkForInf(currentDataSets.get(0)))
+//				throw new PlotException(ERROR_MESG);
+//
+//			checkAndAddLegend(currentDataSets);
+//			plotter.updateGraph(currentDataSets);
 
 		} else {
 			currentDataSets.addAll(datasets);
@@ -1072,6 +1094,21 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 			root.removeChild(bbox);
 			bbox = plotter.buildBoundingBox();
 			root.addChild(bbox);
+		}
+		if (currentMode == PlottingMode.MULTI2D) {
+			List<CompositeEntry> table = new ArrayList<CompositeEntry>();
+			for (int i = 0; i < currentDataSets.size(); i++) {
+				String name = currentDataSets.get(i).getName();
+				float weight = 1.0f / currentDataSets.size();
+				if (name == null)
+					name = "";
+				CompositeEntry entry = 
+					new CompositeEntry(name, weight, CompositeOp.ADD,(byte)7);
+				table.add(entry);
+			}
+			if (cmpControl != null)
+				cmpControl.updateTable(table);
+			((DataSet3DPlot2DMulti)plotter).updateCompositingSettings(table);
 		}
 		if (currentDataSets.size() > 0) {
 			currentDataSet = currentDataSets.get(0);

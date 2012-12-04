@@ -16,6 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
+import gda.observable.IObserver;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +34,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
@@ -50,15 +53,18 @@ import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
+import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 
 /**
  *
  */
-public class Plot2DMultiUI extends AbstractPlotUI {
+public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 
 	private DataSetPlotter mainPlotter;
 	private Composite compParent;
@@ -94,6 +100,7 @@ public class Plot2DMultiUI extends AbstractPlotUI {
 	private String saveButtonText = ResourceProperties.getResourceString("SAVE_BUTTON");
 	private String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
 	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
+	private DataWindowView dataWindowView;
 	
 	/**
 	 * @param window 
@@ -114,25 +121,40 @@ public class Plot2DMultiUI extends AbstractPlotUI {
 		this.page = page;
 		plotViewID = id;
 //		this.manager = manager;
+		xAxis = new AxisValues();
+		yAxis = new AxisValues();
+		
 		initHistogramView(plotViewID);
 		mainPlotter.registerUI(this);
 		initSidePlotView();
 		buildMenuActions(bars.getMenuManager(), plotter); 
-		buildToolActions(bars.getToolBarManager(), plotter, parent.getShell());										 
-		xAxis = new AxisValues();
-		yAxis = new AxisValues();		
+		buildToolActions(bars.getToolBarManager(), plotter, parent.getShell());
 		bars.updateActionBars();
 	}
 
 	public void initHistogramView(String id) {
-		try {
-			 histogramView = (HistogramView) page.showView("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView",
-					id, IWorkbenchPage.VIEW_CREATE);			 
-			 plotWindow.addIObserver(histogramView);
-			 histogramView.addIObserver(plotWindow);
-		} catch (PartInitException e) {
-			logger.error("Failed to initialized histogram View");
-		}		
+		
+		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+			try {
+				 histogramView = (HistogramView) page.showView("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView",
+						id, IWorkbenchPage.VIEW_CREATE);
+				plotWindow.addIObserver(histogramView);
+				histogramView.addIObserver(plotWindow);
+			} catch (PartInitException e) {
+				logger.error("Failed to initialized histogram View");
+				e.printStackTrace();
+			}
+		}else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+			try {
+				dataWindowView = (DataWindowView) page.showView(DataWindowView.ID,
+						id, IWorkbenchPage.VIEW_CREATE);
+				dataWindowView.setFocus();
+				plotWindow.addIObserver(dataWindowView);
+				dataWindowView.addIObserver(this);
+			} catch (PartInitException e) {
+				e.printStackTrace();
+			}
+		}
 	}	
 	
 	private void buildMenuActions(IMenuManager manager, final DataSetPlotter plotter)
@@ -427,24 +449,33 @@ public class Plot2DMultiUI extends AbstractPlotUI {
 			mainPlotter.setAxisModes((xAxisValues == null ? AxisMode.LINEAR : AxisMode.CUSTOM),
 					                 (yAxisValues == null ? AxisMode.LINEAR : AxisMode.CUSTOM),
 					                 AxisMode.LINEAR);
+			
 			if (xAxisValues != null) {
-				if (xAxisValues.getName() != null && xAxisValues.getName().length() > 0)
-					mainPlotter.setXAxisLabel(xAxisValues.getName());
-				else
-					mainPlotter.setXAxisLabel("X-Axis");
+				// set the xlabel and ylabel only in datasetplotter mode
+				if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+					if (xAxisValues.getName() != null && xAxisValues.getName().length() > 0)
+						mainPlotter.setXAxisLabel(xAxisValues.getName());
+					else
+						mainPlotter.setXAxisLabel("X-Axis");
+				}
 				xAxis.setValues(xAxisValues);
 				mainPlotter.setXAxisValues(xAxis, 1);
-			} else
-				mainPlotter.setXAxisLabel("X-Axis");
+			} else 
+				if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+					mainPlotter.setXAxisLabel("X-Axis");
 			if (yAxisValues != null) {
-				if (yAxisValues.getName() != null && yAxisValues.getName().length() > 0)
-					mainPlotter.setYAxisLabel(yAxisValues.getName());
-				else
-					mainPlotter.setYAxisLabel("Y-Axis");
+				if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+					if (yAxisValues.getName() != null && yAxisValues.getName().length() > 0)
+						mainPlotter.setYAxisLabel(yAxisValues.getName());
+					else
+						mainPlotter.setYAxisLabel("Y-Axis");
+				}
 				yAxis.setValues(yAxisValues);
 				mainPlotter.setYAxisValues(yAxis);
-			} else
-				mainPlotter.setYAxisLabel("Y-Axis");
+			} else 
+				if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+					mainPlotter.setYAxisLabel("Y-Axis");
+			
 			mainPlotter.setYTickLabelFormat(TickFormatting.roundAndChopMode);
 			mainPlotter.setXTickLabelFormat(TickFormatting.roundAndChopMode);
 			while (iter.hasNext()) {
@@ -452,22 +483,24 @@ public class Plot2DMultiUI extends AbstractPlotUI {
 				AbstractDataset data = dataSetAxis.getData();
 				datasets.add(data);
 			}
-					
 
 			try {
-				mainPlotter.replaceAllPlots(datasets);
+				if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+					mainPlotter.replaceAllPlots(datasets);
+				else
+					mainPlotter.replacePlot(datasets);
 			} catch (PlotException e) {
 				e.printStackTrace();
 			}
 
 			//we set the plot/file name
-			//mainPlotter.setTitle(page.getActivePart().getTitle());
 			mainPlotter.setTitle(datasets.get(0).getName());
+
+			dataWindowView.setData(datasets.get(0),xAxis,yAxis);
 
 			compParent.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-//					getSidePlotView().processPlotUpdate();
 					plotWindow.notifyUpdateFinished();
 				}
 			});	
@@ -487,19 +520,55 @@ public class Plot2DMultiUI extends AbstractPlotUI {
 						break;
 					}
 				}
-				plotWindow.notifyHistogramChange(histoUpdate);
+				if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+					plotWindow.notifyHistogramChange(histoUpdate);
 			} else
 				mainPlotter.refresh(true);
 		}
 	}	
-	
+
+	@Override
+	public void update(Object theObserved, final Object changeCode) {
+		if(changeCode instanceof ColorMappingUpdate){
+			ColorMappingUpdate update = (ColorMappingUpdate)changeCode;
+			mainPlotter.updateColorMapping(update);
+			mainPlotter.refresh(true);
+		}
+	}
+
 	@Override
 	public void deactivate(boolean leaveSidePlotOpen) {
 		histoUpdate = null;
-		plotWindow.deleteIObserver(histogramView);
-//		try {
-//			getSidePlotView().deactivate(leaveSidePlotOpen);
-//		} catch (IllegalStateException ex) {}
-		page.hideView(histogramView);
-	}	
+		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+			plotWindow.deleteIObserver(histogramView);
+			page.hideView(histogramView);
+		} else {
+			dataWindowView.deleteIObserver(this);
+		}
+	}
+
+	private List<IObserver> observers = 
+			Collections.synchronizedList(new LinkedList<IObserver>());
+
+	@Override
+	public void addIObserver(IObserver anIObserver) {
+		observers.add(anIObserver);
+	}
+
+	@Override
+	public void deleteIObserver(IObserver anIObserver) {
+		observers.remove(anIObserver);
+	}
+
+	@Override
+	public void deleteIObservers() {
+		observers.clear();
+	}
+
+	private int getDefaultPlottingSystemChoice() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
+	}
 }
