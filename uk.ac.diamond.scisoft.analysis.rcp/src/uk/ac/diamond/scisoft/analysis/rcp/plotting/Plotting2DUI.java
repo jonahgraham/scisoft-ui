@@ -44,6 +44,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.ROIList;
+import uk.ac.diamond.scisoft.analysis.roi.ROIUtils;
 
 /**
  * Class to create the a 2D/image plotting
@@ -160,6 +161,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 		observers.clear();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void processGUIUpdate(GuiBean guiBean) {
 
@@ -170,6 +172,9 @@ public class Plotting2DUI extends AbstractPlotUI {
 		final String cname = manager.getName();
 		final ROIBase croi = manager.getROI();
 		final Collection<IRegion> regions = plottingSystem.getRegions();
+		@SuppressWarnings("rawtypes")
+		ROIList list = (ROIList) guiBean.get(GuiParameters.ROIDATALIST);
+
 
 		// Same as in SidePlotProfile with onSwitch = false
 		// logic is for each GUI parameter
@@ -185,25 +190,32 @@ public class Plotting2DUI extends AbstractPlotUI {
 
 		if (roi == null) {
 			if (cname != null && croi != null) {
-				for (final IRegion r : regions) {
+				IRegion found = null;
+				for (IRegion r : regions) {
 					if (cname.equals(r.getName())) {
-						Display.getDefault().asyncExec(new Runnable(){
-							@Override
-							public void run() {
-								plottingSystem.removeRegion(r);
-							}
-						});
+						found = r;
 						break;
 					}
 				}
-			}		
+				if (found != null) { // delete old region
+					regions.remove(found);
+					final IRegion r = found;
+					Display.getDefault().syncExec(new Runnable() {
+						@Override
+						public void run() {
+							plottingSystem.removeRegion(r);
+						}
+					});
+					
+				}
+			}
 		} else {
 			boolean found = false; // found existing?
 			if (cname != null && croi != null) {
 				if (roi.getClass().equals(croi.getClass())) { // replace current ROI
 					for (final IRegion r : regions) {
 						if (cname.equals(r.getName())) {
-							Display.getDefault().asyncExec(new Runnable() {
+							Display.getDefault().syncExec(new Runnable() {
 								@Override
 								public void run() {
 									r.setROI(roi);
@@ -216,17 +228,18 @@ public class Plotting2DUI extends AbstractPlotUI {
 				}
 			}
 			if (!found) { // create new region
-				Display.getDefault().asyncExec(new Runnable() {
+				if (list == null) {
+					list = ROIUtils.createNewROIList(roi);
+				}
+				list.add(roi);
+				Display.getDefault().syncExec(new Runnable() {
 					@Override
 					public void run() {
-						createRegion(roi);
+						regions.add(createRegion(roi));
 					}
 				});
 			}
 		}
-
-		@SuppressWarnings("unchecked")
-		final ROIList<? extends ROIBase> list = (ROIList<? extends ROIBase>) guiBean.get(GuiParameters.ROIDATALIST);
 
 		final ROIBase roib = roi != null ? roi : (croi != null ? croi : null);
 		if (roib != null) {
@@ -244,27 +257,30 @@ public class Plotting2DUI extends AbstractPlotUI {
 					});
 				}
 			} else {
-				ROIBase froi = list.get(0);
+				ROIBase froi = (ROIBase) list.get(0);
 				if (roib.getClass().equals(froi.getClass())) {
 					final List<IRegion> rList = createRegionsList(regions, roib.getClass());
 					final int nr = rList.size();
 					if (nr > 0) {
+						final ROIList<? extends ROIBase> flist = list;
 						Display.getDefault().asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								int nl = list.size();
+								int nl = flist.size();
+								int n = nr;
 								if (nl < nr) {
 									for (int i = nr - 1; i >= nl; i--) {
 										plottingSystem.removeRegion(rList.remove(i));
 									}
+									n = nl;
 								}
-								for (int i = 0; i < nl; i++) {
-									rList.get(i).setROI(list.get(i));
+								for (int i = 0; i < n; i++) {
+									rList.get(i).setROI(flist.get(i));
 								}
 								if (nl > nr) {
 									// create regions
 									for (int i = nr; i < nl; i++) {
-										createRegion(list.get(i));
+										createRegion(flist.get(i));
 									}
 								}
 							}
@@ -275,18 +291,20 @@ public class Plotting2DUI extends AbstractPlotUI {
 		}
 	}
 
-	private void createRegion(ROIBase roib) {
+	private IRegion createRegion(ROIBase roib) {
 		try {
 			RegionType type = RegionType.getRegion(roib.getClass());
 			IRegion region = plottingSystem.createRegion(RegionUtils.getUniqueName(type.getName(), plottingSystem), type);
 			region.setROI(roib);
 			plottingSystem.addRegion(region);
+			return region;
 		} catch (Exception e) {
 			logger.error("Problem creating new region from ROI", e);
 		}
+		return null;
 	}
 
-	private List<IRegion> createRegionsList(Collection<IRegion> regions, Class<? extends ROIBase> roiClass) {
+	private static List<IRegion> createRegionsList(Collection<IRegion> regions, Class<? extends ROIBase> roiClass) {
 		List<IRegion> list = new ArrayList<IRegion>();
 		for (IRegion r : regions) {
 			ROIBase rr = r.getROI();
