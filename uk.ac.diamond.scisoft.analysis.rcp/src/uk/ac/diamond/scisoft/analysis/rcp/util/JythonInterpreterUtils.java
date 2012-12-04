@@ -94,11 +94,6 @@ public class JythonInterpreterUtils {
 		File site = new File(jyLib, "site-packages");
 		path.append(new PyString(site.getAbsolutePath())); // TODO? iterate over sub-directories
 
-		logger.info("Class path:");
-		for (PyString p : (PyString[])path.toArray(new PyString[0])) {
-			logger.info("\t {}", p);
-		}
-
 		try {
 			File pythonPlugin = BundleUtils.getBundleLocation(SCISOFTPY);
 			if (!pythonPlugin.exists()) {
