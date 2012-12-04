@@ -95,7 +95,7 @@ limitations under the License.
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-            
+
    <plugin
          id="uk.ac.diamond.sda.meta"
          download-size="0"
@@ -146,6 +146,13 @@ limitations under the License.
 
    <plugin
          id="org.apache.commons.math3"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.nebula.widgets.nattable.core"
          download-size="0"
          install-size="0"
          version="0.0.0"

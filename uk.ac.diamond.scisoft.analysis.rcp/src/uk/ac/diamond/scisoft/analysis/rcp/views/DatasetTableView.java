@@ -19,44 +19,42 @@ package uk.ac.diamond.scisoft.analysis.rcp.views;
 import java.io.PrintStream;
 import java.util.Set;
 
-import net.sourceforge.nattable.NatTable;
-import net.sourceforge.nattable.command.AbstractContextFreeCommand;
-import net.sourceforge.nattable.command.AbstractLayerCommandHandler;
-import net.sourceforge.nattable.config.DefaultNatTableStyleConfiguration;
-import net.sourceforge.nattable.coordinate.Range;
-import net.sourceforge.nattable.copy.command.CopyDataToClipboardCommand;
-import net.sourceforge.nattable.data.IDataProvider;
-import net.sourceforge.nattable.export.excel.command.ExportToExcelCommand;
-import net.sourceforge.nattable.freeze.CompositeFreezeLayer;
-import net.sourceforge.nattable.freeze.FreezeLayer;
-import net.sourceforge.nattable.freeze.event.FreezeEvent;
-import net.sourceforge.nattable.freeze.event.UnfreezeEvent;
-import net.sourceforge.nattable.grid.data.DefaultCornerDataProvider;
-import net.sourceforge.nattable.grid.layer.ColumnHeaderLayer;
-import net.sourceforge.nattable.grid.layer.CornerLayer;
-import net.sourceforge.nattable.grid.layer.DefaultColumnHeaderDataLayer;
-import net.sourceforge.nattable.grid.layer.DefaultGridLayer;
-import net.sourceforge.nattable.grid.layer.DefaultRowHeaderDataLayer;
-import net.sourceforge.nattable.grid.layer.RowHeaderLayer;
-import net.sourceforge.nattable.layer.DataLayer;
-import net.sourceforge.nattable.layer.ILayer;
-import net.sourceforge.nattable.layer.IUniqueIndexLayer;
-import net.sourceforge.nattable.layer.event.StructuralRefreshEvent;
-import net.sourceforge.nattable.layer.stack.DefaultBodyLayerStack;
-import net.sourceforge.nattable.print.command.TurnViewportOffCommand;
-import net.sourceforge.nattable.print.command.TurnViewportOnCommand;
-import net.sourceforge.nattable.selection.SelectionLayer;
-import net.sourceforge.nattable.selection.command.ClearAllSelectionsCommand;
-import net.sourceforge.nattable.selection.command.SelectAllCommand;
-import net.sourceforge.nattable.viewport.ViewportLayer;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.nebula.widgets.nattable.NatTable;
+import org.eclipse.nebula.widgets.nattable.command.AbstractContextFreeCommand;
+import org.eclipse.nebula.widgets.nattable.command.AbstractLayerCommandHandler;
+import org.eclipse.nebula.widgets.nattable.config.DefaultNatTableStyleConfiguration;
+import org.eclipse.nebula.widgets.nattable.coordinate.Range;
+import org.eclipse.nebula.widgets.nattable.copy.command.CopyDataToClipboardCommand;
+import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
+import org.eclipse.nebula.widgets.nattable.export.command.ExportCommand;
+import org.eclipse.nebula.widgets.nattable.freeze.CompositeFreezeLayer;
+import org.eclipse.nebula.widgets.nattable.freeze.FreezeLayer;
+import org.eclipse.nebula.widgets.nattable.freeze.event.FreezeEvent;
+import org.eclipse.nebula.widgets.nattable.freeze.event.UnfreezeEvent;
+import org.eclipse.nebula.widgets.nattable.grid.data.DefaultCornerDataProvider;
+import org.eclipse.nebula.widgets.nattable.grid.layer.ColumnHeaderLayer;
+import org.eclipse.nebula.widgets.nattable.grid.layer.CornerLayer;
+import org.eclipse.nebula.widgets.nattable.grid.layer.DefaultColumnHeaderDataLayer;
+import org.eclipse.nebula.widgets.nattable.grid.layer.DefaultGridLayer;
+import org.eclipse.nebula.widgets.nattable.grid.layer.DefaultRowHeaderDataLayer;
+import org.eclipse.nebula.widgets.nattable.grid.layer.RowHeaderLayer;
+import org.eclipse.nebula.widgets.nattable.layer.DataLayer;
+import org.eclipse.nebula.widgets.nattable.layer.ILayer;
+import org.eclipse.nebula.widgets.nattable.layer.IUniqueIndexLayer;
+import org.eclipse.nebula.widgets.nattable.layer.event.StructuralRefreshEvent;
+import org.eclipse.nebula.widgets.nattable.layer.stack.DefaultBodyLayerStack;
+import org.eclipse.nebula.widgets.nattable.print.command.TurnViewportOffCommand;
+import org.eclipse.nebula.widgets.nattable.print.command.TurnViewportOnCommand;
+import org.eclipse.nebula.widgets.nattable.selection.SelectionLayer;
+import org.eclipse.nebula.widgets.nattable.selection.command.ClearAllSelectionsCommand;
+import org.eclipse.nebula.widgets.nattable.selection.command.SelectAllCommand;
+import org.eclipse.nebula.widgets.nattable.viewport.ViewportLayer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
@@ -139,7 +137,7 @@ public class DatasetTableView extends ViewPart {
 		Action clipboardAction = new Action() {
 			@Override
 			public void run() {
-				table.doCommand(new CopyDataToClipboardCommand(new Clipboard(table.getDisplay()), "\t", "\n"));
+				table.doCommand(new CopyDataToClipboardCommand("\t", "\n", table.getConfigRegistry()));
 			}
 		};
 		clipboardAction.setToolTipText("Copy selection to clipboard");
@@ -150,7 +148,7 @@ public class DatasetTableView extends ViewPart {
 			public void run() {
 				try {
 					table.doCommand(new TurnViewportOffCommand());
-					table.doCommand(new ExportToExcelCommand(table.getConfigRegistry(), table.getShell()));
+					table.doCommand(new ExportCommand(table.getConfigRegistry(), table.getShell()));
 					table.doCommand(new TurnViewportOnCommand());
 				} catch (Exception e) {
 					Status status = new Status(IStatus.ERROR, AnalysisRCPActivator.PLUGIN_ID, e.getCause().getMessage(), e); 
@@ -310,7 +308,7 @@ class DatasetGridLayerStack extends DefaultGridLayer {
 			} else {
 				freezeLayer.setTopLeftPosition(-1, -1);
 				freezeLayer.setBottomRightPosition(-1, -1);
-				v.resetOrigin();
+				v.resetOrigin(0, 0);
 				v.fireLayerEvent(new UnfreezeEvent(v));
 			}
 		}
@@ -369,7 +367,7 @@ class DatasetColumnProvider implements IDataProvider {
 		off = data != null ? 1 : 0;
 		String header = data != null ? data.getName() : null;
 		if (header == null || header.length() == 0)
-			headers = new String[] { "x" };
+			headers = new String[] {};
 		else
 			headers = new String[] { header };
 	}
@@ -553,8 +551,6 @@ class ExportSelectionCommand extends AbstractContextFreeCommand {
 
 class ExportSelectionCommandHandler extends AbstractLayerCommandHandler<ExportSelectionCommand> {
 	private SelectionLayer selLayer;
-	private ILayer colLayer;
-	private ILayer rowLayer;
 	private DatasetGridLayerStack dataLayer;
 	private IDataProvider dataProvider;
 
@@ -562,8 +558,6 @@ class ExportSelectionCommandHandler extends AbstractLayerCommandHandler<ExportSe
 		selLayer = selectionLayer;
 		dataLayer = gridLayer;
 		dataProvider = gridLayer.getDataProvider();
-		colLayer = gridLayer.getColumnHeaderLayer();
-		rowLayer = gridLayer.getRowHeaderLayer();
 	}
 
 	@Override
@@ -602,10 +596,10 @@ class ExportSelectionCommandHandler extends AbstractLayerCommandHandler<ExportSe
 
 	public void save(PrintStream stream, String separator, String rowDelimiter) {
 		final StringBuilder textData = new StringBuilder();
-		assembleHeaders(textData, separator, selLayer.getSelectedColumns());
+		assembleHeaders(textData, separator, selLayer.getSelectedColumnPositions());
 		textData.append(rowDelimiter);
 
-		final Set<Range> selectedRows = selLayer.getSelectedRows();
+		final Set<Range> selectedRows = selLayer.getSelectedRowPositions();
 		for (Range range : selectedRows) {
 			for (int rowPosition = range.start; rowPosition < range.end; rowPosition++) {
 				if (assembleBody(textData, separator, rowPosition))
@@ -623,8 +617,8 @@ class ExportSelectionCommandHandler extends AbstractLayerCommandHandler<ExportSe
 	}
 
 	protected void assembleHeaders(StringBuilder text, String delimiter, int... selectedColumnPositions) {
-		text.append(colLayer.getDataValueByPosition(0, 0));
 		if (dataLayer.isColHeadersCustom()) {
+			text.append(dataLayer.getColumnHeaderDataLayer().getDataValueByPosition(0, 0));
 			for (int col : selectedColumnPositions) {
 				if (col == 0 && dataLayer.isRowHeadersCustom())
 					continue;
@@ -636,13 +630,13 @@ class ExportSelectionCommandHandler extends AbstractLayerCommandHandler<ExportSe
 				if (col == 0 && dataLayer.isRowHeadersCustom())
 					continue;
 				text.append(delimiter);
-				text.append(colLayer.getDataValueByPosition(col, 0));
+				text.append(dataLayer.getColumnHeaderDataLayer().getDataValueByPosition(col, 0));
 			}
 		}
 	}
 
 	protected boolean assembleBody(StringBuilder text, String delimiter, int currentRowPosition) {
-		final int[] selectedColumns = selLayer.getSelectedColumns();
+		final int[] selectedColumns = selLayer.getSelectedColumnPositions();
 
 		if (currentRowPosition == 0 && dataLayer.isColHeadersCustom())
 			return false;
@@ -650,7 +644,7 @@ class ExportSelectionCommandHandler extends AbstractLayerCommandHandler<ExportSe
 		if (dataLayer.isRowHeadersCustom()) {
 			text.append(dataProvider.getDataValue(0, currentRowPosition));
 		} else {
-			text.append(rowLayer.getDataValueByPosition(0, currentRowPosition));
+			text.append(dataLayer.getRowHeaderDataLayer().getDataValueByPosition(0, currentRowPosition));
 		}
 		for (int col : selectedColumns) {
 			if (selLayer.isCellPositionSelected(col, currentRowPosition)) {
