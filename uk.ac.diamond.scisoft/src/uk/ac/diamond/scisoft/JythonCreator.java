@@ -77,7 +77,7 @@ public class JythonCreator implements IStartup {
 	}
 
 
-	private static final String JYTHON_BUNDLE = "uk.ac.diamond.scisoft.python";
+	private static final String JYTHON_BUNDLE = "uk.ac.diamond.jython";
 	private static final String JYTHON_VERSION = "2.5";
 	public static final String  INTERPRETER_NAME = "DawnJython" + JYTHON_VERSION;
 	private static String JYTHON_DIR = "jython" + JYTHON_VERSION;
@@ -129,7 +129,7 @@ public class JythonCreator implements IStartup {
 		 *     . flagged by RUN_IN_ECLIPSE property
 		 *     . source code can be in workspace/plugins or workspace_git (this class is in workspace_git/blah.git/a.b.c)
 		 * 
-		 * Jython lives in diamond-jython.git in uk.ac.diamond.scisoft.python (after being moved from uk.ac.gda.libs)
+		 * Jython lives in diamond-jython.git in uk.ac.diamond.jython (after being moved from uk.ac.gda.libs)
 		 */
 
 		logger.debug("Initialising the Jython interpreter setup");
