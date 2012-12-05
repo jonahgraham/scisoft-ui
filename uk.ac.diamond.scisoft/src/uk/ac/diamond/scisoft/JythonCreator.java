@@ -79,7 +79,7 @@ public class JythonCreator implements IStartup {
 
 	private static final String JYTHON_BUNDLE = "uk.ac.diamond.jython";
 	private static final String JYTHON_VERSION = "2.5";
-	public static final String  INTERPRETER_NAME = "Jython" + JYTHON_VERSION;
+	public static final String  INTERPRETER_NAME = "DawnJython" + JYTHON_VERSION;
 	private static String JYTHON_DIR = "jython" + JYTHON_VERSION;
 	private static final String GIT_ENDING = ".git";
 	private static final String GIT_SUFFIX = "_git";
@@ -362,30 +362,34 @@ public class JythonCreator implements IStartup {
 			
 			// Attempt to update existing Jython configuration
 			IInterpreterInfo[] interpreterInfos = man.getInterpreterInfos();
-			InterpreterInfo existingInfo = null;
+			IInterpreterInfo existingInfo = null;
 			try {
 				existingInfo = man.getInterpreterInfo(executable, monitor);
 			} catch (MisconfigurationException e) {
 				// MisconfigurationException thrown if executable not found
 			}
-			
+
 			if (existingInfo != null && existingInfo.toString().equals(info.toString())) {
 				logger.debug("Jython interpreter already exists with exact settings");
 			} else {
 				List<IInterpreterInfo> infos = new ArrayList<IInterpreterInfo>(Arrays.asList(interpreterInfos));
+				
 				if (existingInfo == null) {
-					logger.debug("Adding interpreter as an additional interpreter");
-				} else {
-					logger.debug("Updating interpreter which was previously created");
-					for (int i = 0; i < interpreterInfos.length; i++) {
-						if (infos.get(i) == existingInfo) {
-							infos.remove(i);
+					for (IInterpreterInfo i : infos) {
+						if (INTERPRETER_NAME.equals(i.getName())) {
+							existingInfo = i;
+							logger.debug("Found interpreter of same name");
 							break;
 						}
 					}
 				}
+				if (existingInfo == null) {
+					logger.debug("Adding interpreter as an additional interpreter");
+				} else {
+					logger.debug("Updating interpreter which was previously created");
+					infos.remove(existingInfo);
+				}
 				infos.add(info);
-				logger.debug("Removing existing interpreter with the same name");
 				try {
 					man.setInfos(infos.toArray(new IInterpreterInfo[infos.size()]), set, monitor);
 				} catch (RuntimeException e) {
@@ -396,7 +400,6 @@ public class JythonCreator implements IStartup {
 			logger.debug("Finished the Jython interpreter setup");
 		}
 	}
-
 	
 	/**
 	 * @return directory where plugins live (defined as parent of current bundle)
