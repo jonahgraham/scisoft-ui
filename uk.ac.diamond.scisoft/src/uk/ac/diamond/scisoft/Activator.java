@@ -20,16 +20,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.ProtectionDomain;
 
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.python.pydev.core.IInterpreterInfo;
-import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.plugin.PydevPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,15 +107,10 @@ public class Activator extends AbstractUIPlugin {
 			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 			loggerContext.reset();
 		} 
-		
-		
-		// NOTE: Mark B advised that the python configuration should not be done here as there is now 
-		// done in earlystartup extension point. Look at history if you want this code back.
 	}
 
 	public static File getBundleLocation(final String bundle_id) throws IOException {
 		
-
         // Just in case...
         final String eclipseDir = getEclipseHome();
   
@@ -131,7 +124,12 @@ public class Activator extends AbstractUIPlugin {
 			}
         }
 		final Bundle bundle = Platform.getBundle(PLUGIN_ID);
-        return FileLocator.getBundleFile(bundle);
+		if (bundle != null)
+	        return FileLocator.getBundleFile(bundle);
+
+		ProtectionDomain pd = Activator.class.getProtectionDomain();
+		URL url = pd.getCodeSource().getLocation();
+		return new File(url.getFile());
 	}
 
 	/**
@@ -173,63 +171,5 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
-	}
-
-	@SuppressWarnings("unused")
-	private boolean isInterpreter(final IProgressMonitor monitor) {
-
-		final InterpreterThread checkInterpreter = new InterpreterThread(monitor);
-		checkInterpreter.start();
-
-		int totalTimeWaited = 0;
-		while (!checkInterpreter.isFinishedChecking()) {
-			try {
-				if (totalTimeWaited > 4000) {
-					logger.error("Unable to call getInterpreterInfo() method on pydev, " +
-							"assuming interpreter is already created.");
-					return true;
-				}
-				Thread.sleep(100);
-				totalTimeWaited += 100;
-			} catch (InterruptedException ne) {
-				break;
-			}
-		}
-
-		if (checkInterpreter.isInterpreter())
-			return true;
-		return false;
-	}
-
-	private class InterpreterThread extends Thread {
-
-		private IInterpreterInfo info = null;
-		private IProgressMonitor monitor;
-		private boolean finishedCheck = false;
-
-		InterpreterThread(final IProgressMonitor monitor) {
-			super("Interpreter Info");
-			setDaemon(true);// This is not that important
-			this.monitor = monitor;
-		}
-
-		@Override
-		public void run() {
-			// Might never return...
-			try {
-				info = PydevPlugin.getJythonInterpreterManager().getInterpreterInfo(JythonCreator.INTERPRETER_NAME, monitor);
-			} catch (MisconfigurationException e) {
-				logger.error("Jython is not configured properly", e);
-			}
-			finishedCheck = true;
-		}
-
-		public boolean isInterpreter() {
-			return info != null;
-		}
-
-		public boolean isFinishedChecking() {
-			return finishedCheck;
-		}
 	}
 }
