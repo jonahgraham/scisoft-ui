@@ -65,6 +65,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ClearPlottingSystemAction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DuplicatePlotAction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
@@ -104,6 +105,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	protected CommandContributionItem openPyDevConsoleCCI;
 	protected CommandContributionItem updateDefaultPlotCCI;
 	protected CommandContributionItem getPlotBeanCCI;
+	protected CommandContributionItem clearPlotCCI;
 
 	protected String printButtonText = ResourceProperties.getResourceString("PRINT_BUTTON");
 	protected String printToolTipText = ResourceProperties.getResourceString("PRINT_TOOLTIP");
@@ -490,6 +492,21 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	}
 
 	/**
+	 * Create the PlotView plotting system clear action
+	 */
+	protected void addClearAction(){
+		if (clearPlotCCI == null) {
+			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
+					.getActiveWorkbenchWindow(), null, ClearPlottingSystemAction.COMMAND_ID,
+					CommandContributionItem.STYLE_PUSH);
+			ccip.label = "Clear Plot";
+			ccip.icon = AnalysisRCPActivator.getImageDescriptor("icons/clear.gif");
+			clearPlotCCI = new CommandContributionItem(ccip);
+		}
+		bars.getMenuManager().add(clearPlotCCI);
+	}
+
+	/**
 	 * create the scripting actions
 	 */
 	protected void addScriptingAction(){
@@ -549,6 +566,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		plotUI = new Plotting1DUI(plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
+		addClearAction();
 		updateGuiBeanPlotMode(GuiPlotMode.ONED);
 	}
 
@@ -566,6 +584,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		plotUI = new Plotting2DUI(roiManager, plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
+		addClearAction();
 		updateGuiBeanPlotMode(GuiPlotMode.TWOD);
 	}
 
@@ -607,6 +626,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		plotUI = new PlottingScatter2DUI(plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
+		addClearAction();
 		updateGuiBeanPlotMode(GuiPlotMode.SCATTER2D);
 	}
 

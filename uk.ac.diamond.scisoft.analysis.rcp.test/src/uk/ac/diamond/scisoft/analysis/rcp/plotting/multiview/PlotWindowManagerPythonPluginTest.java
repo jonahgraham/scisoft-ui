@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview;
 
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.eclipse.ui.IWorkbenchPage;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -80,6 +81,15 @@ public class PlotWindowManagerPythonPluginTest extends PlotWindowManagerPluginTe
 					throw new RuntimeException(e);
 				}
 			}
+
+			@Override
+			public void clearPlottingSystem(AbstractPlottingSystem plottingSystem, String viewName) {
+				try{
+					plottingSystem.reset();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
 		};
 	}
 
@@ -100,6 +110,19 @@ public class PlotWindowManagerPythonPluginTest extends PlotWindowManagerPluginTe
 
 		});
 		return (String) threadRunner.run();
+	}
+
+	@Override
+	public void clearPlottingSystem(final AbstractPlottingSystem plottingSystem, String viewName) {
+		ThreadRunner threadRunner = new ThreadRunner(new ThreadRunnable() {
+
+			@Override
+			public Object run() throws Exception {
+				plottingSystem.reset();
+				return null;
+			}
+		});
+		threadRunner.run();
 	}
 
 	@Override

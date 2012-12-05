@@ -16,12 +16,14 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview;
 
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.eclipse.ui.IWorkbenchPage;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.IPlotWindowManagerRMI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.RMIPlotWindowManger;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.MultiPlotViewTestBase.ThreadRunner;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.MultiPlotViewTestBase.ThreadRunner.ThreadRunnable;
 
 /**
@@ -52,6 +54,19 @@ public class PlotWindowManagerRMIPluginTest extends PlotWindowManagerPluginTestA
 
 		});
 		return (String) threadRunner.run();
+	}
+
+	@Override
+	public void clearPlottingSystem(final AbstractPlottingSystem plottingSystem, String viewName) {
+		ThreadRunner threadRunner = new ThreadRunner(new ThreadRunnable() {
+
+			@Override
+			public Object run() throws Exception {
+				plottingSystem.reset();
+				return null;
+			}
+		});
+		threadRunner.run();
 	}
 
 	@Override

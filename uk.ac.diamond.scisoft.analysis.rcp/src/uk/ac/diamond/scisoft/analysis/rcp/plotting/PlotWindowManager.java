@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -159,6 +160,16 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 		} catch (Exception e) {
 			logger.error("Unable to duplicate plot view " + viewName, e);
 			return null;
+		}
+	}
+
+	@Override
+	public void clearPlottingSystem(AbstractPlottingSystem plottingSystem, String viewName) {
+		try {
+			plottingSystem.reset();
+			plottingSystem.setTitle("");
+		} catch (Exception e) {
+			logger.error("Unable to clear plot view " + viewName, e);
 		}
 	}
 

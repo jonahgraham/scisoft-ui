@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview;
 
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.eclipse.ui.IWorkbenchPage;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -23,6 +24,7 @@ import org.junit.BeforeClass;
 import uk.ac.diamond.scisoft.analysis.AnalysisRpcClientProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.MultiPlotViewTestBase.ThreadRunner;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.MultiPlotViewTestBase.ThreadRunner.ThreadRunnable;
 import uk.ac.diamond.scisoft.analysis.rpc.AnalysisRpcException;
 
@@ -67,6 +69,15 @@ public class PlotWindowManagerRPCPluginTest extends PlotWindowManagerPluginTestA
 					throw new RuntimeException(e);
 				}
 			}
+
+			@Override
+			public void clearPlottingSystem(AbstractPlottingSystem plottingSystem, String viewName) {
+				try{
+					plottingSystem.reset();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
 		};
 	}
 
@@ -86,6 +97,19 @@ public class PlotWindowManagerRPCPluginTest extends PlotWindowManagerPluginTestA
 
 		});
 		return (String) threadRunner.run();
+	}
+
+	@Override
+	public void clearPlottingSystem(final AbstractPlottingSystem plottingSystem, String viewName) {
+		ThreadRunner threadRunner = new ThreadRunner(new ThreadRunnable() {
+
+			@Override
+			public Object run() throws Exception {
+				plottingSystem.reset();
+				return null;
+			}
+		});
+		threadRunner.run();
 	}
 
 	@Override

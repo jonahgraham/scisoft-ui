@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview;
 
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.eclipse.ui.IWorkbenchPage;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
@@ -38,6 +39,11 @@ public class PlotWindowManagerDirectPluginTest extends PlotWindowManagerPluginTe
 	@Override
 	public String[] getOpenViews() {
 		return PlotWindow.getManager().getOpenViews();
+	}
+
+	@Override
+	public void clearPlottingSystem(AbstractPlottingSystem plottingSystem, String viewName) {
+		plottingSystem.reset();
 	}
 
 }

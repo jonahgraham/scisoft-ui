@@ -601,6 +601,11 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.duplicatePlot"
             name="Duplicate plot">
       </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ClearPlottingSystemAction"
+            id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.clearPlottingSystem"
+            name="Clear plot">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
