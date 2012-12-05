@@ -22,7 +22,7 @@ import org.python.core.PyObjectDerived;
 import org.python.util.PythonInterpreter;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.python.JythonInterpreterUtils;
+import uk.ac.diamond.scisoft.analysis.rcp.util.JythonInterpreterUtils;
 
 public class JythonInterpreterUtilsTest {
 
