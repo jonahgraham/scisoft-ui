@@ -435,17 +435,11 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 			}
 			if (datasets.get(0) instanceof AbstractCompoundDataset) {
 				logger.warn("Surface plotting of CompoundDatasets is currently not supported!");
-				plotWindow.notifyUpdateFinished();				
+				plotWindow.notifyUpdateFinished();
 			} else {
-				final HistogramDataUpdate histoUpdate = new
-						  HistogramDataUpdate(datasets.get(0));
+				final HistogramDataUpdate histoUpdate = new HistogramDataUpdate(datasets.get(0));
 				try {
-					if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
-						mainPlotter.replaceAllPlots(datasets);
-					else if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
-						mainPlotter.replacePlot(datasets);
-						
-					}
+					mainPlotter.replaceAllPlots(datasets);
 				} catch (PlotException e) {
 					e.printStackTrace();
 				}
@@ -485,20 +479,16 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 		}
 	
 	}
-	
-
 
 	@Override
 	public void addIObserver(IObserver anIObserver) {
 		observers.add(anIObserver);
 	}
 
-
 	@Override
 	public void deleteIObserver(IObserver anIObserver) {
 		observers.remove(anIObserver);
 	}
-
 
 	@Override
 	public void deleteIObservers() {

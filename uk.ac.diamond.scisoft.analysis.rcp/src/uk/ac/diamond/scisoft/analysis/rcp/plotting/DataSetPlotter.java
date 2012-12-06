@@ -1285,6 +1285,8 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 		clearPlot();
 		if (newPlotMode != currentMode)
 			hasData = false;
+		// no need to reset the mode  if already in Surf2D mode
+		if (newPlotMode==currentMode && currentMode==PlottingMode.SURF2D) return;
 		currentMode = newPlotMode;
 		if (hasJOGL)
 			plotArea.setFocus();

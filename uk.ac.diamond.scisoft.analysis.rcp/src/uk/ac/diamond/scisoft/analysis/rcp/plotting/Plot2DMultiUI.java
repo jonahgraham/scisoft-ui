@@ -485,10 +485,7 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 			}
 
 			try {
-				if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
-					mainPlotter.replaceAllPlots(datasets);
-				else
-					mainPlotter.replacePlot(datasets);
+				mainPlotter.replaceAllPlots(datasets);
 			} catch (PlotException e) {
 				e.printStackTrace();
 			}
@@ -496,7 +493,8 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 			//we set the plot/file name
 			mainPlotter.setTitle(datasets.get(0).getName());
 
-			dataWindowView.setData(datasets.get(0),xAxis,yAxis);
+			if(dataWindowView != null)
+				dataWindowView.setData(datasets.get(0),xAxis,yAxis);
 
 			compParent.getDisplay().asyncExec(new Runnable() {
 				@Override
