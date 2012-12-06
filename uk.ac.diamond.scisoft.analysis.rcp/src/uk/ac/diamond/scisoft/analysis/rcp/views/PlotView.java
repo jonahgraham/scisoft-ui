@@ -196,7 +196,8 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 			if (stashedGuiBean != null) {
 				GuiBean guiBean = stashedGuiBean;
 				stashedGuiBean = null;
-				plotWindow.processGUIUpdate(guiBean);
+				if(plotWindow != null)
+					plotWindow.processGUIUpdate(guiBean);
 			}
 
 			// once the guiBean has been sorted out, see if there is any need to update the dataBean
@@ -212,7 +213,8 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 
 					// update the GUI if needed
 					updateGuiBean(dataBean);
-					plotWindow.processPlotUpdate(dataBean);
+					if(plotWindow != null)
+						plotWindow.processPlotUpdate(dataBean);
 					notifyDataObservers(dataBean);
 				} catch (Exception e) {
 					logger.error("There has been an issue retrieving the databean from the plotserver", e);
