@@ -91,6 +91,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	protected String name;
 
 	private AbstractPlottingSystem plottingSystem;
+	private GuiPlotMode previousMode;
 
 	protected List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
 	protected IGuiInfoManager manager = null;
@@ -686,14 +687,22 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 					setupPlotting2D();
 				} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
 					setupScatterPlotting2D();
-				} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
+				} else if (plotMode.equals(GuiPlotMode.ONED_THREED)
+						&& previousMode!=GuiPlotMode.ONED_THREED) {
 					setupMulti1DPlot();
-				} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
+					previousMode = GuiPlotMode.ONED_THREED;
+				} else if (plotMode.equals(GuiPlotMode.SURF2D)
+						&& previousMode!=GuiPlotMode.SURF2D) {
 					setup2DSurface();
-				} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
+					previousMode = GuiPlotMode.SURF2D;
+				} else if (plotMode.equals(GuiPlotMode.SCATTER3D)
+						&& previousMode!=GuiPlotMode.SCATTER3D) {
 					setupScatter3DPlot();
-				} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
+					previousMode = GuiPlotMode.SCATTER3D;
+				} else if (plotMode.equals(GuiPlotMode.MULTI2D)
+						&& previousMode!=GuiPlotMode.MULTI2D) {
 					setupMulti2D();
+					previousMode = GuiPlotMode.MULTI2D;
 				} 
 			}else if (plotMode.equals(GuiPlotMode.EMPTY)) {
 				clearPlot();
@@ -861,7 +870,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 						}
 					}
 				});
-			} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
+			} else if (plotMode.equals(GuiPlotMode.ONED_THREED) 
+					&& previousMode!=GuiPlotMode.ONED_THREED) {
 				doBlock();
 				parentComp.getDisplay().asyncExec(new Runnable() {
 					@Override
@@ -869,12 +879,14 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 						try {
 							cleanUp(GuiPlotMode.ONED_THREED);
 							setupMulti1DPlot();
+							previousMode = GuiPlotMode.ONED_THREED;
 						} finally {
 							undoBlock();
 						}
 					}
 				});
-			} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
+			} else if (plotMode.equals(GuiPlotMode.SURF2D)
+					&& previousMode!=GuiPlotMode.SURF2D) {
 				doBlock();
 				parentComp.getDisplay().asyncExec(new Runnable() {
 					@Override
@@ -882,12 +894,14 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 						try {
 							cleanUp(GuiPlotMode.SURF2D);
 							setup2DSurface();
+							previousMode = GuiPlotMode.SURF2D;
 						} finally {
 							undoBlock();
 						}
 					}
 				});
-			} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
+			} else if (plotMode.equals(GuiPlotMode.SCATTER3D)
+					&& previousMode!=GuiPlotMode.SCATTER3D) {
 				doBlock();
 				parentComp.getDisplay().asyncExec(new Runnable() {
 					@Override
@@ -895,12 +909,14 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 						try {
 							cleanUp(GuiPlotMode.SCATTER3D);
 							setupScatter3DPlot();
+							previousMode = GuiPlotMode.SCATTER3D;
 						} finally {
 							undoBlock();
 						}
 					}
 				});
-			} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
+			} else if (plotMode.equals(GuiPlotMode.MULTI2D)
+					&& previousMode!=GuiPlotMode.MULTI2D) {
 				doBlock();
 				parentComp.getDisplay().asyncExec(new Runnable() {
 					@Override
@@ -908,6 +924,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 						try {
 							cleanUp(GuiPlotMode.MULTI2D);
 							setupMulti2D();
+							previousMode = GuiPlotMode.MULTI2D;
 						} finally {
 							undoBlock();
 						}
