@@ -79,15 +79,24 @@ public class Plotting1DUI extends AbstractPlotUI {
 
 					int i=0;
 					String title = "";
+					//if more than one plot to show then do not show legend
+					if(plotData.size()>1){
+						plottingSystem.setShowLegend(false);
+					}
+
 					Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
 					while (iter.hasNext()) {
 						DataSetWithAxisInformation dataSetAxis = iter.next();
 						AbstractDataset data = dataSetAxis.getData();
 						yDatasets.add(data);
 						currentDataName = data.getName();
-						if(i>0)
-							title += ", "+ data.getName();
-						else
+						if ( i > 0) {
+							// if longer than 40 characters otherwise the title is too long!
+							if(title.length() == 40)
+								title += "...";
+							if(title.length() < 40)
+								title += ", "+ data.getName();
+						} else
 							title += data.getName();
 
 						if(currentDataName.equals("")) // if no name given set default name
@@ -148,6 +157,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 							}
 							logger.debug("Plot 1D created");
 						}
+						
 						i++;
 					}
 
