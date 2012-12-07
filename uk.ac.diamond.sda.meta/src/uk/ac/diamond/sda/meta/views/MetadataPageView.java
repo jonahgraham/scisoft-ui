@@ -55,7 +55,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
-import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.sda.meta.Activator;
 import uk.ac.diamond.sda.meta.contribution.MetadataPageContribution;
@@ -194,6 +193,9 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 				UIJob updateComposite = new UIJob("Update Composite") {
 					@Override
 					public IStatus runInUIThread(IProgressMonitor monitor) {
+						if(parent == null || parent.isDisposed())
+							return Status.CANCEL_STATUS;
+						
 						// clear the old composite
 						for (Control iterable_element : parent.getChildren()) {
 							iterable_element.dispose();
