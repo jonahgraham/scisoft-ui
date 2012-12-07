@@ -28,6 +28,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
 
 public class DataExplorationPerspective implements IPerspectiveFactory {
 
+	/**
+	 * ID used elsewhere, do not change
+	 */
 	public static final String ID = "uk.ac.diamond.scisoft.dataexplorationperspective";
 	final static String METADATAPAGE_ID = "uk.ac.diamond.sda.meta.MetadataPageView";
 	@Override
