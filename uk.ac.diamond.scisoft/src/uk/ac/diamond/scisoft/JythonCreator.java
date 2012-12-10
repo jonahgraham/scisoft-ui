@@ -22,7 +22,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -79,14 +82,14 @@ public class JythonCreator implements IStartup {
 
 	private static final String JYTHON_BUNDLE = "uk.ac.diamond.jython";
 	private static final String JYTHON_VERSION = "2.5";
-	public static final String  INTERPRETER_NAME = "DawnJython" + JYTHON_VERSION;
+	public static final String  INTERPRETER_NAME = "Jython" + JYTHON_VERSION;
 	private static String JYTHON_DIR = "jython" + JYTHON_VERSION;
-	private static final String GIT_ENDING = ".git";
+	private static final String GIT__REPO_ENDING = ".git";
 	private static final String GIT_SUFFIX = "_git";
 	private static final String RUN_IN_ECLIPSE = "run.in.eclipse";
 	private static final String[] requiredKeys = {"org.python.pydev",
 		"uk.ac.gda.libs",
-		"cbflib",
+		"cbflib-0.9",
 		"org.apache.commons.codec",
 		"org.apache.commons.math",
 		"uk.ac.diamond.CBFlib",
@@ -101,13 +104,12 @@ public class JythonCreator implements IStartup {
 		"com.springsource.org.castor",
 		"com.springsource.org.exolab.castor",
 		"com.springsource.org.apache.commons",
-		"com.springsource.javax.media",
+		"com.springsource.javax.media.core",
 		"jtransforms",
 		"jai_imageio",
 		"it.tidalwave.imageio.raw",
-		"vecmath",
+		"javax.vecmath",
 		"jython",
-		"commons-math",
 		"uk.ac.diamond.org.apache.ws.commons.util",
 		"uk.ac.diamond.org.apache.xmlrpc.client",
 		"uk.ac.diamond.org.apache.xmlrpc.common",
@@ -115,7 +117,7 @@ public class JythonCreator implements IStartup {
 		"org.dawb.hdf5"
 	};
 
-	private final static String[] pluginKeys = { "uk.ac.diamond", "uk.ac.gda", "org.dawb.hdf5", "ncsa.hdf"};
+	private final static String[] pluginKeys = { "uk.ac.diamond", "uk.ac.gda.common", "org.dawb.hdf5", "ncsa.hdf"};
 	
 	private void initialiseInterpreter(IProgressMonitor monitor) throws CoreException {
 		/*
@@ -312,7 +314,7 @@ public class JythonCreator implements IStartup {
 			if (libraryDir.exists()) {
 				libraryPath = libraryDir.getAbsolutePath();
 			} else {
-				StringBuilder allPaths = new StringBuilder();
+				Set<String> paths = new LinkedHashSet<String>();
 				String osarch = Platform.getOS() + "-" + Platform.getOSArch();
 				logger.debug("Using OS and ARCH: {}", osarch);
 				for (File dir : allPluginDirs) {
@@ -320,19 +322,23 @@ public class JythonCreator implements IStartup {
 					if (d.isDirectory()) {
 						d = new File(d, osarch);
 						if (d.isDirectory()) {
-							if (allPaths.length() != 0) {
-								allPaths.append(File.pathSeparatorChar);
-							}
-							logger.debug("Adding library path: {}", d);
-							allPaths.append(d.getAbsolutePath());
+							if (paths.add(d.getAbsolutePath()))
+								logger.debug("Adding library path: {}", d);
 						}
 					}
 				}
-
-				libraryPath = allPaths.toString();
+				for (String p : System.getenv(pathEnv).split(File.pathSeparator)) {
+					paths.add(p);
+				}
+				StringBuilder allPaths = new StringBuilder();
+				for (String p : paths) {
+					allPaths.append(p);
+					allPaths.append(File.pathSeparatorChar);
+				}
+				libraryPath = allPaths.substring(0, allPaths.length()-1);
 			}
 
-			String env = pathEnv + "=" + libraryPath + File.pathSeparator + System.getenv(pathEnv);
+			String env = pathEnv + "=" + libraryPath;
 			logPaths("Setting " + pathEnv + " for dynamic libraries", env);
 
 			PyDevAdditionalInterpreterSettings settings = new PyDevAdditionalInterpreterSettings();
@@ -372,26 +378,30 @@ public class JythonCreator implements IStartup {
 			if (existingInfo != null && existingInfo.toString().equals(info.toString())) {
 				logger.debug("Jython interpreter already exists with exact settings");
 			} else {
-				List<IInterpreterInfo> infos = new ArrayList<IInterpreterInfo>(Arrays.asList(interpreterInfos));
-				
+				// prune existing interpreters with same name
+				Map<String, IInterpreterInfo> infoMap = new LinkedHashMap<String, IInterpreterInfo>();
+				for (IInterpreterInfo i : interpreterInfos) {
+					infoMap.put(i.getName(), i);
+				}
 				if (existingInfo == null) {
-					for (IInterpreterInfo i : infos) {
-						if (INTERPRETER_NAME.equals(i.getName())) {
-							existingInfo = i;
-							logger.debug("Found interpreter of same name");
-							break;
-						}
+					if (infoMap.containsKey(INTERPRETER_NAME)) {
+						existingInfo = infoMap.get(INTERPRETER_NAME);
+						logger.debug("Found interpreter of same name");
 					}
 				}
 				if (existingInfo == null) {
 					logger.debug("Adding interpreter as an additional interpreter");
 				} else {
 					logger.debug("Updating interpreter which was previously created");
-					infos.remove(existingInfo);
 				}
-				infos.add(info);
+				infoMap.put(INTERPRETER_NAME, info);
 				try {
-					man.setInfos(infos.toArray(new IInterpreterInfo[infos.size()]), set, monitor);
+					IInterpreterInfo[] infos = new IInterpreterInfo[infoMap.size()];
+					int j = 0;
+					for (String i : infoMap.keySet()) {
+						infos[j++] = infoMap.get(i);
+					}
+					man.setInfos(infos, set, monitor);
 				} catch (RuntimeException e) {
 					logger.warn("Problem with restoring info");
 				}
@@ -426,7 +436,7 @@ public class JythonCreator implements IStartup {
 	private File getInterpreterDirectory(File pluginsDir, boolean isRunningInEclipse) {
 		if (isRunningInEclipse) {
 			for (File g : pluginsDir.listFiles()) { // git repositories
-				if (g.isDirectory() && g.getName().endsWith(GIT_ENDING)) {
+				if (g.isDirectory() && g.getName().endsWith(GIT__REPO_ENDING)) {
 					for (File p : g.listFiles()) { // projects
 						if (p.getName().startsWith(JYTHON_BUNDLE)) {
 							File d = new File(p, JYTHON_DIR);
@@ -478,7 +488,7 @@ public class JythonCreator implements IStartup {
 		return libs;
 	}
 
-	private void logPaths(String pathname, String paths) {
+	private static void logPaths(String pathname, String paths) {
 		if (paths == null)
 			return;
 		logger.debug(pathname);
@@ -504,12 +514,12 @@ public class JythonCreator implements IStartup {
 			for (File d : directory.listFiles()) {
 				if (d.isDirectory()) {
 					String n = d.getName();
-					if (n.endsWith(".git")) {
+					if (n.endsWith(GIT__REPO_ENDING)) {
 						dirs.add(d);
 					} else if (n.equals("scisoft")) { // old source layout
 						for (File f : d.listFiles()) {
 							if (f.isDirectory()) {
-								if (f.getName().endsWith(".git")) {
+								if (f.getName().endsWith(GIT__REPO_ENDING)) {
 									logger.debug("Adding scisoft directory {}", f);
 									dirs.add(f);
 								}
