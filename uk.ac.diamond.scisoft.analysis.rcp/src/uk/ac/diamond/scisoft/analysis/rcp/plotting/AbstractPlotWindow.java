@@ -177,24 +177,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			notifyListener.updateProcessed();
 	}
 
-	/**
-	 * Process a plot with data packed in bean - remember to update plot mode first if you do not know the current mode
-	 * or if it is to change
-	 * To be Override
-	 * @param dbPlot
-	 */
-	public void processPlotUpdate(@SuppressWarnings("unused") final DataBean dbPlot) {
-		
-	}
-
-	/**
-	 * To be Override
-	 * @param bean
-	 */
-	public void processGUIUpdate(@SuppressWarnings("unused") GuiBean bean) {
-
-	}
-
 	SimpleLock simpleLock = new SimpleLock();
 
 	protected void doBlock() {
@@ -400,22 +382,17 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	}
 
 	/**
-	 * To be override
-	 * @param plotMode
+	 * Process a plot with data packed in bean - remember to update plot mode first if you do not know the current mode
+	 * or if it is to change
+	 * @param dbPlot
 	 */
-	public void updatePlotMode(@SuppressWarnings("unused") GuiPlotMode plotMode) {
-		// TODO Auto-generated method stub
-		
-	}
+	abstract void processPlotUpdate(final DataBean dbPlot);
 
-	/**
-	 * To be Override
-	 * @param plotMode
-	 */
-	public void updatePlotModeAsync(@SuppressWarnings("unused") GuiPlotMode plotMode) {
-		// TODO Auto-generated method stub
-		
-	}
+	abstract void processGUIUpdate(GuiBean bean);
+
+	abstract void updatePlotMode(GuiPlotMode plotMode);
+
+	abstract void updatePlotModeAsync(GuiPlotMode plotMode);
 
 	public void updatePlotMode(GuiPlotMode plotMode, boolean async) {
 		if (plotMode != null) {
@@ -470,12 +447,8 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 
 	/**
 	 * Required if you want to make tools work with Abstract Plotting System.
-	 * TODO To be overriden
 	 */
-	public Object getAdapter(@SuppressWarnings({ "unused", "rawtypes" }) Class clazz) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	abstract Object getAdapter(Class<?> clazz);
 }
 
 class SimpleLock {
