@@ -109,4 +109,8 @@ public class SliceProperty extends InspectorProperty {
 	public int getMax() {
 		return max;
 	}
+	
+	public boolean isSlice() {
+		return slice!=null && !slice.isSliceComplete();
+	}
 }

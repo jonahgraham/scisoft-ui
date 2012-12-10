@@ -813,6 +813,9 @@ class PlotTab extends ATab {
 			}
 
 			try {
+				// FIX to http://jira.diamond.ac.uk/browse/DAWNSCI-333
+				// Plots must have unique names to work with history currently.
+				if (isSlicedData(sliceProperties)) reorderedData.setName("Slice "+sliceProperties.toString());
 				SDAPlotter.updatePlot(PLOTNAME, slicedAxes.get(0), reorderedData);
 			} catch (Exception e) {
 				logger.error("Could not plot 1d line");
@@ -889,7 +892,13 @@ class PlotTab extends ATab {
 				return;
 			}
 
-			reorderedData.setName(dataset.getName()); // TODO add slice string
+			// FIX to http://jira.diamond.ac.uk/browse/DAWNSCI-333
+			// Plots must have unique names to work with history currently.
+			if (isSlicedData(sliceProperties)) {
+				reorderedData.setName("Slice "+sliceProperties.toString());
+			} else {
+			    reorderedData.setName(dataset.getName()); // TODO add slice string
+			}
 			if (metaDataObject != null) {
 				reorderedData.setMetadata(metaDataObject);
 			}
@@ -936,6 +945,13 @@ class PlotTab extends ATab {
 			break;
 		}
 
+	}
+
+	private boolean isSlicedData(List<SliceProperty> sliceProperties) {
+		for (SliceProperty sliceProperty : sliceProperties) {
+			if (sliceProperty.isSlice()) return true;
+		}
+		return false;
 	}
 
 	private boolean isExplorerNull() {

@@ -146,10 +146,13 @@ public class Plotting1DUI extends AbstractPlotUI {
 							
 							Collection<ITrace> traces;
 							// if "Plot using first dataset as x axis" is selected
-							if(!plottingSystem.isXfirst())
-								traces = plottingSystem.createPlot1D(yDatasets.get(i), null, null);
-							else
-								traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
+							final AbstractDataset plot1D = yDatasets.get(i);
+							final String       plotTitle = plot1D.getName()!=null ? plot1D.getName() : null;
+							if(!plottingSystem.isXfirst()) {
+								traces = plottingSystem.createPlot1D(plot1D, null, plotTitle, null);
+							} else {
+ 								traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, plotTitle, null);
+							}
 							//plottingSystem.setShowLegend(false);
 							for (ITrace iTrace : traces) {
 								final ILineTrace lineTrace = (ILineTrace)iTrace;
