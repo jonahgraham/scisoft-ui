@@ -773,7 +773,9 @@ class PlotTab extends ATab {
 			try {
 				// FIX to http://jira.diamond.ac.uk/browse/DAWNSCI-333
 				// Plots must have unique names to work with history currently.
-				if (isSlicedData(sliceProperties)) reorderedData.setName("Slice "+sliceProperties.toString());
+				if (isSlicedData(sliceProperties)) {
+					reorderedData.setName(getSliceName(reorderedData, sliceProperties));
+				}
 				SDAPlotter.updatePlot(PLOTNAME, slicedAxes.get(0), reorderedData);
 			} catch (Exception e) {
 				logger.error("Could not plot 1d line");
@@ -853,7 +855,7 @@ class PlotTab extends ATab {
 			// FIX to http://jira.diamond.ac.uk/browse/DAWNSCI-333
 			// Plots must have unique names to work with history currently.
 			if (isSlicedData(sliceProperties)) {
-				reorderedData.setName("Slice "+sliceProperties.toString());
+				reorderedData.setName(getSliceName(reorderedData, sliceProperties));
 			} else {
 			    reorderedData.setName(dataset.getName()); // TODO add slice string
 			}
@@ -903,6 +905,18 @@ class PlotTab extends ATab {
 			break;
 		}
 
+	}
+
+	private String getSliceName(AbstractDataset reorderedData, List<SliceProperty> sliceProperties) {
+		final StringBuilder buf = new StringBuilder();
+		if (reorderedData.getName()==null|| "".equals(reorderedData.getName())) {
+			buf.append("Slice ");
+		} else {
+			buf.append(reorderedData.getName());
+			buf.append(" ");
+		}
+		buf.append(sliceProperties);
+		return buf.toString();
 	}
 
 	private boolean isSlicedData(List<SliceProperty> sliceProperties) {
