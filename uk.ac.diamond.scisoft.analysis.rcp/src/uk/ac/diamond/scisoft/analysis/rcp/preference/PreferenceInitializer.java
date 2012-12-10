@@ -35,8 +35,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	private static final int DEFAULT_COLOURMAP_CHOICE = 1;
 	private static final int DEFAULT_CAMERA_PROJECTION = 0;
 	private static final int DEFAULT_PLOTTING_SYSTEM = 0;
-	private static final boolean DEFAULT_ABSTRACT_PLOTTING_XAXIS_AUTOSCALE = false;
-	private static final boolean DEFAULT_ABSTRACT_PLOTTING_YAXIS_AUTOSCALE = false;
 	private static final int DEFAULT_IMAGEXPLORER_COLOURMAP_CHOICE = 0;
 	private static final int DEFAULT_IMAGEEXPLORER_CONTRAST_LO = 0;
 	private static final int DEFAULT_IMAGEEXPLORER_CONTRAST_HI = 98;
@@ -127,8 +125,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_SHOWSCROLLBAR, DEFAULT_SHOW_SCROLLBARS);
 		store.setDefault(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ, DEFAULT_CAMERA_PROJECTION);
 		store.setDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM, DEFAULT_PLOTTING_SYSTEM);
-		store.setDefault(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE, DEFAULT_ABSTRACT_PLOTTING_XAXIS_AUTOSCALE);
-		store.setDefault(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE, DEFAULT_ABSTRACT_PLOTTING_YAXIS_AUTOSCALE);
 
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, DEFAULT_IMAGEXPLORER_COLOURMAP_CHOICE);
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_LOTHRESHOLD, DEFAULT_IMAGEEXPLORER_CONTRAST_LO);

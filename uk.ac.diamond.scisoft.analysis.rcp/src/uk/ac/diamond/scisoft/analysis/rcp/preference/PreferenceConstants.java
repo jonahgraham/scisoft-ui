@@ -57,8 +57,6 @@ public class PreferenceConstants {
 	 * 0 if DatasetPlotter is chosen or 1 if AbstractPlottingSystem
 	 */
 	public static final String PLOT_VIEW_PLOTTING_SYSTEM = "plotView.plottingsystem";
-	public static final String PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE = "plotView.abstractplotting.xaxisautoscale";
-	public static final String PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE = "plotView.abstractplotting.yaxisautoscale";
 
 	/**
 	 * Minimum difference in low and high contrast levels
