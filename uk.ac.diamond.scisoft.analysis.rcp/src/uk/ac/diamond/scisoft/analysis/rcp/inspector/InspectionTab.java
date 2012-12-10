@@ -30,7 +30,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.dawnsci.plotting.jreality.impl.DataSet3DPlot2DMulti;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -57,10 +56,8 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
-import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
-import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DatasetTableView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView;
 import uk.ac.gda.monitor.IMonitor;
@@ -221,8 +218,6 @@ class PlotTab extends ATab {
 	private ImageExplorerView explorer = null;
 	protected boolean runLongJob = false;
 	private boolean plotStackIn3D = false;
-	private boolean plotXAutoScale = false;
-	private boolean plotYAutoScale = false;
 
 	public PlotTab(IWorkbenchPartSite partSite, InspectorType type, String title, String[] axisNames) {
 		super(partSite, type, title, axisNames);
@@ -255,43 +250,6 @@ class PlotTab extends ATab {
 
 		if (daxes != null)
 			populateCombos();
-
-		if (itype == InspectorType.LINESTACK || itype==InspectorType.LINE) {
-			final Button x = new Button(holder, SWT.CHECK);
-			x.setText("X autoscale");
-			x.setToolTipText("Automatic rescaling of the X-Axis in lightweight plotting mode");
-			plotXAutoScale = isAbstractPlottingXAxisAutoscaled();
-			x.setSelection(plotXAutoScale);
-			x.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					plotXAutoScale = x.getSelection();
-					setAbsractPlottingXAxisAutoscale(plotXAutoScale);
-				}
-			});
-			final Button y = new Button(holder, SWT.CHECK);
-			y.setText("Y autoscale");
-			y.setToolTipText("Automatic rescaling of the Y-Axis in lightweight plotting mode");
-			plotYAutoScale = isAbstractPlottingYAxisAutoscaled();
-			y.setSelection(plotYAutoScale);
-			y.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					plotYAutoScale = y.getSelection();
-					setAbsractPlottingYAxisAutoscale(plotYAutoScale);
-				}
-			});
-			switch (getDefaultPlottingSystemChoice()) {
-			case PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM:
-				x.setEnabled(false);
-				y.setEnabled(false);
-				break;
-			case PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM:
-				x.setEnabled(true);
-				y.setEnabled(true);
-				break;
-			}
-		}
 
 		if (itype == InspectorType.LINESTACK) {
 			final Button b = new Button(holder, SWT.CHECK);
@@ -1117,37 +1075,6 @@ class PlotTab extends ATab {
 		} finally {
 			stopInspection();
 		}
-	}
-
-	private int getDefaultPlottingSystemChoice() {
-		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
-				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
-				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
-	}
-
-	private boolean isAbstractPlottingXAxisAutoscaled() {
-		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE) ? 
-				preferenceStore.getDefaultBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE)
-				: preferenceStore.getBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE);
-	}
-
-	private boolean isAbstractPlottingYAxisAutoscaled() {
-		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE) ? 
-				preferenceStore.getDefaultBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE)
-				: preferenceStore.getBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE);
-	}
-
-	private void setAbsractPlottingXAxisAutoscale(boolean value) {
-		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		preferenceStore.setValue(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE, value);
-	}
-
-	private void setAbsractPlottingYAxisAutoscale(boolean value) {
-		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		preferenceStore.setValue(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE, value);
 	}
 }
 

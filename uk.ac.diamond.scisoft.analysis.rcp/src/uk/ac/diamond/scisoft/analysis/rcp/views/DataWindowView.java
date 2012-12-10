@@ -119,7 +119,6 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 	protected List<IObserver> observers = 
 			Collections.synchronizedList(new LinkedList<IObserver>());
 
-	private ROIBase currentROI;
 	/**
 	 * Default constructor of DataWindowView
 	 */
@@ -593,14 +592,10 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			}
 
 			RectangularROI rroi = new RectangularROI(0, 0, upperX, lowerY, 0);
-			
+
 			//Test if the region is already there and update the currentRegion
 			if(region!=null&&region.isVisible()){
-				currentROI = region.getROI();
-				if(currentROI.getPointX()<upperX && currentROI.getPointY()<lowerY)
-					region.setROI(currentROI);
-				else
-					region.setROI(rroi);
+				region.setROI(region.getROI());
 			}else {
 				IRegion newRegion = plottingSystem.createRegion("Surface slice", RegionType.BOX);
 				newRegion.setROI(rroi);

@@ -293,12 +293,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 						}
 					}
 					refreshTree();
-					holder = new DataHolder();
-					Map<String, ILazyDataset> map = HDF5Loader.createDatasetsMap(ltree.getGroup());
-					for (String n : map.keySet()) {
-						holder.addDataset(n, map.get(n));
-					}
-					holder.setMetadata(HDF5Loader.createMetaData(ltree));
+					holder = HDF5Loader.createDataHolder(ltree, true);
 				}
 			}).start();
 		}
