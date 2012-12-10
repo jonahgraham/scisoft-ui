@@ -40,7 +40,7 @@
       </category>
        <view
              allowMultiple="false"
-             category="uk.ac.diamond.scisoft.customproject.rcp"
+             category="uk.ac.diamond.scisoft.customprojects.rcp"
              class="org.eclipse.ui.navigator.CommonNavigator"
              icon="icons/BinaryTree.png"
              id="uk.ac.diamond.scisoft.customprojects.view"
@@ -68,35 +68,6 @@
                style="push">
          </command>
       </menuContribution>
-   </extension>
-   <extension
-         point="org.eclipse.ui.handlers">
-      <handler
-            class="uk.ac.diamond.scisoft.customprojects.rcp.handler.RenameHandler"
-            commandId="org.eclipse.ui.edit.rename">
-         <activeWhen>
-            <reference
-                  definitionId="uk.ac.diamond.scisoft.customprojects.rcp.elementSelected">
-            </reference>
-         </activeWhen>
-         <enabledWhen>
-            <reference
-                  definitionId="uk.ac.diamond.scisoft.customprojects.rcp.elementSelected">
-            </reference>
-         </enabledWhen>
-      </handler>
-   </extension>
-   <extension
-         point="org.eclipse.ui.actionSets">
-      <actionSet
-            id="org.eclipse.ui.cheatsheets.actionSet"
-            label="label">
-         <action
-               id="org.eclipse.ui.cheatsheets.actions.CheatSheetHelpMenuAction"
-               label="label"
-               style="push">
-         </action>
-      </actionSet>
    </extension>
    <extension
          point="org.eclipse.ui.navigator.viewer">
