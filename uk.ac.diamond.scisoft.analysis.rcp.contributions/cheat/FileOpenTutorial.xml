@@ -16,10 +16,9 @@
 		<description>
 			Other ways to access your data are contained in the two tabs in the leftmost pane:
 			<b>Project Explorer</b> and <b>File Navigator</b>. The former allows you to create
-			projects using File > New > Project... menu, selecting Data > Data Project and then
+			projects using File &gt; New &gt; Project... menu, selecting Data &gt; Data Project and then
 			filling the dialogue to create a project with a title and a folder that links to the
-			given directory. Try doing this with, for example, <b>/dls/sci-scratch/ExampleData</b>.
-			Note that no files are copied into that project. Also a right-button click in the
+			given directory. Note that no files are copied into that project. Also a right-button click in the
 			explorer will allow access to the New menu item too.
 		</description>
 	</item>

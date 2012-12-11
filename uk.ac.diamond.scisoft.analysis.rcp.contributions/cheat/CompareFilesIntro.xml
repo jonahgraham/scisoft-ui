@@ -21,8 +21,7 @@
 	</intro>
 	<item title="Choosing files to compare">
 		<description>
-			To populate the files table, read the tutorial on opening multiple files. For example,
-			select three of the four files in data > examples > results.
+			To populate the files table, read the tutorial on opening multiple files.
 		</description>
 	</item>
 	<item title="Choosing a dataset">
@@ -31,27 +30,22 @@
 			double clicking a dataset will make the compare files editor search through its list of
 			files and search for a dataset of the same name. If no dataset is found in a file, a
 			yellow warning is shown. All datasets are aggregated together into a single dataset,
-			possible axes and the per-file values are sent to the dataset inspector. In the example,
-			click on "image-01" and this will be shown via the Dataset Inspector as multiple 2D
-			images (read the Dataset Inspection Introduction to learn how to use it).
+			possible axes and the per-file values are sent to the dataset inspector (for more on the Dataset Inspector read the Dataset Inspection Introduction).
 		</description>
 	</item>
 	<item title="Choosing a metadata item for per-file values">
 		<description>
-			Right-clicking in the sub-editor can allow you to select per-file values from a file's
+			Right-clicking in the sub-editor can allow you to select per-file values from a file&apos;s
 			data or metadata items. The last column in the file table will show the selected
-			per-file values. In this case, the column heading switches to show that item's name and
+			per-file values. In this case, the column heading switches to show that item&apos;s name and
 			any missing values are highlighted with a yellow background. A right-click on the column
-			title brings up a menu item to reset the values to row indices. In the example,
-			right-click and choose "time_of_day" in the pop-up menu.   
+			title brings up a menu item to reset the values to row indices.   
 		</description>
 	</item>
 	<item title="Adding more files">
 		<description>
 			The table supports the insertion of more files by the action of dragging from any source
-			of files and dropping them anywhere below the first row. In the example, click and drag
-			the last file in the results directory to the table and then click on "image-01" to
-			display all four files.
+			of files and dropping them anywhere below the first row.
 		</description>
 	</item>
 </cheatsheet>
