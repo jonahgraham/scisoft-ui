@@ -13,61 +13,49 @@
 			change to this now.
 		</description>
 	</item>
-	<item title="Create a new Project containing example data">
+	<item title="Create a new Project containing NeXus data">
 		<description>
-			Create a new data project if you don't already have one from the Diamond Example Data.
+			Create a new data project if you don&apos;t already have one from the Diamond Example Data.
 			<br/><br/>
-			To do this use File -> New -> Project, and then select Data -> Data Project and click
+			To do this use File -&gt; New -&gt; Project, and then select Data -&gt; Data Project and click
 			on <b>Next</b>
 			<br/><br/>
-			Browse to the Directory <b>/dls/sci-scratch/ExampleData</b> and click <b>OK</b>
+			Browse to the Directory which contains the NeXus files and click <b>OK</b>
 			<br/><br/>
 			The Data project should appear in the Project Explorer.
 		</description>
 	</item>
 	<item title="Open a Nexus Scan">
 		<description>
-			In the Example Data Project there is some NeXus data, navigate to its location which is:
-			<br/><br/>
-			<b>data -> NeXus</b>
-			<br/><br/>
-			Now Double Click on the file <b>2495.nxs</b> to open it for displaying the data.
-			<br/><br/>
-			The file should have now opened in the Editor area (previously blank) and show a list of
+			In the project explorer tab, navigate to the imported data project and double click on one of the NeXus files to open it for display.
+<br/><br/>
+The file should have opened in the Editor area (previously blank) and show a list of
 			all the file metadata and an entry dataset.
-			<br/><br/>
-			The file can be browsed through the NeXus Editor (Editor view) by clicking on the down
-			arrow left of <b>entry1</b> (unfolding the NeXus sub elements). It can also be browsed
-			through the Project Explorer by unfolding the NeXus file itself.
+<br/><br/>
+			The file can be browsed through the NeXus Editor (Editor view) by clicking on the down arrow left of <b>entry1</b> (unfolding the NeXus sub elements). It can also be browsed through the Project Explorer by unfolding the NeXus file itself.
 		</description>
 	</item>
 	<item title="Plotting the Data From the File">
 		<description>
 			To plot some simple data from the file, simply double click on the name of the data
-			which you would like to see, in this case pick <b>EDXD_Element_03</b>, one of the
+			which you would like to see, that is, one of the
 			sub-element of <b>entry1</b>.
 			<br/><br/>
-			Alternatively, you can single click on that same data from the unfolded file in the
-			<b>Project Explorer</b>. Once this is selected you should see the a single peaked
-			plot with two discontinuities appear in the <b>Dataset Plot View</b>.
+	Once this is selected you should see the data appear in the <b>Dataset Plot View</b>.
 		</description>
 	</item>
 	<item title="Multi dimensional data plotting">
 		<description>
-			The <b>Dataset Inspector</b> (Data axes selection part) is reporting that the data it
-			has access to is 3 dimensional. This means we can select to view the information in a
-			variety of ways.
-			<br/><br/>
-			First let's look at the images which have been collected. To do this you need to change
-			to the 2D image mode in the <b>Dataset Inspector</b>; this is done by selecting the
+			The <b>Dataset Inspector</b> (Data axes selection part) reports how many dimensions the data has. DExplore allows data to be viewed in a variety of ways.
+<br/><br/>
+First let&apos;s consider 2D image data. To visualise this data type select the 2D image mode in the <b>Dataset Inspector</b>; this is done by selecting the
 			<b>2D image tab</b> in the top right section of the view, you may need to expand the
-			options if you cannot see it immediately by using the '>>' part to the right of existing
+			options if you cannot see it immediately by using the &apos;&gt;&gt;&apos; part to the right of existing
 			tabs.
 			<br/><br/>
-			The NeXus image should now have appeared in the DataSet Plot. To change which Image is
-			being viewed, you can use the dataset slicing section at the bottom of the <b>Dataset
-			Inspector</b> view. There is one slider bar which is not fully across, with 'edxd_q'
-			next to it. Drag this bar about, and you will see the image change in the <b>Dataset
+			The NeXus image should now have appeared in the DataSet Plot. If the image is part of a 3D image stack it is possible to change which image is
+			being viewed by using the dataset slicing section at the bottom of the <b>Dataset
+			Inspector</b> view. There will be one slider bar which is not fully across. Drag this bar and you will see the image change in the <b>Dataset
 			Plot</b> view.
 		</description>
 	</item>
@@ -81,26 +69,18 @@
 	</item>
 	<item title="Stack Plotting">
 		<description>
-			Finally lets look at one other way of plotting the data. Select '1D Stack Plot'. This
-			displays all the data plots 'stacked' together.
-			<br/><br/>
-			With <b>edxd_q</b> as a x-axis and <b>dim:2</b> as a z-axis, pick the zoom tool (zoom
-			button on Dataset Plot) and zoom on region of interests (the irregularities on the peak
-			of the plot).
-			<br/><br/>
-			In the <b>Dataset Inspector</b> drag the <b>dim:1</b> slider to see the plot stack
-			change.
-			<br/><br/>
-			Set the <b>z-axis</b> to <b>dim:1</b> and drag the <b>dim:2</b> slider to see the plot
-			stack change.
-			<br/><br/>
-			Check the <b>in 3D</b> mode of the 1D Stack Plot to have a 3D view of your stacked
-			plots.
+			Finally lets look at one other way of plotting multidimensional data. Select &apos;1D Stack Plot&apos;. This displays all the data plots &apos;stacked&apos; together.
+<br/><br/>
+The dropdown boxes in the 1D stack tab allow the x-axis and z-axis of the stack plot to be specified.
+<br/><br/>
+Again, all the same tools are available for slicing the data.
+<br/><br/>
+Check the <b>in 3D</b> mode of the 1D Stack Plot to have a 3D view of your stacked plots.
 		</description>
 	</item>
 	<item title="Done">
 		<description>
-			This tutorial has taken you through some basics of looking at an example NeXus data
+			This tutorial has taken you through some basics of looking at a NeXus data
 			file. As a reminder, the slicing and visualisation tools used here would work on any
 			multidimensional dataset (NeXus files being such possible datasets).
 		</description>
