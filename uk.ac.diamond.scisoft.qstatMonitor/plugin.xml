@@ -21,7 +21,7 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            category="org.edna.workbench.preferences.root"
+            category="org.dawnsci.preferences.root"
             class="uk.ac.diamond.scisoft.qstatmonitor.QStatMonitorPreferencePage"
             id="uk.ac.diamond.qstatMonitor.QStatMonitorPreferencePage"
             name="QStat Monitor">
