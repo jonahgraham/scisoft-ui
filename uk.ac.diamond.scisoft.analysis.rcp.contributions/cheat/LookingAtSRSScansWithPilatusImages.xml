@@ -13,100 +13,57 @@
 			change to this now.
 		</description>
 	</item>
-	<item title="Create a new Project containing example data">
-		<description>
-			Create a new data project if you don't already have one from the Diamond Example Data.
-			<br/><br/>
-			To do this use File -> New -> Project, and then select Data -> Data Project and click
-			on <b>Next</b>
-			<br/><br/>
-			Browse to the directory <b>/dls/sci-scratch/ExampleData</b> and click <b>OK</b>
-			<br/><br/>
-			The Data project should appear in the Project Explorer.
-		</description>
-	</item>
 	<item title="Open A Pilatus Scan">
 		<description>
-			In the Example Data Project there is some Pilatus SRS data, navigate to its location
-			which is:
+			Navigate to an example Pilatus SRS data using either the Project Explorer or file navigator.
+<br/><br/>
+Single click or select the file and you should see the <b>Header</b> view in the bottom right corner of the perspective fill with all the metadata from this file.
 			<br/><br/>
-			<b>data -> SRS -> i16-SCAN -> pilatus</b>
+			In the Header view there is a filter box at the top, which is useful for finding specific values in a large body of metadata. For example typing <b>UB</b> into the box
+will list of all the metadata which has UB in the key (i.e. the 9 elements of the UB matrix).
 			<br/><br/>
-			In this directories are 2 files, single click or select the first of these
-			'224668.dat' and you should see the <b>Header</b> view in the bottom right corner of
-			the perspective fill with all the metadata from this file.
+Now Double Click on the file to open it for displaying the data.
 			<br/><br/>
-			In the Header view there is a filter box at the top, into this empty box type <b>UB</b>
-			and the list of all the metadata which has UB in the key will be shown, in this case it
-			is the 9 elements of the UB matrix.
-			<br/><br/>
-			Now Double Click on the file <b>224668.dat</b> to open it for displaying the data.
-			<br/><br/>
-			The file should have now opened in the Editor area (previously blank) and show a list
+			The file should open in the Editor area (previously blank) and show a list
 			of all the datasets which are in this file, plus some information about them.
 		</description>
 	</item>
 	<item title="Plotting the Data From the File">
 		<description>
 			To plot some simple data from the file, simply click on the name of the data which you
-			would like to see, in this case pick <b>roi3_maxval</b>. Once this is selected you
-			should see the a double peaked plot appear in the Dataset Plot View.
+would like to see and the data will be shown in the Dataset Plot.
 			<br/><br/>
-			This data is currently plotted against a default 'dim' axis, which is simply a count
-			of the points in the plot, but it is often far more useful to plot the data against
-			something else. To do this you simply need to select the axis in the <b>Data axes
-			selection</b> part of the <b>Dataset Inspector</b> view, which is below the editor
-			area. For this example select <b>Delta</b> as this was the scanned direction. You will
-			see the x axis of the plot change to display in terms of delta.
+If there is default x-axis data associated with the file, this will be picked up and used. If there is no default x-axis data (or the &quot;plot first dataset as x-axis&quot; is not checked), the selected data will be plotted against a default &apos;dim&apos; axis, which is simply a count of the points in the plot. The required x-axis data can be changed by selecting the values in the &quot;Data Axes Selection&quot; table.
 		</description>
 	</item>
 	<item title="Plotting the Pilatus Data">
 		<description>
-			At the bottom of the list of available data there is an element called <b>Pilatus</b>
-			the Extra information about this is tagged as 'Not Available' due to the fact that this
+			At the bottom of the list of available data there will be an element called <b>Pilatus</b>. The Extra information about this will be tagged as &apos;Not Available&apos; due to the fact that this
 			could be a lot of data, and we only load it off disk when it is needed, so values such
 			as these cannot be calculated. Select this element now.
 			<br/><br/>
-			A new plot should have appeared, which is a little spiky, but the key thing which should
-			be seen is that the <b>Dataset Inspector</b> is now reporting that the data it has
+			A new plot should have appeared, and the <b>Dataset Inspector</b> should now be reporting that the data it has
 			access to is 3 dimensional. This means we can select to view the information in a
 			variety of ways.
 			<br/><br/>
-			First lets look at the images which have been collected. to do this you need to change
-			to the 2D image mode in the <b>Dataset Inspector</b>, this is done by selecting the
+			To look at the images which have been collected you need to change
+			to the 2D image mode in the <b>Dataset Inspector</b>. This is done by selecting the
 			<b>2D image tab</b> in the top right section of the view, you may need to expand the
-			options if you cannot see it immediately by using the '>>' part to the right of
+			options if you cannot see it immediately by using the &apos;&gt;&gt;&apos; part to the right of
 			existing tabs.
 			<br/><br/>
-			The Pilatus Image should now have appeared in the DataSet Plot. To change which Image
+			The Pilatus Image should now have appeared in the Dataset Plot. To change which Image
 			is being viewed, you can use the dataset slicing section at the bottom of the <b>Dataset
-			Inspector</b> view. Currently there is One Slicer bar which is not fully across and this
-			is on Index at the top. Drag this bar about, and you will see the image change in the
-			<b>Dataset Plot</b> view.
-			<br/><br/>
-			This is useful, but is made better if you once again select <b>delta</b> as the
-			Dimension 1 axis in the Data axis selection part. Now the slider shows the value of
-			delta corresponding to the image.
-		</description>
+			Inspector</b> view. If the dataset contains more than one image there will be one Slicer bar which is not fully across. Drag this bar about, and you will see the image change in the <b>Dataset Plot</b> view.	</description>
 	</item>
 	<item title="Advanced Slicing">
 		<description>
 			So far we have only done the simplest of slicing, and it is important to realise that
-			there is much more functionality available. In this example we will see how a particular
-			row of pixels changes with Delta.
+			there is much more functionality available.  The 3D pilatus datasets can be sliced as 1D line plots or 2D image plots along any axis of the cube.
 			<br/><br/>
-			To do this in the 2D image tab of the <b>Dataset Inspector</b> change the y-axis
-			drop-down to 'delta'. This then shows a bit of a mess in the plotting window, but thats
-			because we are looking at the top of every image, and the bit of interest to us is
-			happening in the middle (where the peak appears).
-			<br/><br/>
-			To access this drag the 'dim:2' slider to towards the middle, and as you do you should
-			see the data become apparent as a pair of lines.
-			<br/><br/>
-			There are also other ways of slicing, which can be explored, and the more you use it
-			the more functionality becomes apparent. You should be aware though that slicing against
-			the way the data was collected, as we have done here, can sometimes take a long time as
-			the storage systems are not optimised to do this kind of thing.
+			There are also other ways of slicing, which can be explored, and the more you use it the more functionality becomes apparent. You should be aware though that slicing against
+			the way the data was collected can sometimes take a long time as
+			the storage systems are not optimised to do this kind of operation.
 		</description>
 	</item>
 	<item title="Surface Plotting">
