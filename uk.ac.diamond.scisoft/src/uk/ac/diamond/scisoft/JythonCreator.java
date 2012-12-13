@@ -175,15 +175,14 @@ public class JythonCreator implements IStartup {
 
 			String[] cmdarray = {"java", "-Xmx64m", "-Dpython.cachedir="+cachedir.getAbsolutePath(), "-jar",executable, REF.getFileAbsolutePath(script) };
 			File workingDir = new File(System.getProperty("java.io.tmpdir"));
-			IPythonNature nature = null;//new PythonNature();
-			Tuple<Process, String> outTup2 = new SimpleJythonRunner().run(cmdarray, workingDir, nature, monitor);
+			IPythonNature nature = null;
+			Tuple<Process, String> outTuple = new SimpleJythonRunner().run(cmdarray, workingDir, nature, monitor);
 
 			String outputString = "";
 			try {
-				outputString = IOUtils.toString(outTup2.o1.getInputStream());
+				outputString = IOUtils.toString(outTuple.o1.getInputStream());
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e1);
+				logger.error("Could not parse output from running interpreterInfo.py in Jython", e1);
 			}
 
 			logger.debug("Output String is {}", outputString);
@@ -194,7 +193,6 @@ public class JythonCreator implements IStartup {
 			try {
 				// HACK Otherwise Pydev shows a dialog to the user.
 				ModulesManagerWithBuild.IN_TESTS = true;
-				//info = InterpreterInfo.fromString(outTup.o1, false);
 				info = InterpreterInfo.fromString(outputString, false);
 			} catch (Exception e) {
 				logger.error("InterpreterInfo.fromString(outTup.o1) has failed in pydev setup with exception");
@@ -235,8 +233,6 @@ public class JythonCreator implements IStartup {
 			for (File file : allJars) {
 				if (pyPaths.add(file.getAbsolutePath())) {
 					logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
-//				} else {
-//					logger.warn("File {} already there!", file.getName());
 				}
 			}
 
@@ -275,8 +271,6 @@ public class JythonCreator implements IStartup {
 					if (b.isDirectory()) {
 						if (pyPaths.add(b.getAbsolutePath())) {
 							logger.debug("Adding dir to python path: {} ", b.getAbsolutePath());
-//						} else {
-//							logger.warn("Dir {} already there!", b.getAbsolutePath());
 						}
 					} 
 					// also check for internal jars
@@ -284,8 +278,6 @@ public class JythonCreator implements IStartup {
 					for (File j : tJars) {
 						if (pyPaths.add(j.getAbsolutePath())) {
 							logger.debug("Adding jar file to python path : {} ", j.getAbsolutePath());
-//						} else {
-//							logger.warn("File {} already there!", j.getName());
 						}
 					}
 				}
@@ -294,8 +286,6 @@ public class JythonCreator implements IStartup {
 				for (File file: allPluginDirs) {
 					if (pyPaths.add(file.getAbsolutePath())) {
 						logger.debug("Adding dir to python path: {} ", file.getAbsolutePath());
-//					} else {
-//						logger.warn("Dir {} already there!", file.getName());
 					}
 				}
 			}
@@ -309,7 +299,7 @@ public class JythonCreator implements IStartup {
 			info.libs.addAll(pyPaths);
 
 			// now set up the LD_LIBRARY_PATH, or PATH for windows
-			File libraryDir = new File(pluginsDir, "lib");
+			File libraryDir = new File(pluginsDir.getParent(), "lib");
 			String libraryPath;
 			if (libraryDir.exists()) {
 				libraryPath = libraryDir.getAbsolutePath();
