@@ -87,13 +87,9 @@ public class Plotting1DUI extends AbstractPlotUI {
 						AbstractDataset data = dataSetAxis.getData();
 						yDatasets.add(data);
 						currentDataName = data.getName();
-						if ( i > 0) {
-							// if longer than 40 characters otherwise the title is too long!
-							if(title.length() == 40)
-								title += "...";
-							if(title.length() < 40)
-								title += ", "+ data.getName();
-						} else
+						if(i>0)
+							title += ", "+ data.getName();
+						else
 							title += data.getName();
 
 						if(currentDataName.equals("")) // if no name given set default name
