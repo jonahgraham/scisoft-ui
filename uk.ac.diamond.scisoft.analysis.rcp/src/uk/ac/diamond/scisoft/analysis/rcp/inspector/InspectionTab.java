@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -658,14 +659,29 @@ class PlotTab extends ATab {
 		return slicedData;
 	}
 
-	protected AbstractDataset slicedAndReorderData(IMonitor monitor, Slice[] slices, int[] order) {
+	protected AbstractDataset slicedAndReorderData(IMonitor monitor, Slice[] slices, int[] order, IMetaData meta) {
 		AbstractDataset reorderedData = null;
 		AbstractDataset slicedData = sliceData(monitor, slices);
-		if (slicedData == null)
-			return null;
+		if (slicedData == null) return null;
 		reorderedData = DatasetUtils.transpose(slicedData, order);
 
-		reorderedData.setName(slicedData.getName());
+		// Possible fix to http://jira.diamond.ac.uk/browse/DAWNSCI-333
+		// ensures that file name appears in plot.
+		final StringBuilder name = new StringBuilder();
+        name.append(slicedData.getName());
+        if (meta!=null && meta.getFilePath()!=null) {
+        	try {
+        		File file = new File(meta.getFilePath());
+           		name.append(" (");
+           		name.append(file.getName());
+           		name.append(")");
+        	} catch (Throwable ne) {
+        		name.append(" (");
+           		name.append(meta.getFilePath());
+           		name.append(")");
+       	    }
+        }
+		reorderedData.setName(name.toString());
 		reorderedData.squeeze();
 		if (reorderedData.getSize() < 1)
 			return null;
@@ -751,16 +767,16 @@ class PlotTab extends ATab {
 		}
 
 		AbstractDataset reorderedData;
-		IMetaData metaDataObject = null;
+		IMetaData meta = null;
 		try {
-			metaDataObject = dataset.getMetadata();
+			meta = dataset.getMetadata();
 		} catch (Exception e1) {
 			logger.error("Metadata cannot be retrieved from " + dataset.getName(), e1);
 		}
-
+		
 		switch(itype) {
 		case LINE:
-			reorderedData = slicedAndReorderData(monitor, slices, order);
+			reorderedData = slicedAndReorderData(monitor, slices, order, meta);
 			if (isRankBad(reorderedData, 1)) {
 				try {
 					SDAPlotter.clearPlot(PLOTNAME);
@@ -784,7 +800,7 @@ class PlotTab extends ATab {
 
 			break;
 		case LINESTACK:
-			reorderedData = slicedAndReorderData(monitor, slices, order);
+			reorderedData = slicedAndReorderData(monitor, slices, order, meta);
 			if (isRankBad(reorderedData, 2)) {
 				try {
 					SDAPlotter.clearPlot(PLOTNAME);
@@ -842,7 +858,7 @@ class PlotTab extends ATab {
 			break;
 		case IMAGE:
 		case SURFACE:
-			reorderedData = slicedAndReorderData(monitor, slices, order);
+			reorderedData = slicedAndReorderData(monitor, slices, order, meta);
 			if (isRankBad(reorderedData, 2)) {
 				try {
 					SDAPlotter.clearPlot(PLOTNAME);
@@ -859,8 +875,8 @@ class PlotTab extends ATab {
 			} else {
 			    reorderedData.setName(dataset.getName()); // TODO add slice string
 			}
-			if (metaDataObject != null) {
-				reorderedData.setMetadata(metaDataObject);
+			if (meta != null) {
+				reorderedData.setMetadata(meta);
 			}
 
 			try {
@@ -885,7 +901,7 @@ class PlotTab extends ATab {
 			pushMultipleImages(monitor, sliceProperties, slices, slicedAxes, order);
 			break;
 		case VOLUME:
-			reorderedData = slicedAndReorderData(monitor, slices, order);
+			reorderedData = slicedAndReorderData(monitor, slices, order, meta);
 			if (isRankBad(reorderedData, 3)) {
 				return;
 			}
@@ -1119,9 +1135,8 @@ class DataTab extends PlotTab {
 			swapFirstTwoInOrder(order);
 		}
 
-		final AbstractDataset reorderedData = slicedAndReorderData(monitor, slices, order);
-		if (reorderedData == null)
-			return;
+		final AbstractDataset reorderedData = slicedAndReorderData(monitor, slices, order, null);
+		if (reorderedData == null) return;
 		
 		reorderedData.setName(dataset.getName());
 		reorderedData.squeeze();
@@ -1416,8 +1431,8 @@ class ScatterTab extends PlotTab {
 
 	@Override
 	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
-		if (dataset == null)
-			return;
+		
+		if (dataset == null) return;
 
 		useData = !CONSTANT.equals(paxes.get(0).getName());
 
@@ -1430,13 +1445,11 @@ class ScatterTab extends PlotTab {
 		int rank = daxes.size();
 		int[] order = getOrder(rank);
 		List<AbstractDataset> slicedAxes = sliceAxes(axes, slices, order);
-		if (slicedAxes == null)
-			return;
+		if (slicedAxes == null) return;
 
 
-		AbstractDataset reorderedData = slicedAndReorderData(monitor, slices, order);
-		if (reorderedData == null)
-			return;
+		AbstractDataset reorderedData = slicedAndReorderData(monitor, slices, order, null);
+		if (reorderedData == null) return;
 
 		// TODO cope with axis datasets that are >1 dimensions
 		AbstractDataset x;

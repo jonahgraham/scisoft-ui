@@ -297,8 +297,8 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 
 	public void selectItemSelection() {
 		ILazyDataset d = getActiveData();
-		if (d == null)
-			return;
+		if (d == null) return;
+		d.setMetadata(data.getMetadata());
 		DatasetSelection datasetSelection = new DatasetSelection(getAxes(d), d);
 		setSelection(datasetSelection);
 	}

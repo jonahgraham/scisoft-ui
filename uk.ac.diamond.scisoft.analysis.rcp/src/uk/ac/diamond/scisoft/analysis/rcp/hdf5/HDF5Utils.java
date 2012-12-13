@@ -19,6 +19,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Group;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
+import uk.ac.diamond.scisoft.analysis.io.Metadata;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
@@ -107,6 +109,17 @@ public class HDF5Utils {
 
 		// remove extraneous dimensions
 		cData.squeeze(true);
+		
+		// Fix to http://jira.diamond.ac.uk/browse/DAWNSCI-333. We put the path in the meta
+		// data in order to put a title containing the file in the plot.
+		if (link.getFile()!=null && link.getFile().getFilename()!=null) {
+	
+			final Metadata meta = new Metadata();
+			meta.setFilePath(link.getFile().getFilename());
+			cData.setMetadata(meta);
+			// TODO Maybe	dNode.getAttributeNameIterator()
+
+		}
 
 		// set up slices
 		int[] shape = cData.getShape();
