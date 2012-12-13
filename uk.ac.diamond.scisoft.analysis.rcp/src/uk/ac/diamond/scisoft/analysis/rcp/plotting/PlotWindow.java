@@ -382,14 +382,6 @@ public class PlotWindow extends AbstractPlotWindow {
 	}
 
 	/**
-	 * Needed to correctly create the guibean the first time a plot is set, otherwise the guibean will be null
-	 */
-	private void updateGuiBeanPlotMode(GuiPlotMode mode) {
-		getGuiManager().removeGUIInfo(GuiParameters.PLOTMODE);
-		getGuiManager().putGUIInfo(GuiParameters.PLOTMODE, mode);
-	}
-
-	/**
 	 * @param plotMode
 	 */
 	@Override
@@ -763,9 +755,8 @@ public class PlotWindow extends AbstractPlotWindow {
 	/**
 	 * Required if you want to make tools work with Abstract Plotting System.
 	 */
-	@SuppressWarnings("rawtypes")
 	@Override
-	public Object getAdapter(final Class clazz) {
+	public Object getAdapter(final Class<?> clazz) {
 		if (clazz == IToolPageSystem.class) {
 			return plottingSystem;
 		}

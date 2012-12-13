@@ -16,16 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
@@ -52,63 +43,36 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
-import org.eclipse.ui.menus.CommandContributionItem;
-import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
-import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DuplicatePlotAction;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler;
-import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile.BoxLineType;
 
 /**
  * PlotWindow equivalent with two side plots which display boxline profiles of a Rectangular ROI on the main plot
- * TODO temporary replicate of PlotWindow class: make it lighter and not a copy like it is currently (too many dependencies on PlotView to modify it)
  */
-public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow {
+public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	public static final String RPC_SERVICE_NAME = "PlotWindowManager";
 	public static final String RMI_SERVICE_NAME = "RMIPlotWindowManager";
 
 	static private Logger logger = LoggerFactory.getLogger(ROIProfilePlotWindow.class);
 
-	private IPlotUI plotUI = null;
-	private boolean isUpdatePlot = false;
-	private Composite parentComp;
-	private IWorkbenchPage page = null;
-	private IActionBars bars;
-	private String name;
-
 	private AbstractPlottingSystem plottingSystem;
 	private IProfileToolPage sideProfile1;
 	private IProfileToolPage sideProfile2;
-
-	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
-	private IGuiInfoManager manager = null;
-	private ROIManager roiManager;
-	private IUpdateNotificationListener notifyListener = null;
-	private DataBean myBeanMemory;
 
 	private Composite plotSystemComposite;
 	private SashForm sashForm;
 	private SashForm sashForm2;
 	private SashForm sashForm3;
 
-	private CommandContributionItem duplicateWindowCCI;
-	private CommandContributionItem openPyDevConsoleCCI;
-	private CommandContributionItem updateDefaultPlotCCI;
-	private CommandContributionItem getPlotBeanCCI;
 	private RROITableInfo mainROIMetadata;
 	private RROITableInfo xaxisMetadataVertical;
 	private RROITableInfo xaxisMetadataHorizontal;
@@ -124,46 +88,13 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 		return PlotWindowManager.getPrivateManager();
 	}
 
-	/**
-	 * default constructor
-	 */
-	public ROIProfilePlotWindow(){
-		
-	}
-
-	/**
-	 * Constructor used in children class ROIProfilePlotWindow
-	 * @param manager
-	 * @param notifyListener
-	 * @param bars
-	 * @param page
-	 * @param name
-	 */
-	public ROIProfilePlotWindow(final Composite parent, IGuiInfoManager manager, IUpdateNotificationListener notifyListener, IActionBars bars,
-			IWorkbenchPage page, String name) {
-		this.manager = manager;
-		this.notifyListener = notifyListener;
-		this.parentComp = parent;
-		this.page = page;
-		this.bars = bars;
-		this.name = name;
-		roiManager = new ROIManager(manager);
-	}
-
 	public ROIProfilePlotWindow(Composite parent, GuiPlotMode plotMode, IActionBars bars, IWorkbenchPage page, String name) {
 		this(parent, plotMode, null, null, bars, page, name);
 	}
 
 	public ROIProfilePlotWindow(final Composite parent, GuiPlotMode plotMode, IGuiInfoManager manager,
 			IUpdateNotificationListener notifyListener, IActionBars bars, IWorkbenchPage page, String name) {
-
-		this.manager = manager;
-		this.notifyListener = notifyListener;
-		this.parentComp = parent;
-		this.page = page;
-		this.bars = bars;
-		this.name = name;
-		roiManager = new ROIManager(manager);
+		super(parent, manager, notifyListener, bars, page, name);
 
 		if (plotMode == null)
 			plotMode = GuiPlotMode.ONED;
@@ -201,15 +132,15 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 			plottingSystem = PlottingFactory.createPlottingSystem();
 			plottingSystem.setColorOption(ColorOption.NONE);
 			
-			plottingSystem.createPlotPart(sashForm2, name, bars, PlotType.XY, (IViewPart)manager);
+			plottingSystem.createPlotPart(sashForm2, getName(), bars, PlotType.XY, (IViewPart)getGuiManager());
 			plottingSystem.repaint();
 			
 			sideProfile1 = (IProfileToolPage)ToolPageFactory.getToolPage("org.dawb.workbench.plotting.tools.boxLineProfileTool");
 			sideProfile1.setLineType(BoxLineType.HORIZONTAL_TYPE);
 			sideProfile1.setToolSystem(plottingSystem);
 			sideProfile1.setPlottingSystem(plottingSystem);
-			sideProfile1.setTitle(name+"_profile1");
-			sideProfile1.setPart((IViewPart)manager);
+			sideProfile1.setTitle(getName()+"_profile1");
+			sideProfile1.setPart((IViewPart)getGuiManager());
 			sideProfile1.setToolId(String.valueOf(sideProfile1.hashCode()));
 			sideProfile1.createControl(sashForm2);
 			sideProfile1.activate();
@@ -218,8 +149,8 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 			sideProfile2.setLineType(BoxLineType.VERTICAL_TYPE);
 			sideProfile2.setToolSystem(plottingSystem);
 			sideProfile2.setPlottingSystem(plottingSystem);
-			sideProfile2.setTitle(name+"_profile2");
-			sideProfile2.setPart((IViewPart)manager);
+			sideProfile2.setTitle(getName()+"_profile2");
+			sideProfile2.setPart((IViewPart)getGuiManager());
 			sideProfile2.setToolId(String.valueOf(sideProfile2.hashCode()));
 			sideProfile2.createControl(sashForm3);
 			sideProfile2.activate();
@@ -245,6 +176,8 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 			metadataLabel.setAlignment(SWT.CENTER);
 			metadataLabel.setText("ROI MetaData");
 			
+//			ROITableInfoViewModel viewModel = new ROITableInfoViewModel();
+//			Table metadataTable = (Table) new ROITableInfoView(viewModel).createPartControl(contentComposite);
 			//main
 			ExpandableComposite mainRegionInfoExpander = new ExpandableComposite(contentComposite, SWT.NONE);
 			mainRegionInfoExpander.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
@@ -305,21 +238,11 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 			//end metadata
 			
 			sashForm.setWeights(new int[]{1, 1});
-			plottingSystem.addRegionListener(roiManager);
+			plottingSystem.addRegionListener(getRoiManager());
 			
 		} catch (Exception e) {
 			logger.error("Cannot locate any Abstract plotting System!", e);
 		}
-	}
-
-	/**
-	 * Return current page.
-	 * 
-	 * @return current page
-	 */
-	@Override
-	public IWorkbenchPage getPage() {
-		return page;
 	}
 
 	/**
@@ -330,21 +253,12 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 	}
 
 	/**
-	 * Return the name of the Window
-	 * 
-	 * @return name
-	 */
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	/**
 	 * Process a plot with data packed in bean - remember to update plot mode first if you do not know the current mode
 	 * or if it is to change
 	 * 
 	 * @param dbPlot
 	 */
+	@Override
 	public void processPlotUpdate(final DataBean dbPlot) {
 		// check to see what type of plot this is and set the plotMode to the correct one
 		if (dbPlot.getGuiPlotMode() != null) {
@@ -365,72 +279,11 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 		try {
 			doBlock();
 			// Now plot the data as standard
-			plotUI.processPlotUpdate(dbPlot, isUpdatePlot);
-			myBeanMemory = dbPlot;
+			plotUI.processPlotUpdate(dbPlot, isUpdatePlot());
+			setDataBean(dbPlot);
 		} finally {
 			undoBlock();
 		}
-	}
-
-	/**
-	 * Create the PlotView duplicating actions
-	 */
-	private void addDuplicateAction(){
-		if (duplicateWindowCCI == null) {
-			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow(), null, DuplicatePlotAction.COMMAND_ID,
-					CommandContributionItem.STYLE_PUSH);
-			ccip.label = "Create Duplicate Plot";
-			ccip.icon = AnalysisRCPActivator.getImageDescriptor("icons/chart_curve_add.png");
-			duplicateWindowCCI = new CommandContributionItem(ccip);
-		}
-		bars.getMenuManager().add(duplicateWindowCCI);
-	}
-
-	/**
-	 * create the scripting actions
-	 */
-	private void addScriptingAction(){
-		
-		if (openPyDevConsoleCCI == null) {
-			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow(), null, InjectPyDevConsoleHandler.COMMAND_ID,
-					CommandContributionItem.STYLE_PUSH);
-			ccip.label = "Open New Plot Scripting";
-			ccip.icon = AnalysisRCPActivator.getImageDescriptor("icons/application_osx_terminal.png");
-			Map<String, String> params = new HashMap<String, String>();
-			params.put(InjectPyDevConsoleHandler.CREATE_NEW_CONSOLE_PARAM, Boolean.TRUE.toString());
-			params.put(InjectPyDevConsoleHandler.VIEW_NAME_PARAM, getName());
-			params.put(InjectPyDevConsoleHandler.SETUP_SCISOFTPY_PARAM,
-					InjectPyDevConsoleHandler.SetupScisoftpy.ALWAYS.toString());
-			ccip.parameters = params;
-			openPyDevConsoleCCI = new CommandContributionItem(ccip);
-		}
-
-		if (updateDefaultPlotCCI == null) {
-			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow(), null, InjectPyDevConsoleHandler.COMMAND_ID,
-					CommandContributionItem.STYLE_PUSH);
-			ccip.label = "Set Current Plot As Scripting Default";
-			Map<String, String> params = new HashMap<String, String>();
-			params.put(InjectPyDevConsoleHandler.VIEW_NAME_PARAM, getName());
-			ccip.parameters = params;
-			updateDefaultPlotCCI = new CommandContributionItem(ccip);
-		}
-
-		if (getPlotBeanCCI == null) {
-			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow(), null, InjectPyDevConsoleHandler.COMMAND_ID,
-					CommandContributionItem.STYLE_PUSH);
-			ccip.label = "Get Plot Bean in Plot Scripting";
-			Map<String, String> params = new HashMap<String, String>();
-			params.put(InjectPyDevConsoleHandler.INJECT_COMMANDS_PARAM, "bean=dnp.plot.getbean('" + getName() + "')");
-			ccip.parameters = params;
-			getPlotBeanCCI = new CommandContributionItem(ccip);
-		}
-		bars.getMenuManager().add(openPyDevConsoleCCI);
-		bars.getMenuManager().add(updateDefaultPlotCCI);
-		bars.getMenuManager().add(getPlotBeanCCI);
 	}
 
 	//Abstract plotting System
@@ -438,34 +291,15 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 		plotUI = new Plotting1DUI(plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
-		setupAxes();
+		updateGuiBeanPlotMode(GuiPlotMode.ONED);
 	}
 
 	//Abstract plotting System
 	private void setupPlotting2D() {
-		plotUI = new Plotting2DUI(roiManager, plottingSystem);
+		plotUI = new Plotting2DUI(getRoiManager(), plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
-		setupAxes();
-	}
-
-	// AbstractPlottingSystem
-	private void setupAxes(){
-		// set the profiles axes
-		Collection<ITrace> traces = plottingSystem.getTraces();
-
-		Iterator<ITrace> it = traces.iterator();
-		while (it.hasNext()) {
-			ITrace iTrace = it.next();
-			if(iTrace instanceof IImageTrace){
-				IImageTrace image = (IImageTrace)iTrace;
-
-				List<AbstractDataset> axes = image.getAxes();
-
-				sideProfile1.setAxes(axes);
-				sideProfile2.setAxes(axes);
-			}
-		}
+		updateGuiBeanPlotMode(GuiPlotMode.TWOD);
 	}
 
 	//Abstract plotting System
@@ -473,20 +307,27 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 		plotUI = new PlottingScatter2DUI(plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
+		updateGuiBeanPlotMode(GuiPlotMode.SCATTER2D);
 	}
 
 	/**
 	 * @param plotMode
 	 */
+	@Override
 	public void updatePlotMode(GuiPlotMode plotMode) {
-		if (plotMode.equals(GuiPlotMode.ONED)) 
+		if (plotMode.equals(GuiPlotMode.ONED) && getPreviousMode() != GuiPlotMode.ONED){ 
 			setupPlotting1D();
-		else if (plotMode.equals(GuiPlotMode.TWOD)) 
+			setPreviousMode(GuiPlotMode.ONED);
+		}  else if (plotMode.equals(GuiPlotMode.TWOD) && getPreviousMode() != GuiPlotMode.TWOD) {
 			setupPlotting2D();
-		else if (plotMode.equals(GuiPlotMode.SCATTER2D)) 
+			setPreviousMode(GuiPlotMode.TWOD);
+		} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && getPreviousMode() != GuiPlotMode.SCATTER2D) {
 			setupScatterPlotting2D();
-		else if (plotMode.equals(GuiPlotMode.EMPTY))
+			setPreviousMode(GuiPlotMode.SCATTER2D);
+		} else if (plotMode.equals(GuiPlotMode.EMPTY) && getPreviousMode() != GuiPlotMode.EMPTY) {
 			clearPlot();
+			setPreviousMode(GuiPlotMode.EMPTY);
+		}
 	}
 
 	public void clearPlot() {
@@ -497,50 +338,56 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 		}
 	}
 
-	private void updatePlotModeAsync(GuiPlotMode plotMode) {
-		if (plotMode.equals(GuiPlotMode.ONED)){
+	@Override
+	public void updatePlotModeAsync(GuiPlotMode plotMode) {
+
+		if (plotMode.equals(GuiPlotMode.ONED) && getPreviousMode() != GuiPlotMode.ONED){
 			doBlock();
 			parentComp.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						setupPlotting1D();
+						setPreviousMode(GuiPlotMode.ONED);
 					} finally {
 						undoBlock();
 					}
 				}
 			});
-		} else if (plotMode.equals(GuiPlotMode.TWOD)) {
+		} else if (plotMode.equals(GuiPlotMode.TWOD) && getPreviousMode() != GuiPlotMode.TWOD) {
 			doBlock();
 			parentComp.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						setupPlotting2D();
+						setPreviousMode(GuiPlotMode.TWOD);
 					} finally {
 						undoBlock();
 					}
 				}
 			});
-		} else if (plotMode.equals(GuiPlotMode.SCATTER2D)){
+		} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && getPreviousMode() != GuiPlotMode.SCATTER2D){
 			doBlock();
 			parentComp.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						setupScatterPlotting2D();
+						setPreviousMode(GuiPlotMode.SCATTER2D);
 					} finally {
 						undoBlock();
 					}
 				}
 			});
-		}else if (plotMode.equals(GuiPlotMode.EMPTY)) {
+		}else if (plotMode.equals(GuiPlotMode.EMPTY) && getPreviousMode() != GuiPlotMode.EMPTY) {
 			doBlock();
 			parentComp.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						clearPlot();
+						setPreviousMode(GuiPlotMode.EMPTY);
 					} finally {
 						undoBlock();
 					}
@@ -560,35 +407,9 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 		return PlottingMode.EMPTY;
 	}
 
-	public void updatePlotMode(GuiBean bean, boolean async) {
-		if (bean != null) {
-			if (bean.containsKey(GuiParameters.PLOTMODE)) { // bean does not necessarily have a plot mode (eg, it
-															// contains ROIs only)
-				GuiPlotMode plotMode = (GuiPlotMode) bean.get(GuiParameters.PLOTMODE);
-				updatePlotMode(plotMode, async);
-			}
-		}
-	}
-
-	public void updatePlotMode(GuiPlotMode plotMode, boolean async) {
-		if (plotMode != null) {
-			if (async)
-				updatePlotModeAsync(plotMode);
-			else
-				updatePlotMode(plotMode);
-		}
-	}
-
-	public boolean isUpdatePlot() {
-		return isUpdatePlot;
-	}
-
-	public void setUpdatePlot(boolean isUpdatePlot) {
-		this.isUpdatePlot = isUpdatePlot;
-	}
-
+	@Override
 	public void processGUIUpdate(GuiBean bean) {
-		isUpdatePlot = false;
+		setUpdatePlot(false);
 		if (bean.containsKey(GuiParameters.PLOTMODE)) {
 			if (parentComp.getDisplay().getThread() != Thread.currentThread())
 				updatePlotMode(bean, true);
@@ -599,7 +420,7 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 		if (bean.containsKey(GuiParameters.PLOTOPERATION)) {
 			String opStr = (String) bean.get(GuiParameters.PLOTOPERATION);
 			if (opStr.equals("UPDATE")) {
-				isUpdatePlot = true;
+				setUpdatePlot(true);
 			}
 		}
 
@@ -608,31 +429,8 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 		}
 	}
 
-	@Override
-	public void update(Object theObserved, Object changeCode) {
-		if (theObserved instanceof HistogramView) {
-			HistogramUpdate update = (HistogramUpdate) changeCode;
-
-			if (plotUI instanceof Plot2DUI) {
-				Plot2DUI plot2Dui = (Plot2DUI) plotUI;
-				plot2Dui.getSidePlotView().sendHistogramUpdate(update);
-			}
-		}
-	}
-
 	public AbstractPlottingSystem getPlottingSystem() {
 		return plottingSystem;
-	}
-
-	/**
-	 * Required if you want to make tools work with Abstract Plotting System.
-	 */
-	@SuppressWarnings("rawtypes")
-	public Object getAdapter(final Class clazz) {
-		if (clazz == IToolPageSystem.class) {
-			return plottingSystem;
-		}
-		return null;
 	}
 
 	public void dispose() {
@@ -643,7 +441,7 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 		}
 		try {
 			if (plottingSystem != null && !plottingSystem.isDisposed()) {
-				plottingSystem.removeRegionListener(roiManager);
+				plottingSystem.removeRegionListener(getRoiManager());
 				plottingSystem.dispose();
 			}
 			if(sideProfile1 != null && !sideProfile1.isDisposed()){
@@ -664,55 +462,19 @@ public class ROIProfilePlotWindow implements IObserver, IObservable, IPlotWindow
 	}
 
 	@Override
-	public void addIObserver(IObserver observer) {
-		observers.add(observer);
+	public void update(Object source, Object arg) {
+		// TODO Auto-generated method stub
+		
 	}
 
+	/**
+	 * Required if you want to make tools work with Abstract Plotting System.
+	 */
 	@Override
-	public void deleteIObserver(IObserver observer) {
-		observers.remove(observer);
-	}
-
-	@Override
-	public void deleteIObservers() {
-		observers.clear();
-	}
-
-	public void notifyUpdateFinished() {
-		if (notifyListener != null)
-			notifyListener.updateProcessed();
-	}
-
-	public DataBean getDataBean() {
-		return myBeanMemory;
-	}
-
-	SimpleLock simpleLock = new SimpleLock();
-
-	private void doBlock() {
-		logger.debug("doBlock " + Thread.currentThread().getId());
-		synchronized (simpleLock) {
-			if (simpleLock.isLocked()) {
-				try {
-					logger.debug("doBlock  - waiting " + Thread.currentThread().getId());
-					simpleLock.wait();
-					logger.debug("doBlock  - locking " + Thread.currentThread().getId());
-				} catch (InterruptedException e) {
-					// do nothing - but return
-				}
-			} else {
-				logger.debug("doBlock  - waiting not needed " + Thread.currentThread().getId());
-			}
-			simpleLock.lock();
+	public Object getAdapter(final Class<?> clazz) {
+		if (clazz == IToolPageSystem.class) {
+			return plottingSystem;
 		}
+		return null;
 	}
-
-	private void undoBlock() {
-		synchronized (simpleLock) {
-			logger.debug("undoBlock " + Thread.currentThread().getId());
-			simpleLock.unlock();
-			simpleLock.notifyAll();
-		}
-	}
-
 }

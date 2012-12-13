@@ -413,6 +413,14 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		}
 	}
 
+	/**
+	 * Needed to correctly create the guibean the first time a plot is set, otherwise the guibean will be null
+	 */
+	protected void updateGuiBeanPlotMode(GuiPlotMode mode) {
+		getGuiManager().removeGUIInfo(GuiParameters.PLOTMODE);
+		getGuiManager().putGUIInfo(GuiParameters.PLOTMODE, mode);
+	}
+
 	public DataBean getDataBean() {
 		return myBeanMemory;
 	}
