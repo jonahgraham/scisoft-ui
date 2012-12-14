@@ -139,7 +139,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	 */
 	public abstract void runUpdate();
 
-	protected void updateGuiBean(DataBean dataBean) {
+	public void updateGuiBean(DataBean dataBean) {
 		if (guiBean == null) {
 			guiBean = new GuiBean();
 		}
@@ -154,7 +154,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	/**
 	 * Update the beans
 	 */
-	protected void updateBeans() {
+	public void updateBeans() {
 
 		if (updateThread == null || updateThread.getState() == Thread.State.TERMINATED) {
 
@@ -219,7 +219,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	 * 
 	 * @param observer
 	 */
-	protected void addDataObserver(IObserver observer) {
+	public void addDataObserver(IObserver observer) {
 		dataObservers.add(observer);
 	}
 
@@ -228,18 +228,18 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	 * 
 	 * @param observer
 	 */
-	protected void deleteDataObserver(IObserver observer) {
+	public void deleteDataObserver(IObserver observer) {
 		dataObservers.remove(observer);
 	}
 
 	/**
 	 * Remove all data observers
 	 */
-	protected void deleteDataObservers() {
+	public void deleteDataObservers() {
 		dataObservers.clear();
 	}
 
-	protected void notifyDataObservers(DataBean bean) {
+	public void notifyDataObservers(DataBean bean) {
 		Iterator<IObserver> iter = dataObservers.iterator();
 		while (iter.hasNext()) {
 			IObserver ob = iter.next();
