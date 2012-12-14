@@ -651,7 +651,8 @@ class PlotTab extends ATab {
 	protected AbstractDataset sliceData(IMonitor monitor, Slice[] slices) {
 		AbstractDataset slicedData = null;
 		try {
-			slicedData = DatasetUtils.convertToAbstractDataset(dataset.getSlice(monitor, slices));
+			final IDataset slice = dataset.getSlice(monitor, slices);
+			slicedData = DatasetUtils.convertToAbstractDataset(slice);
 		} catch (Exception e) {
 			logger.error("Problem getting slice of data: {}", e);
 			logger.error("Tried to get slices: {}", Arrays.toString(slices));
@@ -670,17 +671,19 @@ class PlotTab extends ATab {
 		final StringBuilder name = new StringBuilder();
         name.append(slicedData.getName());
         if (meta!=null && meta.getFilePath()!=null) {
+        	String nameString = null;
         	try {
         		File file = new File(meta.getFilePath());
-           		name.append(" (");
-           		name.append(file.getName());
-           		name.append(")");
+        		nameString = file.getName();
         	} catch (Throwable ne) {
-        		name.append(" (");
-           		name.append(meta.getFilePath());
-           		name.append(")");
+        		nameString = meta.getFilePath();
        	    }
-        }
+    		if (nameString!=null && !name.toString().contains(nameString)) {
+           		name.append(" (");
+           		name.append(nameString);
+           		name.append(")");
+    		}
+       }
 		reorderedData.setName(name.toString());
 		reorderedData.squeeze();
 		if (reorderedData.getSize() < 1)
@@ -790,7 +793,7 @@ class PlotTab extends ATab {
 				// FIX to http://jira.diamond.ac.uk/browse/DAWNSCI-333
 				// Plots must have unique names to work with history currently.
 				if (isSlicedData(sliceProperties)) {
-					reorderedData.setName(getSliceName(reorderedData, sliceProperties));
+					reorderedData.setName(getSliceName(reorderedData, slices));
 				}
 				SDAPlotter.updatePlot(PLOTNAME, slicedAxes.get(0), reorderedData);
 			} catch (Exception e) {
@@ -871,7 +874,7 @@ class PlotTab extends ATab {
 			// FIX to http://jira.diamond.ac.uk/browse/DAWNSCI-333
 			// Plots must have unique names to work with history currently.
 			if (isSlicedData(sliceProperties)) {
-				reorderedData.setName(getSliceName(reorderedData, sliceProperties));
+				reorderedData.setName(getSliceName(reorderedData, slices));
 			} else {
 			    reorderedData.setName(dataset.getName()); // TODO add slice string
 			}
@@ -923,7 +926,12 @@ class PlotTab extends ATab {
 
 	}
 
-	private String getSliceName(AbstractDataset reorderedData, List<SliceProperty> sliceProperties) {
+	private String getSliceName(AbstractDataset reorderedData, Slice... slices) {
+		
+		// toString() method of sliceProperties not good enough, string must
+		// be exactly the same as returned by Slice.createString(...)
+		final String sliceString = "["+Slice.createString(slices)+"]";
+		if (reorderedData.getName().contains(sliceString)) return reorderedData.getName();
 		final StringBuilder buf = new StringBuilder();
 		if (reorderedData.getName()==null|| "".equals(reorderedData.getName())) {
 			buf.append("Slice ");
@@ -931,9 +939,10 @@ class PlotTab extends ATab {
 			buf.append(reorderedData.getName());
 			buf.append(" ");
 		}
-		buf.append(sliceProperties);
+		buf.append(sliceString);
 		return buf.toString();
 	}
+
 
 	private boolean isSlicedData(List<SliceProperty> sliceProperties) {
 		for (SliceProperty sliceProperty : sliceProperties) {
