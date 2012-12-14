@@ -773,7 +773,7 @@ public class PlotWindow extends AbstractPlotWindow {
 			if (mainPlotter != null) {
 				mainPlotter.cleanUp();
 			}
-			if (plottingSystem != null && !plottingSystem.isDisposed()) {
+			if (plottingSystem != null){//&& !plottingSystem.isDisposed()) {
 				plottingSystem.removeRegionListener(getRoiManager());
 				plottingSystem.dispose();
 			}
