@@ -87,10 +87,13 @@ public class Plotting1DUI extends AbstractPlotUI {
 						AbstractDataset data = dataSetAxis.getData();
 						yDatasets.add(data);
 						currentDataName = data.getName();
-						if(i>0)
+						if(i>0 && i<=2){
 							title += ", "+ data.getName();
-						else
+						} else if (i==3){
+							title += "...";
+						} else if(i==0){
 							title += data.getName();
+						}
 
 						if(currentDataName.equals("")) // if no name given set default name
 							currentDataName = "Y-Axis";
