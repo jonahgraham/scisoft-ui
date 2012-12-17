@@ -158,7 +158,8 @@ public class PlotView extends AbstractPlotView {
 	public void dispose() {
 		if (plotWindow != null)
 			plotWindow.dispose();
-		// plotConsumer.stop();
+
+		getPlotServer().deleteIObserver(this);
 		getExecSvc().shutdown();
 		deleteIObservers();
 		deleteDataObservers();
