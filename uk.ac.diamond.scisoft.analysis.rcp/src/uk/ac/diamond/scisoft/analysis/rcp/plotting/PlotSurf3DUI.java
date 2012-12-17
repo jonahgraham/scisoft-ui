@@ -503,7 +503,8 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 				mainPlotter.setDataWindowPosition(roi);
 				mainPlotter.refresh(false);
 			}catch(ArrayIndexOutOfBoundsException e){
-				logger.debug("Surface plot ROI is out of the image bounds:"+e);
+				//logger.debug("Surface plot ROI is out of the image bounds:"+e);
+				//do nothing
 			}catch(NullPointerException e){
 				logger.debug("The Surface plot has been closed and is null:"+e);
 			}catch(IllegalArgumentException e){

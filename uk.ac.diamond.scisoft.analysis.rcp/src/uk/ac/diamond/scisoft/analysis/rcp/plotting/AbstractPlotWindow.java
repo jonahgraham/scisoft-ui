@@ -168,11 +168,11 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		observers.clear();
 	}
 
-	public List<IObserver> getObservers(){
+	protected List<IObserver> getObservers(){
 		return observers;
 	}
 
-	public void notifyUpdateFinished() {
+	protected void notifyUpdateFinished() {
 		if (notifyListener != null)
 			notifyListener.updateProcessed();
 	}
@@ -362,6 +362,9 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		bars.getMenuManager().add(getPlotBeanCCI);
 	}
 
+	/**
+	 * Remove the actions previously created
+	 */
 	protected void removePreviousActions() {
 
 		IContributionItem[] items = bars.getToolBarManager().getItems();
@@ -388,13 +391,30 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 */
 	abstract void processPlotUpdate(final DataBean dbPlot);
 
+	/**
+	 * Update the GuiBean
+	 * @param bean
+	 */
 	abstract void processGUIUpdate(GuiBean bean);
 
+	/**
+	 * Update the Plot mode synchronously
+	 * @param plotMode
+	 */
 	abstract void updatePlotMode(GuiPlotMode plotMode);
 
+	/**
+	 * Update the Plot Mode Asynchronously
+	 * @param plotMode
+	 */
 	abstract void updatePlotModeAsync(GuiPlotMode plotMode);
 
-	public void updatePlotMode(GuiPlotMode plotMode, boolean async) {
+	/**
+	 * Update the Plot Mode
+	 * @param plotMode
+	 * @param async
+	 */
+	protected void updatePlotMode(GuiPlotMode plotMode, boolean async) {
 		if (plotMode != null) {
 			if (async)
 				updatePlotModeAsync(plotMode);
@@ -403,6 +423,11 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		}
 	}
 
+	/**
+	 * Update the Plot mode with a GuiBean
+	 * @param bean
+	 * @param async
+	 */
 	public void updatePlotMode(GuiBean bean, boolean async) {
 		if (bean != null) {
 			if (bean.containsKey(GuiParameters.PLOTMODE)) { // bean does not necessarily have a plot mode (eg, it
@@ -412,6 +437,11 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			}
 		}
 	}
+
+	/**
+	 * Clear the Plot Window and its components
+	 */
+	abstract void clearPlot();
 
 	/**
 	 * Needed to correctly create the guibean the first time a plot is set, otherwise the guibean will be null

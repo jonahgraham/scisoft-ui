@@ -330,6 +330,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		}
 	}
 
+	@Override
 	public void clearPlot() {
 		if (plottingSystem != null) {
 			plottingSystem.clearRegions();
@@ -440,16 +441,10 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			plotUI.dispose();
 		}
 		try {
-			if (plottingSystem != null && !plottingSystem.isDisposed()) {
-				plottingSystem.removeRegionListener(getRoiManager());
-				plottingSystem.dispose();
-			}
-			if(sideProfile1 != null && !sideProfile1.isDisposed()){
-				sideProfile1.dispose();
-			}
-			if(sideProfile2 != null && !sideProfile2.isDisposed()){
-				sideProfile2.dispose();
-			}
+			plottingSystem.removeRegionListener(getRoiManager());
+			plottingSystem.dispose();
+			sideProfile1.dispose();
+			sideProfile2.dispose();
 			mainROIMetadata.dispose();
 			xaxisMetadataVertical.dispose();
 			xaxisMetadataHorizontal.dispose();

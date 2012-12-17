@@ -26,6 +26,7 @@ import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.region.IRegion;
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
+import org.dawb.common.ui.util.EclipseUtils;
 import org.dawnsci.plotting.jreality.core.AxisMode;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
@@ -48,6 +49,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
+import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 
 /**
@@ -275,6 +277,10 @@ public class PlotWindow extends AbstractPlotWindow {
 			bars.getMenuManager().removeAll();
 			mainPlotter.cleanUp();
 			mainPlotterComposite.dispose();
+
+			if(getPreviousMode()==GuiPlotMode.SURF2D){
+				EclipseUtils.closeView(DataWindowView.ID);
+			}
 		}
 	}
 
@@ -444,6 +450,7 @@ public class PlotWindow extends AbstractPlotWindow {
 		}
 	}
 
+	@Override
 	public void clearPlot() {
 		if (!mainPlotter.isDisposed()) {
 			mainPlotter.emptyPlot();
@@ -773,7 +780,7 @@ public class PlotWindow extends AbstractPlotWindow {
 			if (mainPlotter != null) {
 				mainPlotter.cleanUp();
 			}
-			if (plottingSystem != null && !plottingSystem.isDisposed()) {
+			if (plottingSystem != null){//&& !plottingSystem.isDisposed()) {
 				plottingSystem.removeRegionListener(getRoiManager());
 				plottingSystem.dispose();
 			}

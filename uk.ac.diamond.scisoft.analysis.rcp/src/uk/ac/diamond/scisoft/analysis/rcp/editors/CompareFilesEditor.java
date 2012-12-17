@@ -105,6 +105,11 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorTy
  */
 public class CompareFilesEditor extends EditorPart implements ISelectionChangedListener, ISelectionProvider {
 	/**
+	 * Name of index dataset
+	 */
+	public final static String INDEX = "index";
+
+	/**
 	 * Factory to create proper input object for this editor
 	 * @param sel
 	 * @return compare files editor input
@@ -1021,8 +1026,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					}
 					if (name.startsWith(AbstractExplorer.DIM_PREFIX)) { // increment dim: number
 						int d = Integer.parseInt(name.substring(AbstractExplorer.DIM_PREFIX.length()));
-						name = AbstractExplorer.DIM_PREFIX + (d+1);
-						allAxis.setName(name);
+						allAxis.setName(AbstractExplorer.DIM_PREFIX + (d+1));
 					}
 				} else {
 					nc.setIndexMapping(map.clone());
@@ -1177,10 +1181,9 @@ class SelectedFile {
 		return mv.toString();
 	}
 
-	private final static String INDEX = "index";
 	public void setIndex(int index) {
 		i = new IntegerDataset(new int[] {index}, null);
-		i.setName(INDEX);
+		i.setName(CompareFilesEditor.INDEX);
 	}
 
 	public String getIndex() {
