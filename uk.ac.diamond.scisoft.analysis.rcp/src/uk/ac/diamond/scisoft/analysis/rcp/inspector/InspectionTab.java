@@ -676,15 +676,11 @@ class PlotTab extends ATab {
 		final StringBuilder name = new StringBuilder();
 		name.append(slicedData.getName());
 		if (meta != null && meta.getFilePath() != null) {
-			try {
-				File file = new File(meta.getFilePath());
+			String fname = new File(meta.getFilePath()).getName();
+			if (fname.length() != 0 && name.indexOf(fname) < 0) {
 				name.append(" (");
-				name.append(file.getName());
-				name.append(")");
-			} catch (Throwable ne) {
-				name.append(" (");
-				name.append(meta.getFilePath());
-				name.append(")");
+				name.append(fname);
+				name.append(')');
 			}
 		}
 
@@ -699,7 +695,10 @@ class PlotTab extends ATab {
 			if (name.length() == 0 || "".equals(name)) {
 				name.append("Slice ");
 			}
-			name.append(Arrays.toString(slices));
+			String slice = '[' + Slice.createString(slices) + ']';
+			if (name.indexOf(slice) < 0) {
+				name.append(slice);
+			}
 		}
 
 		reorderedData.setName(name.toString());
