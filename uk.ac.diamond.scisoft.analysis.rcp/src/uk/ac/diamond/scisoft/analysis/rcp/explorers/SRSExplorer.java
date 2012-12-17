@@ -41,6 +41,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPartSite;
@@ -215,9 +216,11 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 	public void dispose() {
 		viewer.removeSelectionChangedListener(listener);
 		data = null;
-		MenuItem[] items = viewer.getTable().getMenu().getItems();
-		for (MenuItem i : items) {
-			i.removeSelectionListener(contextListener);
+		Table table = viewer.getTable();
+		if (!table.isDisposed()) {
+			for (MenuItem i : table.getMenu().getItems()) {
+				i.removeSelectionListener(contextListener);
+			}
 		}
 	}
 
