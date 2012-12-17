@@ -18,11 +18,8 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import gda.observable.IObserver;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -49,13 +46,10 @@ public class Plotting1DUI extends AbstractPlotUI {
 
 	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.Plotting1DUI";
 	private static final Logger logger = LoggerFactory.getLogger(Plotting1DUI.class);
+	private static final int LEGEND_LIMIT = 5; // maximum number of lines for legend otherwise it is not shown
 
 	private AbstractPlottingSystem plottingSystem;
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
-	private String currentDataName;
-	private String previousDataName;
-	private String currentXAxisName;
-	private String previousXAxisName;
 
 	/**
 	 * Constructor of a plotting 1D 
@@ -70,104 +64,97 @@ public class Plotting1DUI extends AbstractPlotUI {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
+				List<DataSetWithAxisInformation> plotData = dbPlot.getData();
 				if (plotData == null)
 					return;
 
-				final List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
-				Collection<ITrace> previousTraces = plottingSystem.getTraces();
-				final ArrayList<ITrace> traceList = new ArrayList<ITrace>(previousTraces);
-
-				int i=0;
 				GuiBean gb = dbPlot.getGuiParameters();
 				String title = gb == null ? null : (String) gb.get(GuiParameters.TITLE);
 				boolean hasTitle = title != null;
-				//if more than one plot to show then do not show legend
-				if(plotData.size()>1){
+				// if more than one plot to show then do not show legend
+				if (plotData.size() > LEGEND_LIMIT) {
 					plottingSystem.setShowLegend(false);
 				}
 
-				Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
-				while (iter.hasNext()) {
-					DataSetWithAxisInformation dataSetAxis = iter.next();
-					AbstractDataset data = dataSetAxis.getData();
-					yDatasets.add(data);
-					currentDataName = data.getName();
-					if (!hasTitle) {
-						if (i > 0 && i <= 2) {
-							title += ", " + data.getName();
-						} else if (i == 3) {
-							title += "...";
-						} else if (i == 0) {
-							title = data.getName();
+				// check if same lines are being plotted
+				boolean useOldTraces = false;
+				final int plots = plotData.size();
+				Collection<ITrace> oldTraces = plottingSystem.getTraces();
+				final int traces = oldTraces.size();
+				if (plots <= traces) {
+					int nt = 0;
+					for (ITrace t : oldTraces) {
+						if (t instanceof ILineTrace) {
+							String oyn = t.getName();
+							AbstractDataset ox = ((ILineTrace) t).getXData();
+							String oxn = ox == null ? null : ox.getName();
+							for (DataSetWithAxisInformation d : plotData) {
+								String nyn = d.getData().getName();
+								String nxn = dbPlot.getAxis(d.getAxisMap().getAxisID()[0]).getName();
+								if (oyn != null && oyn.equals(nyn)) {
+									if (oxn != null && oxn.equals(nxn)) {
+										nt++;
+										break;
+									}
+								}
+							}
 						}
 					}
-					if(currentDataName.equals("")) // if no name given set default name
-						currentDataName = "Y-Axis";
-					final AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
-					currentXAxisName = xAxisValues.getName();
-					if(currentXAxisName.equals("")) // if no name given set default name
-						currentXAxisName = "X-Axis";
-
-					if(!traceList.isEmpty()&&traceList.size()>i){
-						previousDataName = traceList.get(i).getName();
-						if(traceList.get(i) instanceof ILineTrace){
-							AbstractDataset xData = ((ILineTrace)traceList.get(i)).getXData();
-							if(xData!=null)
-								previousXAxisName = xData.getName();
-						}
-					} else {
-						previousDataName = "";
-						previousXAxisName = "";
-					}
-
-					// if same data being pushed to plot, we do an update instead of recreating the plot
-					if(currentDataName.equals(previousDataName)&&currentXAxisName.equals(previousXAxisName)){
-						ITrace plotTrace = plottingSystem.getTrace(currentDataName);
-						if(plotTrace instanceof ILineTrace){
-							ILineTrace lineTrace = (ILineTrace) plotTrace;
-							lineTrace.setData(xAxisValues, data);
-							lineTrace.repaint();
-						}
-						// if rescale axis option is checked in the x/y plot menu
-						if(plottingSystem.isRescale())
-							plottingSystem.autoscaleAxes();
-
-						logger.debug("Plot 1D updated");
-					}// if x or y axis change then we create a new plot
-					else if((!currentDataName.equals(previousDataName)||!currentXAxisName.equals(previousXAxisName))){
-						plottingSystem.getSelectedYAxis().setTitle("");
-						plottingSystem.clear();
-						xAxisValues.setName(currentXAxisName);
-						data.setName(currentDataName);
-						
-						Collection<ITrace> traces;
-						// if "Plot using first dataset as x axis" is selected
-						final AbstractDataset plot1D = yDatasets.get(i);
-						final String       plotTitle = plot1D.getName()!=null ? plot1D.getName() : null;
-						if(!plottingSystem.isXfirst()) {
-							traces = plottingSystem.createPlot1D(null, Arrays.asList(plot1D), plotTitle, null);
-						} else {
-							traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, plotTitle, null);
-						}
-						//plottingSystem.setShowLegend(false);
-						for (ITrace iTrace : traces) {
-							final ILineTrace lineTrace = (ILineTrace)iTrace;
-							lineTrace.setTraceType(TraceType.SOLID_LINE);
-						}
-						logger.debug("Plot 1D created");
-					}
-					
-					i++;
+					useOldTraces = nt == plots;
 				}
-				plottingSystem.setTitle(hasTitle ? title : "Plot of " + title + " against " + currentXAxisName);
-
-				// remove the traces that are not part of the yDataset anymore 
-				// (in the case of the stack plot item number decrease for instance)
-				if(yDatasets.size()<traceList.size()){
-					for(int j=yDatasets.size(); j<traceList.size(); j++){
-						plottingSystem.removeTrace(traceList.get(j));
+				if (useOldTraces) {
+					for (ITrace t : oldTraces) {
+						if (t instanceof ILineTrace) {
+							String oyn = t.getName();
+							AbstractDataset x = ((ILineTrace) t).getXData();
+							String oxn = x == null ? null : x.getName();
+							for (DataSetWithAxisInformation d : plotData) {
+								AbstractDataset ny = d.getData();
+								String nyn = ny.getName();
+								AbstractDataset nx = dbPlot.getAxis(d.getAxisMap().getAxisID()[0]);
+								String nxn = nx.getName();
+								if (oyn != null && oyn.equals(nyn)) {
+									if (oxn != null && oxn.equals(nxn)) {
+										((ILineTrace) t).setData(nx, ny);
+										((ILineTrace) t).repaint();
+									}
+								}
+							}
+						}
 					}
+					// if rescale axis option is checked in the x/y plot menu
+					if (plottingSystem.isRescale())
+						plottingSystem.autoscaleAxes();
+					logger.debug("Plot 1D updated");
+				} else {
+					List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+					AbstractDataset nx = dbPlot.getAxis(AxisMapBean.XAXIS);
+					int i = 0;
+					for (DataSetWithAxisInformation d : plotData) {
+						AbstractDataset ny = d.getData();
+						String nyn = ny.getName();
+						yDatasets.add(ny);
+						if (!hasTitle) {
+							if (i > 0 && i <= 2) {
+								title += ", " + nyn;
+							} else if (i == 3) {
+								title += "...";
+							} else if (i == 0) {
+								title = nyn;
+							}
+						}
+						i++;
+					}
+					plottingSystem.getSelectedYAxis().setTitle("");
+					plottingSystem.clear();
+					
+					Collection<ITrace> newTraces = plottingSystem.createPlot1D(nx, yDatasets, hasTitle ? title : "Plot of " + title + " against " + nx.getName(), null);
+
+					for (ITrace iTrace : newTraces) {
+						final ILineTrace lineTrace = (ILineTrace)iTrace;
+						lineTrace.setTraceType(TraceType.SOLID_LINE);
+					}
+					logger.debug("Plot 1D created");
 				}
 			}
 		});
