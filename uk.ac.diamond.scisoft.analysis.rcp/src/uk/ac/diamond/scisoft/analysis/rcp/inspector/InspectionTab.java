@@ -57,6 +57,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.rcp.editors.CompareFilesEditor;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DatasetTableView;
@@ -664,30 +665,44 @@ class PlotTab extends ATab {
 		AbstractDataset reorderedData = null;
 		AbstractDataset slicedData = sliceData(monitor, slices);
 		if (slicedData == null) return null;
+
 		reorderedData = DatasetUtils.transpose(slicedData, order);
+		reorderedData.squeeze();
+		if (reorderedData.getSize() < 1)
+			return null;
 
 		// Possible fix to http://jira.diamond.ac.uk/browse/DAWNSCI-333
 		// ensures that file name appears in plot.
 		final StringBuilder name = new StringBuilder();
-        name.append(slicedData.getName());
-        if (meta!=null && meta.getFilePath()!=null) {
-        	String nameString = null;
-        	try {
-        		File file = new File(meta.getFilePath());
-        		nameString = file.getName();
-        	} catch (Throwable ne) {
-        		nameString = meta.getFilePath();
-       	    }
-    		if (nameString!=null && !name.toString().contains(nameString)) {
-           		name.append(" (");
-           		name.append(nameString);
-           		name.append(")");
-    		}
-       }
+		name.append(slicedData.getName());
+		if (meta != null && meta.getFilePath() != null) {
+			try {
+				File file = new File(meta.getFilePath());
+				name.append(" (");
+				name.append(file.getName());
+				name.append(")");
+			} catch (Throwable ne) {
+				name.append(" (");
+				name.append(meta.getFilePath());
+				name.append(")");
+			}
+		}
+
+		boolean isSliced = false;
+		for (Slice s : slices) {
+			if (s != null && !s.isSliceComplete()) {
+				isSliced = true;
+				break;
+			}
+		}
+		if (isSliced) {
+			if (name.length() == 0 || "".equals(name)) {
+				name.append("Slice ");
+			}
+			name.append(Arrays.toString(slices));
+		}
+
 		reorderedData.setName(name.toString());
-		reorderedData.squeeze();
-		if (reorderedData.getSize() < 1)
-			return null;
 
 		return reorderedData;
 	}
@@ -774,7 +789,7 @@ class PlotTab extends ATab {
 		try {
 			meta = dataset.getMetadata();
 		} catch (Exception e1) {
-			logger.error("Metadata cannot be retrieved from " + dataset.getName(), e1);
+			logger.warn("Metadata cannot be retrieved from {}: {}", dataset.getName(), e1.getStackTrace());
 		}
 		
 		switch(itype) {
@@ -790,11 +805,6 @@ class PlotTab extends ATab {
 			}
 
 			try {
-				// FIX to http://jira.diamond.ac.uk/browse/DAWNSCI-333
-				// Plots must have unique names to work with history currently.
-				if (isSlicedData(sliceProperties)) {
-					reorderedData.setName(getSliceName(reorderedData, slices));
-				}
 				SDAPlotter.updatePlot(PLOTNAME, slicedAxes.get(0), reorderedData);
 			} catch (Exception e) {
 				logger.error("Could not plot 1d line");
@@ -837,15 +847,17 @@ class PlotTab extends ATab {
 					xaxes[i] = xaxisarray.getSlice(new int[] {0, i}, new int[] {dims[0], i+1}, null).squeeze();
 
 			AbstractDataset[] yaxes = new AbstractDataset[lines];
-			boolean isDimAxis = slicedAxes.get(1).getName().startsWith(AbstractExplorer.DIM_PREFIX);
+			String sName = slicedAxes.get(1).getName();
+			boolean isDimAxis = sName.startsWith(AbstractExplorer.DIM_PREFIX) || sName.equals(CompareFilesEditor.INDEX);
+			String dName = reorderedData.getName();
 			for (int i = 0; i < lines; i++) {
 				AbstractDataset slice = reorderedData.getSlice(new int[] {0, i}, new int[] {dims[0], i+1}, null);
 				slice.squeeze();
 				if (isDimAxis) {
-					slice.setName(String.format("%s[%d]", dataset.getName(), i));
+					slice.setName(String.format("%s[%d]", dName, i));
 				} else {
 					String z = lines == 1 && zaxis.getRank() == 0 ? zaxis.getString() : zaxis.getString(i);
-					slice.setName(String.format("%s[%d=%s]", dataset.getName(), i, z));
+					slice.setName(String.format("%s[%d=%s]", dName, i, z));
 				}
 				yaxes[i] = slice;
 			}
@@ -853,7 +865,7 @@ class PlotTab extends ATab {
 				if (plotStackIn3D)
 					SDAPlotter.updateStackPlot(PLOTNAME, xaxes, yaxes, zaxis);
 				else {
-					SDAPlotter.updatePlot(PLOTNAME, xaxes, yaxes);
+					SDAPlotter.updatePlot(PLOTNAME, dName, xaxes, yaxes);
 				}
 			} catch (Exception e) {
 				logger.error("Could not plot 1d stack");
@@ -871,13 +883,6 @@ class PlotTab extends ATab {
 				return;
 			}
 
-			// FIX to http://jira.diamond.ac.uk/browse/DAWNSCI-333
-			// Plots must have unique names to work with history currently.
-			if (isSlicedData(sliceProperties)) {
-				reorderedData.setName(getSliceName(reorderedData, slices));
-			} else {
-			    reorderedData.setName(dataset.getName()); // TODO add slice string
-			}
 			if (meta != null) {
 				reorderedData.setMetadata(meta);
 			}
@@ -923,32 +928,6 @@ class PlotTab extends ATab {
 		case POINTS3D:
 			break;
 		}
-
-	}
-
-	private String getSliceName(AbstractDataset reorderedData, Slice... slices) {
-		
-		// toString() method of sliceProperties not good enough, string must
-		// be exactly the same as returned by Slice.createString(...)
-		final String sliceString = "["+Slice.createString(slices)+"]";
-		if (reorderedData.getName().contains(sliceString)) return reorderedData.getName();
-		final StringBuilder buf = new StringBuilder();
-		if (reorderedData.getName()==null|| "".equals(reorderedData.getName())) {
-			buf.append("Slice ");
-		} else {
-			buf.append(reorderedData.getName());
-			buf.append(" ");
-		}
-		buf.append(sliceString);
-		return buf.toString();
-	}
-
-
-	private boolean isSlicedData(List<SliceProperty> sliceProperties) {
-		for (SliceProperty sliceProperty : sliceProperties) {
-			if (sliceProperty.isSlice()) return true;
-		}
-		return false;
 	}
 
 	private boolean isExplorerNull() {
