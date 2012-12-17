@@ -19,6 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 import gda.observable.IObserver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -145,7 +146,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 						final AbstractDataset plot1D = yDatasets.get(i);
 						final String       plotTitle = plot1D.getName()!=null ? plot1D.getName() : null;
 						if(!plottingSystem.isXfirst()) {
-							traces = plottingSystem.createPlot1D(plot1D, null, plotTitle, null);
+							traces = plottingSystem.createPlot1D(null, Arrays.asList(plot1D), plotTitle, null);
 						} else {
 							traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, plotTitle, null);
 						}
