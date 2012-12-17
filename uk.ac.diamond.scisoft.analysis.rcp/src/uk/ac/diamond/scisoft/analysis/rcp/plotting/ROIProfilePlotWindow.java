@@ -330,6 +330,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		}
 	}
 
+	@Override
 	public void clearPlot() {
 		if (plottingSystem != null) {
 			plottingSystem.clearRegions();
