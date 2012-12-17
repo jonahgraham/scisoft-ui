@@ -301,7 +301,7 @@ public class JythonCreator implements IStartup {
 			// now set up the LD_LIBRARY_PATH, or PATH for windows
 			File libraryDir = new File(pluginsDir.getParent(), "lib");
 			String libraryPath;
-			if (libraryDir.exists()) {
+			if (!isRunningInEclipse && libraryDir.exists()) {
 				libraryPath = libraryDir.getAbsolutePath();
 			} else {
 				Set<String> paths = new LinkedHashSet<String>();
