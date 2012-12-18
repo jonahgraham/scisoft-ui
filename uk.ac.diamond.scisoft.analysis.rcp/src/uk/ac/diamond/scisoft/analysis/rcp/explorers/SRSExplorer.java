@@ -155,11 +155,11 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 				if (index == 0)
 					return dataset.getName();
 				if (index == 1)
-					return "Not Available";
+					return "-";
 				if (index == 2)
-					return "Not Available";
+					return "-";
 				if (index == 3)
-					return "Not Available";
+					return "Lazy";
 			}
 
 			return null;
