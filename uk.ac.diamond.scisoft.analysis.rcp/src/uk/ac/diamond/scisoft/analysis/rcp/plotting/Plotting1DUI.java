@@ -147,8 +147,19 @@ public class Plotting1DUI extends AbstractPlotUI {
 					}
 					plottingSystem.getSelectedYAxis().setTitle("");
 					plottingSystem.clear();
-					
-					Collection<ITrace> newTraces = plottingSystem.createPlot1D(nx, yDatasets, hasTitle ? title : "Plot of " + title + " against " + nx.getName(), null);
+
+					if (!hasTitle) {
+						if (title == null) {
+							title = "";
+						} else if (!title.equals("")) {
+							String nxn = nx.getName();
+							if (nxn != null && !nxn.equals(""))
+								title = "Plot of " + title + " against " + nx.getName();
+							else
+								title = "Plot of " + title;
+						}
+					}
+					Collection<ITrace> newTraces = plottingSystem.createPlot1D(nx, yDatasets, title, null);
 
 					for (ITrace iTrace : newTraces) {
 						final ILineTrace lineTrace = (ILineTrace)iTrace;

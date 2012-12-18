@@ -678,9 +678,10 @@ class PlotTab extends ATab {
 		NAME_APPEND: if (meta != null && meta.getFilePath() != null) {
 			try {
 				File file = new File(meta.getFilePath());
-				if (name.toString().contains(file.getName())) break NAME_APPEND;
+				final String fname = file.getName();
+				if (name.toString().contains(fname) || fname.length()==0) break NAME_APPEND;
 				name.append(" (");
-				name.append(file.getName());
+				name.append(fname);
 				name.append(")");
 			} catch (Throwable ne) {
 				if (name.toString().contains(meta.getFilePath())) break NAME_APPEND;
@@ -701,7 +702,10 @@ class PlotTab extends ATab {
 			if (name.length() == 0 || "".equals(name)) {
 				name.append("Slice ");
 			}
-			name.append(Arrays.toString(slices));
+			String slice = '[' + Slice.createString(slices) + ']';
+			if (name.indexOf(slice) < 0) {
+				name.append(slice);
+			}
 		}
 
 		reorderedData.setName(name.toString());
