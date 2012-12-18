@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.IPlottingSystem;
 import org.eclipse.ui.IWorkbenchPage;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.IPlotWindowManagerRMI;
@@ -87,6 +88,6 @@ public interface IPlotWindowManager {
 	 * @param viewName
 	 *            to duplicate
 	 */
-	public void clearPlottingSystem(AbstractPlottingSystem plottingSystem, String viewName);
+	public void clearPlottingSystem(IPlottingSystem plottingSystem, String viewName);
 
 }

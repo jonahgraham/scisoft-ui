@@ -16,7 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.actions;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.IPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -42,7 +42,7 @@ public class ClearPlottingSystemAction extends AbstractHandler{
 		try{
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			String plotName = page.getActivePart().getTitle();
-			AbstractPlottingSystem plottingSystem = PlottingFactory.getPlottingSystem(plotName);
+			IPlottingSystem plottingSystem = PlottingFactory.getPlottingSystem(plotName);
 			PlotWindow.getManager().clearPlottingSystem(plottingSystem, plotName);
 		} catch (Exception e) {
 			logger.error("Cannot clear plot", e);

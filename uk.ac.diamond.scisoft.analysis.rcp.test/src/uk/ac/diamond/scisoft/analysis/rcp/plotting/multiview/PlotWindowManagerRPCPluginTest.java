@@ -16,7 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.IPlottingSystem;
 import org.eclipse.ui.IWorkbenchPage;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -24,7 +24,6 @@ import org.junit.BeforeClass;
 import uk.ac.diamond.scisoft.analysis.AnalysisRpcClientProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.MultiPlotViewTestBase.ThreadRunner;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.MultiPlotViewTestBase.ThreadRunner.ThreadRunnable;
 import uk.ac.diamond.scisoft.analysis.rpc.AnalysisRpcException;
 
@@ -71,7 +70,7 @@ public class PlotWindowManagerRPCPluginTest extends PlotWindowManagerPluginTestA
 			}
 
 			@Override
-			public void clearPlottingSystem(AbstractPlottingSystem plottingSystem, String viewName) {
+			public void clearPlottingSystem(IPlottingSystem plottingSystem, String viewName) {
 				try{
 					plottingSystem.reset();
 				} catch (Exception e) {
@@ -100,7 +99,7 @@ public class PlotWindowManagerRPCPluginTest extends PlotWindowManagerPluginTestA
 	}
 
 	@Override
-	public void clearPlottingSystem(final AbstractPlottingSystem plottingSystem, String viewName) {
+	public void clearPlottingSystem(final IPlottingSystem plottingSystem, String viewName) {
 		ThreadRunner threadRunner = new ThreadRunner(new ThreadRunnable() {
 
 			@Override

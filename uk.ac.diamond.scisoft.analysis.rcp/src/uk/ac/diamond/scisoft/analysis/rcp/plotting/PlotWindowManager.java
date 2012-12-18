@@ -29,7 +29,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.IPlottingSystem;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -164,7 +164,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 	}
 
 	@Override
-	public void clearPlottingSystem(AbstractPlottingSystem plottingSystem, String viewName) {
+	public void clearPlottingSystem(IPlottingSystem plottingSystem, String viewName) {
 		try {
 			plottingSystem.reset();
 			plottingSystem.setTitle("");
