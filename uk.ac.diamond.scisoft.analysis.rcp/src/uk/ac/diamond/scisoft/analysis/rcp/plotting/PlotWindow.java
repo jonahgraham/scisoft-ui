@@ -452,7 +452,7 @@ public class PlotWindow extends AbstractPlotWindow {
 
 	@Override
 	public void clearPlot() {
-		if (!mainPlotter.isDisposed()) {
+		if (mainPlotter != null && !mainPlotter.isDisposed()) {
 			mainPlotter.emptyPlot();
 			mainPlotter.refresh(true);
 		}
