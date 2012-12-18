@@ -675,13 +675,15 @@ class PlotTab extends ATab {
 		// ensures that file name appears in plot.
 		final StringBuilder name = new StringBuilder();
 		name.append(slicedData.getName());
-		if (meta != null && meta.getFilePath() != null) {
+		NAME_APPEND: if (meta != null && meta.getFilePath() != null) {
 			try {
 				File file = new File(meta.getFilePath());
+				if (name.toString().contains(file.getName())) break NAME_APPEND;
 				name.append(" (");
 				name.append(file.getName());
 				name.append(")");
 			} catch (Throwable ne) {
+				if (name.toString().contains(meta.getFilePath())) break NAME_APPEND;
 				name.append(" (");
 				name.append(meta.getFilePath());
 				name.append(")");
