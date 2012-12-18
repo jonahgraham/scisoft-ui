@@ -56,6 +56,7 @@ import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
+import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 import uk.ac.gda.monitor.IMonitor;
 
 public class SRSExplorer extends AbstractExplorer implements ISelectionProvider {
@@ -303,6 +304,9 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 		if (d == null) return;
 		d.setMetadata(data.getMetadata());
 		DatasetSelection datasetSelection = new DatasetSelection(getAxes(d), d);
+		if (d.getRank() > 1) {
+			datasetSelection.setType(InspectorType.IMAGE);
+		}
 		setSelection(datasetSelection);
 	}
 
