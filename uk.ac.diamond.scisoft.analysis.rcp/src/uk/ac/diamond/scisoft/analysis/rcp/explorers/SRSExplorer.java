@@ -16,6 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.explorers;
 
+import gda.analysis.io.ScanFileHolderException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -53,6 +55,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
@@ -230,14 +233,22 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 		if (fileName == this.fileName)
 			return data;
 
-		return LoaderFactory.getData(fileName, mon);
+		try {
+			return LoaderFactory.getData(SRSLoader.class, fileName, true, mon);
+		} catch (ScanFileHolderException ex) {
+			return LoaderFactory.getData(fileName, mon);
+		}
 	}
 
 	@Override
 	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
 		this.fileName = fileName;
 
-		data = LoaderFactory.getData(fileName, mon);
+		try {
+			data = LoaderFactory.getData(SRSLoader.class, fileName, true, mon);
+		} catch (ScanFileHolderException ex) {
+			data = LoaderFactory.getData(fileName, mon);
+		}
 		if (data != null) {
 			if (display != null) {
 				final IMetaData meta = data.getMetadata();

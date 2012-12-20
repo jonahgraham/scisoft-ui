@@ -17,7 +17,6 @@
 package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.viewers.ISelection;
@@ -39,7 +38,6 @@ import org.eclipse.ui.PartInitException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Attribute;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Dataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
@@ -47,6 +45,7 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.MetadataSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
@@ -269,8 +268,10 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		if (fileName == filename)
 			return holder;
 
-		return new HDF5Loader(fileName).loadFile(mon);
+		return LoaderFactory.getData(HDF5Loader.class, fileName, true, mon);
 	}
+
+	private static final long REFRESH_PERIOD = 1000L; // time between refreshing in milliseconds
 
 	@Override
 	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
@@ -287,7 +288,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 				public void run() {
 					while (loader.isLoading()) {
 						try {
-							Thread.sleep(1000L);
+							Thread.sleep(REFRESH_PERIOD);
 							refreshTree();
 						} catch (InterruptedException e) {
 						}
@@ -300,14 +301,15 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	}
 
 	private void refreshTree() {
-		if (display != null)
-			display.syncExec(new Runnable() {
-				@Override
-				public void run() {
-					tableTree.refresh();
-//					display.update();
-				}
-			});
+		if (display == null)
+			return;
+
+		display.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				tableTree.refresh();
+			}
+		});
 	}
 
 	/**
@@ -324,14 +326,16 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		tree = htree;
 		isOldGDA = HDF5Utils.isGDAFile(tree);
 
-		if (display != null)
-			display.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					tableTree.setInput(tree.getNodeLink());
-					display.update();
-				}
-			});
+		if (display == null)
+			return;
+
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				tableTree.setInput(tree.getNodeLink());
+				display.update();
+			}
+		});
 	}
 
 
