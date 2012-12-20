@@ -144,12 +144,12 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 	private String[] peaknames;
 	private IOptimizer alg;
 
-	private List<DoubleDataset> dataSetList;
-	private DoubleDataset currentDataSet;
+	private List<AbstractDataset> dataSetList;
+	private AbstractDataset currentDataSet;
 	private List<AxisValues> xAxisList;
 	private AxisValues currentXAxis;
 	private APeak peakToFit;
-	private DoubleDataset slicedData;
+	private AbstractDataset slicedData;
 
 	private List<Integer> primitiveIDs = new ArrayList<Integer>();
 	private int draggingPrimID = -1;
@@ -499,7 +499,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 	public void processPlotUpdate() {
 		try {
 			if (dataSetList == null) {
-				dataSetList = new ArrayList<DoubleDataset>();
+				dataSetList = new ArrayList<AbstractDataset>();
 			}
 			dataSetList.clear();
 			// removePrimitives();
@@ -517,8 +517,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 					if (-MAXYVALUE > data.min().doubleValue()) {
 						MAXYVALUE = -data.min().doubleValue() * 1.5;
 					}
-					dataSetList.add((DoubleDataset) DatasetUtils.cast(DatasetUtils.convertToAbstractDataset(data),
-							AbstractDataset.FLOAT64));
+					dataSetList.add(DatasetUtils.convertToAbstractDataset(data));
 				}
 			}
 
@@ -528,7 +527,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 		}
 	}
 
-	private void updateDataSetComboBox(List<DoubleDataset> dataList) {
+	private void updateDataSetComboBox(List<AbstractDataset> dataList) {
 		String lastSelected = chooseDataCombo.getSelectionIndex() == -1 ? "no dataset" : chooseDataCombo
 				.getItem((chooseDataCombo.getSelectionIndex()));
 
@@ -536,7 +535,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 		if (dataSetList != null && !dataSetList.isEmpty()) {
 
 			int i = 0;
-			for (DoubleDataset d : dataList) {
+			for (AbstractDataset d : dataList) {
 				String name = d.getName();
 
 				if (name.isEmpty()) {
@@ -714,7 +713,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 		}
 	}
 
-	private DoubleDataset sliceDataSet(double startPos, double endPos) {
+	private AbstractDataset sliceDataSet(double startPos, double endPos) {
 		if (startPos > endPos) {
 			double temp = startPos;
 			startPos = endPos;
@@ -1165,8 +1164,8 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 
 	private class FitWholeDataset extends Job {
 
-		final DoubleDataset xAxis;
-		final DoubleDataset yAxis;
+		final AbstractDataset xAxis;
+		final AbstractDataset yAxis;
 		final APeak peak;
 		final IOptimizer optomiser;
 		final int smooth;
@@ -1177,7 +1176,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 		private static final String name = "Fitting peaks";
 		private String UUID;
 
-		public FitWholeDataset(DoubleDataset xaxis, DoubleDataset yaxis, APeak peakToFit, IOptimizer alg,
+		public FitWholeDataset(AbstractDataset xaxis, AbstractDataset yaxis, APeak peakToFit, IOptimizer alg,
 				int smoothing, int numPeaks, double cutOff, boolean autostop, boolean stoppingMeasure, String dataName,
 				String UUID) {
 			super(name + " " + dataName);
@@ -1366,7 +1365,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 		double min = peak.getPosition() - 2 * peak.getFWHM();
 		double max = peak.getPosition() + 2 * peak.getFWHM();
 
-		DoubleDataset measuredData = sliceDataSet(min, max);
+		AbstractDataset measuredData = sliceDataSet(min, max);
 		double slicedDataMin = (Double) measuredData.min();
 		CompositeFunction function = new CompositeFunction();
 		Offset os = new Offset(slicedDataMin, slicedDataMin);
@@ -1461,7 +1460,7 @@ class PlotFittedPeaks implements Overlay1DConsumer {
 		plotter.printGraph();
 	}
 
-	public void plotDataSets(DoubleDataset measuredData, DoubleDataset fittedData, AxisValues xAxis) {
+	public void plotDataSets(AbstractDataset measuredData, AbstractDataset fittedData, AxisValues xAxis) {
 		MaxY = fittedData.max().doubleValue();
 		MinY = fittedData.min().doubleValue();
 		List<IDataset> plottingData = new ArrayList<IDataset>();
