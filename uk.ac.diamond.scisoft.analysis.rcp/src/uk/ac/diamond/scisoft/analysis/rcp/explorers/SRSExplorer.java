@@ -53,9 +53,9 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.ExtendedSRSLoader;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
-import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
@@ -234,7 +234,7 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 			return data;
 
 		try {
-			return LoaderFactory.getData(SRSLoader.class, fileName, true, mon);
+			return LoaderFactory.getData(ExtendedSRSLoader.class, fileName, true, mon);
 		} catch (ScanFileHolderException ex) {
 			return LoaderFactory.getData(fileName, mon);
 		}
@@ -245,7 +245,7 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 		this.fileName = fileName;
 
 		try {
-			data = LoaderFactory.getData(SRSLoader.class, fileName, true, mon);
+			data = LoaderFactory.getData(ExtendedSRSLoader.class, fileName, true, mon);
 		} catch (ScanFileHolderException ex) {
 			data = LoaderFactory.getData(fileName, mon);
 		}
