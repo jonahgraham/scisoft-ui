@@ -379,7 +379,7 @@ public class DatasetInspector extends Composite {
 			inspectionTabs.put(InspectorType.SURFACE, new PlotTab(site, InspectorType.SURFACE,
 					"2D surface", new String[] { "x-axis", "y-axis" }));
 			inspectionTabs.put(InspectorType.IMAGEXP, new PlotTab(site, InspectorType.IMAGEXP,
-					"2D image explorer", new String[] { "x-axis", "y-axis", "image" }));
+					"2D image explorer", new String[] { "x-axis", "y-axis", "x-grid", "y-grid" }));
 			inspectionTabs.put(InspectorType.MULTIIMAGES, new PlotTab(site, InspectorType.MULTIIMAGES,
 					"2D multiple images", new String[] { "x-axis", "y-axis", "images" }));
 			inspectionTabs.put(InspectorType.VOLUME, new PlotTab(site, InspectorType.VOLUME,
@@ -587,7 +587,7 @@ public class DatasetInspector extends Composite {
 			if(cData instanceof AggregateDataset){
 				shape = cData.getShape();
 			} else {
-				shape = cData.squeeze().getShape();
+				shape = cData.squeeze(true).getShape();
 			}
 			int rank = shape.length;
 			
