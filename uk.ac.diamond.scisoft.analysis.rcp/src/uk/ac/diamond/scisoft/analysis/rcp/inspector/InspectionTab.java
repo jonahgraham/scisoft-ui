@@ -54,8 +54,10 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
+import uk.ac.diamond.scisoft.analysis.dataset.SliceIterator;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.rcp.editors.CompareFilesEditor;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
@@ -661,11 +663,47 @@ class PlotTab extends ATab {
 		return slicedData;
 	}
 
-	protected AbstractDataset slicedAndReorderData(IMonitor monitor, Slice[] slices, int[] order, IMetaData meta) {
+	protected AbstractDataset slicedAndReorderData(IMonitor monitor, Slice[] slices, boolean[] average, int[] order, IMetaData meta) {
 		AbstractDataset reorderedData = null;
 		AbstractDataset slicedData = sliceData(monitor, slices);
 		if (slicedData == null) return null;
-
+		
+		if (average != null) {
+			for (int idx = 0; idx < average.length; idx++)
+				if (average[idx]) {
+					int[] tmpShape = slicedData.getShape();
+					slicedData = slicedData.mean(idx);
+					tmpShape[idx] = 1;
+					slicedData.setShape(tmpShape);
+				}
+/*			AbstractDataset averagedData = null;
+			int[] start = new int[slices.length];
+			int[] stop = new int[slices.length];
+			int[] step = new int[slices.length];
+			for (int idx = 0; idx < slices.length; idx++) {
+				Slice sl = slices[idx];
+				Integer tmpStart = sl.getStart();
+				Integer tmpStop = sl.getStop();
+				Integer tmpStep = sl.getStep();
+				start[idx] = tmpStart != null ? tmpStart : 0; 
+				stop[idx] = tmpStop != null ? tmpStop : slicedData.getShape()[idx]; 
+				if (average[idx])
+					step[idx] = 1;
+				else
+					step[idx] = tmpStep != null ? tmpStep : slicedData.getShape()[idx]; 
+			}
+			
+			SliceIterator siter = (SliceIterator) slicedData.getSliceIterator(start, stop, step);
+			while (siter.hasNext()) {
+				if (averagedData == null)
+					averagedData = slicedData.getSlice(siter);
+				else
+					averagedData.iadd(slicedData.getSlice(siter));
+			}
+			slicedData = averagedData;
+*/		}
+	
+		
 		reorderedData = DatasetUtils.transpose(slicedData, order);
 		reorderedData.squeeze();
 		if (reorderedData.getSize() < 1)
@@ -702,10 +740,17 @@ class PlotTab extends ATab {
 			if (name.length() == 0 || "".equals(name)) {
 				name.append("Slice ");
 			}
-			String slice = '[' + Slice.createString(slices) + ']';
-			if (name.indexOf(slice) < 0) {
-				name.append(slice);
+			StringBuilder t = new StringBuilder();
+			t.append('[');
+			for (int idx = 0; idx < slices.length; idx++) {
+				if (average != null && average[idx]) t.append('~');
+				Slice s = slices[idx];
+				t.append(s != null ? s.toString() : ':');
+				t.append(',');
 			}
+			t.deleteCharAt(t.length()-1);
+			t.append(']');
+			name.append(t.toString());
 		}
 
 		reorderedData.setName(name.toString());
@@ -777,8 +822,10 @@ class PlotTab extends ATab {
 			return;
 
 		Slice[] slices = new Slice[sliceProperties.size()];
+		boolean[] average = new boolean[sliceProperties.size()];
 		for (int i = 0; i < slices.length; i++) {
 			slices[i] = sliceProperties.get(i).getValue();
+			average[i] =  sliceProperties.get(i).isAverage();
 		}
 
 		int[] order = getOrder(daxes.size());
@@ -800,7 +847,7 @@ class PlotTab extends ATab {
 		
 		switch(itype) {
 		case LINE:
-			reorderedData = slicedAndReorderData(monitor, slices, order, meta);
+			reorderedData = slicedAndReorderData(monitor, slices, average, order, meta);
 			if (isRankBad(reorderedData, 1)) {
 				try {
 					SDAPlotter.clearPlot(PLOTNAME);
@@ -819,7 +866,7 @@ class PlotTab extends ATab {
 
 			break;
 		case LINESTACK:
-			reorderedData = slicedAndReorderData(monitor, slices, order, meta);
+			reorderedData = slicedAndReorderData(monitor, slices, average, order, meta);
 			if (isRankBad(reorderedData, 2)) {
 				try {
 					SDAPlotter.clearPlot(PLOTNAME);
@@ -879,7 +926,7 @@ class PlotTab extends ATab {
 			break;
 		case IMAGE:
 		case SURFACE:
-			reorderedData = slicedAndReorderData(monitor, slices, order, meta);
+			reorderedData = slicedAndReorderData(monitor, slices, average, order, meta);
 			if (isRankBad(reorderedData, 2)) {
 				try {
 					SDAPlotter.clearPlot(PLOTNAME);
@@ -915,7 +962,7 @@ class PlotTab extends ATab {
 			pushMultipleImages(monitor, sliceProperties, slices, slicedAxes, order);
 			break;
 		case VOLUME:
-			reorderedData = slicedAndReorderData(monitor, slices, order, meta);
+			reorderedData = slicedAndReorderData(monitor, slices, average, order, meta);
 			if (isRankBad(reorderedData, 3)) {
 				return;
 			}
@@ -1117,8 +1164,10 @@ class DataTab extends PlotTab {
 			return;
 
 		Slice[] slices = new Slice[sliceProperties.size()];
+		boolean[] average = new boolean[sliceProperties.size()];
 		for (int i = 0; i < slices.length; i++) {
 			slices[i] = sliceProperties.get(i).getValue();
+			average[i] = sliceProperties.get(i).isAverage();
 		}
 
 		int[] order = getOrder(daxes.size());
@@ -1129,7 +1178,7 @@ class DataTab extends PlotTab {
 			swapFirstTwoInOrder(order);
 		}
 
-		final AbstractDataset reorderedData = slicedAndReorderData(monitor, slices, order, null);
+		final AbstractDataset reorderedData = slicedAndReorderData(monitor, slices, average, order, null);
 		if (reorderedData == null) return;
 		
 		reorderedData.setName(dataset.getName());
@@ -1431,8 +1480,10 @@ class ScatterTab extends PlotTab {
 		useData = !CONSTANT.equals(paxes.get(0).getName());
 
 		Slice[] slices = new Slice[sliceProperties.size()];
+		boolean[] average = new boolean[sliceProperties.size()];
 		for (int i = 0; i < slices.length; i++) {
 			slices[i] = sliceProperties.get(i).getValue();
+			average[i] = sliceProperties.get(i).isAverage();
 		}
 
 		List<AxisChoice> axes = getChosenAxes();
@@ -1442,7 +1493,7 @@ class ScatterTab extends PlotTab {
 		if (slicedAxes == null) return;
 
 
-		AbstractDataset reorderedData = slicedAndReorderData(monitor, slices, order, null);
+		AbstractDataset reorderedData = slicedAndReorderData(monitor, slices, average, order, null);
 		if (reorderedData == null) return;
 
 		// TODO cope with axis datasets that are >1 dimensions

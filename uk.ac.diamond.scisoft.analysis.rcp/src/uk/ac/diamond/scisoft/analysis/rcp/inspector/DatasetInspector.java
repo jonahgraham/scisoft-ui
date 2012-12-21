@@ -481,6 +481,7 @@ public class DatasetInspector extends Composite {
 		l.setText("Step size");
 		l.setToolTipText("Number of items in each step");
 		new Label(iComp, SWT.NONE).setText("");
+		new Label(iComp, SWT.NONE).setText("");
 		slComp.setContent(iComp);
 
 		ecomp.setClient(slComp);
@@ -731,6 +732,7 @@ public class DatasetInspector extends Composite {
 				Slice s = p.getValue();
 				if (used[i]) {
 					s.setStop(null);
+					p.setAverage(false);
 				} else {
 					Integer b = s.getStart();
 					if (b == null)
