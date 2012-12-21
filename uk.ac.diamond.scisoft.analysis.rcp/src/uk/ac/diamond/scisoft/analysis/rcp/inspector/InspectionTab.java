@@ -148,6 +148,7 @@ abstract class ATab implements InspectionTab {
 
 	protected String text;
 	protected String[] axes;
+	protected List<Label> axisLabels;
 	protected List<Combo> combos;
 	protected List<AxisSelection> daxes = null;
 	protected List<PlotAxisProperty> paxes = null;
@@ -232,6 +233,7 @@ class PlotTab extends ATab {
 		Composite holder = new Composite(sComposite, SWT.NONE);
 		holder.setLayout(new GridLayout(2, false));
 
+		axisLabels = new ArrayList<Label>();
 		combos = new ArrayList<Combo>();
 
 		SelectionAdapter listener = new SelectionAdapter() {
@@ -282,12 +284,17 @@ class PlotTab extends ATab {
 
 	protected void createCombos(Composite cHolder, SelectionListener listener) {
 		for (int i = 0; i < axes.length; i++) { // create combo box for each axis
-			new Label(cHolder, SWT.NONE).setText(axes[i]);
+			Label l = new Label(cHolder, SWT.NONE);
+			l.setText(axes[i]);
+			axisLabels.add(l);
 			Combo c = new Combo(cHolder, SWT.READ_ONLY);
 			c.add("               ");
 			c.addSelectionListener(listener);
+			GridData gd = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
+			c.setLayoutData(gd);
 			combos.add(c);
 		}
+		cHolder.layout();
 	}
 
 	@Override
@@ -479,6 +486,8 @@ class PlotTab extends ATab {
 		return cOrder;
 	}
 
+	private static final String IMAGE_EXP_AXIS_LABEL = "images";
+
 	protected void populateCombos() {
 		int cSize = combos.size() - comboOffset;
 		HashMap<Integer, String> sAxes = getSelectedComboAxisNames();
@@ -490,15 +499,26 @@ class PlotTab extends ATab {
 			PlotAxisProperty p = paxes.get(i + comboOffset);
 			p.clear();
 
+			Label l = axisLabels.get(i + comboOffset);
 			if (sAxes.size() == 0) {
 				p.setInSet(false);
 				c.setEnabled(false);
 				c.setVisible(false);
+				l.setVisible(false);
+				if (itype == InspectorType.IMAGEXP) { // hack to change labels
+					l = axisLabels.get(i + comboOffset - 1);
+					l.setText(IMAGE_EXP_AXIS_LABEL);
+					l.getParent().layout();
+				}
 				break;
 			}
 			c.setEnabled(true);
 			c.setVisible(true);
-
+			l.setVisible(true);
+			if (itype == InspectorType.IMAGEXP && l.getText().equals(IMAGE_EXP_AXIS_LABEL)) {
+				l.setText(axes[i+comboOffset]); // reset label
+				l.getParent().layout();
+			}
 			ArrayList<Integer> keyList = new ArrayList<Integer>(sAxes.keySet());
 			Collections.sort(keyList);
 			Integer lastKey = keyList.get(keyList.size() - 1);
