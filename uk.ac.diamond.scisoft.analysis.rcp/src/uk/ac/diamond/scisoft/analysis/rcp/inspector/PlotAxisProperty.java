@@ -57,6 +57,8 @@ public class PlotAxisProperty extends InspectorProperty {
 	}
 
 	public boolean isInSet() {
+		if (plotAxis == null)
+			return false;
 		return plotAxis.isInSet();
 	}
 
