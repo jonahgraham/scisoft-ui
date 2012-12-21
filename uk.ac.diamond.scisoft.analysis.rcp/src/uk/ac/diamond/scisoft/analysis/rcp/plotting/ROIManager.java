@@ -122,7 +122,11 @@ public class ROIManager implements IROIListener, IRegionListener {
 	public void roiDragged(ROIEvent evt) {
 		// do nothing
 	}
+	@Override
+	public void roiSelected(ROIEvent evt) {
+		// do nothing
 
+	}
 	@Override
 	public void roiChanged(ROIEvent evt) {
 		ROIBase eroi = evt.getROI();

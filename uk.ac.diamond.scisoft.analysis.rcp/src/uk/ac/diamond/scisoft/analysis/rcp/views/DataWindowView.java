@@ -950,5 +950,10 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
 				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
 	}
+	@Override
+	public void roiSelected(ROIEvent evt) {
+		// TODO Auto-generated method stub
+
+	}
 }
  

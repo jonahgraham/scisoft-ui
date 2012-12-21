@@ -1019,6 +1019,11 @@
             name="First Derivative"
             plotMode="1D">
       </sideplot>
+      <sideplot
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.GridProfile"
+            id="uk.ac.diamond.scisoft.analysis.rcp.GridProfile"
+            name="Grid Profile">
+      </sideplot>
    </extension>
 <!--   <extension
          point="org.eclipse.ui.menus">

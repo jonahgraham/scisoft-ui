@@ -1166,8 +1166,8 @@ public class GridProfile extends SidePlotProfile {
 		}
 
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		preferenceStore.setValue(PreferenceConstants.GRIDSCAN_RESOLUTION_X, this.gridPrefs.getResolutionX());
-		preferenceStore.setValue(PreferenceConstants.GRIDSCAN_RESOLUTION_Y, this.gridPrefs.getResolutionY());
+		preferenceStore.setValue(PreferenceConstants.GRIDSCAN_RESOLUTION_X,  this.gridPrefs.getResolutionX());
+		preferenceStore.setValue(PreferenceConstants.GRIDSCAN_RESOLUTION_Y,  this.gridPrefs.getResolutionY());
 		preferenceStore.setValue(PreferenceConstants.GRIDSCAN_BEAMLINE_POSX, this.gridPrefs.getBeamlinePosX());
 		preferenceStore.setValue(PreferenceConstants.GRIDSCAN_BEAMLINE_POSY, this.gridPrefs.getBeamlinePosY());
 	}
