@@ -56,6 +56,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.PositionIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.dataset.SliceIterator;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
@@ -149,6 +150,7 @@ abstract class ATab implements InspectionTab {
 
 	protected String text;
 	protected String[] axes;
+	protected List<Label> axisLabels;
 	protected List<Combo> combos;
 	protected List<AxisSelection> daxes = null;
 	protected List<PlotAxisProperty> paxes = null;
@@ -233,6 +235,7 @@ class PlotTab extends ATab {
 		Composite holder = new Composite(sComposite, SWT.NONE);
 		holder.setLayout(new GridLayout(2, false));
 
+		axisLabels = new ArrayList<Label>();
 		combos = new ArrayList<Combo>();
 
 		SelectionAdapter listener = new SelectionAdapter() {
@@ -283,12 +286,28 @@ class PlotTab extends ATab {
 
 	protected void createCombos(Composite cHolder, SelectionListener listener) {
 		for (int i = 0; i < axes.length; i++) { // create combo box for each axis
-			new Label(cHolder, SWT.NONE).setText(axes[i]);
+			Label l = new Label(cHolder, SWT.NONE);
+			l.setText(axes[i]);
+			axisLabels.add(l);
 			Combo c = new Combo(cHolder, SWT.READ_ONLY);
 			c.add("               ");
 			c.addSelectionListener(listener);
+			GridData gd = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
+			c.setLayoutData(gd);
 			combos.add(c);
 		}
+		cHolder.layout();
+	}
+
+	@Override
+	public boolean checkCompatible(ILazyDataset data) {
+		if (itype == InspectorType.IMAGEXP) {
+			boolean isCompatible = data.getRank() >= (axes.length - 1);
+			if (composite != null)
+				composite.setEnabled(isCompatible);
+			return isCompatible;
+		}
+		return super.checkCompatible(data);
 	}
 
 	@Override
@@ -469,6 +488,8 @@ class PlotTab extends ATab {
 		return cOrder;
 	}
 
+	private static final String IMAGE_EXP_AXIS_LABEL = "images";
+
 	protected void populateCombos() {
 		int cSize = combos.size() - comboOffset;
 		HashMap<Integer, String> sAxes = getSelectedComboAxisNames();
@@ -477,12 +498,33 @@ class PlotTab extends ATab {
 			Combo c = combos.get(i + comboOffset);
 			c.removeAll();
 
+			PlotAxisProperty p = paxes.get(i + comboOffset);
+			p.clear();
+
+			Label l = axisLabels.get(i + comboOffset);
+			if (sAxes.size() == 0) {
+				p.setInSet(false);
+				c.setEnabled(false);
+				c.setVisible(false);
+				l.setVisible(false);
+				if (itype == InspectorType.IMAGEXP) { // hack to change labels
+					l = axisLabels.get(i + comboOffset - 1);
+					l.setText(IMAGE_EXP_AXIS_LABEL);
+					l.getParent().layout();
+				}
+				break;
+			}
+			c.setEnabled(true);
+			c.setVisible(true);
+			l.setVisible(true);
+			if (itype == InspectorType.IMAGEXP && l.getText().equals(IMAGE_EXP_AXIS_LABEL)) {
+				l.setText(axes[i+comboOffset]); // reset label
+				l.getParent().layout();
+			}
 			ArrayList<Integer> keyList = new ArrayList<Integer>(sAxes.keySet());
 			Collections.sort(keyList);
 			Integer lastKey = keyList.get(keyList.size() - 1);
 			String a = sAxes.get(lastKey); // reverse order
-			PlotAxisProperty p = paxes.get(i + comboOffset);
-			p.clear();
 
 			if (axes.length == 1) { // for 1D plots and 1D dataset table, remove single point axes
 				int[] shape = dataset.getShape();
@@ -583,10 +625,13 @@ class PlotTab extends ATab {
 			p = paxes.get(i + comboOffset);
 			a = p.getName();
 			c.removeAll();
+			p.clear();
+			if (a == null) {
+				break;
+			}
 			if (!axesMap.containsKey(a)) {
 				a = axesMap.keySet().iterator().next(); // attempt to get a valid name
 			}
-			p.clear();
 
 			if (axes.length == 1) { // for 1D plots and 1D dataset table
 				int[] shape = dataset.getShape();
@@ -654,11 +699,22 @@ class PlotTab extends ATab {
 	protected AbstractDataset sliceData(IMonitor monitor, Slice[] slices) {
 		AbstractDataset slicedData = null;
 		try {
-			final IDataset slice = dataset.getSlice(monitor, slices);
-			slicedData = DatasetUtils.convertToAbstractDataset(slice);
+			slicedData = DatasetUtils.convertToAbstractDataset(dataset.getSlice(monitor, slices));
 		} catch (Exception e) {
 			logger.error("Problem getting slice of data: {}", e);
 			logger.error("Tried to get slices: {}", Arrays.toString(slices));
+		}
+		return slicedData;
+	}
+
+	protected AbstractDataset sliceData(IMonitor monitor, int[] start, int[] stop, int[] step) {
+		AbstractDataset slicedData = null;
+		try {
+			slicedData = DatasetUtils.convertToAbstractDataset(dataset.getSlice(monitor, start, stop, step));
+		} catch (Exception e) {
+			logger.error("Problem getting slice of data: {}", e);
+			logger.error("Tried to get slice: start={}, stop={}, step={}",
+					new Object[] {Arrays.toString(start), Arrays.toString(stop), Arrays.toString(step)});
 		}
 		return slicedData;
 	}
@@ -1009,41 +1065,59 @@ class PlotTab extends ATab {
 
 	private void pushImages(final IMonitor monitor, final Slice[] slices, final int[] order) {
 		// work out slicing result
-		int[] shape = dataset.getShape();
-		int smax = slices.length;
-		if (smax < 2)
-			smax = 2;
-		final int sliceAxis = order[2];
-		final Slice[] subSlices = new Slice[smax];
-		for (int i = 0; i < smax; i++) {
-			if (i < slices.length) {
-				subSlices[i] = i == sliceAxis ? slices[i].clone() : slices[i];
-			} else {
-				subSlices[i] = new Slice(shape[i]);
-			}
-			shape[i] = slices[i].getNumSteps();
+		final int[] shape = dataset.getShape();
+
+//		System.err.printf("Shape: %s; slicing: [%s]; order: %s\n", Arrays.toString(shape), Slice.createString(slices), Arrays.toString(order));
+
+		int rank = shape.length;
+		int ns = slices.length;
+		// dimensions for iterating over (order.length == slices.length)
+		int ids = ns > 3 ? 2 : 1;
+		int smax = ns - ids;
+
+		final List<Integer> gridDimNumber = new ArrayList<Integer>();
+		final int[] gridShape = new int[ids];
+		for (int i = smax; i < order.length; i++) {
+			int o = order[i];
+			gridDimNumber.add(o);
+			gridShape[i-smax] = slices[o].getNumSteps();
 		}
 
-		final int nimages = shape[sliceAxis];
-
 		try {
-			SDAPlotter.setupNewImageGrid(explorerName, nimages);
+//			System.err.printf("Grid: %s\n", Arrays.toString(gridShape));
+			if (ids == 1) {
+				SDAPlotter.setupNewImageGrid(explorerName, gridShape[0]);
+			} else {
+				SDAPlotter.setupNewImageGrid(explorerName, gridShape[1], gridShape[0]);
+			}
 		} catch (Exception e) {
 			logger.warn("Problem with setting up image explorer", e);
 		}
 
+		// use position iterator ignoring first set of slicing axes
+		int[] start = new int[rank];
+		int[] stop = new int[rank];
+		int[] step = new int[rank];
+		Slice.convertFromSlice(slices, shape, start, stop, step);
+		PositionIterator it = new PositionIterator(shape, start.clone(), stop.clone(), step, Arrays.copyOf(order, smax));
+		int[] pos = it.getPos();
+
 		try {
-			Slice subSlice = subSlices[sliceAxis];
-			int start = subSlice.getStart() == null ? 0 : subSlice.getStart();
-			subSlices[sliceAxis].setStop(start+1);
 			setInspectionRunning();
 			boolean memoryOK = true;
-			for (int i = 0; i < nimages; i++) {
+			while (!memoryOK || it.hasNext()) { // short-cut iteration when low on memory
 				try {
-					subSlices[sliceAxis].setPosition(start + i);
-					AbstractDataset slicedData = sliceData(monitor, subSlices);
+					for (int i = 0; i < ids; i++) {
+						int o = gridDimNumber.get(i);
+						int b = pos[o];
+						start[o] = b;
+						stop[o] = b+1;
+					}
+					AbstractDataset slicedData = sliceData(monitor, start, stop, step);
 					if (slicedData == null)
 						return;
+//					System.err.printf("Pos %s; start %s; stop %s; step %s; ", Arrays.toString(pos), Arrays.toString(start), Arrays.toString(stop), Arrays.toString(step));
+//					System.err.printf("Shape %s\n", Arrays.toString(slicedData.getShape()));
 
 					AbstractDataset reorderedData = DatasetUtils.transpose(slicedData, order);
 
@@ -1052,7 +1126,7 @@ class PlotTab extends ATab {
 					if (reorderedData.getSize() < 1)
 						return;
 
-					reorderedData.setName(dataset.getName() + "." + i);
+					reorderedData.setName(dataset.getName() + Arrays.toString(pos));
 					if (!canContinueInspection()) {
 						return;
 					}
@@ -1072,7 +1146,7 @@ class PlotTab extends ATab {
 					memoryOK = false;
 					logger.warn("Ran out of memory: attempting to reduce memory used...");
 					System.gc();
-					i--;  // try again after memory reduction
+					// try again after memory reduction
 				}
 			}
 		} catch (Exception e) {

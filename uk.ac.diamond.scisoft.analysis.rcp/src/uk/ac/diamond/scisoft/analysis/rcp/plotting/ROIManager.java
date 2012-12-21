@@ -139,6 +139,12 @@ public class ROIManager implements IROIListener, IRegionListener {
 		}
 	}
 
+	@Override
+	public void roiSelected(ROIEvent evt) {
+		// do same as if ROI changed
+		roiChanged(evt);
+	}
+
 	private void updateGuiBean(ROIBase roib) {
 		server.removeGUIInfo(GuiParameters.ROIDATA);
 		server.putGUIInfo(GuiParameters.ROIDATA, roib);
