@@ -54,11 +54,9 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.PositionIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
-import uk.ac.diamond.scisoft.analysis.dataset.SliceIterator;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.rcp.editors.CompareFilesEditor;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
@@ -721,43 +719,53 @@ class PlotTab extends ATab {
 
 	protected AbstractDataset slicedAndReorderData(IMonitor monitor, Slice[] slices, boolean[] average, int[] order, IMetaData meta) {
 		AbstractDataset reorderedData = null;
-		AbstractDataset slicedData = sliceData(monitor, slices);
-		if (slicedData == null) return null;
+		AbstractDataset slicedData = null;
 		
 		if (average != null) {
-			for (int idx = 0; idx < average.length; idx++)
+/*			for (int idx = 0; idx < average.length; idx++)
 				if (average[idx]) {
 					int[] tmpShape = slicedData.getShape();
 					slicedData = slicedData.mean(idx);
 					tmpShape[idx] = 1;
 					slicedData.setShape(tmpShape);
 				}
-/*			AbstractDataset averagedData = null;
-			int[] start = new int[slices.length];
-			int[] stop = new int[slices.length];
-			int[] step = new int[slices.length];
+*/			AbstractDataset averagedData = null;
+			List<Integer> axs = new ArrayList<Integer>();
+			int[] slicesShape = new int[slices.length];
 			for (int idx = 0; idx < slices.length; idx++) {
-				Slice sl = slices[idx];
-				Integer tmpStart = sl.getStart();
-				Integer tmpStop = sl.getStop();
-				Integer tmpStep = sl.getStep();
-				start[idx] = tmpStart != null ? tmpStart : 0; 
-				stop[idx] = tmpStop != null ? tmpStop : slicedData.getShape()[idx]; 
-				if (average[idx])
-					step[idx] = 1;
-				else
-					step[idx] = tmpStep != null ? tmpStep : slicedData.getShape()[idx]; 
+				slicesShape[idx] = slices[idx].getNumSteps();
+				if (!average[idx])
+					axs.add(idx);
 			}
 			
-			SliceIterator siter = (SliceIterator) slicedData.getSliceIterator(start, stop, step);
-			while (siter.hasNext()) {
-				if (averagedData == null)
-					averagedData = slicedData.getSlice(siter);
+			PositionIterator pitr = new PositionIterator(slicesShape, ArrayUtils.toPrimitive(axs.toArray(new Integer[0])));
+			int sliceIdx = 0;
+			while (pitr.hasNext()) {
+				int[] ppos = pitr.getPos();
+				Slice[] tmpSlices = new Slice[slices.length];
+				for (int idx = 0; idx < ppos.length; idx++) {
+					if (axs.contains(idx)) {
+						tmpSlices[idx] = new Slice(slices[idx].getStart(), slices[idx].getStop(), slices[idx].getStep());
+					} else {
+						Integer step = slices[idx].getStep();
+						Integer start = slices[idx].getStart() == null ? step*ppos[idx] : slices[idx].getStart() + step*ppos[idx];
+						Integer stop = start + step;
+						tmpSlices[idx] = new Slice(start, stop, step);
+					}
+				}
+				AbstractDataset tmpSlice = DatasetUtils.convertToAbstractDataset(dataset.getSlice(tmpSlices)); 
+				if (averagedData != null)
+					averagedData.iadd(tmpSlice);
 				else
-					averagedData.iadd(slicedData.getSlice(siter));
+					averagedData = tmpSlice;
+				sliceIdx++;
 			}
-			slicedData = averagedData;
-*/		}
+			slicedData = averagedData.idivide(sliceIdx);
+		} else {
+			slicedData = sliceData(monitor, slices);
+		}
+		
+		if (slicedData == null) return null;
 	
 		
 		reorderedData = DatasetUtils.transpose(slicedData, order);
