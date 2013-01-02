@@ -317,9 +317,9 @@ public class AxisSlicer {
 		step.setEnabled(mode);
 		size.setEnabled(mode);
 		average.setEnabled(!mode);
+		average.setSelection(slice.isAverage());
 		this.reset.setEnabled(resetable);
 		if (slice.isAverage()) {
-			average.setSelection(true);
 			step.setEnabled(true);
 			size.setEnabled(true);
 		}
