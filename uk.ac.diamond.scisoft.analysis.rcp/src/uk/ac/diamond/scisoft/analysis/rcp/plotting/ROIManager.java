@@ -122,11 +122,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 	public void roiDragged(ROIEvent evt) {
 		// do nothing
 	}
-	@Override
-	public void roiSelected(ROIEvent evt) {
-		// do nothing
 
-	}
 	@Override
 	public void roiChanged(ROIEvent evt) {
 		ROIBase eroi = evt.getROI();
@@ -141,6 +137,12 @@ public class ROIManager implements IROIListener, IRegionListener {
 			roiMap.put(name, eroi);
 			updateGuiBean(roi);
 		}
+	}
+
+	@Override
+	public void roiSelected(ROIEvent evt) {
+		// do same as if ROI changed
+		roiChanged(evt);
 	}
 
 	private void updateGuiBean(ROIBase roib) {

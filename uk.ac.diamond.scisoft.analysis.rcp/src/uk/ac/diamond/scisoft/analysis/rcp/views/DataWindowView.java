@@ -896,24 +896,8 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 
 	@Override
 	public void roiDragged(ROIEvent evt) {
-		
-		ROIBase roi = evt.getROI();
-		if(roi!=null){
-			RectangularROI rroi = (RectangularROI) roi;
-			final int startX = (int)Math.round(rroi.getPointX());
-			final int startY = (int)Math.round(rroi.getPointY());
-			if(evt.getDragType()==ROIEvent.DRAG_TYPE.RESIZE){
-				roiWidth = (int)Math.round(rroi.getEndPoint()[0])-startX;
-				roiHeight = (int)Math.round(rroi.getEndPoint()[1])-startY;
-			}
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					overlay.setSelectPosition(startX,startY,roiWidth,roiHeight);	
-				}
-			});
-			
-		}
+		// do same as if ROI changed
+		roiChanged(evt);
 	}
 
 	@Override
@@ -934,6 +918,12 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 		}
 	}
 
+	@Override
+	public void roiSelected(ROIEvent evt) {
+		// do same as if ROI changed
+		roiChanged(evt);
+	}
+
 	protected void clearTraces(final IRegion region) {
 		if(region!=null){
 			final String name = region.getName();
@@ -949,11 +939,6 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
 				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
 				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
-	}
-	@Override
-	public void roiSelected(ROIEvent evt) {
-		// TODO Auto-generated method stub
-
 	}
 }
  
