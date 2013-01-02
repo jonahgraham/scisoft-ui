@@ -47,6 +47,7 @@ public class GridScanPreferencePage extends PreferencePage implements IWorkbench
 	private FloatSpinner yBeamCentre;
 
 	public GridScanPreferencePage() {
+		setDescription("Preferences for default grid scan.");
 	}
 
 	public GridScanPreferencePage(String title) {
