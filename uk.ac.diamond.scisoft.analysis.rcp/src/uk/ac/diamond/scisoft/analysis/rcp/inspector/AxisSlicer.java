@@ -318,7 +318,11 @@ public class AxisSlicer {
 		size.setEnabled(mode);
 		average.setEnabled(!mode);
 		this.reset.setEnabled(resetable);
-		average.setSelection(slice.isAverage());
+		if (slice.isAverage()) {
+			average.setSelection(true);
+			step.setEnabled(true);
+			size.setEnabled(true);
+		}
 		setVisible(true);
 		composite.layout();
 	}
