@@ -734,11 +734,13 @@ public class DatasetInspector extends Composite {
 					s.setStop(null);
 					p.setAverage(false);
 				} else {
-					Integer b = s.getStart();
-					if (b == null)
-						s.setStop(1);
-					else
-						s.setStop(b + 1);
+					if (!p.isAverage()) {
+						Integer b = s.getStart();
+						if (b == null)
+							s.setStop(1);
+						else
+							s.setStop(b + 1);
+					}
 				}
 			}
 
