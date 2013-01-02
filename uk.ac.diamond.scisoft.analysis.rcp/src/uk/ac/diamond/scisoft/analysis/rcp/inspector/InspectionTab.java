@@ -722,20 +722,27 @@ class PlotTab extends ATab {
 		AbstractDataset slicedData = null;
 		
 		if (average != null) {
-/*			for (int idx = 0; idx < average.length; idx++)
-				if (average[idx]) {
-					int[] tmpShape = slicedData.getShape();
-					slicedData = slicedData.mean(idx);
-					tmpShape[idx] = 1;
-					slicedData.setShape(tmpShape);
-				}
-*/			AbstractDataset averagedData = null;
+			AbstractDataset averagedData = null;
 			List<Integer> axs = new ArrayList<Integer>();
 			int[] slicesShape = new int[slices.length];
+			int resDim = 0;
 			for (int idx = 0; idx < slices.length; idx++) {
 				slicesShape[idx] = slices[idx].getNumSteps();
-				if (!average[idx])
+				if (!average[idx]) {
 					axs.add(idx);
+					if (slicesShape[idx] > 1)
+						resDim++;
+				} 
+			}
+			
+			// For 1D data preload last averaged dimension into memory to reduce number of data slicing calls 
+			Integer meanAxis = -1;
+			if (resDim == 1) {
+				meanAxis = slicesShape.length - 1;
+				while (meanAxis >= 0 && !average[meanAxis])
+					meanAxis--;
+				if (meanAxis != -1)
+					axs.add(meanAxis);
 			}
 			
 			PositionIterator pitr = new PositionIterator(slicesShape, ArrayUtils.toPrimitive(axs.toArray(new Integer[0])));
@@ -753,7 +760,15 @@ class PlotTab extends ATab {
 						tmpSlices[idx] = new Slice(start, stop, step);
 					}
 				}
-				AbstractDataset tmpSlice = DatasetUtils.convertToAbstractDataset(dataset.getSlice(tmpSlices)); 
+				
+				AbstractDataset tmpSlice = DatasetUtils.convertToAbstractDataset(dataset.getSlice(tmpSlices));
+				if (meanAxis != -1) {
+					int[] tmpShape = tmpSlice.getShape();
+					tmpShape[meanAxis] = 1;
+					tmpSlice = tmpSlice.mean(meanAxis);
+					tmpSlice.setShape(tmpShape);
+				}
+				
 				if (averagedData != null)
 					averagedData.iadd(tmpSlice);
 				else
