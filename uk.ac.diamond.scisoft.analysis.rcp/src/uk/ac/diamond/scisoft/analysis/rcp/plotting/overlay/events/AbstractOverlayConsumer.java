@@ -27,7 +27,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.AreaSelectEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
 
-
 /**
  * An OverlayConsumer with the ability to add listeners which are notified when the user clicks
  * in the diagram. Convenience class for implementing drawing of overlay and listening to
@@ -43,19 +42,19 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
  */
 public abstract class AbstractOverlayConsumer implements Overlay1DConsumer, Overlay2DConsumer {
 
-
 	protected OverlayProvider provider;
-	protected int[]           parts;
-	private AreaSelectEvent   start;
-	private Display           display;
-	
+	protected int[] parts;
+	private AreaSelectEvent start;
+	private Display display;
+	private boolean mouseListenerEnabled = true;
+
 	/**
 	 * @param display
 	 */
 	public AbstractOverlayConsumer(final Display display) {
 		this.display = display;
 	}
-	
+
 	/**
 	 * Implement to create the parts required for drawing.
 	 */
@@ -66,12 +65,11 @@ public abstract class AbstractOverlayConsumer implements Overlay1DConsumer, Over
 	 * nothing is drawn until the user clicks on the diagram and drawOverlay(AreaSelectEvent) is called.
 	 */
 	protected abstract void drawOverlay(OverlayDrawingEvent evt);
-		
-	
+
 	@Override
 	public void registerProvider(final OverlayProvider provider) {
 		this.provider = provider;
-		this.parts    = createDrawingParts(provider);
+		this.parts = createDrawingParts(provider);
 		drawOverlay(new OverlayDrawingEvent(provider, parts));
 	}
 
@@ -80,19 +78,25 @@ public abstract class AbstractOverlayConsumer implements Overlay1DConsumer, Over
 		provider = null;
 		if (selectionListeners != null) selectionListeners.clear();
 		selectionListeners = null;
-		parts    = null;
-		start    = null;
+		parts = null;
+		start = null;
 	}
 
 	@Override
 	public void areaSelected(AreaSelectEvent event) {
-		if (event.getMode() == 0) {
-			start = event;
+		if (mouseListenerEnabled) {
+			if (event.getMode() == 0) {
+				start = event;
+			}
+			if (event.getMode() == 1 || event.getMode() == 2) {
+				drawOverlay(new OverlayDrawingEvent(provider, start, event, parts));
+				notifyGraphSelectionListeners(event);
+			}
 		}
-		if (event.getMode() == 1 || event.getMode() == 2) {
-			drawOverlay(new OverlayDrawingEvent(provider, start, event, parts));
-			notifyGraphSelectionListeners(event);
-		}
+	}
+
+	public void enableMouseListener(boolean enabled) {
+		mouseListenerEnabled = enabled;
 	}
 
 	/**
@@ -101,7 +105,7 @@ public abstract class AbstractOverlayConsumer implements Overlay1DConsumer, Over
 	@Override
 	public void imageDragged(IImagePositionEvent event) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	/**
@@ -110,7 +114,7 @@ public abstract class AbstractOverlayConsumer implements Overlay1DConsumer, Over
 	@Override
 	public void imageFinished(IImagePositionEvent event) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	/**
@@ -119,11 +123,11 @@ public abstract class AbstractOverlayConsumer implements Overlay1DConsumer, Over
 	@Override
 	public void imageStart(IImagePositionEvent event) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 	private Collection<GraphSelectionListener> selectionListeners;
-	
+
 	/**
 	 * Add listener to events being selected in the graph.
 	 * @param l
@@ -134,22 +138,22 @@ public abstract class AbstractOverlayConsumer implements Overlay1DConsumer, Over
 	}
 
 	protected void notifyGraphSelectionListeners(final AreaSelectEvent end) {
-		
+
 		if (selectionListeners == null) return;
-		
-	    if (!display.isDisposed()) {
-	    	display.asyncExec(new Runnable()  {
-	    		@Override
-	    		public void run() {
-	    			final GraphSelectionEvent evt = new GraphSelectionEvent(this);
-	    			evt.setStart(start);
-	    			evt.setEnd(end);
-	    			for (GraphSelectionListener l : selectionListeners) {
-	    				l.graphSelectionPerformed(evt);
-	    			}
-	    		}
-	    	});
-	    }
+
+		if (!display.isDisposed()) {
+			display.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					final GraphSelectionEvent evt = new GraphSelectionEvent(this);
+					evt.setStart(start);
+					evt.setEnd(end);
+					for (GraphSelectionListener l : selectionListeners) {
+						l.graphSelectionPerformed(evt);
+					}
+				}
+			});
+		}
 	}
 
 	@Override
