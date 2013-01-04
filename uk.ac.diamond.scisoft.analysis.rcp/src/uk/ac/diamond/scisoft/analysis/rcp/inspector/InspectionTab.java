@@ -1289,7 +1289,9 @@ class ScatterTab extends PlotTab {
 
 	@Override
 	protected void createCombos(Composite cHolder, SelectionListener listener) {
-		new Label(cHolder, SWT.NONE).setText("size");
+		Label l = new Label(cHolder, SWT.NONE);
+		l.setText("size");
+		axisLabels.add(l);
 		Combo c = new Combo(cHolder, SWT.READ_ONLY);
 		c.add("               ");
 		c.addSelectionListener(listener);
@@ -1484,13 +1486,9 @@ class ScatterTab extends PlotTab {
 		}
 
 		Slice s = slices[0];
-		if (s != null && !s.isSliceComplete()) {
+		if (s != null) {
 			for (AxisChoice a : axes) {
 				slicedAxes.add(DatasetUtils.convertToAbstractDataset(a.getValues().getSlice(s)));
-			}
-		} else {
-			for (AxisChoice a : axes) {
-				slicedAxes.add(DatasetUtils.convertToAbstractDataset(a.getValues()));
 			}
 		}
 
