@@ -658,7 +658,7 @@ class PlotTab extends ATab {
 		}
 	}
 
-	protected List<AbstractDataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, int[] order) {
+	protected List<AbstractDataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, boolean[] average, int[] order) {
 		List<AbstractDataset> slicedAxes = new ArrayList<AbstractDataset>();
 
 		boolean[] used = getUsedDims();
@@ -677,9 +677,15 @@ class PlotTab extends ATab {
 
 				ILazyDataset axesData = c.getValues();
 				Slice[] s = new Slice[imap.length];
-				for (int i = 0; i < s.length; i++)
-					s[i] = slices[imap[i]];
-
+				for (int i = 0; i < s.length; i++) {
+					s[i] = slices[imap[i]].clone();
+					if (average[imap[i]]) {
+						Integer start = s[i].getStart();
+						start = start == null ? 0 : start;
+						s[i].setStop(start + 1);
+					}
+				}
+				
 				AbstractDataset slicedAxis = DatasetUtils.convertToAbstractDataset(axesData.getSlice(s));
 
 				AbstractDataset reorderdAxesData = DatasetUtils.transpose(slicedAxis, reorderAxesDims);
@@ -909,7 +915,7 @@ class PlotTab extends ATab {
 
 		int[] order = getOrder(daxes.size());
 		// FIXME: Image, surface and volume plots can't work with multidimensional axis data
-		List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, order);
+		List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, average, order);
 
 		if (itype == InspectorType.IMAGE || itype == InspectorType.SURFACE || itype == InspectorType.IMAGEXP  || itype == InspectorType.MULTIIMAGES) {
 			// note that the DataSet plotter's 2D image/surface mode is row-major
@@ -1268,7 +1274,7 @@ class DataTab extends PlotTab {
 		}
 
 		int[] order = getOrder(daxes.size());
-		final List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, order);
+		final List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, average, order);
 
 
 		if (itype == InspectorType.DATA2D) {
@@ -1547,9 +1553,9 @@ class ScatterTab extends PlotTab {
 	}
 
 	@Override
-	protected List<AbstractDataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, int[] order) {
+	protected List<AbstractDataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, boolean[] average, int[] order) {
 		if (daxes.size() != 1)
-			return super.sliceAxes(axes, slices, order);
+			return super.sliceAxes(axes, slices, average, order);
 
 		List<AbstractDataset> slicedAxes = new ArrayList<AbstractDataset>();
 		if (slices.length != 1) {
@@ -1584,7 +1590,7 @@ class ScatterTab extends PlotTab {
 		List<AxisChoice> axes = getChosenAxes();
 		int rank = daxes.size();
 		int[] order = getOrder(rank);
-		List<AbstractDataset> slicedAxes = sliceAxes(axes, slices, order);
+		List<AbstractDataset> slicedAxes = sliceAxes(axes, slices, average, order);
 		if (slicedAxes == null) return;
 
 
