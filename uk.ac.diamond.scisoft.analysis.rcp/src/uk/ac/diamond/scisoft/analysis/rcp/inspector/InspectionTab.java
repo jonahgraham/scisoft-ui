@@ -1486,13 +1486,9 @@ class ScatterTab extends PlotTab {
 		}
 
 		Slice s = slices[0];
-		if (s != null && !s.isSliceComplete()) {
+		if (s != null) {
 			for (AxisChoice a : axes) {
 				slicedAxes.add(DatasetUtils.convertToAbstractDataset(a.getValues().getSlice(s)));
-			}
-		} else {
-			for (AxisChoice a : axes) {
-				slicedAxes.add(DatasetUtils.convertToAbstractDataset(a.getValues()));
 			}
 		}
 
