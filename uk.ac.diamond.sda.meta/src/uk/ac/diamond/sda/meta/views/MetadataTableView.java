@@ -46,6 +46,8 @@ public class MetadataTableView extends ViewPart {
 
 	private static final Logger logger = LoggerFactory.getLogger(MetadataTableView.class);
 
+	private static String filterText = "";
+	
 	private IMetaData meta;
 	private TableViewer table;
 
@@ -66,7 +68,8 @@ public class MetadataTableView extends ViewPart {
 		final Text searchText = new Text(container, SWT.BORDER | SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
 		searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		searchText.setToolTipText("Search on data set name or expression value.");
-
+		searchText.setText(filterText);
+		
 		this.table = new TableViewer(container, SWT.FULL_SELECTION | SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL
 				| SWT.BORDER);
 
@@ -94,10 +97,15 @@ public class MetadataTableView extends ViewPart {
 			public void modifyText(ModifyEvent e) {
 				if (parent.isDisposed())
 					return;
+				filterText = searchText.getText();
 				filter.setSearchText(searchText.getText());
 				table.refresh();
 			}
 		});
+		
+		// refresh the table to start with, as there may already be input.
+		filter.setSearchText(searchText.getText());
+		table.refresh();
 	}
 
 	UIJob updateTable = new UIJob("Updating Metadata Table") {
