@@ -24,7 +24,7 @@ import org.eclipse.ui.PartInitException;
 /**
  * Should act identically to the SRS Editor, but for tab separated data files with the Xas format header and footer.
  */
-public class XasAsciiEditor extends SRSEditor {
+public class XasAsciiEditor extends TextDataEditor {
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
