@@ -99,6 +99,12 @@ public class HDF5Utils {
 
 		if (dNode == null || gNode == null) return null;
 		ILazyDataset cData = dNode.getDataset(); // chosen dataset
+
+		if (cData.getSize() == 0) {
+			logger.warn("Chosen data {} has zero size", dNode);
+			return null;
+		}
+
 		HDF5Attribute axesAttr = dNode.getAttribute(NXAXES);
 
 		// find possible long name
@@ -238,6 +244,8 @@ public class HDF5Utils {
 						}
 					}
 					choices.add(choice);
+				} catch (IllegalArgumentException iae) {
+					throw iae;
 				} catch (Exception e) {
 					logger.warn("Axis attributes in {} are invalid - {}", a.getName(), e.getMessage());
 					continue;
