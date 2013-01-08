@@ -127,7 +127,7 @@ import de.jreality.util.SystemProperties;
 /**
  * Central Plotting class responsible for all kind of plots and interaction with them
  */
-
+@Deprecated
 public class DataSetPlotter extends JPanel implements ComponentListener, Listener, PaintListener,
 		LegendChangeEventListener, PlotActionEventListener, IMainPlot, SelectionListener, PanActionListener {
 	protected IDataSet3DCorePlot plotter = null;

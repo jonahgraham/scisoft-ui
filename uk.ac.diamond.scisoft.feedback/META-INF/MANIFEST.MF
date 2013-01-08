@@ -6,18 +6,13 @@ Bundle-Version: 0.10.0.qualifier
 Bundle-Activator: uk.ac.diamond.scisoft.feedback.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- uk.ac.gda.libs;bundle-version="1.0.0",
- org.eclipse.core.resources;bundle-version="3.5.2",
  uk.ac.diamond.scisoft.system.info;bundle-version="1.0.0",
  org.apache.httpcomponents.httpclient;bundle-version="[4.2.1,4.3.0)",
  org.apache.httpcomponents.httpcore;bundle-version="[4.2.1,4.3.0)",
  uk.ac.diamond.proxyvole;bundle-version="[1.0.20120727,1.1.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: ch.qos.logback.classic;version="0.9.15",
- ch.qos.logback.classic.joran;version="0.9.15",
- ch.qos.logback.core;version="0.9.15",
- ch.qos.logback.core.joran;version="0.9.15",
- ch.qos.logback.core.spi;version="0.9.15",
+Import-Package: javax.mail,
+ javax.mail.internet,
  org.slf4j;version="[1.5.0,2.0.0)"
 Export-Package: uk.ac.diamond.scisoft.feedback
 Bundle-Vendor: Diamond Light Source

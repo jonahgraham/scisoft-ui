@@ -16,8 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.explorers;
 
-import gda.analysis.io.ScanFileHolderException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -53,16 +51,15 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
-import uk.ac.diamond.scisoft.analysis.io.ExtendedSRSLoader;
-import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 import uk.ac.gda.monitor.IMonitor;
 
-public class SRSExplorer extends AbstractExplorer implements ISelectionProvider {
+public class TextDataExplorer extends AbstractExplorer implements ISelectionProvider {
 
 	private TableViewer viewer;
 	private DataHolder data = null;
@@ -70,7 +67,7 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 	private Display display = null;
 	private SelectionAdapter contextListener = null;
 
-	public SRSExplorer(Composite parent, IWorkbenchPartSite partSite, ISelectionChangedListener valueSelect) {
+	public TextDataExplorer(Composite parent, IWorkbenchPartSite partSite, ISelectionChangedListener valueSelect) {
 		super(parent, partSite, valueSelect);
 
 		display = parent.getDisplay();
@@ -106,7 +103,7 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 		viewer.addSelectionChangedListener(listener);
 
 		if (metaValueListener != null) {
-			final SRSExplorer provider = this;
+			final TextDataExplorer provider = this;
 			contextListener = new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
@@ -233,22 +230,15 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 		if (fileName == this.fileName)
 			return data;
 
-		try {
-			return LoaderFactory.getData(ExtendedSRSLoader.class, fileName, true, mon);
-		} catch (ScanFileHolderException ex) {
-			return LoaderFactory.getData(fileName, mon);
-		}
+		return LoaderFactory.getData(fileName, true, mon);
 	}
 
 	@Override
 	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
 		this.fileName = fileName;
 
-		try {
-			data = LoaderFactory.getData(ExtendedSRSLoader.class, fileName, true, mon);
-		} catch (ScanFileHolderException ex) {
-			data = LoaderFactory.getData(fileName, mon);
-		}
+		data = LoaderFactory.getData(fileName, true, mon);
+
 		if (data != null) {
 			if (display != null) {
 				final IMetaData meta = data.getMetadata();

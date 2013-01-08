@@ -35,15 +35,15 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
-import uk.ac.diamond.scisoft.analysis.rcp.explorers.SRSExplorer;
+import uk.ac.diamond.scisoft.analysis.rcp.explorers.TextDataExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData;
 
-public class SRSEditor extends EditorPart {
+public class TextDataEditor extends EditorPart {
 
-	private SRSExplorer srsxp;
+	private TextDataExplorer srsxp;
 	private File file;
 
-	public SRSEditor() {
+	public TextDataEditor() {
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class SRSEditor extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		IWorkbenchPartSite site = getSite();
-		srsxp = new SRSExplorer(parent, site, null);
+		srsxp = new TextDataExplorer(parent, site, null);
 		try {
 			srsxp.loadFileAndDisplay(file.getPath(), null);
 		} catch (Exception e) {
@@ -159,7 +159,7 @@ public class SRSEditor extends EditorPart {
 	 * @return explorer class
 	 */
 	public static Class<? extends AbstractExplorer> getExplorerClass() {
-		return SRSExplorer.class;
+		return TextDataExplorer.class;
 	}
 
 	public void update(final IWorkbenchPart original, final SRSTreeData srsData) {
