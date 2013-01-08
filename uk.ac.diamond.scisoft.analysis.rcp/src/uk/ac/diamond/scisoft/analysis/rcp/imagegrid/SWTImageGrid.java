@@ -447,12 +447,11 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 					}
 				}
 			}
-		}		
+		}
 		return filenameToLoad;
 	}
-	
+
 	private void sendOffLoadRequest(List<String> files, String plotViewName) {
-		System.out.println(viewName+"********"+plotViewName);
 
 		if (usePlotServer) {
 //			List<String> files = new ArrayList<String>();
@@ -498,8 +497,7 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 //			}
 		}
 	}
-	
-	
+
 	@Override
 	public void mouseDoubleClick(MouseEvent e) {
 		if (!overviewWindow) {
@@ -507,9 +505,6 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 			if (filenameToLoad != null) {
 				ArrayList<String> files = new ArrayList<String>();
 				files.add(filenameToLoad);
-				for (String plotview : plotViews) {
-					System.out.println(plotview);
-				}
 				sendOffLoadRequest(files, plotViews.get(0));
 //				System.err.println("Filename "+filenameToLoad);
 			}
