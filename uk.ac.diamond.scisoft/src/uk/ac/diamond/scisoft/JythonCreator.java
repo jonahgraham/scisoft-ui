@@ -348,6 +348,9 @@ public class JythonCreator implements IStartup {
 
 			logger.debug("Finalising the Jython interpreter manager");
 
+			File java = JavaVmLocationFinder.findDefaultJavaExecutable();
+			logger.debug("Using java: {}", java);
+
 			final JythonInterpreterManager man = (JythonInterpreterManager) PydevPlugin.getJythonInterpreterManager();
 			HashSet<String> set = new HashSet<String>();
 			// Note, despite argument in PyDev being called interpreterNamesToRestore
