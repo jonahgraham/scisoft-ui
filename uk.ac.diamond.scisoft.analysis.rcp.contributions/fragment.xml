@@ -1050,6 +1050,9 @@
          name="Default"
          point="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewRegister">
          <ViewRegister
+         	ViewName="Dataset Plot">
+         </ViewRegister>
+         <ViewRegister
          	ViewName="Plot 1">
          </ViewRegister>
          <ViewRegister
