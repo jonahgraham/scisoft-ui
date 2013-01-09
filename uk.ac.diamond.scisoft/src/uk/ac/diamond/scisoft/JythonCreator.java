@@ -186,13 +186,15 @@ public class JythonCreator implements IStartup {
 			String[] cmdarray = {javaPath, "-Xmx64m", "-Dpython.cachedir="+cachedir.getAbsolutePath(), "-jar",executable, REF.getFileAbsolutePath(script) };
 			File workingDir = new File(System.getProperty("java.io.tmpdir"));
 			IPythonNature nature = null;
-			Tuple<Process, String> outTuple = new SimpleJythonRunner().run(cmdarray, workingDir, nature, monitor);
 
 			String outputString = "";
 			try {
+				Tuple<Process, String> outTuple = new SimpleJythonRunner().run(cmdarray, workingDir, nature, monitor);
 				outputString = IOUtils.toString(outTuple.o1.getInputStream());
 			} catch (IOException e1) {
 				logger.error("Could not parse output from running interpreterInfo.py in Jython", e1);
+			} catch (Exception e2) {
+				logger.error("Something went wrong in running interpreterInfo.py in Jython", e2);
 			}
 
 			logger.debug("Output String is {}", outputString);
