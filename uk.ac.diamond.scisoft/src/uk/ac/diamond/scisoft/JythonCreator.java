@@ -173,7 +173,17 @@ public class JythonCreator implements IStartup {
 			}
 			logger.debug("Script path = {}", script.getAbsolutePath());
 
-			String[] cmdarray = {"java", "-Xmx64m", "-Dpython.cachedir="+cachedir.getAbsolutePath(), "-jar",executable, REF.getFileAbsolutePath(script) };
+			File java = JavaVmLocationFinder.findDefaultJavaExecutable();
+			logger.debug("Using java: {}", java);
+			String javaPath;
+			try {
+				javaPath = java.getCanonicalPath();
+			} catch (IOException e) {
+				logger.warn("Could not resolve default Java path so resorting to PATH", e);
+				javaPath = "java";
+			}
+
+			String[] cmdarray = {javaPath, "-Xmx64m", "-Dpython.cachedir="+cachedir.getAbsolutePath(), "-jar",executable, REF.getFileAbsolutePath(script) };
 			File workingDir = new File(System.getProperty("java.io.tmpdir"));
 			IPythonNature nature = null;
 			Tuple<Process, String> outTuple = new SimpleJythonRunner().run(cmdarray, workingDir, nature, monitor);
@@ -347,9 +357,6 @@ public class JythonCreator implements IStartup {
 			info.setName(INTERPRETER_NAME);
 
 			logger.debug("Finalising the Jython interpreter manager");
-
-			File java = JavaVmLocationFinder.findDefaultJavaExecutable();
-			logger.debug("Using java: {}", java);
 
 			final JythonInterpreterManager man = (JythonInterpreterManager) PydevPlugin.getJythonInterpreterManager();
 			HashSet<String> set = new HashSet<String>();
