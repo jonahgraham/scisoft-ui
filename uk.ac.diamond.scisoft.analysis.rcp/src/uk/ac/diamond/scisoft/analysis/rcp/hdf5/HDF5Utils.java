@@ -244,8 +244,6 @@ public class HDF5Utils {
 						}
 					}
 					choices.add(choice);
-				} catch (IllegalArgumentException iae) {
-					throw iae;
 				} catch (Exception e) {
 					logger.warn("Axis attributes in {} are invalid - {}", a.getName(), e.getMessage());
 					continue;
