@@ -84,11 +84,11 @@ public class JythonCreator implements IStartup {
 	private static final String JYTHON_VERSION = "2.5";
 	public static final String  INTERPRETER_NAME = "Jython" + JYTHON_VERSION;
 	private static String JYTHON_DIR = "jython" + JYTHON_VERSION;
-	private static final String GIT__REPO_ENDING = ".git";
+	private static final String GIT_REPO_ENDING = ".git";
 	private static final String GIT_SUFFIX = "_git";
 	private static final String RUN_IN_ECLIPSE = "run.in.eclipse";
-	private static final String[] requiredKeys = {"org.python.pydev",
-		"uk.ac.gda.libs",
+	private static final String[] blackListedJarDirs = {"uk.ac.gda.libs", GIT_REPO_ENDING, JYTHON_DIR };
+	private static final String[] requiredJars = {"org.python.pydev",
 		"cbflib-0.9",
 		"org.apache.commons.codec",
 		"org.apache.commons.math",
@@ -101,8 +101,8 @@ public class JythonCreator implements IStartup {
 		"jhdf",
 		"com.springsource.slf4j",
 		"com.springsource.ch.qos.logback",
-		"com.springsource.org.castor",
-		"com.springsource.org.exolab.castor",
+//		"com.springsource.org.castor",
+//		"com.springsource.org.exolab.castor",
 		"com.springsource.org.apache.commons",
 		"com.springsource.javax.media.core",
 		"jtransforms",
@@ -149,15 +149,6 @@ public class JythonCreator implements IStartup {
 			}
 			logger.debug("Plugins directory is {}", pluginsDir);
 
-			// Code copies from Pydev when the user chooses a Jython interpreter - these are the defaults
-			String executable = new File(getInterpreterDirectory(pluginsDir, isRunningInEclipse), "jython.jar").getAbsolutePath();
-			
-			if (!(new File(executable)).exists()) { 
-				logger.error("Failed to find jython jar at all");
-				return;
-			}
-			logger.debug("executable path = {}", executable);
-
 			// Set cache directory to something not in the installation directory
 			final String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
 			final File cachedir = new File(workspace, ".jython_cachedir");
@@ -182,6 +173,13 @@ public class JythonCreator implements IStartup {
 				logger.warn("Could not resolve default Java path so resorting to PATH", e);
 				javaPath = "java";
 			}
+
+			String executable = new File(getInterpreterDirectory(pluginsDir, isRunningInEclipse), "jython.jar").getAbsolutePath();
+			if (!(new File(executable)).exists()) { 
+				logger.error("Failed to find jython jar at all");
+				return;
+			}
+			logger.debug("executable path = {}", executable);
 
 			String[] cmdarray = {javaPath, "-Xmx64m", "-Dpython.cachedir="+cachedir.getAbsolutePath(), "-jar",executable, REF.getFileAbsolutePath(script) };
 			File workingDir = new File(System.getProperty("java.io.tmpdir"));
@@ -438,7 +436,7 @@ public class JythonCreator implements IStartup {
 	private File getInterpreterDirectory(File pluginsDir, boolean isRunningInEclipse) {
 		if (isRunningInEclipse) {
 			for (File g : pluginsDir.listFiles()) { // git repositories
-				if (g.isDirectory() && g.getName().endsWith(GIT__REPO_ENDING)) {
+				if (g.isDirectory() && g.getName().endsWith(GIT_REPO_ENDING)) {
 					for (File p : g.listFiles()) { // projects
 						if (p.getName().startsWith(JYTHON_BUNDLE)) {
 							File d = new File(p, JYTHON_DIR);
@@ -468,21 +466,18 @@ public class JythonCreator implements IStartup {
 	 * @return list of jar Files
 	 */
 	public static final List<File> findJars(File directory) {
-	
 		final List<File> libs = new ArrayList<File>();
 	
-		if (directory.exists() && directory.isDirectory()) {
+		if (directory.isDirectory()) {
 			for (File f : directory.listFiles()) {
 				final String name = f.getName();
 				// if the file is a jar, then add it
 				if (name.endsWith(".jar")) {
-					if (isRequired(f, requiredKeys)) {
+					if (isRequired(f, requiredJars)) {
 						libs.add(f);
 					}
-				} else if (f.isDirectory() && !name.equals(JYTHON_DIR)) {
-					for (File file : findJars(f)) {
-						libs.add(file);
-					}
+				} else if (f.isDirectory() && !isRequired(f, blackListedJarDirs)) {
+					libs.addAll(findJars(f));
 				}
 			}
 		}
@@ -516,12 +511,12 @@ public class JythonCreator implements IStartup {
 			for (File d : directory.listFiles()) {
 				if (d.isDirectory()) {
 					String n = d.getName();
-					if (n.endsWith(GIT__REPO_ENDING)) {
+					if (n.endsWith(GIT_REPO_ENDING)) {
 						dirs.add(d);
 					} else if (n.equals("scisoft")) { // old source layout
 						for (File f : d.listFiles()) {
 							if (f.isDirectory()) {
-								if (f.getName().endsWith(GIT__REPO_ENDING)) {
+								if (f.getName().endsWith(GIT_REPO_ENDING)) {
 									logger.debug("Adding scisoft directory {}", f);
 									dirs.add(f);
 								}
