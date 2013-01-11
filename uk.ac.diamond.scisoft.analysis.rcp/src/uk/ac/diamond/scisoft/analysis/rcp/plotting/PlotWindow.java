@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
-import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
 import org.dawb.common.ui.plot.region.IROIListener;
 import org.dawb.common.ui.plot.region.IRegion;
 import org.dawb.common.ui.plot.region.IRegionListener;
@@ -53,7 +53,9 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -73,10 +75,11 @@ import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DuplicatePlotAction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEventListener;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
-import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
@@ -229,15 +232,33 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	}
 	
 	private void createDatasetPlotter(PlottingMode mode){
-		parentComp.setLayout(new FillLayout());
-		mainPlotterComposite = new Composite(parentComp, SWT.NONE);
-		mainPlotterComposite.setLayout(new FillLayout());
-		mainPlotter = new DataSetPlotter(mode, mainPlotterComposite, true);
+		
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		parentComp.setLayout(layout);
+
+		txtPos = new Label(parentComp, SWT.LEFT);
+		{
+			GridData gridData = new GridData();
+			gridData.horizontalAlignment = SWT.FILL;
+			gridData.grabExcessHorizontalSpace = true;
+			txtPos.setLayoutData(gridData);
+		}
+		Composite plotArea = new Composite(parentComp, SWT.NONE);
+		plotArea.setLayout(new FillLayout());
+		{
+			GridData gridData = new GridData();
+			gridData.horizontalAlignment = SWT.FILL;
+			gridData.grabExcessHorizontalSpace = true;
+			gridData.grabExcessVerticalSpace = true;
+			gridData.verticalAlignment = SWT.FILL;
+			plotArea.setLayoutData(gridData);
+		}
+		mainPlotter = new DataSetPlotter(mode, plotArea, true);
 		mainPlotter.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
 		mainPlotter.setXAxisLabel("X-Axis");
 		mainPlotter.setYAxisLabel("Y-Axis");
 		mainPlotter.setZAxisLabel("Z-Axis");
-
 	}
 	
 	private void createPlottingSystem(){
@@ -505,6 +526,20 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	private void setup1D() {
 		mainPlotter.setMode(PlottingMode.ONED);
 		plotUI = new Plot1DUIComplete(this, manager, bars, parentComp, getPage(), name);
+		((Plot1DUIComplete)plotUI).addPlotActionEventListener(new PlotActionEventListener(){
+
+			@Override
+			public void plotActionPerformed(final PlotActionEvent event) {
+				Display.getDefault().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						double x = event.getPosition()[0];
+						double y = event.getPosition()[1];
+						txtPos.setText(String.format("X:%.7g Y:%.7g", x, y));
+					}
+				});
+			}});
 		addCommonActions();
 		bars.updateActionBars();
 	}
@@ -1251,6 +1286,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	protected List<ROIPair<String, ROIBase>> roiPairList = new ArrayList<ROIPair<String, ROIBase>>();
 	protected ROIPair<String, ROIBase> currentRoiPair;
 	protected ROIPair<String, ROIBase> previousRoiPair;
+	private Label txtPos;
 	
 	protected void updateGuiBean(ROIBase roib){
 		manager.removeGUIInfo(GuiParameters.ROIDATA);
