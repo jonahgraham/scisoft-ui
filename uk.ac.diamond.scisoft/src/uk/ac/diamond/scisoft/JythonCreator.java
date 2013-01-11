@@ -117,7 +117,7 @@ public class JythonCreator implements IStartup {
 		"org.dawb.hdf5"
 	};
 
-	private final static String[] pluginKeys = { "uk.ac.diamond", "uk.ac.gda.common", "org.dawb.hdf5", "ncsa.hdf"};
+	private final static String[] pluginKeys = { "uk.ac.diamond.scisoft.analysis", "uk.ac.diamond.scisoft.python", "uk.ac.diamond.CBFlib", "uk.ac.gda.common", "org.dawb.hdf5", "ncsa.hdf"};
 	
 	private void initialiseInterpreter(IProgressMonitor monitor) throws CoreException {
 		/*
