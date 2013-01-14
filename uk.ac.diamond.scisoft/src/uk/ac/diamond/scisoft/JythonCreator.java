@@ -43,6 +43,7 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.Bundle;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
@@ -50,6 +51,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManagerWithBuild;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -168,10 +170,17 @@ public class JythonCreator implements IStartup {
 			logger.debug("Plugins directory is {}", pluginsDir);
 
 			// Set cache directory to something not in the installation directory
-			final String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
-			final File cachedir = new File(workspace, ".jython_cachedir");
-			cachedir.mkdirs();
-			System.setProperty("python.cachedir", cachedir.getAbsolutePath());
+			IPreferenceStore pyStore = PydevPrefs.getPreferenceStore();
+			String cachePath = pyStore.getString(IInterpreterManager.JYTHON_CACHE_DIR);
+			if (cachePath == null || cachePath.length() == 0) {
+				final String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
+				final File cacheDir = new File(workspace, ".jython_cachedir");
+				if (!cacheDir.exists())
+					cacheDir.mkdirs();
+				cachePath = cacheDir.getAbsolutePath();
+				pyStore.setValue(IInterpreterManager.JYTHON_CACHE_DIR, cacheDir.getAbsolutePath());
+			}
+			System.setProperty("python.cachedir", cachePath);
 
 			// check for the existence of this standard pydev script
 			final File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
@@ -200,12 +209,11 @@ public class JythonCreator implements IStartup {
 
 			String[] cmdarray = {javaPath, "-Xmx64m",
 //					"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=localhost:8000",
-//					"-Dpython.cachedir=" + cachedir.getAbsolutePath(),
 					"-Dpython.cachedir.skip=true", // this works in Windows
 					"-jar", executable,
 					REF.getFileAbsolutePath(script)};
 			File workingDir = new File(System.getProperty("java.io.tmpdir"));
-//			logger.debug("Cache and working dirs are {} and {}", cachedir, workingDir);
+//			logger.debug("Cache and working dirs are {} and {}", cachePath, workingDir);
 			IPythonNature nature = null;
 
 			String outputString = "";
