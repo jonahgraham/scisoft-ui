@@ -29,9 +29,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
+import org.eclipse.jface.viewers.ComboBoxViewerCellEditor;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ICellEditorListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -39,6 +41,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
@@ -350,7 +353,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	}
 
 	private enum Column {
-		TICK, PATH, VALUE;
+		TICK, COMBO, PATH, VALUE;
 	}
 
 	private class TickLabelProvider extends CellLabelProvider {
@@ -374,6 +377,14 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				colour = display.getSystemColor(SWT.COLOR_YELLOW);
 			}
 			cell.setBackground(colour);
+		}
+	}
+
+	private class ComboLabelProvider extends CellLabelProvider {
+		@Override
+		public void update(ViewerCell cell) {
+			SelectedFile sf = (SelectedFile) cell.getElement();
+			cell.setText(sf.getMathOp().name());
 		}
 	}
 
@@ -475,6 +486,15 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.TICK, null));
 		tVCol.setLabelProvider(new TickLabelProvider(display));
 
+		tVCol = new TableViewerColumn(viewer, SWT.NONE);
+		tCol = tVCol.getColumn();
+		tCol.setText("Math");
+		tCol.setToolTipText("Select mathematical operation to apply on this file");
+		tCol.setWidth(150);
+		tCol.setMoveable(false);
+		tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.COMBO, null));
+		tVCol.setLabelProvider(new ComboLabelProvider());
+		
 		tVCol = new TableViewerColumn(viewer, SWT.NONE);
 		tCol = tVCol.getColumn();
 		tCol.setText("File name");
@@ -609,7 +629,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	}
 
 	final private class CFEditingSupport extends EditingSupport {
-		private CheckboxCellEditor editor = null;
+		private CellEditor editor = null;
 		private Column column;
 
 		public CFEditingSupport(TableViewer viewer, Column column, ICellEditorListener listener) {
@@ -619,12 +639,20 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				if (listener != null)
 					editor.addListener(listener);
 			}
+			if (column == Column.COMBO) {
+				editor = new ComboBoxViewerCellEditor(viewer.getTable(), SWT.READ_ONLY);
+		        ((ComboBoxViewerCellEditor) editor).setLabelProvider(new LabelProvider());
+		        ((ComboBoxViewerCellEditor) editor).setContentProvider(new ArrayContentProvider());
+				((ComboBoxViewerCellEditor) editor).setInput(MathOp.values());
+				if (listener != null)
+					editor.addListener(listener);
+			}
 			this.column = column;
 		}
 
 		@Override
 		protected boolean canEdit(Object element) {
-			return column == Column.TICK;
+			return ((column == Column.TICK) || (column == Column.COMBO));
 		}
 
 		@Override
@@ -638,6 +666,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			if (column == Column.TICK) {
 				return sf.doUse();
 			}
+			if (column == Column.COMBO) {
+				return sf.getMathOp();
+			}
 			return null;
 		}
 
@@ -646,6 +677,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			SelectedFile sf = (SelectedFile) element;
 			if (column == Column.TICK) {
 				sf.setUse((Boolean) value);
+			}
+			if (column == Column.COMBO) {
+				sf.setMathOp((MathOp) value);
 			}
 			getViewer().update(element, null);
 			changeSelection();
@@ -1133,6 +1167,10 @@ class CompareFilesEditorInput extends PlatformObject implements IEditorInput {
 	}
 }
 
+enum MathOp {
+	ID, ADD, SUB, AVR;
+}
+
 class SelectedFile {
 	boolean use = true;
 	boolean canUseData = false;
@@ -1144,12 +1182,14 @@ class SelectedFile {
 	ILazyDataset d;
 	Serializable mv;
 	List<AxisSelection> asl;
+	MathOp operation;
 
 	public SelectedFile(int index, IFile file) {
 		f = new File(file.getLocationURI());
 		if (f == null || !f.canRead())
 			throw new IllegalArgumentException("File '" + file.getName() + "' does not exist or can not be read");
 		setIndex(index);
+		setMathOp(MathOp.ID);
 	}
 
 	public SelectedFile(int index, File file) {
@@ -1157,6 +1197,7 @@ class SelectedFile {
 		if (f == null || !f.canRead())
 			throw new IllegalArgumentException("File '" + file.getName() + "' does not exist or can not be read");
 		setIndex(index);
+		setMathOp(MathOp.ID);
 	}
 
 	public SelectedFile(int index, String file) {
@@ -1164,6 +1205,7 @@ class SelectedFile {
 		if (f == null || !f.canRead())
 			throw new IllegalArgumentException("File '" + file + "' does not exist or can not be read");
 		setIndex(index);
+		setMathOp(MathOp.ID);
 	}
 
 	public String getAbsolutePath() {
@@ -1309,5 +1351,13 @@ class SelectedFile {
 
 	public boolean hasAxisSelections() {
 		return asl != null;
+	}
+	
+	public MathOp getMathOp() {
+		return operation;
+	}
+
+	public void setMathOp(MathOp operation) {
+		this.operation = operation;
 	}
 }
