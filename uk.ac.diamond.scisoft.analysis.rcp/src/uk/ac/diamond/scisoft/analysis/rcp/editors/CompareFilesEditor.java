@@ -16,6 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
+import gda.analysis.io.ScanFileHolderException;
+
 import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -87,9 +89,12 @@ import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.io.AbstractFileLoader;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.ILazyLoader;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.Utils;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
@@ -100,6 +105,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
+import uk.ac.gda.monitor.IMonitor;
 
 /**
  * This editor allows a set of files which can be loaded by one type of loader to be compared. It
@@ -757,6 +763,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			List<ILazyDataset> dataList = new ArrayList<ILazyDataset>();
 			List<ILazyDataset> metaList = new ArrayList<ILazyDataset>();
 			List<List<AxisSelection>> axesList = new ArrayList<List<AxisSelection>>();
+			List<MathOp> mathList = new ArrayList<MathOp>();
 
 			for (SelectedFile f : fileList) {
 				if (f.doUse() && f.hasData() && f.hasMetaValue()) {
@@ -764,6 +771,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					dataList.add(f.getData());
 					metaList.add(f.getMetaValue());
 					axesList.add(new ArrayList<AxisSelection>(f.getAxisSelections()));
+					mathList.add(f.getMathOp());
 				}
 			}
 			boolean extend = true;
@@ -797,11 +805,14 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 						dataList.remove(j);
 						metaList.remove(j);
 						axesList.remove(j);
+						mathList.remove(j);
 					}
 					j--;
 				}
 			}
 
+			processSelection(dataList, metaList, axesList, mathList);
+			
 			InspectorType itype;
 			switch (currentDatasetSelection.getType()) {
 			case IMAGE:
@@ -817,6 +828,63 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 
 		viewer.refresh();
+	}
+	 
+	private void processSelection(final List<ILazyDataset> dataList, final List<ILazyDataset> metaList, final List<List<AxisSelection>> axesList, final List<MathOp> mathList) {
+		
+		final AbstractDataset accDataset = AbstractDataset.zeros(DatasetUtils.convertToAbstractDataset(dataList.get(0).getSlice(new Slice())));
+		int idxAve = 0;
+		
+		for (int idx = 0; idx < mathList.size(); idx++) {
+			MathOp op = mathList.get(idx);
+			switch (op) {
+			case ADD:
+				accDataset.iadd(DatasetUtils.convertToAbstractDataset(dataList.get(idx).getSlice(new Slice())));
+				break;
+			case SUB:
+				accDataset.isubtract(DatasetUtils.convertToAbstractDataset(dataList.get(idx).getSlice(new Slice())));
+				break;
+			case AVR:
+				accDataset.iadd(DatasetUtils.convertToAbstractDataset(dataList.get(idx).getSlice(new Slice())));
+				idxAve++;
+				break;
+			default:
+				break;
+			}
+		}
+		
+		for (int idx = mathList.size() - 1; idx >= 0; idx--) {
+			MathOp op = mathList.get(idx);
+			switch (op) {
+			case ID:
+				final ILazyDataset refData = dataList.get(idx);
+				final int norm = idxAve + 1;
+				ILazyLoader loader = new ILazyLoader() {
+
+					@Override
+					public boolean isFileReadable() {
+						return true;
+					}
+
+					@Override
+					public AbstractDataset getDataset(IMonitor mon, int[] shape, int[] start, int[] stop, int[] step)
+							throws ScanFileHolderException {
+						AbstractDataset data = DatasetUtils.convertToAbstractDataset(refData.getSlice(start, stop, step));
+						data.iadd(accDataset.getSlice(start, stop, step));
+						data.idivide(norm);
+						return data;
+					}
+				};
+				dataList.set(idx, new LazyDataset(refData.getName(), accDataset.getDtype(), refData.getShape(), loader));
+				break;
+			default:
+				dataList.remove(idx);
+				metaList.remove(idx);
+				axesList.remove(idx);
+				mathList.remove(idx);
+			}
+		}
+		
 	}
 
 	/**
