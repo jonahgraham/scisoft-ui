@@ -43,6 +43,7 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.Bundle;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
@@ -50,7 +51,8 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManagerWithBuild;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.runners.SimpleJythonRunner;
+import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.slf4j.Logger;
@@ -87,16 +89,24 @@ public class JythonCreator implements IStartup {
 	private static final String GIT_REPO_ENDING = ".git";
 	private static final String GIT_SUFFIX = "_git";
 	private static final String RUN_IN_ECLIPSE = "run.in.eclipse";
-	private static final String[] blackListedJarDirs = {"uk.ac.gda.libs", GIT_REPO_ENDING, JYTHON_DIR };
-	private static final String[] requiredJars = {"org.python.pydev",
+	private static final String[] blackListedJarDirs = {
+		"uk.ac.gda.libs",
+		"ch.qos.logback.eclipse",
+		"org.dawb.workbench.jmx",
+		GIT_REPO_ENDING,
+		JYTHON_DIR
+		};
+	private static final String[] requiredJars = {
+		"org.python.pydev",
 		"cbflib-0.9",
 		"org.apache.commons.codec",
 		"org.apache.commons.math",
 		"uk.ac.diamond.CBFlib",
 		"uk.ac.diamond.jama",
-		"uk.ac.diamond.scisoft",
-		"uk.ac.diamond.scisoft.ncd",
-		"uk.ac.diamond.scisoft.ncd.rcp",
+		"uk.ac.diamond.scisoft.analysis",
+		"uk.ac.diamond.scisoft.python",
+//		"uk.ac.diamond.scisoft.ncd",
+//		"uk.ac.diamond.scisoft.ncd.rcp",
 		"uk.ac.gda.common",
 		"jhdf",
 		"com.springsource.slf4j",
@@ -104,21 +114,31 @@ public class JythonCreator implements IStartup {
 //		"com.springsource.org.castor",
 //		"com.springsource.org.exolab.castor",
 		"com.springsource.org.apache.commons",
-		"com.springsource.javax.media.core",
+//		"com.springsource.javax.media.core",
 		"jtransforms",
 		"jai_imageio",
 		"it.tidalwave.imageio.raw",
 		"javax.vecmath",
-		"jython",
+//		"jython",
 		"uk.ac.diamond.org.apache.ws.commons.util",
 		"uk.ac.diamond.org.apache.xmlrpc.client",
 		"uk.ac.diamond.org.apache.xmlrpc.common",
 		"uk.ac.diamond.org.apache.xmlrpc.server",
 		"org.dawb.hdf5"
 	};
+	private static final String[] removedLibEndings = {
+		"pysrc",
+		"classpath__" // includes __classpath__ and __pyclasspath__
+	};
+	private final static String[] pluginKeys = {
+		"uk.ac.diamond.scisoft.analysis",
+		"uk.ac.diamond.scisoft.python",
+		"uk.ac.diamond.CBFlib",
+		"uk.ac.gda.common",
+		"org.dawb.hdf5",
+		"ncsa.hdf"
+	};
 
-	private final static String[] pluginKeys = { "uk.ac.diamond.scisoft.analysis", "uk.ac.diamond.scisoft.python", "uk.ac.diamond.CBFlib", "uk.ac.gda.common", "org.dawb.hdf5", "ncsa.hdf"};
-	
 	private void initialiseInterpreter(IProgressMonitor monitor) throws CoreException {
 		/*
 		 * The layout of plugins can vary between where a built product and
@@ -150,11 +170,17 @@ public class JythonCreator implements IStartup {
 			logger.debug("Plugins directory is {}", pluginsDir);
 
 			// Set cache directory to something not in the installation directory
-			final String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
-			final File cachedir = new File(workspace, ".jython_cachedir");
-			
-			cachedir.mkdirs();
-			System.setProperty("python.cachedir", cachedir.getAbsolutePath());
+			IPreferenceStore pyStore = PydevPrefs.getPreferenceStore();
+			String cachePath = pyStore.getString(IInterpreterManager.JYTHON_CACHE_DIR);
+			if (cachePath == null || cachePath.length() == 0) {
+				final String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
+				final File cacheDir = new File(workspace, ".jython_cachedir");
+				if (!cacheDir.exists())
+					cacheDir.mkdirs();
+				cachePath = cacheDir.getAbsolutePath();
+				pyStore.setValue(IInterpreterManager.JYTHON_CACHE_DIR, cacheDir.getAbsolutePath());
+			}
+			System.setProperty("python.cachedir", cachePath);
 
 			// check for the existence of this standard pydev script
 			final File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
@@ -181,13 +207,18 @@ public class JythonCreator implements IStartup {
 			}
 			logger.debug("executable path = {}", executable);
 
-			String[] cmdarray = {javaPath, "-Xmx64m", "-Dpython.cachedir="+cachedir.getAbsolutePath(), "-jar",executable, REF.getFileAbsolutePath(script) };
+			String[] cmdarray = {javaPath, "-Xmx64m",
+//					"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=localhost:8000",
+					"-Dpython.cachedir.skip=true", // this works in Windows
+					"-jar", executable,
+					REF.getFileAbsolutePath(script)};
 			File workingDir = new File(System.getProperty("java.io.tmpdir"));
+//			logger.debug("Cache and working dirs are {} and {}", cachePath, workingDir);
 			IPythonNature nature = null;
 
 			String outputString = "";
 			try {
-				Tuple<Process, String> outTuple = new SimpleJythonRunner().run(cmdarray, workingDir, nature, monitor);
+				Tuple<Process, String> outTuple = new SimpleRunner().run(cmdarray, workingDir, nature, monitor);
 				outputString = IOUtils.toString(outTuple.o1.getInputStream());
 			} catch (IOException e1) {
 				logger.error("Could not parse output from running interpreterInfo.py in Jython", e1);
@@ -302,8 +333,13 @@ public class JythonCreator implements IStartup {
 
 			Set<String> removals = new HashSet<String>();
 			for (String s : info.libs) {
-				if (s.toLowerCase().endsWith("pysrc"))
-					removals.add(s);
+				String ls = s.toLowerCase();
+				for (String r : removedLibEndings) {
+					if (ls.endsWith(r)) {
+						removals.add(s);
+						break;
+					}
+				}
 			}
 			info.libs.removeAll(removals);
 			info.libs.addAll(pyPaths);
