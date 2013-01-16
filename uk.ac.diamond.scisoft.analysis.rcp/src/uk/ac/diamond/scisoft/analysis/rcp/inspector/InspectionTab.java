@@ -679,7 +679,7 @@ class PlotTab extends ATab {
 				Slice[] s = new Slice[imap.length];
 				for (int i = 0; i < s.length; i++) {
 					s[i] = slices[imap[i]].clone();
-					if (average[imap[i]]) {
+					if (average != null && average[imap[i]]) {
 						Integer start = s[i].getStart();
 						start = start == null ? 0 : start;
 						s[i].setStop(start + 1);
@@ -778,10 +778,12 @@ class PlotTab extends ATab {
 				if (averagedData != null)
 					averagedData.iadd(tmpSlice);
 				else
-					averagedData = tmpSlice;
+					averagedData = tmpSlice.clone();
 				sliceIdx++;
 			}
-			slicedData = averagedData.idivide(sliceIdx);
+			
+			if (averagedData != null)
+				slicedData = averagedData.idivide(sliceIdx);
 		} else {
 			slicedData = sliceData(monitor, slices);
 		}
@@ -907,10 +909,15 @@ class PlotTab extends ATab {
 			return;
 
 		Slice[] slices = new Slice[sliceProperties.size()];
-		boolean[] average = new boolean[sliceProperties.size()];
+		boolean[] average = null;
 		for (int i = 0; i < slices.length; i++) {
 			slices[i] = sliceProperties.get(i).getValue();
-			average[i] =  sliceProperties.get(i).isAverage();
+			if (sliceProperties.get(i).isAverage()) {
+				if (average == null) {
+					average = new boolean[sliceProperties.size()];
+				}
+				average[i] = true;
+			}
 		}
 
 		int[] order = getOrder(daxes.size());
@@ -1267,10 +1274,15 @@ class DataTab extends PlotTab {
 			return;
 
 		Slice[] slices = new Slice[sliceProperties.size()];
-		boolean[] average = new boolean[sliceProperties.size()];
+		boolean[] average = null;
 		for (int i = 0; i < slices.length; i++) {
 			slices[i] = sliceProperties.get(i).getValue();
-			average[i] = sliceProperties.get(i).isAverage();
+			if (sliceProperties.get(i).isAverage()) {
+				if (average == null) {
+					average = new boolean[sliceProperties.size()];
+				}
+				average[i] = true;
+			}
 		}
 
 		int[] order = getOrder(daxes.size());
@@ -1581,10 +1593,15 @@ class ScatterTab extends PlotTab {
 		useData = !CONSTANT.equals(paxes.get(0).getName());
 
 		Slice[] slices = new Slice[sliceProperties.size()];
-		boolean[] average = new boolean[sliceProperties.size()];
+		boolean[] average = null;
 		for (int i = 0; i < slices.length; i++) {
 			slices[i] = sliceProperties.get(i).getValue();
-			average[i] = sliceProperties.get(i).isAverage();
+			if (sliceProperties.get(i).isAverage()) {
+				if (average == null) {
+					average = new boolean[sliceProperties.size()];
+				}
+				average[i] = true;
+			}
 		}
 
 		List<AxisChoice> axes = getChosenAxes();
