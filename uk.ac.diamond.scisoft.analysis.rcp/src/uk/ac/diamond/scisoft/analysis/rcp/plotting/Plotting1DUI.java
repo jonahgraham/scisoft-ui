@@ -105,6 +105,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 				if (useOldTraces) {
 					for (ITrace t : oldTraces) {
 						if (t instanceof ILineTrace) {
+							boolean used = false;
 							String oyn = t.getName();
 							AbstractDataset x = ((ILineTrace) t).getXData();
 							String oxn = x == null ? null : x.getName();
@@ -117,9 +118,13 @@ public class Plotting1DUI extends AbstractPlotUI {
 									if (oxn != null && oxn.equals(nxn)) {
 										((ILineTrace) t).setData(nx, ny);
 										((ILineTrace) t).repaint();
+										used = true;
+										break;
 									}
 								}
 							}
+							if (!used)
+								plottingSystem.removeTrace(t);
 						}
 					}
 					// if rescale axis option is checked in the x/y plot menu
