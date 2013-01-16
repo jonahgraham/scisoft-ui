@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -90,7 +91,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.io.AbstractFileLoader;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
@@ -811,7 +811,10 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				}
 			}
 
-			processSelection(dataList, metaList, axesList, mathList);
+			List<ILazyDataset> processedDataList = new ArrayList<ILazyDataset>();
+			List<ILazyDataset> processedMetaList = new ArrayList<ILazyDataset>();
+			List<List<AxisSelection>> processedAxesList = new ArrayList<List<AxisSelection>>();
+			processSelection(dataList, metaList, axesList, mathList, processedDataList, processedMetaList, processedAxesList);
 			
 			InspectorType itype;
 			switch (currentDatasetSelection.getType()) {
@@ -824,42 +827,35 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				break;
 			}
 
-			setSelection(createSelection(itype, extend, dataList, metaList, axesList));
+			setSelection(createSelection(itype, extend, processedDataList, processedMetaList, processedAxesList));
 		}
 
 		viewer.refresh();
 	}
 	 
-	private void processSelection(final List<ILazyDataset> dataList, final List<ILazyDataset> metaList, final List<List<AxisSelection>> axesList, final List<MathOp> mathList) {
+	private void processSelection(final List<ILazyDataset> dataList,
+			final List<ILazyDataset> metaList,
+			final List<List<AxisSelection>> axesList,
+			final List<MathOp> mathList,
+			List<ILazyDataset> processedDataList,
+			List<ILazyDataset> processedMetaList,
+			List<List<AxisSelection>> processedAxesList) {
+
+		final Integer norm;
 		
-		final AbstractDataset accDataset = AbstractDataset.zeros(DatasetUtils.convertToAbstractDataset(dataList.get(0).getSlice(new Slice())));
-		int idxAve = 0;
+		// Check if we need to do any maths
+		if (mathList.contains(MathOp.ADD) || mathList.contains(MathOp.SUB) || mathList.contains(MathOp.AVR)) {
+			norm = Collections.frequency(mathList, MathOp.AVR) + 1;
+		} else {
+			norm = null;
+		}
 		
 		for (int idx = 0; idx < mathList.size(); idx++) {
 			MathOp op = mathList.get(idx);
 			switch (op) {
-			case ADD:
-				accDataset.iadd(DatasetUtils.convertToAbstractDataset(dataList.get(idx).getSlice(new Slice())));
-				break;
-			case SUB:
-				accDataset.isubtract(DatasetUtils.convertToAbstractDataset(dataList.get(idx).getSlice(new Slice())));
-				break;
-			case AVR:
-				accDataset.iadd(DatasetUtils.convertToAbstractDataset(dataList.get(idx).getSlice(new Slice())));
-				idxAve++;
-				break;
-			default:
-				break;
-			}
-		}
-		
-		for (int idx = mathList.size() - 1; idx >= 0; idx--) {
-			MathOp op = mathList.get(idx);
-			switch (op) {
 			case ID:
 				final ILazyDataset refData = dataList.get(idx);
-				final int norm = idxAve + 1;
-				ILazyLoader loader = new ILazyLoader() {
+				ILazyLoader processingLoader = new ILazyLoader() {
 
 					@Override
 					public boolean isFileReadable() {
@@ -870,18 +866,47 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					public AbstractDataset getDataset(IMonitor mon, int[] shape, int[] start, int[] stop, int[] step)
 							throws ScanFileHolderException {
 						AbstractDataset data = DatasetUtils.convertToAbstractDataset(refData.getSlice(start, stop, step));
-						data.iadd(accDataset.getSlice(start, stop, step));
-						data.idivide(norm);
+						AbstractDataset accDataset = null;
+						for (int idx = 0; idx < mathList.size(); idx++) {
+							MathOp op = mathList.get(idx);
+							if (op == MathOp.ID) {
+								continue;
+							}
+							AbstractDataset tmpData = DatasetUtils.convertToAbstractDataset(dataList.get(idx).getSlice(start, stop, step));
+							if (accDataset == null) {
+								accDataset = AbstractDataset.zeros(tmpData.getShape(), tmpData.getDtype());
+							}
+							switch (op) {
+							case ADD:
+							case AVR:
+								accDataset.iadd(tmpData);
+								break;
+							case SUB:
+								accDataset.isubtract(tmpData);
+								break;
+							default:
+								break;
+							}
+						}
+						if (accDataset != null) {
+							data.iadd(accDataset);
+							if (norm != null && norm > 1) {
+								data.idivide(norm);
+							}
+						}
 						return data;
 					}
 				};
-				dataList.set(idx, new LazyDataset(refData.getName(), accDataset.getDtype(), refData.getShape(), loader));
+				if (norm != null) {
+					processedDataList.add(new LazyDataset(refData.getName(), AbstractDataset.getDType(refData), refData.getShape(), processingLoader));
+				} else {
+					processedDataList.add(dataList.get(idx));
+				}
+				processedAxesList.add(axesList.get(idx));
+				processedMetaList.add(metaList.get(idx));
 				break;
 			default:
-				dataList.remove(idx);
-				metaList.remove(idx);
-				axesList.remove(idx);
-				mathList.remove(idx);
+				break;
 			}
 		}
 		
