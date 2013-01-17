@@ -17,7 +17,6 @@
  */
 package uk.ac.diamond.scisoft.mappingexplorer.views.twod;
 
-import org.dawnsci.plotting.jreality.impl.PlotException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
@@ -37,7 +36,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5Selection;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite.ViewPageCompositeListener;
 import uk.ac.diamond.scisoft.mappingexplorer.views.HDF5MappingViewData;
@@ -110,14 +108,14 @@ public class TwoDViewPage extends MappingPageBookViewPage implements IMappingVie
 				twoDDataSetPlotterComposite.addCompositeSelectionListener(pageSelectionListener);
 				try {
 					twoDDataSetPlotterComposite.initialPlot();
-				} catch (PlotException e) {
+				} catch (Exception e) {
 					logger.error("Initial plotting error in 3D view page {}", e);
 				}
 			} else {
 				twoDDataSetPlotterComposite.setMappingViewData(dataIn3D);
 				try {
 					twoDDataSetPlotterComposite.initialPlot();
-				} catch (PlotException e) {
+				} catch (Exception e) {
 					logger.error("Initial plotting error in 3D view page {}", e);
 				}
 			}
@@ -243,11 +241,6 @@ public class TwoDViewPage extends MappingPageBookViewPage implements IMappingVie
 				activePage.selectionChanged(part, selection);
 			}
 		}
-	}
-
-	@Override
-	public DataSetPlotter getDataSetPlotter() {
-		return activePage.getDataSetPlotter();
 	}
 
 	@Override

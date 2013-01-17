@@ -106,16 +106,6 @@ public class TwoDMappingView extends MappingPageBookView implements IDatasetPlot
 	}
 
 	@Override
-	public DataSetPlotter getDataSetPlotter() {
-		if (getCurrentPage() instanceof IMappingViewDataContainingPage) {
-			IMappingViewDataContainingPage mappingViewDataContainingPage = (IMappingViewDataContainingPage) getCurrentPage();
-			return mappingViewDataContainingPage.getDataSetPlotter();
-
-		}
-		return null;
-	}
-
-	@Override
 	public void update(Object source, Object arg) {
 		if (getCurrentPage() instanceof IHistogramDataUpdateProvider) {
 			IHistogramDataUpdateProvider histDataUpdater = (IHistogramDataUpdateProvider) getCurrentPage();

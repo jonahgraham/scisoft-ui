@@ -17,7 +17,6 @@
  */
 package uk.ac.diamond.scisoft.mappingexplorer.views.twod;
 
-import org.dawnsci.plotting.jreality.impl.PlotException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
@@ -26,7 +25,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPart;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingViewData;
 
@@ -59,12 +57,12 @@ public class BlankPageComposite extends BaseViewPageComposite {
 	}
 
 	@Override
-	public void updatePlot() throws PlotException {
+	public void updatePlot() throws Exception {
 
 	}
 
 	@Override
-	public void initialPlot() throws PlotException {
+	public void initialPlot() throws Exception {
 
 	}
 
@@ -73,8 +71,4 @@ public class BlankPageComposite extends BaseViewPageComposite {
 		return null;
 	}
 
-	@Override
-	public DataSetPlotter getDataSetPlotter() {
-		return null;
-	}
 }

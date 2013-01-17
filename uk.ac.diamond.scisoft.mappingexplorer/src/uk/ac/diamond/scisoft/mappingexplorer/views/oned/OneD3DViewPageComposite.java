@@ -22,7 +22,8 @@ import gda.analysis.io.ScanFileHolderException;
 import java.util.Collections;
 import java.util.Iterator;
 
-import org.dawnsci.plotting.jreality.core.AxisMode;
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.PlottingFactory;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -47,8 +48,6 @@ import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.mappingexplorer.MappingExplorerPlugin;
 import uk.ac.diamond.scisoft.mappingexplorer.views.AxisSelection;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite;
@@ -71,7 +70,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 	private Button rdDimension1;
 	private Button rdDimension2;
 	private Button rdDimension3;
-	private DataSetPlotter dataSetPlotter;
+	private AbstractPlottingSystem plottingSystem;
 	private Composite axisSelectionComposite;
 
 	private Stepper firstDimStepper;
@@ -113,10 +112,10 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 		rdDimension3.setBackground(ColorConstants.white);
 		rdDimension3.addSelectionListener(rdDimensionSelectionListener);
 
-		dataSetPlotter = new DataSetPlotter(PlottingMode.ONED, this, false);
-		dataSetPlotter.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
+		plottingSystem = PlottingFactory.createPlottingSystem();
+		plottingSystem.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
 
-		dataSetPlotter.getComposite().setLayoutData(new GridData(GridData.FILL_BOTH));
+		plottingSystem.getComposite().setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		Composite configurerComposite = new Composite(this, SWT.None);
 		configurerComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -207,7 +206,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 	public void dispose() {
 		firstDimStepper.removeStepperSelectionListener(stepperSelectionListener);
 		secondDimStepper.removeStepperSelectionListener(stepperSelectionListener);
-		dataSetPlotter.cleanUp();
+		plottingSystem.cleanUp();
 		super.dispose();
 	}
 
@@ -289,17 +288,17 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 			if (slice != null) {
 				slice.setShape(finalShape);
 				if (axisValues != null) {
-					dataSetPlotter.setPlotUpdateOperation(true);
-					dataSetPlotter.setAxisModes(AxisMode.CUSTOM, AxisMode.LINEAR, AxisMode.LINEAR);
-					dataSetPlotter.setXAxisValues(axisValues, 1);
-					dataSetPlotter.setSecondaryXAxisValues(null,"");
-					dataSetPlotter.replaceAllPlots(Collections.singletonList(slice));
-					dataSetPlotter.updateAllAppearance();
+					plottingSystem.setPlotUpdateOperation(true);
+					plottingSystem.setAxisModes(AxisMode.CUSTOM, AxisMode.LINEAR, AxisMode.LINEAR);
+					plottingSystem.setXAxisValues(axisValues, 1);
+					plottingSystem.setSecondaryXAxisValues(null,"");
+					plottingSystem.replaceAllPlots(Collections.singletonList(slice));
+					plottingSystem.updateAllAppearance();
 				} else {
-					dataSetPlotter.replaceCurrentPlot(slice);
+					plottingSystem.replaceCurrentPlot(slice);
 				}
-				dataSetPlotter.setXAxisLabel(xAxislabel);
-				dataSetPlotter.refresh(false);
+				plottingSystem.setXAxisLabel(xAxislabel);
+				plottingSystem.refresh(false);
 			}
 		} catch(ScanFileHolderException ex){
 			throw new Exception("Error loading data from file during update",ex);
@@ -484,8 +483,4 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 		return mappingViewData;
 	}
 
-	@Override
-	public DataSetPlotter getDataSetPlotter() {
-		return dataSetPlotter;
-	}
 }

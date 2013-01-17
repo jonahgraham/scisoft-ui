@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.dawnsci.plotting.jreality.core.AxisMode;
-import org.dawnsci.plotting.jreality.impl.PlotException;
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.PlottingFactory;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -92,7 +92,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 	private IMappingView3dData mapping3DData;
 	private IMappingView2dData mapping2DData;
 	private String secondaryId;
-	private DataSetPlotter dataSetPlotter;
+	private AbstractPlottingSystem plottingSystem;
 	private TwoDViewOverlayConsumer consumer;
 	private Composite axisSelectionComposite;
 
@@ -202,14 +202,14 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 					cleanup();
 				}
 
-			} catch (PlotException e1) {
+			} catch (Exception e1) {
 				logger.error("Error updating plot", e1);
 			}
 		}
 
 	};
 
-	private void fireUpdatePlot() throws PlotException {
+	private void fireUpdatePlot() throws Exception {
 		thirdDimensionScaler.setSelection(0);
 		updatePlot();
 	}
@@ -220,7 +220,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		public void widgetSelected(SelectionEvent e) {
 			try {
 				fireUpdatePlot();
-			} catch (PlotException e1) {
+			} catch (Exception e1) {
 				logger.error("Problem flipping image {}", e1);
 			}
 		}
@@ -285,7 +285,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				fireNotifyDimensionChanged(DimensionChanged.VALUE);
 
 				fireUpdateColourMapping();
-			} catch (PlotException e1) {
+			} catch (Exception e1) {
 				logger.error("Problem flipping image {}", e1);
 			}
 		}
@@ -297,11 +297,11 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			thirdDimensionScaler.removeStepperSelectionListener(stepperSelectionListener);
 		}
 		consumer.unregisterProvider();
-		if (dataSetPlotter != null && !dataSetPlotter.isDisposed()) {
-			dataSetPlotter.cleanUp();
+		if (plottingSystem != null && !plottingSystem.isDisposed()) {
+			plottingSystem.cleanUp();
 		}
 		cleanup();
-		dataSetPlotter.cleanUp();
+		plottingSystem.cleanUp();
 		consumer.removeConsumerListener(consumerListener);
 		super.dispose();
 
@@ -344,7 +344,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 	}
 
 	@Override
-	public void initialPlot() throws PlotException {
+	public void initialPlot() throws Exception {
 		if (mapping3DData == null && mapping2DData == null) {
 			throw new IllegalArgumentException("No data to plot");
 		}
@@ -358,9 +358,9 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			rdDimension3.setText(mapping3DData.getDimension3Label());
 			rdDimension3.setToolTipText(mapping3DData.getDimension3Label());
 
-			//initialise we first dimension set as the one into the page as 
-			//this matches the order in which data is normally written to the file
-			//the first dimension is normally the scan point
+			// initialise we first dimension set as the one into the page as
+			// this matches the order in which data is normally written to the file
+			// the first dimension is normally the scan point
 			rdDimension1.setSelection(true);
 			int steps = mapping3DData.getDataSet().getShape()[0];
 			thirdDimensionScaler.setSelection(0);
@@ -372,7 +372,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 	}
 
 	@Override
-	public void updatePlot() throws PlotException {
+	public void updatePlot() throws Exception {
 		if (mapping3DData == null && mapping2DData == null) {
 			throw new IllegalArgumentException("Mapping View Data not available");
 		}
@@ -386,7 +386,6 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			ILazyDataset dataset = mapping3DData.getDataSet();
 			int[] shape = dataset.getShape();
 
-
 			int tdSel = thirdDimensionScaler.getSelection();
 			if (rdDimension1.getSelection()) {
 				slice = dataset.getSlice(new Slice(tdSel, tdSel + 1), new Slice(null), new Slice(null));
@@ -394,7 +393,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 
 				xAxisLabel = mapping3DData.getDimension3Label();
 				yAxisLabel = mapping3DData.getDimension2Label();
-				
+
 				if (mapping3DData.getDimension3Values() != null) {
 					xAxisValues = new AxisValues(mapping3DData.getDimension3Values());
 				}
@@ -408,7 +407,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 
 				xAxisLabel = mapping3DData.getDimension3Label();
 				yAxisLabel = mapping3DData.getDimension1Label();
-				
+
 				if (mapping3DData.getDimension3Values() != null) {
 					xAxisValues = new AxisValues(mapping3DData.getDimension3Values());
 				}
@@ -438,7 +437,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				AxisValues tmpA = yAxisValues;
 				yAxisValues = xAxisValues;
 				xAxisValues = tmpA;
-				
+
 				if (slice != null) {
 					slice = ((AbstractDataset) slice).transpose();
 				}
@@ -459,19 +458,19 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 
 			slice = dataset.getSlice(new Slice(null), new Slice(null));
 		}
-		dataSetPlotter.setAxisModes(xAxisValues == null ? AxisMode.LINEAR:AxisMode.CUSTOM, 
-				yAxisValues == null ? AxisMode.LINEAR:AxisMode.CUSTOM, AxisMode.LINEAR);
-		if ( xAxisValues != null)
-			dataSetPlotter.setXAxisValues(xAxisValues,1);
-		if ( yAxisValues != null)
-			dataSetPlotter.setYAxisValues(yAxisValues);
-		if(yAxisLabel != null )
-			dataSetPlotter.setYAxisLabel(yAxisLabel);
-		if(xAxisLabel != null )
-			dataSetPlotter.setXAxisLabel(xAxisLabel);
+		plottingSystem.setAxisModes(xAxisValues == null ? AxisMode.LINEAR : AxisMode.CUSTOM,
+				yAxisValues == null ? AxisMode.LINEAR : AxisMode.CUSTOM, AxisMode.LINEAR);
+		if (xAxisValues != null)
+			plottingSystem.setXAxisValues(xAxisValues, 1);
+		if (yAxisValues != null)
+			plottingSystem.setYAxisValues(yAxisValues);
+		if (yAxisLabel != null)
+			plottingSystem.setYAxisLabel(yAxisLabel);
+		if (xAxisLabel != null)
+			plottingSystem.setXAxisLabel(xAxisLabel);
 
-		dataSetPlotter.replaceAllPlots(Collections.singletonList(slice));
-		dataSetPlotter.refresh(false);
+		plottingSystem.replaceAllPlots(Collections.singletonList(slice));
+		plottingSystem.refresh(false);
 	}
 
 	@Override
@@ -557,16 +556,16 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			int pos1 = -1;
 			int pos2 = -1;
 			AxisSelection dim1 = oneDSel.getDimension1Selection();
-			if (dim1.getLabel().equals(dataSetPlotter.getXAxisLabel())) {
+			if (dim1.getLabel().equals(plottingSystem.getXAxisLabel())) {
 				pos1 = dim1.getDimension();
-			} else if (dim1.getLabel().equals(dataSetPlotter.getYAxisLabel())) {
+			} else if (dim1.getLabel().equals(plottingSystem.getYAxisLabel())) {
 				pos2 = dim1.getDimension();
 			}
 
 			AxisSelection dim2 = oneDSel.getDimension2Selection();
-			if (dim2.getLabel().equals(dataSetPlotter.getXAxisLabel())) {
+			if (dim2.getLabel().equals(plottingSystem.getXAxisLabel())) {
 				pos1 = dim2.getDimension();
-			} else if (dim2.getLabel().equals(dataSetPlotter.getYAxisLabel())) {
+			} else if (dim2.getLabel().equals(plottingSystem.getYAxisLabel())) {
 				pos2 = dim2.getDimension();
 			}
 			updateConsumer(pos1, pos2);
@@ -649,7 +648,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 	}
 
 	protected Composite createDataSetPlotter(Composite parent) {
-		dataSetPlotter = new DataSetPlotter(PlottingMode.TWOD, parent, true);
+		plottingSystem = PlottingFactory.createPlottingSystem();
 		/*
 		 * Problem with setMode() as below is that it throws an WARNING: Prevented recursive attempt to activate part ,
 		 * however, if the method is not called then a composite that is required for this view is not created. There
@@ -657,18 +656,14 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		 * with the exception for now.
 		 */
 		try {
-			dataSetPlotter.setMode(PlottingMode.TWOD);
+			plottingSystem.setMode(PlottingMode.TWOD);
 		} catch (RuntimeException ex) {
 			logger.error("There is a problem with datasetPlotter.setMode()");
 		}
-		dataSetPlotter.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
+		plottingSystem.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
 		consumer = new TwoDViewOverlayConsumer();
 		consumer.addConsumerListener(consumerListener);
-		dataSetPlotter.registerOverlay(consumer);
-		dataSetPlotter.setZoomEnabled(true);
-		dataSetPlotter.setZoomMode(true);
-		dataSetPlotter.registerUI(null);
-		return dataSetPlotter.getComposite();
+		return plottingSystem.getComposite();
 	}
 
 	@Override
@@ -682,11 +677,6 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			return mapping3DData;
 		}
 		return mapping2DData;
-	}
-
-	@Override
-	public DataSetPlotter getDataSetPlotter() {
-		return dataSetPlotter;
 	}
 
 	@Override
@@ -732,12 +722,12 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 
 	@Override
 	public void applyHistogramUpdate(HistogramUpdate update) {
-		if (dataSetPlotter != null) {
-			dataSetPlotter.applyColourCast(update.getRedMapFunction(), update.getGreenMapFunction(),
+		if (plottingSystem != null) {
+			plottingSystem.applyColourCast(update.getRedMapFunction(), update.getGreenMapFunction(),
 					update.getBlueMapFunction(), update.getAlphaMapFunction(), update.inverseRed(),
 					update.inverseGreen(), update.inverseBlue(), update.inverseAlpha(), update.getMinValue(),
 					update.getMaxValue());
-			dataSetPlotter.refresh(true);
+			plottingSystem.refresh(true);
 		}
 	}
 

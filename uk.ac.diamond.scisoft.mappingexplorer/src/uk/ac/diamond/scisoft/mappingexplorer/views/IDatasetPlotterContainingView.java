@@ -28,8 +28,4 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
  */
 public interface IDatasetPlotterContainingView extends IViewPart {
 
-	/**
-	 * @return the {@link DataSetPlotter} that is contained within the view.
-	 */
-	DataSetPlotter getDataSetPlotter();
 }

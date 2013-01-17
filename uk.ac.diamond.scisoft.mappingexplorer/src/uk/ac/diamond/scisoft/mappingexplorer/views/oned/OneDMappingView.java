@@ -25,11 +25,9 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.IPageBookViewPage;
 
 import uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IDatasetPlotterContainingView;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView2dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView3dData;
-import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingViewDataContainingPage;
 import uk.ac.diamond.scisoft.mappingexplorer.views.MappingPageBookView;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.IMappingDataControllingView;
 
@@ -139,16 +137,5 @@ public class OneDMappingView extends MappingPageBookView implements IDatasetPlot
 			return new PageRec(part, pageView);
 		}
 		return null;
-	}
-
-	@Override
-	public DataSetPlotter getDataSetPlotter() {
-		if (getCurrentPage() instanceof IMappingViewDataContainingPage) {
-			IMappingViewDataContainingPage mappingViewDataContainingPage = (IMappingViewDataContainingPage) getCurrentPage();
-			return mappingViewDataContainingPage.getDataSetPlotter();
-
-		}
-		return null;
-
 	}
 }
