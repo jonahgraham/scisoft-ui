@@ -58,6 +58,7 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 	protected Composite plotterComposite;
 	protected Composite stackComposite;
 	protected Label positionLabel;
+	protected Label lblNoDataMessage;
 	
 	protected abstract String getYAxis();
 
@@ -97,7 +98,7 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 						public void run() {
 							double x = event.getPosition()[0];
 							double y = event.getPosition()[1];
-							positionLabel.setText(String.format("X:%.6g Y:%.6g", x, y));
+							positionLabel.setText(String.format("X:%.7g Y:%.7g", x, y));
 						}
 					});
 				}
@@ -154,7 +155,13 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 		final IPlotUI plotUI = createPlotActions(parent);
 		plotter.registerUI(plotUI);
 
+		lblNoDataMessage = new Label(stackComposite,SWT.NONE);
+		lblNoDataMessage.setText("No data received yet.");
+
 		configurePlot(plotter);
+		
+		stack.topControl = lblNoDataMessage;
+
 	}
 
 	/**
