@@ -140,16 +140,7 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 		positionLabel.setText("X: Y:");
 		GridDataFactory.fillDefaults().applyTo(positionLabel);
 
-		final GridLayout grid = new GridLayout(1, false);
-		grid.marginBottom = 0;
-		grid.marginTop = 0;
-		grid.horizontalSpacing = 0;
-		grid.marginWidth = 0;
-		grid.verticalSpacing = 0;
-		grid.marginHeight = 0;
-		parent.setLayout(grid);
-
-		this.plotter = new DataSetPlotter(PlottingMode.ONED, parent, false);
+		this.plotter = new DataSetPlotter(PlottingMode.ONED, plotterComposite, false);
 		plotter.getComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		this.xAxisValues = new AxisValues();
