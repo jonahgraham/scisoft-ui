@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import gda.observable.IObserver;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -103,8 +104,10 @@ public class Plotting1DUI extends AbstractPlotUI {
 					useOldTraces = nt == plots;
 				}
 				if (useOldTraces) {
+					List<ITrace> unused = new ArrayList<ITrace>();
 					for (ITrace t : oldTraces) {
 						if (t instanceof ILineTrace) {
+							boolean used = false;
 							String oyn = t.getName();
 							AbstractDataset x = ((ILineTrace) t).getXData();
 							String oxn = x == null ? null : x.getName();
@@ -117,10 +120,17 @@ public class Plotting1DUI extends AbstractPlotUI {
 									if (oxn != null && oxn.equals(nxn)) {
 										((ILineTrace) t).setData(nx, ny);
 										((ILineTrace) t).repaint();
+										used = true;
+										break;
 									}
 								}
 							}
+							if (!used)
+								unused.add(t);
 						}
+					}
+					for (ITrace t : unused) {
+						plottingSystem.removeTrace(t);
 					}
 					// if rescale axis option is checked in the x/y plot menu
 					if (plottingSystem.isRescale())

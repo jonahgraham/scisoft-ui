@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.PlotService;
+import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindowManager;
@@ -101,8 +102,15 @@ public class ShowPlotViewHandler extends AbstractHandler {
 			Map<String, String> values = new HashMap<String, String>();
 			for (String view : views) {
 				String viewDisplay = view;
-				if (guiNamesWithData.contains(view)) {
-					viewDisplay = view + IN_PLOT_SERVER_SUFFIX;
+				
+				DATA_BLOCK: if (guiNamesWithData.contains(view)) {
+					try {
+						DataBean db = PlotServerProvider.getPlotServer().getData(view);
+						if (db==null || db.getData()==null || db.getData().isEmpty()) break DATA_BLOCK;
+						viewDisplay = view + IN_PLOT_SERVER_SUFFIX;
+					} catch (Exception ne) {
+						break DATA_BLOCK;
+					}
 				}
 				values.put(viewDisplay, view);
 			}
