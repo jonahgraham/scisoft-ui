@@ -25,10 +25,8 @@ import org.dawb.common.ui.plot.region.IRegion;
 import org.dawb.common.ui.plot.region.IRegionListener;
 import org.dawb.common.ui.plot.region.ROIEvent;
 import org.dawb.common.ui.plot.region.RegionEvent;
-import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
-import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
@@ -129,14 +127,14 @@ public class ROIManager implements IROIListener, IRegionListener {
 		if (eroi == null)
 			return;
 
-		String id = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart().getSite().getId();
-		if (id.startsWith(PlotView.ID)) {
+//		String id = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart().getSite().getId();
+//		if (id.startsWith(PlotView.ID)) {
 			name = evt.getSource().toString();
 			roi = eroi;
 
 			roiMap.put(name, eroi);
 			updateGuiBean(roi);
-		}
+//		}
 	}
 
 	@Override
