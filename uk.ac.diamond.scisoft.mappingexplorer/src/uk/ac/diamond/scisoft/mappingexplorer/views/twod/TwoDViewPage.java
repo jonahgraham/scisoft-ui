@@ -39,6 +39,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite.ViewPageCompositeListener;
 import uk.ac.diamond.scisoft.mappingexplorer.views.HDF5MappingViewData;
+import uk.ac.diamond.scisoft.mappingexplorer.views.IDatasetPlotterContainingView;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView2dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingViewData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingViewDataContainingPage;
@@ -79,7 +80,7 @@ public class TwoDViewPage extends MappingPageBookViewPage implements IMappingVie
 
 		blankPageComposite = new BlankPageComposite(pgBook, SWT.None);
 
-		twoDDataSetPlotterComposite = new TwoDDataSetPlotterContainingPage(pgBook, SWT.None, getSecondaryViewId());
+		twoDDataSetPlotterComposite = new TwoDDataSetPlotterContainingPage(this, pgBook, SWT.None, getSecondaryViewId());
 
 		activePage = blankPageComposite;
 

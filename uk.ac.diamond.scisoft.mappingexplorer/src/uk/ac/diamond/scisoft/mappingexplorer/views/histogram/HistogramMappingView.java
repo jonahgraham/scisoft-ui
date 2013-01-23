@@ -17,13 +17,14 @@
  */
 package uk.ac.diamond.scisoft.mappingexplorer.views.histogram;
 
-import java.awt.Color;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
@@ -45,7 +46,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
@@ -63,7 +63,7 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 	private static final String LBL_PART_CHANGED = "Histogram displayed from %1$s";
 	private static final String DEFAULT_LABEL = "Shows the histogram from a dataset that is provided.";
 	public static final String ID = "uk.ac.diamond.scisoft.mappingexplorer.histview";
-	private static final int NUM_BINS = 128; //match value used in HistogramView
+	private static final int NUM_BINS = 128; // match value used in HistogramView
 	private Composite rootComposite;
 	private AbstractPlottingSystem plottingSystem;
 	private static final Logger logger = LoggerFactory.getLogger(HistogramMappingView.class);
@@ -73,6 +73,7 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 	private Composite noDataPage;
 
 	private Composite activePage = null;
+	private Composite plotPage;
 
 	public HistogramMappingView() {
 
@@ -97,10 +98,16 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 		noDataPage = new Composite(dataSetPlotterPgBook, SWT.None);
 		noDataPage.setLayout(new FillLayout());
 
-		plottingSystem = PlottingFactory.createPlottingSystem();;
-		plottingSystem.setAxisModes(AxisMode.CUSTOM, AxisMode.LINEAR, AxisMode.LINEAR);
+		plotPage = new Composite(dataSetPlotterPgBook, SWT.None);
+		plotPage.setLayout(new FillLayout());
 
-		plottingSystem.getComposite().setLayoutData(new GridData(GridData.FILL_BOTH));
+		try {
+			plottingSystem = PlottingFactory.createPlottingSystem();
+		} catch (Exception e) {
+			logger.error("Unable to create plotting system", e);
+		}
+		plottingSystem.createPlotPart(plotPage, "", getViewSite().getActionBars(), PlotType.XY_STACKED, this);
+
 		activePage = noDataPage;
 		// The below listeners are listeners to the selection service. A selection change event will trigger these
 		// listeners to be invoked. The reason for adding them twice in the way they've been added is because of a
@@ -111,7 +118,8 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 		// however, doesn't work for changes within the secondary views that are created for the TwoDMappingView.
 		getSite().getWorkbenchWindow().getSelectionService()
 				.addSelectionListener(TwoDMappingView.ID, histogramDatasetProviderListener);
-		//This is added so that selection of areas on the secondary views are listened to and the histogram for the section is plotted against.
+		// This is added so that selection of areas on the secondary views are listened to and the histogram for the
+		// section is plotted against.
 		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(histogramDatasetProviderListener);
 	}
 
@@ -155,44 +163,44 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 		}
 	};
 
-	private void updatePlot(IDataset ds) {
-		if (ds instanceof AbstractDataset) {
-			AxisValues xAxis = new AxisValues();
+	private void updatePlot(final IDataset ds) {
+		if (getViewSite().getShell().getDisplay() != null && !getViewSite().getShell().getDisplay().isDisposed()) {
+			getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
-			xAxis.clear();
-			AbstractDataset ds1 = (AbstractDataset) ds;
-			int maxValue = ds1.max().intValue();
-			int minValue = ds1.min().intValue();
-			
-			Histogram histogram = new Histogram(NUM_BINS);
+				@Override
+				public void run() {
+					if (ds instanceof AbstractDataset) {
+						AbstractDataset ds1 = (AbstractDataset) ds;
+						int maxValue = ds1.max().intValue();
+						int minValue = ds1.min().intValue();
 
-			histogram.setMinMax(minValue, maxValue);
-			List<AbstractDataset> evaluated = histogram.value(ds1);
-			AbstractDataset evaluatedDs = evaluated.get(0);
+						Histogram histogram = new Histogram(NUM_BINS);
 
-			AbstractDataset slice = null;
-			if (evaluated.size() > 1) {
-				AbstractDataset xData = evaluated.get(1);
-				slice = xData.getSlice(new Slice(0, NUM_BINS, 1));
-			} else {
-				slice = evaluatedDs;
-			}
-			//remove zeros
+						histogram.setMinMax(minValue, maxValue);
+						List<AbstractDataset> evaluated = histogram.value(ds1);
+						AbstractDataset evaluatedDs = evaluated.get(0);
 
-			xAxis.setValues(slice);
-			try {
-				plottingSystem.getColourTable().clearLegend();
-				plottingSystem.getColourTable().addEntryOnLegend(new Plot1DAppearance(Color.BLUE, Plot1DStyles.SOLID_POINT, 1, ""));
-				plottingSystem
-						.replaceAllPlots(Collections.singletonList(evaluatedDs), Collections.singletonList(xAxis));
-			} catch (PlotException e) {
-				logger.error("Plotting problem {}", e);
-			}
-			plottingSystem.refresh(false);
-			activePage = plottingSystem.getComposite();
-			dataSetPlotterPgBook.showPage(activePage);
+						AbstractDataset xAxis = null;
+						if (evaluated.size() > 1) {
+							AbstractDataset xData = evaluated.get(1);
+							xAxis = xData.getSlice(new Slice(0, NUM_BINS, 1));
+						} else {
+							xAxis = evaluatedDs;
+						}
+						try {
+							List<AbstractDataset> ds = new ArrayList<AbstractDataset>();
+							ds.add(evaluatedDs);
+							plottingSystem.updatePlot1D(xAxis, ds, new NullProgressMonitor());
+						} catch (Exception e) {
+							logger.error("Plotting problem {}", e);
+						}
+						activePage = plotPage;
+						dataSetPlotterPgBook.showPage(activePage);
+					}
+				}
+			});
+
 		}
-
 	}
 
 	@Override

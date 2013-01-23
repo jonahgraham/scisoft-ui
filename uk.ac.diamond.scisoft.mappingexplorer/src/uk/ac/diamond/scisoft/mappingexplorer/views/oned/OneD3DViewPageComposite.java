@@ -19,10 +19,10 @@ package uk.ac.diamond.scisoft.mappingexplorer.views.oned;
 
 import gda.analysis.io.ScanFileHolderException;
 
-import java.util.Collections;
 import java.util.Iterator;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -34,17 +34,19 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.part.Page;
 import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
@@ -80,7 +82,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 
 	private final static Logger logger = LoggerFactory.getLogger(OneD3DViewPageComposite.class);
 
-	public OneD3DViewPageComposite(Composite parent, int style) {
+	public OneD3DViewPageComposite(Page page, Composite parent, int style) {
 		super(parent, style);
 
 		GridLayout layout = new GridLayout();
@@ -112,10 +114,17 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 		rdDimension3.setBackground(ColorConstants.white);
 		rdDimension3.addSelectionListener(rdDimensionSelectionListener);
 
-		plottingSystem = PlottingFactory.createPlottingSystem();
-		plottingSystem.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
+		Composite plotComposite = new Composite(this, SWT.None);
+		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		plotComposite.setLayout(new FillLayout());
 
-		plottingSystem.getComposite().setLayoutData(new GridData(GridData.FILL_BOTH));
+		try {
+			plottingSystem = PlottingFactory.createPlottingSystem();
+		} catch (Exception e) {
+			logger.error("Problem creating plotting system", e);
+		}
+		plottingSystem.createPlotPart(plotComposite, "OneDPlot", page.getSite().getActionBars(), PlotType.XY_STACKED,
+				null);
 
 		Composite configurerComposite = new Composite(this, SWT.None);
 		configurerComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -206,7 +215,6 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 	public void dispose() {
 		firstDimStepper.removeStepperSelectionListener(stepperSelectionListener);
 		secondDimStepper.removeStepperSelectionListener(stepperSelectionListener);
-		plottingSystem.cleanUp();
 		super.dispose();
 	}
 
@@ -252,56 +260,53 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 		int firstDimmerSel = firstDimStepper.getSelection();
 		int secondDimmerSel = secondDimStepper.getSelection();
 		String xAxislabel = null;
-		AxisValues axisValues = null;
-
-		try{
+		DoubleDataset axisValues = null;
+		try {
 			if (rdDimension1.getSelection()) {
-				slice = dataset.getSlice((IMonitor)null, new Slice(null), new Slice(firstDimmerSel, firstDimmerSel + 1), new Slice(
-						secondDimmerSel, secondDimmerSel + 1));
+				slice = dataset.getSlice((IMonitor) null, new Slice(null),
+						new Slice(firstDimmerSel, firstDimmerSel + 1), new Slice(secondDimmerSel, secondDimmerSel + 1));
 				finalShape = new int[] { shape[0] };
 
 				xAxislabel = mappingViewData.getDimension1Label();
 				if (mappingViewData.getDimension1Values() != null) {
-					axisValues = new AxisValues();
-					axisValues.setValues(mappingViewData.getDimension1Values());
+					axisValues = new DoubleDataset(mappingViewData.getDimension1Values(),
+							new int[mappingViewData.getDimension1Values().length]);
 				}
 			} else if (rdDimension2.getSelection()) {
-				slice = dataset.getSlice((IMonitor)null,new Slice(firstDimmerSel, firstDimmerSel + 1), new Slice(null), new Slice(
-						secondDimmerSel, secondDimmerSel + 1));
+				slice = dataset.getSlice((IMonitor) null, new Slice(firstDimmerSel, firstDimmerSel + 1),
+						new Slice(null), new Slice(secondDimmerSel, secondDimmerSel + 1));
 				finalShape = new int[] { shape[1] };
 				xAxislabel = mappingViewData.getDimension2Label();
 				if (mappingViewData.getDimension2Values() != null) {
-					axisValues = new AxisValues();
-					axisValues.setValues(mappingViewData.getDimension2Values());
+					axisValues = new DoubleDataset(mappingViewData.getDimension2Values(),
+							new int[mappingViewData.getDimension2Values().length]);
 				}
 			} else if (rdDimension3.getSelection()) {
-				slice = dataset.getSlice((IMonitor)null, new Slice(firstDimmerSel, firstDimmerSel + 1), new Slice(secondDimmerSel,
-						secondDimmerSel + 1), new Slice(null));
+				slice = dataset.getSlice((IMonitor) null, new Slice(firstDimmerSel, firstDimmerSel + 1), new Slice(
+						secondDimmerSel, secondDimmerSel + 1), new Slice(null));
 
 				finalShape = new int[] { shape[2] };
 				xAxislabel = mappingViewData.getDimension3Label();
 				if (mappingViewData.getDimension3Values() != null) {
-					axisValues = new AxisValues();
-					axisValues.setValues(mappingViewData.getDimension3Values());
+					axisValues = new DoubleDataset(mappingViewData.getDimension3Values(),
+							new int[mappingViewData.getDimension3Values().length]);
 				}
 			}
 			if (slice != null) {
 				slice.setShape(finalShape);
-				if (axisValues != null) {
-					plottingSystem.setPlotUpdateOperation(true);
-					plottingSystem.setAxisModes(AxisMode.CUSTOM, AxisMode.LINEAR, AxisMode.LINEAR);
-					plottingSystem.setXAxisValues(axisValues, 1);
-					plottingSystem.setSecondaryXAxisValues(null,"");
-					plottingSystem.replaceAllPlots(Collections.singletonList(slice));
-					plottingSystem.updateAllAppearance();
-				} else {
-					plottingSystem.replaceCurrentPlot(slice);
+				if (getDisplay() != null && !getDisplay().isDisposed()) {
+					getDisplay().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+
+						}
+					});
 				}
-				plottingSystem.setXAxisLabel(xAxislabel);
-				plottingSystem.refresh(false);
+
 			}
-		} catch(ScanFileHolderException ex){
-			throw new Exception("Error loading data from file during update",ex);
+		} catch (ScanFileHolderException ex) {
+			throw new Exception("Error loading data from file during update", ex);
 		}
 	}
 

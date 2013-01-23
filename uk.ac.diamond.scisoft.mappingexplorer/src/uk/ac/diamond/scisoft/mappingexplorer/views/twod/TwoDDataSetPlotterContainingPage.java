@@ -18,13 +18,14 @@
 package uk.ac.diamond.scisoft.mappingexplorer.views.twod;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.viewers.ISelection;
@@ -34,6 +35,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -41,6 +43,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.Page;
 import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,12 +55,11 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 import uk.ac.diamond.scisoft.mappingexplorer.views.AxisSelection;
 import uk.ac.diamond.scisoft.mappingexplorer.views.AxisSelection.DimensionChanged;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite;
+import uk.ac.diamond.scisoft.mappingexplorer.views.IDatasetPlotterContainingView;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView2dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView3dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.MappingViewSelectionChangedEvent;
@@ -93,7 +95,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 	private IMappingView2dData mapping2DData;
 	private String secondaryId;
 	private AbstractPlottingSystem plottingSystem;
-	private TwoDViewOverlayConsumer consumer;
+	// private TwoDViewOverlayConsumer consumer;
 	private Composite axisSelectionComposite;
 
 	private IConsumerListener consumerListener = new IConsumerListener() {
@@ -109,7 +111,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		}
 	};
 
-	public TwoDDataSetPlotterContainingPage(Composite parent, int style, String secondaryViewId) {
+	public TwoDDataSetPlotterContainingPage(Page page, Composite parent, int style, String secondaryViewId) {
 		super(parent, style);
 		this.secondaryId = secondaryViewId;
 		GridLayout layout = new GridLayout();
@@ -145,8 +147,25 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		btnFlipAxis.setBackground(ColorConstants.white);
 		btnFlipAxis.addSelectionListener(flipBtnSelectionListener);
 
-		Composite dataSetPlotterComposite = createDataSetPlotter(this);
-		dataSetPlotterComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		Composite plotComposite = new Composite(this, SWT.None);
+		//
+		plotComposite.setLayout(new FillLayout());
+
+		try {
+			plottingSystem = PlottingFactory.createPlottingSystem();
+			plottingSystem.createPlotPart(plotComposite, "TwoDPlot", page.getSite().getActionBars(),
+					PlotType.XY_STACKED, null);
+		} catch (RuntimeException ex) {
+			logger.error("There is a problem with datasetPlotter.setMode()");
+		}
+		// FIXME - Add roichange listener
+		// consumer.addConsumerListener(consumerListener);
+		catch (Exception e) {
+			logger.error("Problem creating plotting system", e);
+		}
+
+		//
+		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		Composite thirdDimensionComposite = new Composite(this, SWT.None);
 		thirdDimensionComposite.setBackground(ColorConstants.white);
@@ -193,7 +212,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				}
 
 				if (changed) {
-					consumer.clearOverlays();
+					// consumer.clearOverlays();
 					thirdDimensionScaler.setSteps(steps, data);
 					thirdDimensionScaler.setText(stepperLabel);
 					fireUpdatePlot();
@@ -267,7 +286,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 						btnFlipAxis.getSelection());
 				selection.getAxisDimensionSelection().setChangeAffected(dimensionChangeAffected);
 				selElements.add(selection);
-				selElements.add(getHistogramSelectionDataset());
+				// selElements.add(getHistogramSelectionDataset());
 				StructuredSelection sel = new StructuredSelection(selElements);
 				notifyListeners(sel);
 				return Status.OK_STATUS;
@@ -296,15 +315,8 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		if (!thirdDimensionScaler.isDisposed()) {
 			thirdDimensionScaler.removeStepperSelectionListener(stepperSelectionListener);
 		}
-		consumer.unregisterProvider();
-		if (plottingSystem != null && !plottingSystem.isDisposed()) {
-			plottingSystem.cleanUp();
-		}
 		cleanup();
-		plottingSystem.cleanUp();
-		consumer.removeConsumerListener(consumerListener);
-		super.dispose();
-
+		// consumer.removeConsumerListener(consumerListener);
 		super.dispose();
 	}
 
@@ -376,7 +388,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		if (mapping3DData == null && mapping2DData == null) {
 			throw new IllegalArgumentException("Mapping View Data not available");
 		}
-		IDataset slice = null;
+		AbstractDataset slice = null;
 
 		AxisValues xAxisValues = null;
 		AxisValues yAxisValues = null;
@@ -388,7 +400,8 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 
 			int tdSel = thirdDimensionScaler.getSelection();
 			if (rdDimension1.getSelection()) {
-				slice = dataset.getSlice(new Slice(tdSel, tdSel + 1), new Slice(null), new Slice(null));
+				slice = (AbstractDataset) dataset.getSlice(new Slice(tdSel, tdSel + 1), new Slice(null),
+						new Slice(null));
 				slice.setShape(shape[1], shape[2]);
 
 				xAxisLabel = mapping3DData.getDimension3Label();
@@ -402,7 +415,8 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				}
 			}
 			if (rdDimension2.getSelection()) {
-				slice = dataset.getSlice(new Slice(null), new Slice(tdSel, tdSel + 1), new Slice(null));
+				slice = (AbstractDataset) dataset.getSlice(new Slice(null), new Slice(tdSel, tdSel + 1),
+						new Slice(null));
 				slice.setShape(shape[0], shape[2]);
 
 				xAxisLabel = mapping3DData.getDimension3Label();
@@ -416,7 +430,8 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				}
 			}
 			if (rdDimension3.getSelection()) {
-				slice = dataset.getSlice(new Slice(null), new Slice(null), new Slice(tdSel, tdSel + 1));
+				slice = (AbstractDataset) dataset.getSlice(new Slice(null), new Slice(null),
+						new Slice(tdSel, tdSel + 1));
 				slice.setShape(shape[0], shape[1]);
 
 				xAxisLabel = mapping3DData.getDimension2Label();
@@ -439,7 +454,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				xAxisValues = tmpA;
 
 				if (slice != null) {
-					slice = ((AbstractDataset) slice).transpose();
+					slice = slice.transpose();
 				}
 			}
 		} else if (mapping2DData != null) {
@@ -456,21 +471,22 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				yAxisValues = new AxisValues(mapping2DData.getDimension1Values());
 			}
 
-			slice = dataset.getSlice(new Slice(null), new Slice(null));
+			slice = (AbstractDataset) dataset.getSlice(new Slice(null), new Slice(null));
 		}
-		plottingSystem.setAxisModes(xAxisValues == null ? AxisMode.LINEAR : AxisMode.CUSTOM,
-				yAxisValues == null ? AxisMode.LINEAR : AxisMode.CUSTOM, AxisMode.LINEAR);
-		if (xAxisValues != null)
-			plottingSystem.setXAxisValues(xAxisValues, 1);
-		if (yAxisValues != null)
-			plottingSystem.setYAxisValues(yAxisValues);
-		if (yAxisLabel != null)
-			plottingSystem.setYAxisLabel(yAxisLabel);
-		if (xAxisLabel != null)
-			plottingSystem.setXAxisLabel(xAxisLabel);
+		// FIXME
+		// plottingSystem.setAxisModes(xAxisValues == null ? AxisMode.LINEAR : AxisMode.CUSTOM,
+		// yAxisValues == null ? AxisMode.LINEAR : AxisMode.CUSTOM, AxisMode.LINEAR);
+		// if (xAxisValues != null)
+		// plottingSystem.getSelectedXAxis().setsetXAxisValues(xAxisValues, 1);
+		// if (yAxisValues != null)
+		// plottingSystem.setYAxisValues(yAxisValues);
+		// if (yAxisLabel != null)
+		// plottingSystem.setYAxisLabel(yAxisLabel);
+		// if (xAxisLabel != null)
+		// plottingSystem.setXAxisLabel(xAxisLabel)
 
-		plottingSystem.replaceAllPlots(Collections.singletonList(slice));
-		plottingSystem.refresh(false);
+		List<AbstractDataset> axisList = new ArrayList<AbstractDataset>();
+		plottingSystem.updatePlot2D(slice, axisList, new NullProgressMonitor());
 	}
 
 	@Override
@@ -478,12 +494,13 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		List<ISelection> selections = new ArrayList<ISelection>();
 		selections.add(new TwoDSelection(secondaryId, MappingViewSelectionChangedEvent.DIMENSION_SELECTION,
 				getSelectedDimension(), btnFlipAxis.getSelection()));
-		selections.add(getHistogramSelectionDataset());
+		// selections.add(getHistogramSelectionDataset());
 		return new StructuredSelection(selections);
 	}
 
+	// FIXME - Usage of getHistogramSelectionDataset
 	protected ISelection getHistogramSelectionDataset() {
-		Point[] rc = consumer.getRectangleCoordinates();
+		Point[] rc = new Point[] { new Point(20, 20), new Point(40, 40) };// FIXME - consumer.getRectangleCoordinates();
 		IDataset slice = null;
 
 		if (mapping3DData != null) {
@@ -556,16 +573,18 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			int pos1 = -1;
 			int pos2 = -1;
 			AxisSelection dim1 = oneDSel.getDimension1Selection();
-			if (dim1.getLabel().equals(plottingSystem.getXAxisLabel())) {
+			String xTitle = plottingSystem.getSelectedXAxis().getTitle();
+			String yTitle = plottingSystem.getSelectedYAxis().getTitle();
+			if (dim1.getLabel().equals(xTitle)) {
 				pos1 = dim1.getDimension();
-			} else if (dim1.getLabel().equals(plottingSystem.getYAxisLabel())) {
+			} else if (dim1.getLabel().equals(yTitle)) {
 				pos2 = dim1.getDimension();
 			}
 
 			AxisSelection dim2 = oneDSel.getDimension2Selection();
-			if (dim2.getLabel().equals(plottingSystem.getXAxisLabel())) {
+			if (dim2.getLabel().equals(xTitle)) {
 				pos1 = dim2.getDimension();
-			} else if (dim2.getLabel().equals(plottingSystem.getYAxisLabel())) {
+			} else if (dim2.getLabel().equals(yTitle)) {
 				pos2 = dim2.getDimension();
 			}
 			updateConsumer(pos1, pos2);
@@ -573,8 +592,9 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 	}
 
 	private void updateConsumer(int pos1, int pos2) {
-		consumer.clearCrosswire();
-		consumer.drawHighlighterCrossWire(pos1, pos2);
+		// FIXME
+		// consumer.clearCrosswire();
+		// consumer.drawHighlighterCrossWire(pos1, pos2);
 	}
 
 	private void notifyAreaSelectedChanged() {
@@ -582,7 +602,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				notifyListeners(getHistogramSelectionDataset());
+				// notifyListeners(getHistogramSelectionDataset());
 				return Status.OK_STATUS;
 			}
 		};
@@ -608,17 +628,18 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 	}
 
 	protected void firePixelSelected(int[] pixel) {
-		consumer.clearCrosswire();
-		try {
-			consumer.drawHighlighterCrossWire(pixel[0], pixel[1]);
-		} catch (Exception ex) {
-			logger.error("Error while drawing box:{}", ex);
-		}
-		notifyPixelChanged(pixel);
+		// FIXME
+		// consumer.clearCrosswire();
+		// try {
+		// consumer.drawHighlighterCrossWire(pixel[0], pixel[1]);
+		// } catch (Exception ex) {
+		// logger.error("Error while drawing box:{}", ex);
+		// }
+		// notifyPixelChanged(pixel);
 	}
 
 	public void setMappingViewData(IMappingView2dData mappingViewData) {
-		consumer.clearOverlays();
+		// consumer.clearOverlays();
 		if (mappingViewData instanceof IMappingView3dData) {
 			mapping3DData = (IMappingView3dData) mappingViewData;
 			mapping2DData = null;
@@ -643,32 +664,13 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 	}
 
 	private void fireMappingDataSet() {
-		StructuredSelection selection = new StructuredSelection(getHistogramSelectionDataset());
-		notifyListeners(selection);
-	}
-
-	protected Composite createDataSetPlotter(Composite parent) {
-		plottingSystem = PlottingFactory.createPlottingSystem();
-		/*
-		 * Problem with setMode() as below is that it throws an WARNING: Prevented recursive attempt to activate part ,
-		 * however, if the method is not called then a composite that is required for this view is not created. There
-		 * are some design issues in the DatasetPlotter which are in the process of being looked into - so leaving this
-		 * with the exception for now.
-		 */
-		try {
-			plottingSystem.setMode(PlottingMode.TWOD);
-		} catch (RuntimeException ex) {
-			logger.error("There is a problem with datasetPlotter.setMode()");
-		}
-		plottingSystem.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
-		consumer = new TwoDViewOverlayConsumer();
-		consumer.addConsumerListener(consumerListener);
-		return plottingSystem.getComposite();
+		// StructuredSelection selection = new StructuredSelection(getHistogramSelectionDataset());
+		// notifyListeners(selection);
 	}
 
 	@Override
 	public void cleanup() {
-		consumer.clearOverlays();
+		// consumer.clearOverlays();
 	}
 
 	@Override
@@ -723,18 +725,20 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 	@Override
 	public void applyHistogramUpdate(HistogramUpdate update) {
 		if (plottingSystem != null) {
-			plottingSystem.applyColourCast(update.getRedMapFunction(), update.getGreenMapFunction(),
-					update.getBlueMapFunction(), update.getAlphaMapFunction(), update.inverseRed(),
-					update.inverseGreen(), update.inverseBlue(), update.inverseAlpha(), update.getMinValue(),
-					update.getMaxValue());
-			plottingSystem.refresh(true);
+			// FIXME - check apply colour cast
+			// plottingSystem.applyColourCast(update.getRedMapFunction(), update.getGreenMapFunction(),
+			// update.getBlueMapFunction(), update.getAlphaMapFunction(), update.inverseRed(),
+			// update.inverseGreen(), update.inverseBlue(), update.inverseAlpha(), update.getMinValue(),
+			// update.getMaxValue());
+			// plottingSystem.refresh(true);
 		}
 	}
 
 	@Override
 	public void selectAllForHistogram() {
-		consumer.clearAreaOverlay();
-		notifyAreaSelectedChanged();
+		// FIXME -
+		// consumer.clearAreaOverlay();
+		// notifyAreaSelectedChanged();
 	}
 
 }

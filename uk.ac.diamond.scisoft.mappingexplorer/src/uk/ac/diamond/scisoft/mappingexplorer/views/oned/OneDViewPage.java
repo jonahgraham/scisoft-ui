@@ -83,7 +83,7 @@ public class OneDViewPage extends MappingPageBookViewPage implements IMappingVie
 
 		blankPageComposite = new BlankPageComposite(pgBook, SWT.None);
 
-		oneDShowing3DPage = new OneD3DViewPageComposite(pgBook, SWT.None);
+		oneDShowing3DPage = new OneD3DViewPageComposite(this, pgBook, SWT.None);
 
 		activePage = blankPageComposite;
 
