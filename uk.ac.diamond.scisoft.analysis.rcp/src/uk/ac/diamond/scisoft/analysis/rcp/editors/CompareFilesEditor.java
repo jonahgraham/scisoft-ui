@@ -23,7 +23,9 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -49,6 +51,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.viewers.ViewerDropAdapter;
@@ -81,6 +84,10 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
+import org.nfunk.jep.JEP;
+import org.nfunk.jep.ParseException;
+import org.nfunk.jep.SymbolTable;
+import org.nfunk.jep.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,7 +139,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	public final static String ID = "uk.ac.diamond.scisoft.analysis.rcp.editors.CompareFilesEditor";
 	private SashForm sashComp;
 	private List<SelectedFile> fileList;
-	private TableViewer viewer;
+	private List<SelectedNode> expressionList;
+	private TableViewer viewer, expressionViewer;
 	private Class<? extends AbstractExplorer> expClass = null;
 	private AbstractExplorer explorer;
 	private String firstFileName;
@@ -146,6 +154,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	private FileDialog fileDialog;
 
 	private String editorName;
+
+	private CFEditingSupport variableEditor;
 
 	private final static String VALUE_DEFAULT_TEXT = "Value";
 
@@ -179,6 +189,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		super.setInput(input);
 		CompareFilesEditorInput filesInput = (CompareFilesEditorInput) input;
 		fileList = new ArrayList<SelectedFile>();
+		expressionList = new ArrayList<SelectedNode>();
 
 		int n = 0;
 		int l = 0;
@@ -354,12 +365,13 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		explorer.dispose();
 		sashComp.dispose();
 		viewer.getControl().dispose();
+		expressionViewer.getControl().dispose();
 
 		super.dispose();
 	}
 
 	private enum Column {
-		TICK, COMBO, PATH, VALUE;
+		TICK, COMBO, PATH, VALUE, EXPRESSION, VARIABLE;
 	}
 
 	private class TickLabelProvider extends CellLabelProvider {
@@ -372,17 +384,20 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		@Override
 		public void update(ViewerCell cell) {
-			SelectedFile sf = (SelectedFile) cell.getElement();
-			if (sf.doUse()) {
-				cell.setImage(TICK);
-			} else {
-				cell.setImage(null);
+			Object obj = cell.getElement();
+			if (obj instanceof SelectedFile) {
+				SelectedFile sf = (SelectedFile) obj;
+				if (sf.doUse()) {
+					cell.setImage(TICK);
+				} else {
+					cell.setImage(null);
+				}
+				Color colour = null;
+				if (currentDatasetSelection != null && (!sf.hasData() || !sf.isDataOK())) {
+					colour = display.getSystemColor(SWT.COLOR_YELLOW);
+				}
+				cell.setBackground(colour);
 			}
-			Color colour = null;
-			if (currentDatasetSelection != null && (!sf.hasData() || !sf.isDataOK())) {
-				colour = display.getSystemColor(SWT.COLOR_YELLOW);
-			}
-			cell.setBackground(colour);
 		}
 	}
 
@@ -391,6 +406,20 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		public void update(ViewerCell cell) {
 			SelectedFile sf = (SelectedFile) cell.getElement();
 			cell.setText(sf.getMathOp().name());
+		}
+	}
+
+	private class VariableLabelProvider extends CellLabelProvider {
+		@Override
+		public void update(ViewerCell cell) {
+			Object element = cell.getElement();
+			if (element instanceof SelectedFile) {
+				SelectedFile sf = (SelectedFile) element;
+				Variable var = sf.getVariable();
+				if (var != null) {
+					cell.setText(var.getName());
+				}
+			}
 		}
 	}
 
@@ -434,6 +463,13 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 	}
 
+	private class ExpressionLabelProvider extends CellLabelProvider {
+		@Override
+		public void update(ViewerCell cell) {
+			SelectedNode expr = (SelectedNode) cell.getElement();
+			cell.setText(expr.toString());
+		}
+	}
 
 	class FileSelection extends StructuredSelection implements IMetadataProvider {
 		private IMetaData metadata = null;
@@ -500,6 +536,16 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		tCol.setMoveable(false);
 		tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.COMBO, null));
 		tVCol.setLabelProvider(new ComboLabelProvider());
+		
+		tVCol = new TableViewerColumn(viewer, SWT.NONE);
+		tCol = tVCol.getColumn();
+		tCol.setText("Var");
+		tCol.setToolTipText("Select mathematical operation to apply on this file");
+		tCol.setWidth(150);
+		tCol.setMoveable(false);
+		variableEditor = new CFEditingSupport(viewer, Column.VARIABLE, null);
+		tVCol.setEditingSupport(variableEditor);
+		tVCol.setLabelProvider(new VariableLabelProvider());
 		
 		tVCol = new TableViewerColumn(viewer, SWT.NONE);
 		tCol = tVCol.getColumn();
@@ -585,6 +631,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			}
 		}
 
+		createExpressionTable(display);
+		
 		try {
 			explorer = expClass.getConstructor(Composite.class, IWorkbenchPartSite.class, ISelectionChangedListener.class).newInstance(sashComp, getSite(), this);
 		} catch (Exception e) {
@@ -598,6 +646,58 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 		explorer.addSelectionChangedListener(this);
 		getSite().setSelectionProvider(this);
+	}
+
+	private void createExpressionTable(Display display) {
+		expressionViewer = new TableViewer(sashComp, SWT.V_SCROLL);
+		
+		TableViewerColumn tVCol;
+		TableColumn tCol;
+
+		tVCol = new TableViewerColumn(expressionViewer, SWT.NONE);
+		tCol = tVCol.getColumn();
+		tCol.setText("Use");
+		tCol.setToolTipText("Toggle to use in dataset inspector (a yellow background indicates a missing or incompatible dataset)");
+		tCol.setWidth(40);
+		tCol.setMoveable(false);
+		tVCol.setEditingSupport(new CFEditingSupport(expressionViewer, Column.TICK, null));
+		tVCol.setLabelProvider(new TickLabelProvider(display));
+
+		tVCol = new TableViewerColumn(expressionViewer, SWT.CENTER);
+		tCol = tVCol.getColumn();
+		tCol.setText("Expression");
+		tCol.setToolTipText("Mathematical exprossion evaluated on the input data");
+		tCol.setWidth(40);
+		tCol.setMoveable(false);
+		tVCol.setEditingSupport(new CFEditingSupport(expressionViewer, Column.EXPRESSION, new ICellEditorListener() {
+			
+			@Override
+			public void editorValueChanged(boolean oldValidState, boolean newValidState) {
+			}
+			
+			@Override
+			public void cancelEditor() {
+			}
+			
+			@Override
+			public void applyEditorValue() {
+		        if (expressionList != null) {
+		        	Set<Variable> vars = new HashSet<Variable>();
+		        	for (SelectedNode expr : expressionList) {
+		        		vars.addAll(expr.symbolTable.keySet());
+		        	}
+		        	((ComboBoxViewerCellEditor)variableEditor.getCellEditor(null)).setInput(vars.toArray());
+		        	viewer.refresh();
+		        }
+			}
+		}));
+		tVCol.setLabelProvider(new ExpressionLabelProvider());
+		
+		final Table table = expressionViewer.getTable();
+		table.setHeaderVisible(true);
+		
+		expressionViewer.setContentProvider(ArrayContentProvider.getInstance());
+		expressionViewer.setInput(new SelectedNode[] {new SelectedNode(0, "a + b")});
 	}
 
 	private void changeSelection() {
@@ -653,12 +753,27 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				if (listener != null)
 					editor.addListener(listener);
 			}
+			if (column == Column.VARIABLE) {
+				editor = new ComboBoxViewerCellEditor(viewer.getTable(), SWT.READ_ONLY);
+		        ((ComboBoxViewerCellEditor) editor).setLabelProvider(new LabelProvider());
+		        ((ComboBoxViewerCellEditor) editor).setContentProvider(new ArrayContentProvider());
+				if (listener != null)
+					editor.addListener(listener);
+			}
+			if (column == Column.EXPRESSION) {
+				editor = new TextCellEditor(viewer.getTable());
+				if (listener != null)
+					editor.addListener(listener);
+			}
 			this.column = column;
 		}
 
 		@Override
 		protected boolean canEdit(Object element) {
-			return ((column == Column.TICK) || (column == Column.COMBO));
+			return ((column == Column.TICK)  ||
+					(column == Column.COMBO) ||
+					(column == Column.VARIABLE) ||
+					(column == Column.EXPRESSION));
 		}
 
 		@Override
@@ -668,24 +783,56 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		@Override
 		protected Object getValue(Object element) {
-			SelectedFile sf = (SelectedFile) element;
-			if (column == Column.TICK) {
-				return sf.doUse();
+			if (element instanceof SelectedFile) {
+				SelectedFile sf = (SelectedFile) element;
+				if (column == Column.TICK) {
+					return sf.doUse();
+				}
+				if (column == Column.COMBO) {
+					return sf.getMathOp();
+				}
+				if (column == Column.VARIABLE) {
+					return sf.getVariable();
+				}
 			}
-			if (column == Column.COMBO) {
-				return sf.getMathOp();
+			if (element instanceof SelectedNode) {
+				if (column == Column.EXPRESSION) {
+					SelectedNode expr = (SelectedNode) element;
+					return expr.toString();
+				}
 			}
 			return null;
 		}
 
 		@Override
 		protected void setValue(Object element, Object value) {
-			SelectedFile sf = (SelectedFile) element;
-			if (column == Column.TICK) {
-				sf.setUse((Boolean) value);
+			if (element instanceof SelectedFile) {
+				SelectedFile sf = (SelectedFile) element;
+				if (column == Column.TICK) {
+					sf.setUse((Boolean) value);
+				}
+				if (column == Column.COMBO) {
+					sf.setMathOp((MathOp) value);
+				}
+				if (column == Column.VARIABLE) {
+			        if (expressionList != null) {
+			        	for (SelectedNode expr : expressionList) {
+			        		Variable var = expr.symbolTable.getVar((String) value);
+			        		if (var != null) {
+			        			sf.setVariable(var);
+			        			break;
+			        		}
+			        	}
+			        }
+				}
 			}
-			if (column == Column.COMBO) {
-				sf.setMathOp((MathOp) value);
+			if (element instanceof SelectedNode) {
+				if (column == Column.EXPRESSION) {
+					SelectedNode expr = (SelectedNode) element;
+					expr.setExpression(String.valueOf(value));
+					expressionList.add(expr);
+				}
+
 			}
 			getViewer().update(element, null);
 			changeSelection();
@@ -853,7 +1000,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		for (int idx = 0; idx < mathList.size(); idx++) {
 			MathOp op = mathList.get(idx);
 			switch (op) {
-			case ID:
+			case DAT:
 				final ILazyDataset refData = dataList.get(idx);
 				ILazyLoader processingLoader = new ILazyLoader() {
 
@@ -869,7 +1016,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 						AbstractDataset accDataset = null;
 						for (int idx = 0; idx < mathList.size(); idx++) {
 							MathOp op = mathList.get(idx);
-							if (op == MathOp.ID) {
+							if (op == MathOp.DAT) {
 								continue;
 							}
 							AbstractDataset tmpData = DatasetUtils.convertToAbstractDataset(dataList.get(idx).getSlice(start, stop, step));
@@ -1199,6 +1346,253 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		for (ISelectionChangedListener listener : listeners)
 			listener.selectionChanged(e);
 	}
+	
+	private enum MathOp {
+		DAT, ADD, SUB, AVR;
+	}
+
+	private class SelectedObject {
+		boolean use = true;
+		boolean canUseData = false;
+		Object f;
+		IntegerDataset i;
+		
+		public boolean doUse() {
+			return use;
+		}
+
+		public void setUse(boolean doUse) {
+			use = doUse;
+		}
+
+		public boolean isDataOK() {
+			return canUseData;
+		}
+
+		public void setDataOK(boolean dataOK) {
+			canUseData = dataOK;
+		}
+		
+		public void setIndex(int index) {
+			i = new IntegerDataset(new int[] {index}, null);
+			i.setName(CompareFilesEditor.INDEX);
+		}
+
+		public String getIndex() {
+			return i.getString(0);
+		}
+
+	}
+
+	private class SelectedFile extends SelectedObject {
+		boolean hasMV = false;
+		DataHolder h;
+		IMetaData m;
+		ILazyDataset d;
+		Serializable mv;
+		List<AxisSelection> asl;
+		MathOp operation;
+		Variable variable;
+
+		public SelectedFile(int index, IFile file) {
+			f = new File(file.getLocationURI());
+			if (f == null || !((File) f).canRead())
+				throw new IllegalArgumentException("File '" + file.getName() + "' does not exist or can not be read");
+			setIndex(index);
+			setMathOp(MathOp.DAT);
+		}
+
+		public SelectedFile(int index, File file) {
+			f = file;
+			if (f == null || !((File) f).canRead())
+				throw new IllegalArgumentException("File '" + file.getName() + "' does not exist or can not be read");
+			setIndex(index);
+			setMathOp(MathOp.DAT);
+		}
+
+		public SelectedFile(int index, String file) {
+			f = new File(file);
+			if (f == null || !((File) f).canRead())
+				throw new IllegalArgumentException("File '" + file + "' does not exist or can not be read");
+			setIndex(index);
+			setMathOp(MathOp.DAT);
+		}
+
+		public String getAbsolutePath() {
+			return ((File) f).getAbsolutePath();
+		}
+
+		public String getName() {
+			return ((File) f).getName();
+		}
+
+		@Override
+		public String toString() {
+			if (mv == null)
+				return null;
+			return mv.toString();
+		}
+
+		public boolean hasMetaValue() {
+			return hasMV;
+		}
+
+		public boolean hasMetadata() {
+			return m != null;
+		}
+
+		public boolean hasDataHolder() {
+			return h != null;
+		}
+
+		public boolean hasData() {
+			return d != null;
+		}
+
+//		public void setMetadata(IMetaData metadata) {
+//			m = metadata;
+//		}
+
+		public void setDataHolder(DataHolder holder) {
+			h = holder;
+			if (h != null)
+				m = h.getMetadata();
+			else
+				d = null;
+		}
+
+		public void setData(String key) {
+			if (h.contains(key))
+				d = h.getLazyDataset(key);
+			else {
+				int n = h.size();
+				d = null;
+				for (int i = 0; i < n; i++) {
+					ILazyDataset l = h.getLazyDataset(i);
+					if (key.equals(l.getName())) {
+						d = l;
+						break;
+					}
+				}
+			}
+		}
+
+//		public void resetData() {
+//			d = null;
+//		}
+
+		public ILazyDataset getData() {
+			return d;
+		}
+
+		public ILazyDataset getAxis(String key) {
+			return h != null ? h.getLazyDataset(key) : null;
+		}
+
+		public ILazyDataset getMetaValue() {
+			if (!hasMV)
+				return null;
+			if (mv instanceof ILazyDataset)
+				return (ILazyDataset) mv;
+			return AbstractDataset.array(mv);
+		}
+
+		public void setMetaValueAsIndex() {
+			hasMV = true;
+			mv = i;
+		}
+
+		public void setMetaValue(String key) {
+			if (m == null) {
+				hasMV = false;
+				return;
+			}
+
+			try {
+				mv = m.getMetaValue(key);
+				if (mv instanceof String) {
+					mv = Utils.parseValue((String) mv); // TODO parse common multiple values string
+					if (mv != null) {
+						AbstractDataset a = AbstractDataset.array(mv);
+						a.setName(key);
+						mv = a;
+					}
+				}
+				if (mv == null && h != null) {
+					mv = h.getDataset(key);
+				}
+			} catch (Exception e) {
+			}
+			hasMV = mv != null;
+		}
+
+		public void setAxisSelections(List<AxisSelection> axisSelectionList) {
+			asl = axisSelectionList;
+		}
+
+		public List<AxisSelection> getAxisSelections() {
+			return asl;
+		}
+
+		public boolean hasAxisSelections() {
+			return asl != null;
+		}
+		
+		public MathOp getMathOp() {
+			return operation;
+		}
+
+		public void setMathOp(MathOp operation) {
+			this.operation = operation;
+		}
+		
+		public Variable getVariable() {
+			return variable;
+		}
+
+		public void setVariable(Variable variable) {
+			this.variable = variable;
+		}
+	}
+
+	private class SelectedNode extends SelectedObject {
+		
+		SymbolTable symbolTable;
+		JEP jepParser;
+		
+		public SelectedNode(int index, String str) {
+			jepParser = new JEP();
+			jepParser.setAllowUndeclared(true);
+			//jepParser.addStandardConstants();
+			jepParser.addStandardFunctions();
+			try {
+				jepParser.parse(str);
+				symbolTable = jepParser.getSymbolTable();
+				f = str;
+				setIndex(index);
+			} catch (ParseException e) {
+				throw new IllegalArgumentException("Parsing input expression failed", e);
+			}
+			
+		}
+		
+		@Override
+		public String toString() {
+			if (f == null)
+				return null;
+			return (String) f;
+		}
+
+		public void setExpression(String str) {
+			try {
+				jepParser.parse(str);
+				symbolTable = jepParser.getSymbolTable();
+				f = str;
+			} catch (ParseException e) {
+				throw new IllegalArgumentException(e);
+			}
+		}
+	}
 }
 
 class CompareFilesEditorInput extends PlatformObject implements IEditorInput {
@@ -1260,197 +1654,3 @@ class CompareFilesEditorInput extends PlatformObject implements IEditorInput {
 	}
 }
 
-enum MathOp {
-	ID, ADD, SUB, AVR;
-}
-
-class SelectedFile {
-	boolean use = true;
-	boolean canUseData = false;
-	boolean hasMV = false;
-	IntegerDataset i;
-	File f;
-	DataHolder h;
-	IMetaData m;
-	ILazyDataset d;
-	Serializable mv;
-	List<AxisSelection> asl;
-	MathOp operation;
-
-	public SelectedFile(int index, IFile file) {
-		f = new File(file.getLocationURI());
-		if (f == null || !f.canRead())
-			throw new IllegalArgumentException("File '" + file.getName() + "' does not exist or can not be read");
-		setIndex(index);
-		setMathOp(MathOp.ID);
-	}
-
-	public SelectedFile(int index, File file) {
-		f = file;
-		if (f == null || !f.canRead())
-			throw new IllegalArgumentException("File '" + file.getName() + "' does not exist or can not be read");
-		setIndex(index);
-		setMathOp(MathOp.ID);
-	}
-
-	public SelectedFile(int index, String file) {
-		f = new File(file);
-		if (f == null || !f.canRead())
-			throw new IllegalArgumentException("File '" + file + "' does not exist or can not be read");
-		setIndex(index);
-		setMathOp(MathOp.ID);
-	}
-
-	public String getAbsolutePath() {
-		return f.getAbsolutePath();
-	}
-
-	public String getName() {
-		return f.getName();
-	}
-
-	@Override
-	public String toString() {
-		if (mv == null)
-			return null;
-		return mv.toString();
-	}
-
-	public void setIndex(int index) {
-		i = new IntegerDataset(new int[] {index}, null);
-		i.setName(CompareFilesEditor.INDEX);
-	}
-
-	public String getIndex() {
-		return i.getString(0);
-	}
-
-	public boolean doUse() {
-		return use;
-	}
-
-	public void setUse(boolean doUse) {
-		use = doUse;
-	}
-
-	public boolean isDataOK() {
-		return canUseData;
-	}
-
-	public void setDataOK(boolean dataOK) {
-		canUseData = dataOK;
-	}
-	
-	public boolean hasMetaValue() {
-		return hasMV;
-	}
-
-	public boolean hasMetadata() {
-		return m != null;
-	}
-
-	public boolean hasDataHolder() {
-		return h != null;
-	}
-
-	public boolean hasData() {
-		return d != null;
-	}
-
-//	public void setMetadata(IMetaData metadata) {
-//		m = metadata;
-//	}
-
-	public void setDataHolder(DataHolder holder) {
-		h = holder;
-		if (h != null)
-			m = h.getMetadata();
-		else
-			d = null;
-	}
-
-	public void setData(String key) {
-		if (h.contains(key))
-			d = h.getLazyDataset(key);
-		else {
-			int n = h.size();
-			d = null;
-			for (int i = 0; i < n; i++) {
-				ILazyDataset l = h.getLazyDataset(i);
-				if (key.equals(l.getName())) {
-					d = l;
-					break;
-				}
-			}
-		}
-	}
-
-//	public void resetData() {
-//		d = null;
-//	}
-
-	public ILazyDataset getData() {
-		return d;
-	}
-
-	public ILazyDataset getAxis(String key) {
-		return h != null ? h.getLazyDataset(key) : null;
-	}
-
-	public ILazyDataset getMetaValue() {
-		if (!hasMV)
-			return null;
-		if (mv instanceof ILazyDataset)
-			return (ILazyDataset) mv;
-		return AbstractDataset.array(mv);
-	}
-
-	public void setMetaValueAsIndex() {
-		hasMV = true;
-		mv = i;
-	}
-
-	public void setMetaValue(String key) {
-		if (m == null) {
-			hasMV = false;
-			return;
-		}
-
-		try {
-			mv = m.getMetaValue(key);
-			if (mv instanceof String) {
-				mv = Utils.parseValue((String) mv); // TODO parse common multiple values string
-				if (mv != null) {
-					AbstractDataset a = AbstractDataset.array(mv);
-					a.setName(key);
-					mv = a;
-				}
-			}
-			if (mv == null && h != null) {
-				mv = h.getDataset(key);
-			}
-		} catch (Exception e) {
-		}
-		hasMV = mv != null;
-	}
-
-	public void setAxisSelections(List<AxisSelection> axisSelectionList) {
-		asl = axisSelectionList;
-	}
-
-	public List<AxisSelection> getAxisSelections() {
-		return asl;
-	}
-
-	public boolean hasAxisSelections() {
-		return asl != null;
-	}
-	
-	public MathOp getMathOp() {
-		return operation;
-	}
-
-	public void setMathOp(MathOp operation) {
-		this.operation = operation;
-	}
-}
