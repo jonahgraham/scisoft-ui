@@ -158,6 +158,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	private CFEditingSupport variableEditor;
 
 	private final static String VALUE_DEFAULT_TEXT = "Value";
+	private final static String DEFAULT_EXPRESSION = "a + b";
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
@@ -669,35 +670,29 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		tCol.setToolTipText("Mathematical exprossion evaluated on the input data");
 		tCol.setWidth(40);
 		tCol.setMoveable(false);
-		tVCol.setEditingSupport(new CFEditingSupport(expressionViewer, Column.EXPRESSION, new ICellEditorListener() {
-			
-			@Override
-			public void editorValueChanged(boolean oldValidState, boolean newValidState) {
-			}
-			
-			@Override
-			public void cancelEditor() {
-			}
-			
-			@Override
-			public void applyEditorValue() {
-		        if (expressionList != null) {
-		        	Set<Variable> vars = new HashSet<Variable>();
-		        	for (SelectedNode expr : expressionList) {
-		        		vars.addAll(expr.symbolTable.keySet());
-		        	}
-		        	((ComboBoxViewerCellEditor)variableEditor.getCellEditor(null)).setInput(vars.toArray());
-		        	viewer.refresh();
-		        }
-			}
-		}));
+		tVCol.setEditingSupport(new CFEditingSupport(expressionViewer, Column.EXPRESSION, null));
 		tVCol.setLabelProvider(new ExpressionLabelProvider());
 		
 		final Table table = expressionViewer.getTable();
 		table.setHeaderVisible(true);
 		
+		final Menu exprMenu = new Menu(expressionViewer.getControl().getShell(), SWT.POP_UP);
+		MenuItem item = new MenuItem(exprMenu, SWT.PUSH);
+		item.setText("Add new expression");
+		item.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				expressionList.add(new SelectedNode(expressionList.size(), DEFAULT_EXPRESSION));
+				expressionViewer.refresh();
+			}
+		});
+
+		table.setMenu(exprMenu);
+		
 		expressionViewer.setContentProvider(ArrayContentProvider.getInstance());
-		expressionViewer.setInput(new SelectedNode[] {new SelectedNode(0, "a + b")});
+		
+		expressionList.add(new SelectedNode(0, DEFAULT_EXPRESSION));
+		expressionViewer.setInput(expressionList);
 	}
 
 	private void changeSelection() {
@@ -792,6 +787,13 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					return sf.getMathOp();
 				}
 				if (column == Column.VARIABLE) {
+			        if (expressionList != null) {
+			        	Set<Variable> vars = new HashSet<Variable>();
+			        	for (SelectedNode tmp : expressionList) {
+			        		vars.addAll(tmp.symbolTable.keySet());
+			        	}
+			        	((ComboBoxViewerCellEditor)variableEditor.getCellEditor(null)).setInput(vars.toArray());
+			        }
 					return sf.getVariable();
 				}
 			}
@@ -806,6 +808,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		@Override
 		protected void setValue(Object element, Object value) {
+			if (value == null)
+				return;
 			if (element instanceof SelectedFile) {
 				SelectedFile sf = (SelectedFile) element;
 				if (column == Column.TICK) {
@@ -817,10 +821,13 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				if (column == Column.VARIABLE) {
 			        if (expressionList != null) {
 			        	for (SelectedNode expr : expressionList) {
-			        		Variable var = expr.symbolTable.getVar((String) value);
-			        		if (var != null) {
-			        			sf.setVariable(var);
-			        			break;
+			        		SymbolTable st = expr.symbolTable;
+			        		if (st != null) {
+			        			Variable var = 	st.getVar((String) value);
+			        			if (var != null) {
+			        				sf.setVariable(var);
+			        				break;
+			        			}
 			        		}
 			        	}
 			        }
@@ -828,9 +835,10 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			}
 			if (element instanceof SelectedNode) {
 				if (column == Column.EXPRESSION) {
+					int idx = expressionViewer.getTable().getSelectionIndex();
 					SelectedNode expr = (SelectedNode) element;
 					expr.setExpression(String.valueOf(value));
-					expressionList.add(expr);
+					expressionList.set(idx, expr);
 				}
 
 			}
@@ -1561,19 +1569,11 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		JEP jepParser;
 		
 		public SelectedNode(int index, String str) {
-			jepParser = new JEP();
-			jepParser.setAllowUndeclared(true);
-			//jepParser.addStandardConstants();
-			jepParser.addStandardFunctions();
-			try {
-				jepParser.parse(str);
-				symbolTable = jepParser.getSymbolTable();
-				f = str;
+			resetJep();
+			if (str != null) {
+				setExpression(str);
 				setIndex(index);
-			} catch (ParseException e) {
-				throw new IllegalArgumentException("Parsing input expression failed", e);
 			}
-			
 		}
 		
 		@Override
@@ -1585,12 +1585,20 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		public void setExpression(String str) {
 			try {
+				resetJep();
 				jepParser.parse(str);
 				symbolTable = jepParser.getSymbolTable();
 				f = str;
 			} catch (ParseException e) {
-				throw new IllegalArgumentException(e);
+				throw new IllegalArgumentException("Parsing input expression failed", e);
 			}
+		}
+		
+		private void resetJep() {
+			jepParser = new JEP();
+			jepParser.setAllowUndeclared(true);
+			//jepParser.addStandardConstants();
+			jepParser.addStandardFunctions();
 		}
 	}
 }
