@@ -54,7 +54,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -245,7 +244,20 @@ public class FeedbackView extends ViewPart {
 								logger.error("The log file size exceeds: "+ MAX_SIZE);
 								return Status.CANCEL_STATUS;
 							}
-							FeedbackRequest.doRequest(from, mailTo, System.getProperty("user.name", "Unknown User"), subject, messageBody.toString(), logpath);
+							// Test that the message is correctly formatted (not empty) and Test the email format
+							if(!messageText.getText().equals("") && emailAddress.getText().contains("@")){
+								FeedbackRequest.doRequest(from, mailTo, System.getProperty("user.name", "Unknown User"), subject, messageBody.toString(), logpath);
+							}
+							else{
+								Display.getDefault().asyncExec(new Runnable() {
+									@Override
+									public void run() {
+										MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+												"Feedback format problem", "Please type in your email and/or the message body before sending the feedback.");
+									}
+								});
+								return Status.CANCEL_STATUS;
+							}
 						} catch (Exception e) {
 							logger.error("Feedback email not sent", e);
 							Display.getDefault().asyncExec(new Runnable() {
@@ -269,8 +281,7 @@ public class FeedbackView extends ViewPart {
 		};
 		feedbackAction.setText("Send Feedback");
 		feedbackAction.setToolTipText("Send Feedback");
-		feedbackAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_ETOOL_HOME_NAV));
+		feedbackAction.setImageDescriptor(Activator.getImageDescriptor("icons/mailedit.gif"));
 
 	}
 
