@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -416,9 +417,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			Object element = cell.getElement();
 			if (element instanceof SelectedFile) {
 				SelectedFile sf = (SelectedFile) element;
-				Variable var = sf.getVariable();
+				String var = sf.getVariableName();
 				if (var != null) {
-					cell.setText(var.getName());
+					cell.setText(var);
 				}
 			}
 		}
@@ -794,7 +795,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			        	}
 			        	((ComboBoxViewerCellEditor)variableEditor.getCellEditor(null)).setInput(vars.toArray());
 			        }
-					return sf.getVariable();
+					return sf.getVariableName();
 				}
 			}
 			if (element instanceof SelectedNode) {
@@ -818,19 +819,13 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				if (column == Column.COMBO) {
 					sf.setMathOp((MathOp) value);
 				}
+			}
+			if (element instanceof SelectedObject) {
+				SelectedObject so = (SelectedObject) element;
 				if (column == Column.VARIABLE) {
-			        if (expressionList != null) {
-			        	for (SelectedNode expr : expressionList) {
-			        		SymbolTable st = expr.symbolTable;
-			        		if (st != null) {
-			        			Variable var = 	st.getVar((String) value);
-			        			if (var != null) {
-			        				sf.setVariable(var);
-			        				break;
-			        			}
-			        		}
-			        	}
-			        }
+					String variableName = (String) value; 
+    				so.setVariableName(variableName);
+    				updateVariableMappings();
 				}
 			}
 			if (element instanceof SelectedNode) {
@@ -845,8 +840,35 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			getViewer().update(element, null);
 			changeSelection();
 		}
+
 	}
 
+	/**
+	 * Loop over all expressions and assign to every variable a set of SelectionObjects associated with it
+	 */
+	private void updateVariableMappings() {
+		List<SelectedFile> selFiles = (List<SelectedFile>) viewer.getInput(); 
+        if (expressionList != null) {
+        	for (SelectedNode expr : expressionList) {
+        		SymbolTable st = expr.symbolTable;
+        		if (st != null) {
+        			Iterator<String> itr = st.keySet().iterator();
+        			while (itr.hasNext()) {
+        				String varName = itr.next();
+        				Variable var = st.getVar(varName);
+        				var.setValue(new HashSet<SelectedObject>());
+        				for (SelectedFile sf : selFiles) {
+        					String sfVarName = sf.getVariableName(); 
+        					if (sfVarName != null && sfVarName.equals(varName)) {
+        						((Set<SelectedObject>)var.getValue()).add(sf);
+        					}
+        				}
+        			}
+        		}
+        	}
+        }
+	}
+	
 	/**
 	 * Get editor classes that can handle given file 
 	 * @param fileName
@@ -1364,6 +1386,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		boolean canUseData = false;
 		Object f;
 		IntegerDataset i;
+		ILazyDataset d;
+		String variable;
 		
 		public boolean doUse() {
 			return use;
@@ -1381,6 +1405,14 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			canUseData = dataOK;
 		}
 		
+		public boolean hasData() {
+			return d != null;
+		}
+
+		public ILazyDataset getData() {
+			return d;
+		}
+
 		public void setIndex(int index) {
 			i = new IntegerDataset(new int[] {index}, null);
 			i.setName(CompareFilesEditor.INDEX);
@@ -1390,17 +1422,22 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			return i.getString(0);
 		}
 
+		public String getVariableName() {
+			return variable;
+		}
+
+		public void setVariableName(String name) {
+			this.variable = name;
+		}
 	}
 
 	private class SelectedFile extends SelectedObject {
 		boolean hasMV = false;
 		DataHolder h;
 		IMetaData m;
-		ILazyDataset d;
 		Serializable mv;
 		List<AxisSelection> asl;
 		MathOp operation;
-		Variable variable;
 
 		public SelectedFile(int index, IFile file) {
 			f = new File(file.getLocationURI());
@@ -1453,10 +1490,6 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			return h != null;
 		}
 
-		public boolean hasData() {
-			return d != null;
-		}
-
 //		public void setMetadata(IMetaData metadata) {
 //			m = metadata;
 //		}
@@ -1488,10 +1521,6 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 //		public void resetData() {
 //			d = null;
 //		}
-
-		public ILazyDataset getData() {
-			return d;
-		}
 
 		public ILazyDataset getAxis(String key) {
 			return h != null ? h.getLazyDataset(key) : null;
@@ -1553,14 +1582,6 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		public void setMathOp(MathOp operation) {
 			this.operation = operation;
 		}
-		
-		public Variable getVariable() {
-			return variable;
-		}
-
-		public void setVariable(Variable variable) {
-			this.variable = variable;
-		}
 	}
 
 	private class SelectedNode extends SelectedObject {
@@ -1599,6 +1620,11 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			jepParser.setAllowUndeclared(true);
 			//jepParser.addStandardConstants();
 			jepParser.addStandardFunctions();
+		}
+		
+		@Override
+		public ILazyDataset getData() {
+			return d;
 		}
 	}
 }
