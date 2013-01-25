@@ -22,6 +22,7 @@ import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawb.common.ui.plot.region.IRegion;
 import org.dawb.common.ui.plot.roi.RROITableInfo;
 import org.dawb.common.ui.plot.tool.IProfileToolPage;
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
@@ -29,6 +30,9 @@ import org.dawb.common.ui.plot.tool.ToolPageFactory;
 import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ITrace;
+import org.dawb.common.ui.widgets.ROIWidget;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -53,6 +57,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
+import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile.BoxLineType;
 
 /**
@@ -73,9 +78,9 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	private SashForm sashForm2;
 	private SashForm sashForm3;
 
-	private RROITableInfo mainROIMetadata;
 	private RROITableInfo xaxisMetadataVertical;
 	private RROITableInfo xaxisMetadataHorizontal;
+	private ROIWidget myROIWidget;
 	
 	/**
 	 * Obtain the IPlotWindowManager for the running Eclipse.
@@ -175,21 +180,36 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			metadataLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 1, 1));
 			metadataLabel.setAlignment(SWT.CENTER);
 			metadataLabel.setText("ROI MetaData");
-			
-//			ROITableInfoViewModel viewModel = new ROITableInfoViewModel();
-//			Table metadataTable = (Table) new ROITableInfoView(viewModel).createPartControl(contentComposite);
+
+//			regionTable = new RegionTable(contentComposite, plottingSystem);
+//			regionTable.addROIListener(getRoiManager());
 			//main
 			ExpandableComposite mainRegionInfoExpander = new ExpandableComposite(contentComposite, SWT.NONE);
 			mainRegionInfoExpander.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
 			mainRegionInfoExpander.setLayout(new GridLayout(1, false));
 			mainRegionInfoExpander.setText("Main Region Of Interest");
 			
-			Composite mainRegionComposite = new Composite(mainRegionInfoExpander, SWT.BORDER);
+			Composite mainRegionComposite = new Composite(mainRegionInfoExpander, SWT.NONE);
 			GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 			mainRegionComposite.setLayout(new GridLayout(1, false));
 			mainRegionComposite.setLayoutData(gridData);
 			
-			mainROIMetadata = new RROITableInfo(mainRegionComposite, "Main ROI", plottingSystem, false);
+			myROIWidget = new ROIWidget(mainRegionComposite, getName());
+			myROIWidget.addSelectionChangedListener(new ISelectionChangedListener() {
+				
+				@Override
+				public void selectionChanged(SelectionChangedEvent event) {
+					ROIBase newRoi = myROIWidget.getROI();
+					String regionName = myROIWidget.getRegionName();
+					
+					IRegion region = plottingSystem.getRegion(regionName);
+					if(region != null){
+						region.setROI(newRoi);
+					}
+				}
+			});
+			
+//			mainROIMetadata = new RROITableInfo(mainRegionComposite, "Main ROI", plottingSystem, false);
 			
 			mainRegionInfoExpander.setClient(mainRegionComposite);
 			mainRegionInfoExpander.addExpansionListener(expansionAdapter);
@@ -201,7 +221,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			verticalRegionInfoExpander.setLayout(new GridLayout(1, false));
 			verticalRegionInfoExpander.setText("Vertical Profile Region Of Interest");
 			
-			Composite verticalProfileComposite = new Composite(verticalRegionInfoExpander, SWT.BORDER);
+			Composite verticalProfileComposite = new Composite(verticalRegionInfoExpander, SWT.NONE);
 			verticalProfileComposite.setLayout(new GridLayout(1, false));
 			verticalProfileComposite.setLayoutData(gridData);
 			xaxisMetadataVertical = new RROITableInfo(verticalProfileComposite, "Vertical Profile", 
@@ -216,7 +236,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			horizontalRegionInfoExpander.setLayout(new GridLayout(1, false));
 			horizontalRegionInfoExpander.setText("Horizontal Profile Region Of Interest");
 			
-			Composite horizontalProfileComposite = new Composite(horizontalRegionInfoExpander, SWT.BORDER);
+			Composite horizontalProfileComposite = new Composite(horizontalRegionInfoExpander, SWT.NONE);
 			horizontalProfileComposite.setLayout(new GridLayout(1, false));
 			horizontalProfileComposite.setLayoutData(gridData);
 			xaxisMetadataHorizontal = new RROITableInfo(horizontalProfileComposite, "Horizontal Profile", 
@@ -410,23 +430,27 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 
 	@Override
 	public void processGUIUpdate(GuiBean bean) {
-		setUpdatePlot(false);
-		if (bean.containsKey(GuiParameters.PLOTMODE)) {
-			if (parentComp.getDisplay().getThread() != Thread.currentThread())
-				updatePlotMode(bean, true);
-			else
-				updatePlotMode(bean, false);
-		}
 
-		if (bean.containsKey(GuiParameters.PLOTOPERATION)) {
-			String opStr = (String) bean.get(GuiParameters.PLOTOPERATION);
-			if (opStr.equals("UPDATE")) {
-				setUpdatePlot(true);
+		if(parentComp != null && !parentComp.isDisposed()){
+			setUpdatePlot(false);
+			if (bean.containsKey(GuiParameters.PLOTMODE)) {
+				
+				if (parentComp.getDisplay().getThread() != Thread.currentThread())
+					updatePlotMode(bean, true);
+				else
+					updatePlotMode(bean, false);
 			}
-		}
 
-		if (bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST)) {
-			plotUI.processGUIUpdate(bean);
+			if (bean.containsKey(GuiParameters.PLOTOPERATION)) {
+				String opStr = (String) bean.get(GuiParameters.PLOTOPERATION);
+				if (opStr.equals("UPDATE")) {
+					setUpdatePlot(true);
+				}
+			}
+
+			if (bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST)) {
+				plotUI.processGUIUpdate(bean);
+			}
 		}
 	}
 
@@ -445,7 +469,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			plottingSystem.dispose();
 			sideProfile1.dispose();
 			sideProfile2.dispose();
-			mainROIMetadata.dispose();
+			myROIWidget.dispose();
 			xaxisMetadataVertical.dispose();
 			xaxisMetadataHorizontal.dispose();
 		} catch (Exception ne) {
