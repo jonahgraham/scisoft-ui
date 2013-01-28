@@ -97,6 +97,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AggregateDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
+import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
@@ -1634,7 +1635,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	private class SelectedNode extends SelectedObject {
 		
 		private SymbolTable symbolTable;
-		private JEP jepParser;
+		private JEP jepParser, eval;
 		
 		public SelectedNode(int index, String str) {
 			resetJep();
@@ -1661,14 +1662,11 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 
 		public void setExpression(String str) {
-			try {
-				resetJep();
-				jepParser.parse(str);
-				symbolTable = jepParser.getSymbolTable();
-				f = str;
-			} catch (ParseException e) {
-				throw new IllegalArgumentException("Parsing input expression failed", e);
-			}
+			resetJep();
+			jepParser.parseExpression(str);
+			eval.parseExpression(str);
+			symbolTable = jepParser.getSymbolTable();
+			f = str;
 		}
 		
 		private void resetJep() {
@@ -1676,6 +1674,10 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			jepParser.setAllowUndeclared(true);
 			//jepParser.addStandardConstants();
 			jepParser.addStandardFunctions();
+			eval = new JEP();
+			eval.setAllowUndeclared(true);
+			//eval.addStandardConstants();
+			eval.addStandardFunctions();
 		}
 		
 		@Override
@@ -1690,10 +1692,31 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				@Override
 				public AbstractDataset getDataset(IMonitor mon, int[] shape, int[] start, int[] stop, int[] step)
 						throws ScanFileHolderException {
-					return AbstractDataset.zeros(shape, AbstractDataset.FLOAT32);   //TODO: implement data calculation for expression  nodes
+					SymbolTable evalSymbolTable = eval.getSymbolTable(); 
+					AbstractDataset ds = AbstractDataset.zeros(shape, AbstractDataset.FLOAT64);
+					IndexIterator iter = ds.getIterator();
+					while (iter.hasNext()) {
+						int[] idx = ds.getNDPosition(iter.index);
+						Iterator<String> itr = evalSymbolTable.keySet().iterator();
+						while (itr.hasNext()) {
+							String varName = itr.next();
+							Variable var = symbolTable.getVar(varName);
+							ILazyDataset lzd = ((Set<SelectedObject>) var.getValue()).iterator().next().getData();
+							double val = lzd.getSlice(start, stop, step).getDouble(idx);
+							evalSymbolTable.setVarValue(varName, val);
+						}
+						double res;
+						try {
+							res = (Double) eval.evaluate(eval.getTopNode());
+						} catch (ParseException e) {
+							throw new IllegalArgumentException("Parsing input expression failed", e);
+						}
+						ds.set(res, idx);
+					}
+					return ds;
 				}
 			};
-			d = new LazyDataset("Function", AbstractDataset.FLOAT32, getShape(), dataLoader);
+			d = new LazyDataset("Function", AbstractDataset.FLOAT64, getShape(), dataLoader);
 			return d;
 		}
 
