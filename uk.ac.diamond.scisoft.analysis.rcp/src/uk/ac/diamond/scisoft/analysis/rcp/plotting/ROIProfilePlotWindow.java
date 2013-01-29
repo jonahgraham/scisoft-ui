@@ -185,7 +185,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			Label metadataLabel = new Label(contentComposite, SWT.NONE);
 			metadataLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 1, 1));
 			metadataLabel.setAlignment(SWT.CENTER);
-			metadataLabel.setText("ROI MetaData");
+			metadataLabel.setText("Region Of Interest Information");
 
 			//main
 			ExpandableComposite mainRegionInfoExpander = new ExpandableComposite(contentComposite, SWT.NONE);
@@ -213,9 +213,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 					}
 				}
 			});
-			
-//			mainROIMetadata = new RROITableInfo(mainRegionComposite, "Main ROI", plottingSystem, false);
-			
+
 			mainRegionInfoExpander.setClient(mainRegionComposite);
 			mainRegionInfoExpander.addExpansionListener(expansionAdapter);
 			mainRegionInfoExpander.setExpanded(false);
@@ -224,7 +222,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			ExpandableComposite verticalRegionInfoExpander = new ExpandableComposite(contentComposite, SWT.NONE);
 			verticalRegionInfoExpander.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
 			verticalRegionInfoExpander.setLayout(new GridLayout(1, false));
-			verticalRegionInfoExpander.setText("Vertical Profile Region Of Interest");
+			verticalRegionInfoExpander.setText("Vertical Profile ROI");
 			
 			Composite verticalProfileComposite = new Composite(verticalRegionInfoExpander, SWT.NONE);
 			verticalProfileComposite.setLayout(new GridLayout(1, false));
@@ -247,11 +245,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 					}
 				}
 			});
-			
-			
-//			xaxisMetadataVertical = new RROITableInfo(verticalProfileComposite, "Vertical Profile", 
-//					(AbstractPlottingSystem)sideProfile2.getToolPlottingSystem(), true);
-			
+
 			verticalRegionInfoExpander.setClient(verticalProfileComposite);
 			verticalRegionInfoExpander.addExpansionListener(expansionAdapter);
 			verticalRegionInfoExpander.setExpanded(false);
@@ -260,7 +254,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			ExpandableComposite horizontalRegionInfoExpander = new ExpandableComposite(contentComposite, SWT.NONE);
 			horizontalRegionInfoExpander.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
 			horizontalRegionInfoExpander.setLayout(new GridLayout(1, false));
-			horizontalRegionInfoExpander.setText("Horizontal Profile Region Of Interest");
+			horizontalRegionInfoExpander.setText("Horizontal Profile ROI");
 			
 			Composite horizontalProfileComposite = new Composite(horizontalRegionInfoExpander, SWT.NONE);
 			horizontalProfileComposite.setLayout(new GridLayout(1, false));
