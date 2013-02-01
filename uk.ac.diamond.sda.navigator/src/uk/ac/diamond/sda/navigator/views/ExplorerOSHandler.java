@@ -24,6 +24,10 @@ import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 public class ExplorerOSHandler extends AbstractHandler {
 
@@ -40,12 +44,22 @@ public class ExplorerOSHandler extends AbstractHandler {
 			fileObject = fileView.getSelectedFile().getParentFile();
 		}
 		
-		Desktop desktop = Desktop.getDesktop();
-		try {
-			desktop.open(fileObject);
-		} catch (IOException e) {
-			// do nothing
-		}
+		// TODO Jake test if can do this avoid hanging Dawn.
+		final File finalFile = fileObject;
+		Job openfile = new Job("open file") {
+			
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				Desktop desktop = Desktop.getDesktop();
+				try {
+					desktop.open(finalFile);
+				} catch (IOException e) {
+					// do nothing
+				}
+				return Status.OK_STATUS;
+			}
+		};
+		openfile.schedule();
 		return Boolean.TRUE;
 	}
 
