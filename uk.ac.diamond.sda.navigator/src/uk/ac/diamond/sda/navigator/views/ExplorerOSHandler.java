@@ -44,14 +44,23 @@ public class ExplorerOSHandler extends AbstractHandler {
 			fileObject = fileView.getSelectedFile().getParentFile();
 		}
 		
-		// TODO Jake test if can do this avoid hanging Dawn.
 		final File finalFile = fileObject;
 		Job openfile = new Job("open file") {
 			
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				Desktop desktop = Desktop.getDesktop();
+				
 				try {
+					//Desktop.getDesktop().open() should work for all OSs
+					// but in testing the odd windows system didnt open explorer
+					// when given a path deep into the C drive
+					//This is also why this is in a job
+					if (System.getProperty("os.name").toLowerCase().contains("win")) {
+						new ProcessBuilder("explorer.exe",finalFile.getAbsolutePath()).start();
+						return Status.OK_STATUS;
+					}
+					
+					Desktop desktop = Desktop.getDesktop();
 					desktop.open(finalFile);
 				} catch (IOException e) {
 					// do nothing
