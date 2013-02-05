@@ -698,7 +698,8 @@ public class PlotWindow extends AbstractPlotWindow {
 				updatePlotMode(bean, false);
 		}
 
-		if (bean.containsKey(GuiParameters.TITLE) && mainPlotter != null) {
+		if (bean.containsKey(GuiParameters.TITLE) && mainPlotter != null 
+				&& mainPlotterComposite != null && !mainPlotterComposite.isDisposed()) {
 			final String titleStr = (String) bean.get(GuiParameters.TITLE);
 			parentComp.getDisplay().asyncExec(new Runnable() {
 				@Override

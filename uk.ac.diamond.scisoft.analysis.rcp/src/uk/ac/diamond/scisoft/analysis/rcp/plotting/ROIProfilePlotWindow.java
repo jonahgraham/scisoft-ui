@@ -22,13 +22,16 @@ import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
-import org.dawb.common.ui.plot.roi.RROITableInfo;
+import org.dawb.common.ui.plot.region.IRegion;
 import org.dawb.common.ui.plot.tool.IProfileToolPage;
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
 import org.dawb.common.ui.plot.tool.ToolPageFactory;
 import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ITrace;
+import org.dawb.common.ui.widgets.ROIWidget;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -53,6 +56,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
+import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile.BoxLineType;
 
 /**
@@ -73,9 +77,13 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	private SashForm sashForm2;
 	private SashForm sashForm3;
 
-	private RROITableInfo mainROIMetadata;
-	private RROITableInfo xaxisMetadataVertical;
-	private RROITableInfo xaxisMetadataHorizontal;
+	//private RROITableInfo xaxisMetadataVertical;
+	//private RROITableInfo xaxisMetadataHorizontal;
+	private ROIWidget myROIWidget;
+	private ROIWidget verticalProfileROIWidget;
+	private ROIWidget horizontalProfileROIWidget;
+	private AbstractPlottingSystem verticalProfilePlottingSystem;
+	private AbstractPlottingSystem horizontalProfilePlottingSystem;
 	
 	/**
 	 * Obtain the IPlotWindowManager for the running Eclipse.
@@ -155,6 +163,9 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			sideProfile2.createControl(sashForm3);
 			sideProfile2.activate();
 
+			verticalProfilePlottingSystem = (AbstractPlottingSystem)sideProfile2.getToolPlottingSystem();
+			horizontalProfilePlottingSystem = (AbstractPlottingSystem)sideProfile1.getToolPlottingSystem();
+
 			//start metadata
 			final ScrolledComposite scrollComposite = new ScrolledComposite(sashForm3, SWT.H_SCROLL | SWT.V_SCROLL);
 			final Composite contentComposite = new Composite(scrollComposite, SWT.FILL);
@@ -174,23 +185,35 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			Label metadataLabel = new Label(contentComposite, SWT.NONE);
 			metadataLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 1, 1));
 			metadataLabel.setAlignment(SWT.CENTER);
-			metadataLabel.setText("ROI MetaData");
-			
-//			ROITableInfoViewModel viewModel = new ROITableInfoViewModel();
-//			Table metadataTable = (Table) new ROITableInfoView(viewModel).createPartControl(contentComposite);
+			metadataLabel.setText("Region Of Interest Information");
+
 			//main
 			ExpandableComposite mainRegionInfoExpander = new ExpandableComposite(contentComposite, SWT.NONE);
 			mainRegionInfoExpander.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
 			mainRegionInfoExpander.setLayout(new GridLayout(1, false));
 			mainRegionInfoExpander.setText("Main Region Of Interest");
 			
-			Composite mainRegionComposite = new Composite(mainRegionInfoExpander, SWT.BORDER);
+			Composite mainRegionComposite = new Composite(mainRegionInfoExpander, SWT.NONE);
 			GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 			mainRegionComposite.setLayout(new GridLayout(1, false));
 			mainRegionComposite.setLayoutData(gridData);
 			
-			mainROIMetadata = new RROITableInfo(mainRegionComposite, "Main ROI", plottingSystem, false);
-			
+			myROIWidget = new ROIWidget(mainRegionComposite, plottingSystem);
+			myROIWidget.createWidget();
+			myROIWidget.addSelectionChangedListener(new ISelectionChangedListener() {
+				
+				@Override
+				public void selectionChanged(SelectionChangedEvent event) {
+					ROIBase newRoi = myROIWidget.getROI();
+					String regionName = myROIWidget.getRegionName();
+					
+					IRegion region = plottingSystem.getRegion(regionName);
+					if(region != null){
+						region.setROI(newRoi);
+					}
+				}
+			});
+
 			mainRegionInfoExpander.setClient(mainRegionComposite);
 			mainRegionInfoExpander.addExpansionListener(expansionAdapter);
 			mainRegionInfoExpander.setExpanded(false);
@@ -199,13 +222,30 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			ExpandableComposite verticalRegionInfoExpander = new ExpandableComposite(contentComposite, SWT.NONE);
 			verticalRegionInfoExpander.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
 			verticalRegionInfoExpander.setLayout(new GridLayout(1, false));
-			verticalRegionInfoExpander.setText("Vertical Profile Region Of Interest");
+			verticalRegionInfoExpander.setText("Vertical Profile ROI");
 			
-			Composite verticalProfileComposite = new Composite(verticalRegionInfoExpander, SWT.BORDER);
+			Composite verticalProfileComposite = new Composite(verticalRegionInfoExpander, SWT.NONE);
 			verticalProfileComposite.setLayout(new GridLayout(1, false));
 			verticalProfileComposite.setLayoutData(gridData);
-			xaxisMetadataVertical = new RROITableInfo(verticalProfileComposite, "Vertical Profile", 
-					(AbstractPlottingSystem)sideProfile2.getToolPlottingSystem(), true);
+
+			verticalProfileROIWidget = new ROIWidget(verticalProfileComposite, verticalProfilePlottingSystem);
+			verticalProfileROIWidget.setIsProfile(true);
+			verticalProfileROIWidget.showSumMinMax(false);
+			verticalProfileROIWidget.createWidget();
+			verticalProfileROIWidget.addSelectionChangedListener(new ISelectionChangedListener() {
+				
+				@Override
+				public void selectionChanged(SelectionChangedEvent event) {
+					ROIBase newRoi = verticalProfileROIWidget.getROI();
+					String regionName = verticalProfileROIWidget.getRegionName();
+					
+					IRegion region = verticalProfilePlottingSystem.getRegion(regionName);
+					if(region != null){
+						region.setROI(newRoi);
+					}
+				}
+			});
+
 			verticalRegionInfoExpander.setClient(verticalProfileComposite);
 			verticalRegionInfoExpander.addExpansionListener(expansionAdapter);
 			verticalRegionInfoExpander.setExpanded(false);
@@ -214,13 +254,33 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			ExpandableComposite horizontalRegionInfoExpander = new ExpandableComposite(contentComposite, SWT.NONE);
 			horizontalRegionInfoExpander.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
 			horizontalRegionInfoExpander.setLayout(new GridLayout(1, false));
-			horizontalRegionInfoExpander.setText("Horizontal Profile Region Of Interest");
+			horizontalRegionInfoExpander.setText("Horizontal Profile ROI");
 			
-			Composite horizontalProfileComposite = new Composite(horizontalRegionInfoExpander, SWT.BORDER);
+			Composite horizontalProfileComposite = new Composite(horizontalRegionInfoExpander, SWT.NONE);
 			horizontalProfileComposite.setLayout(new GridLayout(1, false));
 			horizontalProfileComposite.setLayoutData(gridData);
-			xaxisMetadataHorizontal = new RROITableInfo(horizontalProfileComposite, "Horizontal Profile", 
-					(AbstractPlottingSystem)sideProfile1.getToolPlottingSystem(), true);
+
+			horizontalProfileROIWidget = new ROIWidget(horizontalProfileComposite, horizontalProfilePlottingSystem);
+			horizontalProfileROIWidget.setIsProfile(true);
+			horizontalProfileROIWidget.showSumMinMax(false);
+			horizontalProfileROIWidget.createWidget();
+			horizontalProfileROIWidget.addSelectionChangedListener(new ISelectionChangedListener() {
+				
+				@Override
+				public void selectionChanged(SelectionChangedEvent event) {
+					ROIBase newRoi = horizontalProfileROIWidget.getROI();
+					String regionName = horizontalProfileROIWidget.getRegionName();
+					
+					IRegion region = horizontalProfilePlottingSystem.getRegion(regionName);
+					if(region != null){
+						region.setROI(newRoi);
+					}
+				}
+			});
+
+//			xaxisMetadataHorizontal = new RROITableInfo(horizontalProfileComposite, "Horizontal Profile", 
+//					(AbstractPlottingSystem)sideProfile1.getToolPlottingSystem(), true);
+//			
 			horizontalRegionInfoExpander.setClient(horizontalProfileComposite);
 			horizontalRegionInfoExpander.addExpansionListener(expansionAdapter);
 			horizontalRegionInfoExpander.setExpanded(false);
@@ -410,23 +470,27 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 
 	@Override
 	public void processGUIUpdate(GuiBean bean) {
-		setUpdatePlot(false);
-		if (bean.containsKey(GuiParameters.PLOTMODE)) {
-			if (parentComp.getDisplay().getThread() != Thread.currentThread())
-				updatePlotMode(bean, true);
-			else
-				updatePlotMode(bean, false);
-		}
 
-		if (bean.containsKey(GuiParameters.PLOTOPERATION)) {
-			String opStr = (String) bean.get(GuiParameters.PLOTOPERATION);
-			if (opStr.equals("UPDATE")) {
-				setUpdatePlot(true);
+		if(parentComp != null && !parentComp.isDisposed()){
+			setUpdatePlot(false);
+			if (bean.containsKey(GuiParameters.PLOTMODE)) {
+				
+				if (parentComp.getDisplay().getThread() != Thread.currentThread())
+					updatePlotMode(bean, true);
+				else
+					updatePlotMode(bean, false);
 			}
-		}
 
-		if (bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST)) {
-			plotUI.processGUIUpdate(bean);
+			if (bean.containsKey(GuiParameters.PLOTOPERATION)) {
+				String opStr = (String) bean.get(GuiParameters.PLOTOPERATION);
+				if (opStr.equals("UPDATE")) {
+					setUpdatePlot(true);
+				}
+			}
+
+			if (bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST)) {
+				plotUI.processGUIUpdate(bean);
+			}
 		}
 	}
 
@@ -445,9 +509,11 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			plottingSystem.dispose();
 			sideProfile1.dispose();
 			sideProfile2.dispose();
-			mainROIMetadata.dispose();
-			xaxisMetadataVertical.dispose();
-			xaxisMetadataHorizontal.dispose();
+			myROIWidget.dispose();
+			verticalProfileROIWidget.dispose();
+			horizontalProfileROIWidget.dispose();
+			//xaxisMetadataVertical.dispose();
+			//xaxisMetadataHorizontal.dispose();
 		} catch (Exception ne) {
 			logger.debug("Cannot clean up plotter!", ne);
 		}

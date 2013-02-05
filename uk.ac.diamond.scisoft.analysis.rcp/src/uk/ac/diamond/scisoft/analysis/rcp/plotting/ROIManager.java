@@ -107,7 +107,10 @@ public class ROIManager implements IROIListener, IRegionListener {
 			updateGuiBean(eroi);
 		}
 	}
-
+	@Override
+	public void regionCancelled(RegionEvent evt) {
+		
+	}
 	@Override
 	public void regionsRemoved(RegionEvent evt) {
 		roi = null;
@@ -211,4 +214,6 @@ public class ROIManager implements IROIListener, IRegionListener {
 			return null;
 		return list;
 	}
+
+
 }

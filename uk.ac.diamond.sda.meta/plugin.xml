@@ -44,8 +44,8 @@
       <page
             category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
             class="uk.ac.diamond.sda.meta.preferences.MetadataAssociationPreferences"
-            id="uk.ac.diamond.sda.meta.preferences.MetadataAccociationPreferences"
-            name="Metadata Accociation Preferences">
+            id="uk.ac.diamond.sda.meta.preferences.MetadataAssociationPreferences"
+            name="Metadata Association Preferences">
       </page>
    </extension>
    <!--

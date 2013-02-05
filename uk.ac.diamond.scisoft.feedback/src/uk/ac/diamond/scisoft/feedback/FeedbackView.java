@@ -32,6 +32,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.dawb.common.util.eclipse.BundleUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -53,7 +54,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -61,7 +61,6 @@ import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.feedback.Activator;
 import uk.ac.diamond.scisoft.system.info.SystemInformation;
 
 public class FeedbackView extends ViewPart {
@@ -222,12 +221,19 @@ public class FeedbackView extends ViewPart {
 
 							}
 							messageBody.append("Machine is   : "+computerName+"\n");
-							String versionNumber = System.getProperty("sda.version", "Unknown");
-							messageBody.append("Version is   : "+versionNumber+"\n");
+
+							String versionNumber = "Unknown";
+							try{
+								versionNumber = BundleUtils.getDawnVersion();
+							} catch (Exception e) {
+								logger.debug("Could not retrieve product and system information:" + e);
+							}
+
+							messageBody.append("Version is   : " + versionNumber + "\n");
 							messageBody.append(messageText.getText());
 							messageBody.append("\n\n\n");
 							messageBody.append(SystemInformation.getSystemString());
-
+	
 							File logpath = new File(System.getProperty("user.home"), "dawnlog.html");
 
 							// get the mail to address from the properties
@@ -238,8 +244,30 @@ public class FeedbackView extends ViewPart {
 								logger.error("The log file size exceeds: "+ MAX_SIZE);
 								return Status.CANCEL_STATUS;
 							}
-							FeedbackRequest.doRequest(from, mailTo, System.getProperty("user.name", "Unknown User"), subject, messageBody.toString(), logpath);
+							// Test that the message is correctly formatted (not empty) and Test the email format
+							if(!messageText.getText().equals("") && emailAddress.getText().contains("@")){
+								FeedbackRequest.doRequest(from, mailTo, System.getProperty("user.name", "Unknown User"), subject, messageBody.toString(), logpath);
+							}
+							else{
+								Display.getDefault().asyncExec(new Runnable() {
+									@Override
+									public void run() {
+										MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+												"Feedback format problem", "Please type in your email and/or the message body before sending the feedback.");
+									}
+								});
+								return Status.CANCEL_STATUS;
+							}
 						} catch (Exception e) {
+							logger.error("Feedback email not sent", e);
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+											"Feedback not sent!", "Error creating the message body. Please go to www.dawnsci.org and register your problem there. (Accessible form the welcome page)");
+								}
+							});
 							return Status.CANCEL_STATUS;
 						}
 
@@ -253,8 +281,7 @@ public class FeedbackView extends ViewPart {
 		};
 		feedbackAction.setText("Send Feedback");
 		feedbackAction.setToolTipText("Send Feedback");
-		feedbackAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_ETOOL_HOME_NAV));
+		feedbackAction.setImageDescriptor(Activator.getImageDescriptor("icons/mailedit.gif"));
 
 	}
 

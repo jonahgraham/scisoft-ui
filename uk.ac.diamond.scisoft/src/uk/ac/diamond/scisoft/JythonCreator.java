@@ -114,7 +114,7 @@ public class JythonCreator implements IStartup {
 //		"com.springsource.org.castor",
 //		"com.springsource.org.exolab.castor",
 		"com.springsource.org.apache.commons",
-//		"com.springsource.javax.media.core",
+		"com.springsource.javax.media.jai.core",
 		"jtransforms",
 		"jai_imageio",
 		"it.tidalwave.imageio.raw",
@@ -136,7 +136,8 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.CBFlib",
 		"uk.ac.gda.common",
 		"org.dawb.hdf5",
-		"ncsa.hdf"
+		"ncsa.hdf",
+		"uk.ac.gda.libs"
 	};
 
 	private void initialiseInterpreter(IProgressMonitor monitor) throws CoreException {

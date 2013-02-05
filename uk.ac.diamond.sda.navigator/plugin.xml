@@ -373,6 +373,12 @@
                label="Open in Image Grid"
                style="push">
          </command>
+         <command
+               commandId="uk.ac.diamond.sda.navigator.exploreros"
+               icon="icons/folder.png"
+               label="Open in File Explorer"
+               style="push">
+         </command>
          <separator
                name="uk.ac.diamond.sda.navigator.separator2"
                visible="true">
@@ -448,6 +454,11 @@
             name="Re-use Editor">
             <state class="org.eclipse.ui.handlers.RegistryToggleState:false"
                id="org.eclipse.ui.commands.toggleState"/>
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.sda.navigator.views.ExplorerOSHandler"
+            id="uk.ac.diamond.sda.navigator.exploreros"
+            name="Open in File Explorer">
       </command>
    </extension>
    <extension
