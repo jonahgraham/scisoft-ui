@@ -13,5 +13,4 @@ Import-Package: org.dawb.common.ui.monitor,
  org.dawb.common.ui.util,
  org.eclipse.core.resources,
  org.slf4j;version="1.5.6",
- uk.ac.diamond.scisoft.analysis.rcp.util,
- uk.ac.gda.monitor
+ uk.ac.diamond.scisoft.analysis.rcp.util
