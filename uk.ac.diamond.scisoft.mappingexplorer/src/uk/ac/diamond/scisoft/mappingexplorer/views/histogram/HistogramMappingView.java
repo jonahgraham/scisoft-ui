@@ -67,7 +67,7 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 	private static final String LBL_PART_CHANGED = "Histogram displayed from %1$s";
 	private static final String DEFAULT_LABEL = "Shows the histogram from a dataset that is provided.";
 	public static final String ID = "uk.ac.diamond.scisoft.mappingexplorer.histview";
-	private static final int NUM_BINS = 128; //match value used in HistogramView
+	private static final int NUM_BINS = 1000; //match value used in HistogramView
 	private Composite rootComposite;
 	private DataSetPlotter dataSetPlotter;
 	private static final Logger logger = LoggerFactory.getLogger(HistogramMappingView.class);
@@ -168,16 +168,19 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 			int maxValue = ds1.max().intValue();
 			int minValue = ds1.min().intValue();
 			
-			Histogram histogram = new Histogram(NUM_BINS);
+			int range = maxValue-minValue+3; //include 1 above and 1 below
+			int numBins = range < NUM_BINS ? range : NUM_BINS;
+			Histogram histogram = new Histogram(numBins);
 
-			histogram.setMinMax(minValue, maxValue);
+
+			histogram.setMinMax(minValue-1, maxValue+1);
 			List<AbstractDataset> evaluated = histogram.value(ds1);
 			AbstractDataset evaluatedDs = evaluated.get(0);
 
 			AbstractDataset slice = null;
 			if (evaluated.size() > 1) {
 				AbstractDataset xData = evaluated.get(1);
-				slice = xData.getSlice(new Slice(0, NUM_BINS, 1));
+				slice = xData.getSlice(new Slice(0, numBins, 1));
 			} else {
 				slice = evaluatedDs;
 			}
