@@ -24,7 +24,7 @@ Require-Bundle: org.eclipse.ui,
  org.dawnsci.plotting.jreality;bundle-version="1.0.0",
  javax.vecmath;bundle-version="1.5.2",
  org.apache.commons.math3;bundle-version="[3.1.0,4.0.0)",
- uk.ac.gda.common.core;bundle-version="1.0.0"
+ uk.ac.gda.common;bundle-version="1.2.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.swtdesigner,
  uk.ac.diamond.scisoft.analysis.rcp,
