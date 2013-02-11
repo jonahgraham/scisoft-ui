@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
-	private static final String DEFAULT_BEAMLINE = "i03";
+	private static final String DEFAULT_HOSTNAME = "i13-1-control.diamond.ac.uk";
 	private Text txtDirectory;
 	private Text txtProject;
 	private Button btnCheckButton;
@@ -211,15 +211,20 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		} catch (UnknownHostException e) {
 			// display error message
 			System.out.println("Error getting hostname! " + e.getMessage());
-		}//"I03";
+		};
 		
 		if (hostname.contains("-control")){
-			beamline = "";
 			System.out.println("current hostname is beamline control machine: " + beamline);
 		}else{
 			System.out.println("hostname is NOT a beamline: " + hostname);
-			beamline = DEFAULT_BEAMLINE;
+			// TODO to modify after testing
+			hostname = DEFAULT_HOSTNAME;
 		}
+		
+		int index = hostname.indexOf("-control");
+		beamline = hostname.substring(0,index);
+		
+		System.out.println("beamline: " + beamline);
 		
 		return beamline;		
 	}
