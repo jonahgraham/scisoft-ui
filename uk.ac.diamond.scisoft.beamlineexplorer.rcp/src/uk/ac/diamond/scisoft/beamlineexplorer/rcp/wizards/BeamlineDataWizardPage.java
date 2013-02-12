@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.beamlineexplorer.rcp.wizards;
 
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.viewers.ISelection;
@@ -33,17 +34,30 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Combo;
 
 
 public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
-	private static final String DEFAULT_HOSTNAME = "i13-1-control.diamond.ac.uk";
-	private Text txtDirectory;
+	private static final String DEFAULT_HOSTNAME = "i16-control.diamond.ac.uk";
+	private Text txtDataRootDirectory;
 	private Text txtProject;
+	private Text txtProjectName;
 	private Button btnCheckButton;
+	private Combo beamlineListCombo;
 	private final String initProject;
 	private final String initDirectory;
 	private final String initFolder;
+	
+	// list of existing beamlines
+	private final String[] beamlineList = {
+			"b16", "b21", "b23", "i03", "i04-1",
+			"i06", "i07", "i09-1", "i10-1", "i12",
+			"i13-1", "i16", "i19", "i20-1", "i23",
+			"p60", "b18", "b22", "i02", "i04",
+			"i05", "i06-1", "i09", "i10", "i11", "i13",
+			"i15", "i18", "i20", "i22", "i24", "p45", "p99"
+	};
 
 	/**
 	 * Constructor for SampleNewWizardPage.
@@ -72,29 +86,43 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		container.setLayout(layout);
 		layout.numColumns = 3;
 		layout.verticalSpacing = 9;
-		Label lblProjectName = new Label(container, SWT.NULL);
-		lblProjectName.setText("&Beamline:");
-		txtProject = new Text(container, SWT.BORDER);
-		//txtProject.setText(initProject);
-		txtProject.setText(getBeamline());
-		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		txtProject.setLayoutData(gd);
-		txtProject.addKeyListener(this);
-				new Label(container, SWT.NONE);
 		
-				Label lbldataRootDirectory = new Label(container, SWT.NULL);
-				lbldataRootDirectory.setText("&Data Root Directory:");
-		txtDirectory = new Text(container, SWT.BORDER);
-		//txtDirectory.setText(initDirectory);
-		txtDirectory.setText(getDataFolder());
-		txtDirectory.setEditable(true);
-		txtDirectory.setEnabled(true);
-		gd = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		txtDirectory.setLayoutData(gd);
-		Composite composite = new Composite(container, SWT.NULL);
+		Label lblProjectName = new Label(container, SWT.NONE);
+		lblProjectName.setText("&Project Name:");
+		String beamline = getBeamline();
 		
-				Button button = new Button(composite, SWT.PUSH);
-				button.setBounds(0, 10, 71, 29);
+		txtProjectName = new Text(container, SWT.BORDER);
+		txtProjectName.setText(getBeamline() + "-project");
+		GridData gd_txtProjectName = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_txtProjectName.widthHint = 328;
+		txtProjectName.setLayoutData(gd_txtProjectName);
+		new Label(container, SWT.NONE);
+		Label lblBeamline = new Label(container, SWT.NULL);
+		GridData gd_lblBeamline = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lblBeamline.widthHint = 123;
+		gd_lblBeamline.heightHint = 26;
+		lblBeamline.setLayoutData(gd_lblBeamline);
+		lblBeamline.setText("&Beamline:");
+		
+		beamlineListCombo = new Combo(container, SWT.NONE);
+		beamlineListCombo.setItems(beamlineList);
+		beamlineListCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		beamlineListCombo.select(Arrays.asList(beamlineList).indexOf(beamline));
+		setControl(container);
+		new Label(container, SWT.NONE);
+		
+		Label lblDataRootDirectory = new Label(container, SWT.NULL);
+		lblDataRootDirectory.setText("&Data Root Directory:");
+		txtDataRootDirectory = new Text(container, SWT.BORDER);
+		GridData gd_txtDataRootDirectory = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_txtDataRootDirectory.widthHint = 343;
+		txtDataRootDirectory.setLayoutData(gd_txtDataRootDirectory);
+		txtDataRootDirectory.setText(getDataFolder());
+		txtDataRootDirectory.setEditable(true);
+		txtDataRootDirectory.setEnabled(true);
+		dialogChanged();
+		
+				Button button = new Button(container, SWT.PUSH);
 				button.setText("Browse...");
 				button.addSelectionListener(new SelectionAdapter() {
 					@Override
@@ -102,17 +130,18 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 						handleBrowse();
 					}
 				});
-		dialogChanged();
-		setControl(container);
 		
 		Label lblFedid = new Label(container, SWT.NONE);
 		lblFedid.setText("D&etected Fedid:");
 		
-		Label lblNewLabel = new Label(container, SWT.NONE);
-		lblNewLabel.setText(getFedid());
+		Label lblFedidValue = new Label(container, SWT.NONE);
+		lblFedidValue.setText(getFedid());
 		new Label(container, SWT.NONE);
 		
 		btnCheckButton = new Button(container, SWT.CHECK);
+		GridData gd_btnCheckButton = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnCheckButton.heightHint = 45;
+		btnCheckButton.setLayoutData(gd_btnCheckButton);
 		btnCheckButton.setEnabled(false);
 		btnCheckButton.setGrayed(true);
 		btnCheckButton.addSelectionListener(new SelectionAdapter() {
@@ -136,7 +165,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		dirDialog.setFilterPath(getDirectory());
 		final String filepath = dirDialog.open();
 		if (filepath != null) {
-			txtDirectory.setText(filepath);
+			txtDataRootDirectory.setText(filepath);
 			dialogChanged();
 		}
 	}
@@ -151,11 +180,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 			return;
 		}
 
-//		if (getFolder().length() == 0) {
-//			updateStatus("Folder name must be specified. e.g. data");
-//			return;
-//		}
-
 		if (getDirectory().length() == 0) {
 			updateStatus("Directory containing files must be specified.");
 			return;
@@ -169,21 +193,18 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	}
 
 	public String getProject() {
-		return txtProject.getText();
+		return txtProjectName.getText();
 	}
 
 	public String getDirectory() {
-		return txtDirectory.getText();
+		return txtDataRootDirectory.getText();
 	}
 	
 
 	public void setDataLocation(String selectedPath) {
-		txtDirectory.setText(selectedPath);
+		txtDataRootDirectory.setText(selectedPath);
 	}
 
-//	public String getFolder() {
-//		return txtFolder.getText();
-//	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -223,9 +244,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		
 		int index = hostname.indexOf("-control");
 		beamline = hostname.substring(0,index);
-		
-		System.out.println("beamline: " + beamline);
-		
 		return beamline;		
 	}
 	
@@ -236,7 +254,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	
 
 	private String getDataFolder() {
-		
 		return "/dls/"+getBeamline() + "/data/";
 	}
 }
