@@ -30,6 +30,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -132,10 +133,10 @@ public class DataWizard extends Wizard implements INewWizard {
 					}
 				}
 			});
+			
 		} catch (Exception ne) {
 			logger.error("Error creating project " + project, ne);
-			String message = "Cannot create project because an internal error occurred.";
-			ErrorDialog.openError(Display.getDefault().getActiveShell(), "Project creation failure", message, new Status(IStatus.WARNING, "org.dawnsci.plotting", ne.getMessage(), ne));
+			// NOTE: Used to use ErrorDialog here, it showed even when they cancelled normally.
 		}
 
 		IDialogSettings settings = getDialogSettings();
@@ -192,11 +193,10 @@ public class DataWizard extends Wizard implements INewWizard {
 		project.open(monitor);
 		if (project.findMember(folderName) == null) {
 			final IFolder src = project.getFolder(folderName);
-			src.createLink(new Path(finalFolder), IResource.BACKGROUND_REFRESH, monitor);
-
+			// Do not to background refresh. Allow the user an obvious
+			// cancel button!
+			src.createLink(new Path(finalFolder), IResource.NONE, monitor);
 		}
-		project = root.getProject(projectName);
-		project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 	}
 
 	public static void addRemoveNature(IProject project, IProgressMonitor monitor, boolean add, String natureId) throws CoreException{
