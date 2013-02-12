@@ -152,5 +152,26 @@
             allPopups="false"
             locationURI="toolbar:uk.ac.diamond.scisoft.mappingexplorer.onedimension">
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:uk.ac.diamond.scisoft.mappingexplorer.twodview">
+         <command
+               commandId="uk.ac.diamond.scisoft.mappingexplorer.openonedview"
+               icon="icons/One-Dimension.jpg"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.selectAllForHistogram"
+               icon="icons/selectAll.gif"
+               label="Select All for Histogram"
+               style="push"
+               tooltip="Select All for Histogram">
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.mappingexplorer.popout2D"
+               icon="icons/twoDImgViewPopout.gif"
+               style="push">
+         </command>
+      </menuContribution>
    </extension>
 </plugin>

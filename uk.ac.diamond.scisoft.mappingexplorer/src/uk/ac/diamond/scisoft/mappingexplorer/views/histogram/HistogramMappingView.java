@@ -18,6 +18,7 @@
 package uk.ac.diamond.scisoft.mappingexplorer.views.histogram;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -106,7 +107,11 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 		} catch (Exception e) {
 			logger.error("Unable to create plotting system", e);
 		}
-		plottingSystem.createPlotPart(plotPage, "", getViewSite().getActionBars(), PlotType.XY_STACKED, this);
+		plottingSystem.createPlotPart(plotPage, "HistogramPlotting", getViewSite().getActionBars(),
+				PlotType.XY_STACKED, this);
+
+		plottingSystem.setRescale(true);
+		plottingSystem.setShowLegend(false);
 
 		activePage = noDataPage;
 		// The below listeners are listeners to the selection service. A selection change event will trigger these
@@ -179,18 +184,11 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 						histogram.setMinMax(minValue, maxValue);
 						List<AbstractDataset> evaluated = histogram.value(ds1);
 						AbstractDataset evaluatedDs = evaluated.get(0);
+						evaluatedDs.setName("HistogramDataSet");
 
-						AbstractDataset xAxis = null;
-						if (evaluated.size() > 1) {
-							AbstractDataset xData = evaluated.get(1);
-							xAxis = xData.getSlice(new Slice(0, NUM_BINS, 1));
-						} else {
-							xAxis = evaluatedDs;
-						}
 						try {
-							List<AbstractDataset> ds = new ArrayList<AbstractDataset>();
-							ds.add(evaluatedDs);
-							plottingSystem.updatePlot1D(xAxis, ds, new NullProgressMonitor());
+							plottingSystem.updatePlot1D(null, Arrays.asList(evaluatedDs), new NullProgressMonitor());
+							plottingSystem.setTitle("Histogram");
 						} catch (Exception e) {
 							logger.error("Plotting problem {}", e);
 						}

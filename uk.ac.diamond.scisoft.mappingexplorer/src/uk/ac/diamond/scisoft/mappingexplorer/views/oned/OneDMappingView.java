@@ -20,6 +20,7 @@ package uk.ac.diamond.scisoft.mappingexplorer.views.oned;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.IPageBookViewPage;
@@ -68,9 +69,9 @@ public class OneDMappingView extends MappingPageBookView implements IDatasetPlot
 		// view, then get the selection from it and pass it to the view
 		// page.
 		// Also disable the control composite.
-		if (page != null) {
-			IViewReference[] viewReferences = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.getViewReferences();
+		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		if (page != null && activePage != null) {
+			IViewReference[] viewReferences = activePage.getViewReferences();
 
 			for (IViewReference viewRef : viewReferences) {
 				IViewPart viewpart = (IViewPart) viewRef.getPart(false);
