@@ -76,8 +76,6 @@ public abstract class BaseViewPageComposite extends Composite {
 
 	public abstract IMappingViewData getMappingViewData();
 
-	public abstract DataSetPlotter getDataSetPlotter();
-
 	/**
 	 * To be overriden by those classes who'd like to interact with the
 	 * {@link HistogramView}

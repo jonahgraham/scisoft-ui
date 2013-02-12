@@ -20,16 +20,15 @@ package uk.ac.diamond.scisoft.mappingexplorer.views.oned;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.IPageBookViewPage;
 
 import uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IDatasetPlotterContainingView;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView2dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView3dData;
-import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingViewDataContainingPage;
 import uk.ac.diamond.scisoft.mappingexplorer.views.MappingPageBookView;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.IMappingDataControllingView;
 
@@ -70,9 +69,9 @@ public class OneDMappingView extends MappingPageBookView implements IDatasetPlot
 		// view, then get the selection from it and pass it to the view
 		// page.
 		// Also disable the control composite.
-		if (page != null) {
-			IViewReference[] viewReferences = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.getViewReferences();
+		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		if (page != null && activePage != null) {
+			IViewReference[] viewReferences = activePage.getViewReferences();
 
 			for (IViewReference viewRef : viewReferences) {
 				IViewPart viewpart = (IViewPart) viewRef.getPart(false);
@@ -139,16 +138,5 @@ public class OneDMappingView extends MappingPageBookView implements IDatasetPlot
 			return new PageRec(part, pageView);
 		}
 		return null;
-	}
-
-	@Override
-	public DataSetPlotter getDataSetPlotter() {
-		if (getCurrentPage() instanceof IMappingViewDataContainingPage) {
-			IMappingViewDataContainingPage mappingViewDataContainingPage = (IMappingViewDataContainingPage) getCurrentPage();
-			return mappingViewDataContainingPage.getDataSetPlotter();
-
-		}
-		return null;
-
 	}
 }

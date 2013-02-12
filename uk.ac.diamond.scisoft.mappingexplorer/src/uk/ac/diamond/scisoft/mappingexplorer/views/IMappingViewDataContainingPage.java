@@ -33,6 +33,4 @@ public interface IMappingViewDataContainingPage extends IPageBookViewPage {
 
 	String getOriginIdentifer();
 
-	DataSetPlotter getDataSetPlotter();
-
 }

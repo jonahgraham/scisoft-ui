@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IContributingPart;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IDatasetPlotterContainingView;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView2dData;
@@ -73,7 +72,7 @@ public class TwoDMappingView extends MappingPageBookView implements IDatasetPlot
 			initPage(page);
 			page.createControl(getPageBook());
 			page.setSelection(((HDF5TreeEditor) part).getHDF5TreeExplorer().getSelection());
-		} 
+		}
 		return page;
 	}
 
@@ -103,16 +102,6 @@ public class TwoDMappingView extends MappingPageBookView implements IDatasetPlot
 	@Override
 	protected boolean isImportant(IWorkbenchPart part) {
 		return part instanceof IEditorPart;
-	}
-
-	@Override
-	public DataSetPlotter getDataSetPlotter() {
-		if (getCurrentPage() instanceof IMappingViewDataContainingPage) {
-			IMappingViewDataContainingPage mappingViewDataContainingPage = (IMappingViewDataContainingPage) getCurrentPage();
-			return mappingViewDataContainingPage.getDataSetPlotter();
-
-		}
-		return null;
 	}
 
 	@Override

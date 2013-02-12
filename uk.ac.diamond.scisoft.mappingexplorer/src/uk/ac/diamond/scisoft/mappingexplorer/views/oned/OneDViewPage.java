@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite.ViewPageCompositeListener;
 import uk.ac.diamond.scisoft.mappingexplorer.views.HDF5MappingViewData;
@@ -84,7 +83,7 @@ public class OneDViewPage extends MappingPageBookViewPage implements IMappingVie
 
 		blankPageComposite = new BlankPageComposite(pgBook, SWT.None);
 
-		oneDShowing3DPage = new OneD3DViewPageComposite(pgBook, SWT.None);
+		oneDShowing3DPage = new OneD3DViewPageComposite(this, pgBook, SWT.None);
 
 		activePage = blankPageComposite;
 
@@ -219,11 +218,6 @@ public class OneDViewPage extends MappingPageBookViewPage implements IMappingVie
 		getSite().getWorkbenchWindow().getSelectionService()
 				.removeSelectionListener(getTwoDViewId(), twoDViewSelectionListener);
 		super.dispose();
-	}
-
-	@Override
-	public DataSetPlotter getDataSetPlotter() {
-		return activePage.getDataSetPlotter();
 	}
 
 }

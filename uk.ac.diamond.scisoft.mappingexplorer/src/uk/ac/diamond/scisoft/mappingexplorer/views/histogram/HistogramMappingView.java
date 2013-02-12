@@ -17,15 +17,14 @@
  */
 package uk.ac.diamond.scisoft.mappingexplorer.views.histogram;
 
-import java.awt.Color;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.dawnsci.plotting.jreality.core.AxisMode;
-import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
-import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
-import org.dawnsci.plotting.jreality.impl.PlotException;
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.PlotType;
+import org.dawb.common.ui.plot.PlottingFactory;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
@@ -47,14 +46,10 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Histogram;
 import uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IDatasetPlotterContainingView;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView2dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.TwoDMappingView;
@@ -67,9 +62,10 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 	private static final String LBL_PART_CHANGED = "Histogram displayed from %1$s";
 	private static final String DEFAULT_LABEL = "Shows the histogram from a dataset that is provided.";
 	public static final String ID = "uk.ac.diamond.scisoft.mappingexplorer.histview";
-	private static final int NUM_BINS = 1000; //match value used in HistogramView
+
+	private static final int NUM_BINS = 128; // match value used in HistogramView
 	private Composite rootComposite;
-	private DataSetPlotter dataSetPlotter;
+	private AbstractPlottingSystem plottingSystem;
 	private static final Logger logger = LoggerFactory.getLogger(HistogramMappingView.class);
 	private Label lblHistogram;
 
@@ -77,6 +73,7 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 	private Composite noDataPage;
 
 	private Composite activePage = null;
+	private Composite plotPage;
 
 	public HistogramMappingView() {
 
@@ -101,10 +98,20 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 		noDataPage = new Composite(dataSetPlotterPgBook, SWT.None);
 		noDataPage.setLayout(new FillLayout());
 
-		dataSetPlotter = new DataSetPlotter(PlottingMode.ONED, dataSetPlotterPgBook, false);
-		dataSetPlotter.setAxisModes(AxisMode.CUSTOM, AxisMode.LINEAR, AxisMode.LINEAR);
+		plotPage = new Composite(dataSetPlotterPgBook, SWT.None);
+		plotPage.setLayout(new FillLayout());
 
-		dataSetPlotter.getComposite().setLayoutData(new GridData(GridData.FILL_BOTH));
+		try {
+			plottingSystem = PlottingFactory.createPlottingSystem();
+		} catch (Exception e) {
+			logger.error("Unable to create plotting system", e);
+		}
+		plottingSystem.createPlotPart(plotPage, "HistogramPlotting", getViewSite().getActionBars(),
+				PlotType.XY_STACKED, this);
+
+		plottingSystem.setRescale(true);
+		plottingSystem.setShowLegend(false);
+
 		activePage = noDataPage;
 		// The below listeners are listeners to the selection service. A selection change event will trigger these
 		// listeners to be invoked. The reason for adding them twice in the way they've been added is because of a
@@ -115,7 +122,8 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 		// however, doesn't work for changes within the secondary views that are created for the TwoDMappingView.
 		getSite().getWorkbenchWindow().getSelectionService()
 				.addSelectionListener(TwoDMappingView.ID, histogramDatasetProviderListener);
-		//This is added so that selection of areas on the secondary views are listened to and the histogram for the section is plotted against.
+		// This is added so that selection of areas on the secondary views are listened to and the histogram for the
+		// section is plotted against.
 		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(histogramDatasetProviderListener);
 	}
 
@@ -159,64 +167,46 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 		}
 	};
 
-	private void updatePlot(IDataset ds) {
-		if (ds instanceof AbstractDataset) {
-			AxisValues xAxis = new AxisValues();
-
-			xAxis.clear();
-			AbstractDataset ds1 = (AbstractDataset) ds;
-			int maxValue = ds1.max().intValue();
-			int minValue = ds1.min().intValue();
-			
-			int range = maxValue-minValue+3; //include 1 above and 1 below
-			int numBins = range < NUM_BINS ? range : NUM_BINS;
-			Histogram histogram = new Histogram(numBins);
+	private void updatePlot(final IDataset ds) {
+		if (getViewSite().getShell().getDisplay() != null && !getViewSite().getShell().getDisplay().isDisposed()) {
+			getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
 
-			histogram.setMinMax(minValue-1, maxValue+1);
-			List<AbstractDataset> evaluated = histogram.value(ds1);
-			AbstractDataset evaluatedDs = evaluated.get(0);
+				@Override
+				public void run() {
+					if (ds instanceof AbstractDataset) {
+						AbstractDataset ds1 = (AbstractDataset) ds;
+						int maxValue = ds1.max().intValue();
+						int minValue = ds1.min().intValue();
 
-			AbstractDataset slice = null;
-			if (evaluated.size() > 1) {
-				AbstractDataset xData = evaluated.get(1);
-				slice = xData.getSlice(new Slice(0, numBins, 1));
-			} else {
-				slice = evaluatedDs;
-			}
-			//remove zeros
 
-			xAxis.setValues(slice);
-			try {
-				dataSetPlotter.getColourTable().clearLegend();
-				dataSetPlotter.getColourTable().addEntryOnLegend(new Plot1DAppearance(Color.BLUE, Plot1DStyles.SOLID_POINT, 1, ""));
-				dataSetPlotter
-						.replaceAllPlots(Collections.singletonList(evaluatedDs), Collections.singletonList(xAxis));
-			} catch (PlotException e) {
-				logger.error("Plotting problem {}", e);
-			}
-			dataSetPlotter.refresh(false);
-			activePage = dataSetPlotter.getComposite();
-			dataSetPlotterPgBook.showPage(activePage);
+						Histogram histogram = new Histogram(NUM_BINS);
+
+
+						histogram.setMinMax(minValue, maxValue);
+						List<AbstractDataset> evaluated = histogram.value(ds1);
+						AbstractDataset evaluatedDs = evaluated.get(0);
+						evaluatedDs.setName("HistogramDataSet");
+
+
+						try {
+							plottingSystem.updatePlot1D(null, Arrays.asList(evaluatedDs), new NullProgressMonitor());
+							plottingSystem.setTitle("Histogram");
+						} catch (Exception e) {
+							logger.error("Plotting problem {}", e);
+						}
+						activePage = plotPage;
+						dataSetPlotterPgBook.showPage(activePage);
+					}
+				}
+			});
+
 		}
-
 	}
 
 	@Override
 	public void setFocus() {
 		// do nothing for now.
-	}
-
-	/*
-	 * Returns the dataset plotter only if it is being actively displayed in the view. (non-Javadoc)
-	 * @see uk.ac.diamond.scisoft.mappingexplorer.views.IDatasetPlotterContainingView #getDataSetPlotter()
-	 */
-	@Override
-	public DataSetPlotter getDataSetPlotter() {
-		if (activePage != null && !activePage.equals(noDataPage)) {
-			return dataSetPlotter;
-		}
-		return null;
 	}
 
 	private IPartListener2 partListener = new IPartListener2() {
@@ -253,7 +243,7 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 
 		@Override
 		public void partBroughtToTop(IWorkbenchPartReference partRef) {
-			logger.warn("partBroughtToTop {}", partRef);
+			logger.debug("partBroughtToTop {}", partRef);
 			if (partRef instanceof IEditorReference) {
 				IEditorReference iEditorReference = (IEditorReference) partRef;
 				if (HDF5TreeEditor.ID.equals(iEditorReference.getId())
@@ -302,7 +292,7 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 
 		@Override
 		public void partActivated(IWorkbenchPartReference partRef) {
-			logger.warn("partActivated {}", partRef);
+			logger.debug("partActivated {}", partRef);
 		}
 	};
 }
