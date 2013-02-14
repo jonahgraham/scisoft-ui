@@ -42,6 +42,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.progress.UIJob;
@@ -81,6 +82,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 	private Stepper secondDimStepper;
 	private IMappingView3dData mappingViewData;
 	private String secondaryViewId;
+	private UpdatePlotJob updatePlotJob;
 
 	private final static Logger logger = LoggerFactory.getLogger(OneD3DViewPageComposite.class);
 
@@ -127,11 +129,11 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 		}
 		plottingSystem.createPlotPart(plotComposite, "OneDPlot", page.getSite().getActionBars(), PlotType.XY_STACKED,
 				null);
-		
+
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.rescale");
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotIndex");
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotX");
-		
+
 		plottingSystem.setRescale(true);
 
 		Composite configurerComposite = new Composite(this, SWT.None);
@@ -157,6 +159,14 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 		layoutData.heightHint = 50;
 		secondDimStepper.setLayoutData(layoutData);
 		secondDimStepper.addStepperSelectionListener(stepperSelectionListener);
+
+		createPlotUpdateJob();
+	}
+
+	private void createPlotUpdateJob() {
+		if (updatePlotJob == null) {
+			updatePlotJob = new UpdatePlotJob(getDisplay());
+		}
 	}
 
 	public void setMappingViewData(IMappingView3dData mappingViewData) {
@@ -260,82 +270,15 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 		final boolean dim1Selection = rdDimension1.getSelection();
 		final boolean dim2Selection = rdDimension2.getSelection();
 		final boolean dim3Selection = rdDimension3.getSelection();
-		new Job("Updating Plot") {
 
-			@Override
-			protected IStatus run(final IProgressMonitor monitor) {
-				if (mappingViewData == null) {
-					throw new IllegalArgumentException("Mapping View Data not available");
-				}
+		updatePlotJob.cancel();
 
-				final ILazyDataset dataset = mappingViewData.getDataSet();
-				final int[] shape = dataset.getShape();
-				AbstractDataset slice = null;
-				int[] finalShape = null;
-				String xAxislabel = null;
-				DoubleDataset axisValues = null;
-				try {
-					if (dim1Selection) {
-						slice = (AbstractDataset) dataset.getSlice((IMonitor) null, new Slice(null), new Slice(
-								firstDimmerSel, firstDimmerSel + 1), new Slice(secondDimmerSel, secondDimmerSel + 1));
-						finalShape = new int[] { shape[0] };
-
-						xAxislabel = mappingViewData.getDimension1Label();
-						if (mappingViewData.getDimension1Values() != null) {
-							axisValues = new DoubleDataset(mappingViewData.getDimension1Values(),
-									new int[mappingViewData.getDimension1Values().length]);
-						}
-					} else if (dim2Selection) {
-						slice = (AbstractDataset) dataset.getSlice((IMonitor) null, new Slice(firstDimmerSel,
-								firstDimmerSel + 1), new Slice(null), new Slice(secondDimmerSel, secondDimmerSel + 1));
-						finalShape = new int[] { shape[1] };
-						xAxislabel = mappingViewData.getDimension2Label();
-						if (mappingViewData.getDimension2Values() != null) {
-							axisValues = new DoubleDataset(mappingViewData.getDimension2Values(),
-									new int[mappingViewData.getDimension2Values().length]);
-						}
-					} else if (dim3Selection) {
-						slice = (AbstractDataset) dataset.getSlice((IMonitor) null, new Slice(firstDimmerSel,
-								firstDimmerSel + 1), new Slice(secondDimmerSel, secondDimmerSel + 1), new Slice(null));
-
-						finalShape = new int[] { shape[2] };
-						xAxislabel = mappingViewData.getDimension3Label();
-						if (mappingViewData.getDimension3Values() != null) {
-							axisValues = new DoubleDataset(mappingViewData.getDimension3Values(),
-									new int[mappingViewData.getDimension3Values().length]);
-						}
-					}
-					final int[] shapeToplot = finalShape;
-					final AbstractDataset sliceToPlot = slice;
-					final String xAxisLabelToPlot = xAxislabel;
-
-					if (!getDisplay().isDisposed()) {
-						getDisplay().asyncExec(new Runnable() {
-
-							@Override
-							public void run() {
-
-								if (sliceToPlot != null) {
-									sliceToPlot.setShape(shapeToplot);
-									sliceToPlot.setName("Data slice");
-									if (xAxisLabelToPlot != null) {
-										plottingSystem.getSelectedXAxis().setTitle(xAxisLabelToPlot);
-									}
-									plottingSystem.updatePlot1D(null, Arrays.asList(sliceToPlot), monitor);
-									plottingSystem.setShowLegend(false);
-									plottingSystem.setTitle("One D plot across slices");
-									plottingSystem.autoscaleAxes();
-								}
-							}
-						});
-					}
-				} catch (ScanFileHolderException ex) {
-					// throw new Exception("Error loading data from file during update", ex);
-					logger.error("Error loading data from file during update", ex);
-				}
-				return Status.OK_STATUS;
-			}
-		}.schedule(200);
+		updatePlotJob.setDim1Selection(dim1Selection);
+		updatePlotJob.setDim2Selection(dim2Selection);
+		updatePlotJob.setDim3Selection(dim3Selection);
+		updatePlotJob.setStepper1Value(firstDimmerSel);
+		updatePlotJob.setStepper2Value(secondDimmerSel);
+		updatePlotJob.schedule(200);
 
 	}
 
@@ -366,6 +309,119 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 	private boolean isSecondaryIdSame(String comparingPartSecondaryId) {
 		return (comparingPartSecondaryId == null && secondaryViewId == null)
 				|| (secondaryViewId != null && secondaryViewId.equals(comparingPartSecondaryId));
+	}
+
+	private class UpdatePlotJob extends Job {
+
+		private final Display display;
+		private boolean dim1Selection;
+		private boolean dim2Selection;
+		private boolean dim3Selection;
+		private int stepper1Val;
+		private int stepper2Val;
+
+		public UpdatePlotJob(Display display) {
+			super("Update OneD Plot");
+			this.display = display;
+		}
+
+		public void setDim1Selection(boolean dim1Selection) {
+			this.dim1Selection = dim1Selection;
+
+		}
+
+		public void setDim2Selection(boolean dim2Selection) {
+			this.dim2Selection = dim2Selection;
+
+		}
+
+		public void setDim3Selection(boolean dim3Selection) {
+			this.dim3Selection = dim3Selection;
+
+		}
+
+		public void setStepper1Value(int stepper1Val) {
+			this.stepper1Val = stepper1Val;
+		}
+
+		public void setStepper2Value(int stepper2Val) {
+			this.stepper2Val = stepper2Val;
+		}
+
+		@Override
+		protected IStatus run(final IProgressMonitor monitor) {
+			if (mappingViewData == null) {
+				throw new IllegalArgumentException("Mapping View Data not available");
+			}
+
+			final ILazyDataset dataset = mappingViewData.getDataSet();
+			final int[] shape = dataset.getShape();
+			AbstractDataset slice = null;
+			int[] finalShape = null;
+			String xAxislabel = null;
+			DoubleDataset axisValues = null;
+			try {
+				if (dim1Selection) {
+					slice = (AbstractDataset) dataset.getSlice((IMonitor) null, new Slice(null), new Slice(stepper1Val,
+							stepper1Val + 1), new Slice(stepper2Val, stepper2Val + 1));
+					finalShape = new int[] { shape[0] };
+
+					xAxislabel = mappingViewData.getDimension1Label();
+					if (mappingViewData.getDimension1Values() != null) {
+						axisValues = new DoubleDataset(mappingViewData.getDimension1Values(),
+								new int[mappingViewData.getDimension1Values().length]);
+					}
+				} else if (dim2Selection) {
+					slice = (AbstractDataset) dataset.getSlice((IMonitor) null,
+							new Slice(stepper1Val, stepper1Val + 1), new Slice(null), new Slice(stepper2Val,
+									stepper2Val + 1));
+					finalShape = new int[] { shape[1] };
+					xAxislabel = mappingViewData.getDimension2Label();
+					if (mappingViewData.getDimension2Values() != null) {
+						axisValues = new DoubleDataset(mappingViewData.getDimension2Values(),
+								new int[mappingViewData.getDimension2Values().length]);
+					}
+				} else if (dim3Selection) {
+					slice = (AbstractDataset) dataset.getSlice((IMonitor) null,
+							new Slice(stepper1Val, stepper1Val + 1), new Slice(stepper2Val, stepper2Val + 1),
+							new Slice(null));
+
+					finalShape = new int[] { shape[2] };
+					xAxislabel = mappingViewData.getDimension3Label();
+					if (mappingViewData.getDimension3Values() != null) {
+						axisValues = new DoubleDataset(mappingViewData.getDimension3Values(),
+								new int[mappingViewData.getDimension3Values().length]);
+					}
+				}
+				final int[] shapeToplot = finalShape;
+				final AbstractDataset sliceToPlot = slice;
+				final String xAxisLabelToPlot = xAxislabel;
+
+				if (!display.isDisposed()) {
+					display.asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+
+							if (sliceToPlot != null) {
+								sliceToPlot.setShape(shapeToplot);
+								sliceToPlot.setName("Data slice");
+								if (xAxisLabelToPlot != null) {
+									plottingSystem.getSelectedXAxis().setTitle(xAxisLabelToPlot);
+								}
+								plottingSystem.updatePlot1D(null, Arrays.asList(sliceToPlot), monitor);
+								plottingSystem.setShowLegend(false);
+								plottingSystem.setTitle("One D plot across slices");
+								plottingSystem.autoscaleAxes();
+							}
+						}
+					});
+				}
+			} catch (ScanFileHolderException ex) {
+				logger.error("Error loading data from file during update", ex);
+			}
+			return Status.OK_STATUS;
+		}
 	}
 
 	private void selectDimensionAxis(final AxisSelection axisSelection) {

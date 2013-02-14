@@ -109,7 +109,6 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 		plottingSystem.createPlotPart(plotPage, "HistogramPlotting", getViewSite().getActionBars(),
 				PlotType.XY_STACKED, this);
 
-		plottingSystem.setRescale(true);
 		plottingSystem.setShowLegend(false);
 
 		activePage = noDataPage;
@@ -171,7 +170,6 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 		if (getViewSite().getShell().getDisplay() != null && !getViewSite().getShell().getDisplay().isDisposed()) {
 			getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
-
 				@Override
 				public void run() {
 					if (ds instanceof AbstractDataset) {
@@ -179,19 +177,17 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 						int maxValue = ds1.max().intValue();
 						int minValue = ds1.min().intValue();
 
-
 						Histogram histogram = new Histogram(NUM_BINS);
-
 
 						histogram.setMinMax(minValue, maxValue);
 						List<AbstractDataset> evaluated = histogram.value(ds1);
 						AbstractDataset evaluatedDs = evaluated.get(0);
 						evaluatedDs.setName("HistogramDataSet");
 
-
 						try {
 							plottingSystem.updatePlot1D(null, Arrays.asList(evaluatedDs), new NullProgressMonitor());
 							plottingSystem.setTitle("Histogram");
+							plottingSystem.autoscaleAxes();
 						} catch (Exception e) {
 							logger.error("Plotting problem {}", e);
 						}
