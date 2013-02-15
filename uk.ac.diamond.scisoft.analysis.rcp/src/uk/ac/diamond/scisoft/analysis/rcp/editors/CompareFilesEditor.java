@@ -1211,7 +1211,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			for (SelectedObject f : selectedList) {
 				if (f.hasData()) {
 					AxisSelection as = f.getAxisSelections().get(i);
-					for (String n : as) {
+					ArrayList<String> names = new ArrayList<String>(as.getNames());
+					for (String n : names) {
 						if (!choices.contains(n)) {
 							as.removeChoice(n);
 						}
