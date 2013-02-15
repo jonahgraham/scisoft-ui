@@ -99,6 +99,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.AggregateDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
@@ -302,13 +303,13 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	 * @return true, if file can be added
 	 */
 	private boolean addFile(String path, int index) {
-		if (path == null)
+		if (path == null) {
 			return false;
-
+		}
 		SelectedFile sf = createSelectedFile(path);
-		if (sf == null)
+		if (sf == null) {
 			return false;
-
+		}
 		if (index == 0) {
 			logger.warn("Cannot add file to top of order");
 			index = 1;
@@ -318,11 +319,11 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		for (SelectedFile f : fileList) // update index values
 			f.setIndex(i++);
 
-		if (currentDatasetSelection != null)
+		if (currentDatasetSelection != null) {
 			changeSelection();
-		else
+		} else {
 			viewer.refresh();
-
+		}
 		return true;
 	}
 
@@ -486,8 +487,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			if (!f.hasDataHolder()) {
 				try {
 					DataHolder holder = explorer.loadFile(f.getAbsolutePath(), null);
-					if (holder != null)
+					if (holder != null) {
 						f.setDataHolder(holder);
+					}
 				} catch (Exception e) {
 				}
 			}
@@ -718,14 +720,14 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			// find position
 			SelectedFile file = (SelectedFile) getCurrentTarget();
 			int index = file == null ? 0 : fileList.indexOf(file);
-			if (index < 0)
+			if (index < 0) {
 				index = fileList.size();
-
+			}
 			String[] files = (String[]) data;
 			boolean ok = true;
-			for (String f : files)
+			for (String f : files) {
 				ok |= addFile(f, index++);
-
+			}
 			return ok;
 		}
 
@@ -743,28 +745,32 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			super(viewer);
 			if (column == Column.TICK) {
 				editor = new CheckboxCellEditor(viewer.getTable(), SWT.CHECK);
-				if (listener != null)
+				if (listener != null) {
 					editor.addListener(listener);
+				}
 			}
 			if (column == Column.COMBO) {
 				editor = new ComboBoxViewerCellEditor(viewer.getTable(), SWT.READ_ONLY);
 		        ((ComboBoxViewerCellEditor) editor).setLabelProvider(new LabelProvider());
 		        ((ComboBoxViewerCellEditor) editor).setContentProvider(new ArrayContentProvider());
 				((ComboBoxViewerCellEditor) editor).setInput(MathOp.values());
-				if (listener != null)
+				if (listener != null) {
 					editor.addListener(listener);
+				}
 			}
 			if (column == Column.VARIABLE) {
 				editor = new ComboBoxViewerCellEditor(viewer.getTable(), SWT.READ_ONLY);
 		        ((ComboBoxViewerCellEditor) editor).setLabelProvider(new LabelProvider());
 		        ((ComboBoxViewerCellEditor) editor).setContentProvider(new ArrayContentProvider());
-				if (listener != null)
+				if (listener != null) {
 					editor.addListener(listener);
+				}
 			}
 			if (column == Column.EXPRESSION) {
 				editor = new TextCellEditor(viewer.getTable());
-				if (listener != null)
+				if (listener != null) {
 					editor.addListener(listener);
+				}
 			}
 			this.column = column;
 		}
@@ -895,9 +901,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		for (IConfigurationElement l : cs) {
 			String id = l.getAttribute("id");
 			String cls = l.getAttribute("class");
-			if (id != null && cls != null) {
-				if (edId.contains(id))
-					edCls.add(cls);
+			if (id != null && cls != null && edId.contains(id)) {
+				edCls.add(cls);
 			}
 		}
 		return edCls;
@@ -998,26 +1003,15 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			for (SelectedNode expr : expressionList) {
 				if (expr.doUse() && expr.hasData()) {
 					expr.setDataOK(true); // blindly set okay (check later)
-					dataList.addAll(expr.getData());
-					metaList.add(expr.getMetaValue());
-					axesList.add(new ArrayList<AxisSelection>(expr.getAxisSelections()));
-					mathList.add(MathOp.DAT);
-					//AggregateDataset data = (AggregateDataset) expr.getData();
-					//int[] dataShape = data.getShape();
-					//int[] step = new int[dataShape.length];
-					//Arrays.fill(step, 1);
-					//int[] newShape = ArrayUtils.clone(dataShape);
-					//newShape[0] = 1;
-					//SliceIterator sliceItr = new SliceIterator(dataShape, AbstractDataset.calcSize(dataShape), null, step, step);
-					//while (sliceItr.hasNext()) {
-					//	int[] start = sliceItr.getPos();
-					//	int[] stop = ArrayUtils.clone(newShape);
-					//	stop[0] = start[0] + 1;
-					//	dataList.add(data.getSlice(start, stop, step));
-					//	metaList.add(expr.getMetaValue());
-					//	axesList.add(new ArrayList<AxisSelection>(expr.getAxisSelections()));
-					//	mathList.add(MathOp.DAT);
-					//}
+					List<ILazyDataset> exprData = expr.getData();
+					dataList.addAll(exprData);
+					Iterator<ILazyDataset> itr = exprData.iterator();
+					while (itr.hasNext()) {
+						metaList.add(expr.getMetaValue());
+						axesList.add(new ArrayList<AxisSelection>(expr.getAxisSelections()));
+						mathList.add(MathOp.DAT);
+						itr.next();
+					}
 				}
 			}
 			
@@ -1162,9 +1156,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			if (!f.hasDataHolder()) {
 				try {
 					DataHolder holder = explorer.loadFile(f.getAbsolutePath(), null);
-					if (holder == null)
+					if (holder == null) {
 						continue;
-
+					}
 					f.setDataHolder(holder);
 				} catch (Exception e) {
 					continue;
@@ -1327,9 +1321,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			}
 
 			AxisSelection ias = axisSelectionLists.get(0).get(i); // initial
-			if (ias == null)
+			if (ias == null) {
 				continue;
-
+			}
 			for (int k = 0, kmax = ias.size(); k < kmax; k++) { // for each choice
 				avalues.clear();
 				final AxisChoice c = ias.getAxis(k);
@@ -1468,10 +1462,12 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 
 		public ILazyDataset getMetaValue() {
-			if (!hasMV)
+			if (!hasMV) {
 				return null;
-			if (mv instanceof ILazyDataset)
+			}
+			if (mv instanceof ILazyDataset) {
 				return (ILazyDataset) mv;
+			}
 			return AbstractDataset.array(mv);
 		}
 
@@ -1699,10 +1695,13 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 		
 		private void resetJep() {
+			// This JEP instance is used to keep track of datasets assign to variable
 			jepParser = new JEP();
 			jepParser.setAllowUndeclared(true);
 			//jepParser.addStandardConstants();
 			jepParser.addStandardFunctions();
+			
+			// This JEP instance is used during dataset evaluation to assign double values to variables
 			eval = new JEP();
 			eval.setAllowUndeclared(true);
 			//eval.addStandardConstants();
@@ -1727,15 +1726,22 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					throws ScanFileHolderException {
 				
 				SymbolTable evalSymbolTable = eval.getSymbolTable();
+				HashMap<String, IDataset> dataSlices = new HashMap<String, IDataset>();
+				Iterator<String> itr = evalSymbolTable.keySet().iterator();
+				while (itr.hasNext()) {
+					String varName = itr.next();
+					ILazyDataset lzd = varMapping.get(varName).getData().get(0);	// TODO: This only works for SelectedFile objects
+					dataSlices.put(varName, lzd.getSlice(start, stop, step));
+				}
+				
 				AbstractDataset ds = AbstractDataset.zeros(shape, AbstractDataset.FLOAT64);
 				IndexIterator iter = ds.getIterator();
 				while (iter.hasNext()) {
 					int[] idx = ds.getNDPosition(iter.index);
-					Iterator<String> itr = evalSymbolTable.keySet().iterator();
+					itr = evalSymbolTable.keySet().iterator();
 					while (itr.hasNext()) {
 						String varName = itr.next();
-						ILazyDataset lzd = varMapping.get(varName).getData().get(0);
-						double val = lzd.getSlice(start, stop, step).getDouble(idx);
+						double val = dataSlices.get(varName).getDouble(idx);
 						evalSymbolTable.setVarValue(varName, val);
 					}
 					double res;
@@ -1787,7 +1793,6 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				d.add(new LazyDataset("Function " + Arrays.toString(datasetIdx), AbstractDataset.FLOAT64, getShape(), dataLoader));
 				
 			}
-			//d = new AggregateDataset(true, dList.toArray(new ILazyDataset[0]));
 			return d;
 		}
 
@@ -1805,7 +1810,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 						return null;
 					}
 					if (tmpShape == null) {
-						tmpShape = sf.getData().get(0).getShape();
+						tmpShape = sf.getData().get(0).getShape();	// All datasets should be the same shape 
 					} else {
 						if (!AbstractDataset.areShapesCompatible(tmpShape, sf.getData().get(0).getShape(), -1)) {
 							return null;
