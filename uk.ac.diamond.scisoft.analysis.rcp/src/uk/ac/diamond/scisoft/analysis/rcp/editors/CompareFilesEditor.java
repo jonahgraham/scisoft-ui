@@ -851,7 +851,6 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			getViewer().update(element, null);
 			changeSelection();
 		}
-
 	}
 
 	/**
@@ -1401,12 +1400,14 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	public void setSelection(ISelection selection) {
 		if (selection instanceof DatasetSelection) {
 			multipleSelection = (DatasetSelection) selection;
-		} 
-		if (selection instanceof FileSelection) {
-			SelectionChangedEvent e = new SelectionChangedEvent(this, selection);
-			for (ISelectionChangedListener listener : listeners) {
-				listener.selectionChanged(e);
+		} else {
+			if (!(selection instanceof FileSelection)) {
+				return;
 			}
+		}
+		SelectionChangedEvent e = new SelectionChangedEvent(this, selection);
+		for (ISelectionChangedListener listener : listeners) {
+			listener.selectionChanged(e);
 		}
 	}
 	
