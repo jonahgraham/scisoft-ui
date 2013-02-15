@@ -130,11 +130,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 		plottingSystem.createPlotPart(plotComposite, "OneDPlot", page.getSite().getActionBars(), PlotType.XY_STACKED,
 				null);
 
-		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.rescale");
-		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotIndex");
-		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotX");
-
-		plottingSystem.setRescale(true);
+		disablePlottingSystemActions(plottingSystem);
 
 		Composite configurerComposite = new Composite(this, SWT.None);
 		configurerComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -410,7 +406,6 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 									plottingSystem.getSelectedXAxis().setTitle(xAxisLabelToPlot);
 								}
 								plottingSystem.updatePlot1D(null, Arrays.asList(sliceToPlot), monitor);
-								plottingSystem.setShowLegend(false);
 								plottingSystem.setTitle("One D plot across slices");
 								plottingSystem.autoscaleAxes();
 							}

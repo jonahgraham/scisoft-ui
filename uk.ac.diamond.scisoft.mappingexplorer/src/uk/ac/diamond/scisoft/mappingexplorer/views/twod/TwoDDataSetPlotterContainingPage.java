@@ -259,9 +259,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 					logger.warn("Trace Added : {}", evt.getSource());
 				}
 			});
-			plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.rescale");
-			plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotIndex");
-			plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotX");
+			disablePlottingSystemActions(plottingSystem);
 
 		} catch (RuntimeException ex) {
 			logger.error("There is a problem with datasetPlotter.setMode()");
@@ -350,6 +348,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		thirdDimensionScaler.addStepperSelectionListener(stepperSelectionListener);
 		createUpdatePlotJob();
 	}
+
 
 	private Update2DPlotJob updatePlotJob;
 

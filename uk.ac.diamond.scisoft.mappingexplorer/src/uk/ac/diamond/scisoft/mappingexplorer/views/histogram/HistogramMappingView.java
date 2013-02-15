@@ -107,10 +107,9 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 			logger.error("Unable to create plotting system", e);
 		}
 		plottingSystem.createPlotPart(plotPage, "HistogramPlotting", getViewSite().getActionBars(),
-				PlotType.XY_STACKED, this);
+				PlotType.XY_STACKED, null);
 
-		plottingSystem.setShowLegend(false);
-
+		disablePlottingSystemActions(plottingSystem);
 		activePage = noDataPage;
 		// The below listeners are listeners to the selection service. A selection change event will trigger these
 		// listeners to be invoked. The reason for adding them twice in the way they've been added is because of a
@@ -124,6 +123,19 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 		// This is added so that selection of areas on the secondary views are listened to and the histogram for the
 		// section is plotted against.
 		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(histogramDatasetProviderListener);
+	}
+
+	protected void disablePlottingSystemActions(AbstractPlottingSystem plottingSystem) {
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.removeRegions");
+		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureConfigure Settings...");
+		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureShow Legend");
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.histo");
+		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configure");
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.addRegions");
+
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.rescale");
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotIndex");
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotX");
 	}
 
 	@Override
