@@ -393,8 +393,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		@Override
 		public void update(ViewerCell cell) {
 			Object obj = cell.getElement();
-			if (obj instanceof SelectedFile) {
-				SelectedFile sf = (SelectedFile) obj;
+			if (obj instanceof SelectedObject) {
+				SelectedObject sf = (SelectedObject) obj;
 				if (sf.doUse()) {
 					cell.setImage(TICK);
 				} else {
@@ -456,7 +456,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		@Override
 		public void update(ViewerCell cell) {
-			SelectedFile sf = (SelectedFile) cell.getElement();
+			SelectedObject sf = (SelectedObject) cell.getElement();
 			Color colour = null;
 			if (useRowIndexAsValue) {
 				cell.setText(sf.getIndex());
@@ -790,22 +790,25 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		@Override
 		protected Object getValue(Object element) {
+			if (element instanceof SelectedObject) {
+				SelectedObject so = (SelectedObject) element;
+				if (column == Column.TICK) {
+					return so.doUse();
+				}
+			}
 			if (element instanceof SelectedFile) {
 				SelectedFile sf = (SelectedFile) element;
-				if (column == Column.TICK) {
-					return sf.doUse();
-				}
 				if (column == Column.COMBO) {
 					return sf.getMathOp();
 				}
 				if (column == Column.VARIABLE) {
-			        if (expressionList != null) {
-			        	Set<Variable> vars = new HashSet<Variable>();
-			        	for (SelectedNode tmp : expressionList) {
-			        		vars.addAll(tmp.symbolTable.keySet());
-			        	}
-			        	((ComboBoxViewerCellEditor)variableEditor.getCellEditor(null)).setInput(vars.toArray());
-			        }
+					if (expressionList != null) {
+						Set<Variable> vars = new HashSet<Variable>();
+						for (SelectedNode tmp : expressionList) {
+							vars.addAll(tmp.symbolTable.keySet());
+						}
+						((ComboBoxViewerCellEditor) variableEditor.getCellEditor(null)).setInput(vars.toArray());
+					}
 					return sf.getVariableName();
 				}
 			}
@@ -824,15 +827,15 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				return;
 			if (element instanceof SelectedFile) {
 				SelectedFile sf = (SelectedFile) element;
-				if (column == Column.TICK) {
-					sf.setUse((Boolean) value);
-				}
 				if (column == Column.COMBO) {
 					sf.setMathOp((MathOp) value);
 				}
 			}
 			if (element instanceof SelectedObject) {
 				SelectedObject so = (SelectedObject) element;
+				if (column == Column.TICK) {
+					so.setUse((Boolean) value);
+				}
 				if (column == Column.VARIABLE) {
 					String variableName = (String) value; 
     				so.setVariableName(variableName);
@@ -1035,6 +1038,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 
 		viewer.refresh();
+		expressionViewer.refresh();
 	}
 	 
 	private void processSelection(final List<ILazyDataset> dataList,
@@ -1681,11 +1685,56 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		@Override
 		public boolean hasData() {
-			int[] tmpShape = getShape();
-			if (tmpShape == null) {
+			Set vars = symbolTable.keySet();
+			if (vars.isEmpty()) {
 				return false;
 			}
+			Iterator<String> itr = vars.iterator();
+			while (itr.hasNext()) {
+				String varName = itr.next();
+				Variable var = symbolTable.getVar(varName);
+				Object val = var.getValue();
+				if (val == null) {
+					return false;
+				}
+				Set<SelectedObject> datasets = (Set<SelectedObject>) val; 
+				if (datasets.isEmpty()) {
+					return false;
+				}
+				for (SelectedObject data : datasets) {
+					if (!(data.hasData())) {
+						return false;
+					}
+				}
+			}
 			return true;
+		}
+
+		@Override
+		public boolean isDataOK() {
+			Iterator<String> itr = symbolTable.keySet().iterator();
+			while (itr.hasNext()) {
+				String varName = itr.next();
+				Variable var = symbolTable.getVar(varName);
+				Object val = var.getValue();
+				if (val == null) {
+					canUseData = false;
+					return canUseData;
+				}
+				Set<SelectedObject> datasets = (Set<SelectedObject>) val; 
+				if (datasets.isEmpty()) {
+					canUseData = false;
+					return canUseData;
+				}
+				for (SelectedObject data : datasets) {
+					if (!(data.isDataOK())) {
+						canUseData = false;
+						return canUseData;
+					}
+				}
+			}
+			canUseData = true;
+			return canUseData;
 		}
 
 		public void setExpression(String str) {
