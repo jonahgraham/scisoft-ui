@@ -147,6 +147,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	private SashForm sashComp;
 	private List<SelectedFile> fileList;
 	private List<SelectedNode> expressionList;
+	private List<VariableMapping> variableList;
 	private TableViewer viewer, expressionViewer, variableViewer;
 	private Class<? extends AbstractExplorer> expClass = null;
 	private AbstractExplorer explorer;
@@ -480,6 +481,37 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 	}
 
+	private class VariableNameLabelProvider extends CellLabelProvider {
+		@Override
+		public void update(ViewerCell cell) {
+			VariableMapping var = (VariableMapping) cell.getElement();
+			cell.setText(var.getName());
+		}
+	}
+
+	private class MathComboLabelProvider extends CellLabelProvider {
+		@Override
+		public void update(ViewerCell cell) {
+			VariableMapping sf = (VariableMapping) cell.getElement();
+			cell.setText(sf.getMathOp().name());
+		}
+	}
+
+	private class IndexLabelProvider extends CellLabelProvider {
+		@Override
+		public void update(ViewerCell cell) {
+			VariableMapping var = (VariableMapping) cell.getElement();
+			List<ILazyDataset> datasets = var.getDatasets();
+			List<String> idx = new ArrayList<String>();
+			for (SelectedFile sf : fileList) {
+				if (datasets.contains(sf.getData().get(0))) {
+					idx.add(sf.getIndex());
+				}
+			}
+			cell.setText(idx.toString());
+		}
+	}
+
 	private class FileSelection extends StructuredSelection implements IMetadataProvider {
 		private IMetaData metadata = null;
 
@@ -720,9 +752,32 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		variableColumn.setWidth(40);
 		variableColumn.setMoveable(false);
 		//tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.VALUE, null));
-		//tVCol.setLabelProvider(new ValueLabelProvider(display));
+		tVCol.setLabelProvider(new VariableNameLabelProvider());
+		
+		tVCol = new TableViewerColumn(variableViewer, SWT.NONE);
+		tCol = tVCol.getColumn();
+		tCol.setText("Math");
+		tCol.setToolTipText("Select mathematical operation to apply on this file");
+		tCol.setWidth(150);
+		tCol.setMoveable(false);
+		//tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.COMBO, null));
+		tVCol.setLabelProvider(new MathComboLabelProvider());
+		
+		tVCol = new TableViewerColumn(variableViewer, SWT.NONE);
+		tCol = tVCol.getColumn();
+		tCol.setText("Indices");
+		tCol.setToolTipText("List of indicies of datasets mapped to this variable");
+		tCol.setWidth(150);
+		tCol.setMoveable(false);
+		//tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.COMBO, null));
+		tVCol.setLabelProvider(new IndexLabelProvider());
+		
+		final Table table = variableViewer.getTable();
+		table.setHeaderVisible(true);
+		
 		variableViewer.setContentProvider(ArrayContentProvider.getInstance());
-
+		
+		variableViewer.setInput(variableList);
 	}
 	
 	private void changeSelection() {
@@ -883,7 +938,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	 * Loop over all expressions and assign to every variable a set of SelectionObjects associated with it
 	 */
 	private void updateVariableMappings() {
-		List<SelectedFile> selFiles = (List<SelectedFile>) viewer.getInput(); 
+		List<SelectedFile> selFiles = (List<SelectedFile>) viewer.getInput();
         if (expressionList != null) {
         	for (SelectedNode expr : expressionList) {
         		SymbolTable st = expr.symbolTable;
@@ -903,6 +958,42 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
         		}
         	}
         }
+        
+		variableList = new ArrayList<VariableMapping>();
+        if (expressionList != null) {
+        	for (SelectedNode expr : expressionList) {
+        		SymbolTable st = expr.symbolTable;
+        		if (st != null) {
+        			Iterator<String> itr = st.keySet().iterator();
+        			while (itr.hasNext()) {
+        				String varName = itr.next();
+    					boolean exists = false;
+        				for (VariableMapping tmpVar : variableList) {
+        					if (tmpVar.getName().equals(varName)) {
+        						exists = true;
+        						break;
+        					}
+        				}
+        				if (!exists) {
+            				Variable var = st.getVar(varName);
+        					List<SelectedObject> objList = new ArrayList<SelectedObject>((Set<SelectedObject>) var.getValue());
+        					List<ILazyDataset> ds = new ArrayList<ILazyDataset>(); 
+        					for (SelectedObject obj : objList) {
+        						List<ILazyDataset> lst = obj.getData();
+        						if (lst != null && !(lst.isEmpty())) {
+        							ds.add(obj.getData().get(0));
+        						}
+        					}
+        					VariableMapping newMap = new VariableMapping(varName);
+        					newMap.setDatasets(ds);
+        					newMap.setMathOp(MathOp.DAT);
+        					variableList.add(newMap);
+        				}
+        			}
+        		}
+        	}
+        }
+        variableViewer.refresh();
 	}
 	
 	/**
@@ -1689,6 +1780,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		
 		private SymbolTable symbolTable;
 		private JEP jepParser, eval;
+		private List<VariableMapping> variableMappings;
 		
 		public SelectedNode(int index, String str) {
 			resetJep();
@@ -1919,6 +2011,42 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				}
 			}
 			return tmpShape;
+		}
+	}
+	
+	private class VariableMapping {
+		
+		private String name;
+		private MathOp mathOp;
+		private List<ILazyDataset> datasets;
+		
+		public VariableMapping(String name) {
+			super();
+			this.name = name;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public MathOp getMathOp() {
+			return mathOp;
+		}
+
+		public void setMathOp(MathOp mathOp) {
+			this.mathOp = mathOp;
+		}
+
+		public List<ILazyDataset> getDatasets() {
+			return datasets;
+		}
+
+		public void setDatasets(List<ILazyDataset> datasets) {
+			this.datasets = datasets;
 		}
 	}
 }
