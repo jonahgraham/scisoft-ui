@@ -238,34 +238,11 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	}
 
 	/**
-	 * Uses the standard container selection dialog to choose the new value for the container field.
-	 */
-
-//	private void handleBrowse() {
-//		DirectoryDialog dirDialog = new DirectoryDialog(getShell(), SWT.OPEN);
-//		dirDialog.setFilterPath(getDirectory());
-//		final String filepath = dirDialog.open();
-//		if (filepath != null) {
-//			txtDataRootDirectory.setText(filepath);
-//			dialogChanged();
-//		}
-//	}
-
-	/**
 	 * Ensures that both text fields are set.
 	 */
 
 	private void dialogChanged() {
-//		if (getProject().length() == 0) {
-//			updateStatus("Project name must be specified");
-//			return;
-//		}
-
-//		if (getDirectory().length() == 0) {
-//			updateStatus("Directory containing files must be specified.");
-//			return;
-//		}
-		
+	
 		if (getBeamline().length() == 0 && getFedid().length() == 0) {
 			updateStatus("Either fedid and/or beamline must specified.");
 			return;
@@ -329,10 +306,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	public String getVisit() {
 		return visitListCombo.getText().toLowerCase();	
 	}
-
-//	public void setDataLocation(String selectedPath) {
-//		txtDataRootDirectory.setText(selectedPath);
-//	}
 
 
 	@Override
