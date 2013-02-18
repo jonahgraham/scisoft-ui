@@ -142,8 +142,8 @@ public class BeamCenterRefinement implements MultivariateFunction {
 			IPeak refPeak = initPeaks.get(idx);
 			double pos = refPeak.getPosition();
 			double fwhm = refPeak.getFWHM() / 2.0;
-			int startIdx = DatasetUtils.findIndexGreaterThanorEqualTo(axis, pos - fwhm);
-			int stopIdx = DatasetUtils.findIndexGreaterThanorEqualTo(axis, pos + fwhm) + 1;
+			int startIdx = DatasetUtils.findIndexGreaterThanOrEqualTo(axis, pos - fwhm);
+			int stopIdx = DatasetUtils.findIndexGreaterThanOrEqualTo(axis, pos + fwhm) + 1;
 
 			AbstractDataset axisSlice = axis.getSlice(new int[] { startIdx }, new int[] { stopIdx }, null);
 			AbstractDataset peakSlice = intresult[0].getSlice(new int[] { startIdx }, new int[] { stopIdx }, null);

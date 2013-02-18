@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.beamlineexplorer.rcp.internal.BeamlineExplorerProjectActivator;
-import uk.ac.diamond.scisoft.beamlinexplorer.rcp.natures.SingleLevelProjectNature;
+import uk.ac.diamond.scisoft.beamlineexplorer.rcp.natures.SingleLevelProjectNature;
 
 
 public class BeamlineDataWizard extends Wizard implements INewWizard {
@@ -104,10 +104,12 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 			protected IStatus run(IProgressMonitor monitor) {
 				monitor.beginTask("Importing content", 100);
 				try {
+					logger.debug("project: " + project);
+					logger.debug("directory: " + directory);
 					BeamlineDataProjectUtils.createImportProjectAndFolder(project, "beamlinedata", directory, SingleLevelProjectNature.NATURE_ID, null, monitor);
 				} catch (CoreException e) {
 					logger.error("Error creating project " + project, e);
-					return new Status(IStatus.ERROR, BeamlineExplorerProjectActivator.PLUGIN_ID, "Error creating project " + project);
+					return new Status(IStatus.ERROR, BeamlineExplorerProjectActivator.PLUGIN_ID, "Error creating project " + project + "\n folder '"+ directory + "' does not exit on file system");
 				}
 				return new Status(IStatus.OK, BeamlineExplorerProjectActivator.PLUGIN_ID, "Project " + project + " created");
 			}
