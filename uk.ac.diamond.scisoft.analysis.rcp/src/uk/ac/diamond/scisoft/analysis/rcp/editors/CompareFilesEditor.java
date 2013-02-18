@@ -691,6 +691,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			@Override
 			public void handleEvent(Event event) {
 				expressionList.add(new SelectedNode(expressionList.size(), DEFAULT_EXPRESSION));
+				updateVariableMappings();
 				expressionViewer.refresh();
 			}
 		});
@@ -848,6 +849,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					SelectedNode expr = (SelectedNode) element;
 					expr.setExpression(String.valueOf(value));
 					expressionList.set(idx, expr);
+					updateVariableMappings();
 				}
 
 			}
@@ -1525,7 +1527,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 
 		public ILazyDataset getAxis(String key) {
-			return d.get(0);
+			return null;
 		}
 
 		public List<AxisSelection> getAxisSelections() {
@@ -1735,6 +1737,26 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			}
 			canUseData = true;
 			return canUseData;
+		}
+
+		@Override
+		public ILazyDataset getAxis(String key) {
+			Iterator<String> itr = symbolTable.keySet().iterator();
+			ILazyDataset defAxes = null;
+			while (itr.hasNext()) {
+				String varName = itr.next();
+				Variable var = symbolTable.getVar(varName);
+				ArrayList<SelectedObject> lzdList = new ArrayList<SelectedObject>((Set<SelectedObject>) var.getValue());
+				for (SelectedObject obj : lzdList) {
+					if (defAxes == null) {
+						defAxes = obj.getAxis(key);
+					}
+					if (defAxes != null && !defAxes.equals(obj.getAxis(key))) {
+						return null;
+					}
+				}
+			}
+			return defAxes;
 		}
 
 		public void setExpression(String str) {
