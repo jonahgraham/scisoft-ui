@@ -66,7 +66,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	private Text txtFedidValue;
 	private Button btnCheckButton;
 	private Combo beamlineListCombo;
-	private Combo visistListCombo;
+	private Combo visitListCombo;
 	private final String initProject;
 	private final String initDirectory;
 	private final String initFolder;
@@ -121,6 +121,16 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		lblBeamline.setText("Beamline");
 		
 		beamlineListCombo = new Combo(container, SWT.NONE);
+		beamlineListCombo.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseUp(MouseEvent e) {
+				logger.debug("beamline list selection changed...clear visit list");
+				if(visitListCombo != null &&  visitListCombo.getSelectionIndex() != -1){
+					visitListCombo.deselectAll();
+					visitListCombo.clearSelection();
+				}
+			}
+		});
 		beamlineListCombo.setItems(beamlineList);
 		beamlineListCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		beamlineListCombo.select(Arrays.asList(beamlineList).indexOf(beamline));
@@ -133,6 +143,15 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		setControl(container);
 		
 		txtFedidValue = new Text(container, SWT.BORDER);
+		txtFedidValue.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				logger.debug("fedid changed...clear visit list");
+				if(visitListCombo != null &&  visitListCombo.getSelectionIndex() != -1){
+					visitListCombo.deselectAll();
+					visitListCombo.clearSelection();
+				}
+			}
+		});
 		txtFedidValue.setText(computeFedid());
 		txtFedidValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(container, SWT.NONE);
@@ -140,8 +159,10 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		Label lblVisitList = new Label(container, SWT.NULL);
 		lblVisitList.setText("Visit List");
 		
-		visistListCombo = new Combo(container, SWT.NONE);
-		visistListCombo.addModifyListener(new ModifyListener() {
+		visitListCombo = new Combo(container, SWT.NONE);
+		visitListCombo.addModifyListener(new ModifyListener() {
+			// change beamline value when visit_id changes
+			@Override
 			public void modifyText(ModifyEvent e) {
 				String beamline = "";
 				for (int counter=0; counter< visitList.size(); counter++){
@@ -157,7 +178,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 				beamlineListCombo.select(index);
 			}
 		});
-		visistListCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		visitListCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		
 		Button btnVisitList = new Button(container, SWT.NONE);
@@ -181,6 +202,10 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 						    });
 													
 				}else {	
+					
+					visitListCombo.deselectAll();
+					visitListCombo.clearSelection();
+					
 					computeVisitList(getFedid(), getBeamline());
 					
 					String[] items = new String[visitList.size()];
@@ -189,9 +214,9 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 						items[i] = visitList.get(i).getVisit_id().toLowerCase();
 					}
 					
-					visistListCombo.setItems(items);
-					if (visistListCombo.getItemCount() > 1)
-						visistListCombo.select(0);
+					visitListCombo.setItems(items);
+					if (visitListCombo.getItemCount() > 1)
+						visitListCombo.select(0);
 				}
 			}
 		});
@@ -309,7 +334,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	}	
 	
 	public String getVisit() {
-		return visistListCombo.getText().toLowerCase();	
+		return visitListCombo.getText().toLowerCase();	
 	}
 
 //	public void setDataLocation(String selectedPath) {
@@ -375,6 +400,9 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	}
 	
 	private List<VisitDetails> computeVisitList(String fedid, String beamline) {	
+		
+		//clear visit list 
+		visitList.clear();
 		
 		int rowCount = 0;
 		int columnsCount = 0;

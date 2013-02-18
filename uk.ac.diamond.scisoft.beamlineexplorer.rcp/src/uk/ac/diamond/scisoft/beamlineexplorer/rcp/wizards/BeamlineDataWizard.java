@@ -109,7 +109,7 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 					BeamlineDataProjectUtils.createImportProjectAndFolder(project, "beamlinedata", directory, SingleLevelProjectNature.NATURE_ID, null, monitor);
 				} catch (CoreException e) {
 					logger.error("Error creating project " + project, e);
-					return new Status(IStatus.ERROR, BeamlineExplorerProjectActivator.PLUGIN_ID, "Error creating project " + project);
+					return new Status(IStatus.ERROR, BeamlineExplorerProjectActivator.PLUGIN_ID, "Error creating project " + project + "\n folder '"+ directory + "' does not exit on file system");
 				}
 				return new Status(IStatus.OK, BeamlineExplorerProjectActivator.PLUGIN_ID, "Project " + project + " created");
 			}
