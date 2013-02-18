@@ -117,7 +117,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		beamlineListCombo.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
-				logger.debug("beamline list selection changed...clear visit list");
 				if(visitListCombo != null &&  visitListCombo.getSelectionIndex() != -1){
 					visitListCombo.deselectAll();
 					visitListCombo.clearSelection();
@@ -138,7 +137,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		txtFedidValue = new Text(container, SWT.BORDER);
 		txtFedidValue.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
-				logger.debug("fedid changed...clear visit list");
 				if(visitListCombo != null &&  visitListCombo.getSelectionIndex() != -1){
 					visitListCombo.deselectAll();
 					visitListCombo.clearSelection();
@@ -273,7 +271,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		 }
 		}
 		// return the name of the created project
-		return beamline + "-" + getVisit();//txtProjectName.getText();
+		return beamline + "-" + getVisit();
 	}
 
 	public String getDirectory() {

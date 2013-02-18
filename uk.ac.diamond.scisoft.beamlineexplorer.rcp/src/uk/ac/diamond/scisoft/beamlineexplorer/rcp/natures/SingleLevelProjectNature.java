@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.ac.diamond.scisoft.beamlinexplorer.rcp.natures;
+package uk.ac.diamond.scisoft.beamlineexplorer.rcp.natures;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;

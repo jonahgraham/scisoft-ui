@@ -38,7 +38,7 @@ public class HideDeepProjects extends ViewerFilter {
 	private static Logger logger = LoggerFactory
 			.getLogger(HideDeepProjects.class);
 	
-	static final String SINGLE_LEVEL_NATURE = uk.ac.diamond.scisoft.beamlinexplorer.rcp.natures.SingleLevelProjectNature.NATURE_ID;
+	static final String SINGLE_LEVEL_NATURE = uk.ac.diamond.scisoft.beamlineexplorer.rcp.natures.SingleLevelProjectNature.NATURE_ID;
 	
 	
 	@Override

@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.beamlineexplorer.rcp.internal.BeamlineExplorerProjectActivator;
-import uk.ac.diamond.scisoft.beamlinexplorer.rcp.natures.SingleLevelProjectNature;
+import uk.ac.diamond.scisoft.beamlineexplorer.rcp.natures.SingleLevelProjectNature;
 
 
 public class BeamlineDataWizard extends Wizard implements INewWizard {

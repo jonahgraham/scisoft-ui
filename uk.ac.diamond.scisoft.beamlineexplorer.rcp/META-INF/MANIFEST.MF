@@ -16,5 +16,5 @@ Import-Package: org.eclipse.ui.navigator.resources,
  org.slf4j
 Bundle-ClassPath: .,
  lib/ojdbc6.jar
-Export-Package: uk.ac.diamond.scisoft.beamlineexplorer.rcp.projects,
- uk.ac.diamond.scisoft.beamlinexplorer.rcp.natures
+Export-Package: uk.ac.diamond.scisoft.beamlineexplorer.rcp.natures,
+ uk.ac.diamond.scisoft.beamlineexplorer.rcp.projects

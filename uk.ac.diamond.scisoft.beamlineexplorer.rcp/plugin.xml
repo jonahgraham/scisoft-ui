@@ -203,7 +203,7 @@
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="uk.ac.diamond.scisoft.beamlinexplorer.rcp.natures.SingleLevelProjectNature">
+               class="uk.ac.diamond.scisoft.beamlineexplorer.rcp.natures.SingleLevelProjectNature">
          </run>
       </runtime>
    </extension>
