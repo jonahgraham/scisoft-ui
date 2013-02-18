@@ -147,7 +147,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	private SashForm sashComp;
 	private List<SelectedFile> fileList;
 	private List<SelectedNode> expressionList;
-	private TableViewer viewer, expressionViewer;
+	private TableViewer viewer, expressionViewer, variableViewer;
 	private Class<? extends AbstractExplorer> expClass = null;
 	private AbstractExplorer explorer;
 	private String firstFileName;
@@ -156,7 +156,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	private DatasetSelection currentDatasetSelection; // from explorer
 	private DatasetSelection multipleSelection; // from this editor
 
-	private TableColumn valueColumn;
+	private TableColumn valueColumn, variableColumn;
 
 	private FileDialog fileDialog;
 
@@ -164,7 +164,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 	private CFEditingSupport variableEditor;
 
-	private final static String VALUE_DEFAULT_TEXT = "Value";
+	private final static String VALUE_DEFAULT_TEXT = "Index";
 	private final static String DEFAULT_EXPRESSION = "a + b";
 
 	@Override
@@ -374,6 +374,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		sashComp.dispose();
 		viewer.getControl().dispose();
 		expressionViewer.getControl().dispose();
+		variableViewer.getControl().dispose();
 
 		super.dispose();
 	}
@@ -641,6 +642,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 
 		createExpressionTable(display);
+		createVariableTable(display);
 		
 		try {
 			explorer = expClass.getConstructor(Composite.class, IWorkbenchPartSite.class, ISelectionChangedListener.class).newInstance(sashComp, getSite(), this);
@@ -690,7 +692,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		item.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				expressionList.add(new SelectedNode(expressionList.size(), DEFAULT_EXPRESSION));
+				int idxNew = fileList.size() + expressionList.size();
+				expressionList.add(new SelectedNode(idxNew, DEFAULT_EXPRESSION));
 				updateVariableMappings();
 				expressionViewer.refresh();
 			}
@@ -704,6 +707,24 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		expressionViewer.setInput(expressionList);
 	}
 
+	private void createVariableTable(Display display) {
+		variableViewer = new TableViewer(sashComp, SWT.V_SCROLL);
+		
+		TableViewerColumn tVCol;
+		TableColumn tCol;
+		
+		tVCol = new TableViewerColumn(variableViewer, SWT.NONE);
+		variableColumn = tVCol.getColumn();
+		variableColumn.setText("Variable");
+		variableColumn.setToolTipText("Value of resource (a yellow background indicates a missing value)");
+		variableColumn.setWidth(40);
+		variableColumn.setMoveable(false);
+		//tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.VALUE, null));
+		//tVCol.setLabelProvider(new ValueLabelProvider(display));
+		variableViewer.setContentProvider(ArrayContentProvider.getInstance());
+
+	}
+	
 	private void changeSelection() {
 		if (currentDatasetSelection != null) {
 			selectionChanged(new SelectionChangedEvent(this, currentDatasetSelection));
@@ -1801,13 +1822,19 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				SymbolTable evalSymbolTable = eval.getSymbolTable();
 				HashMap<String, IDataset> dataSlices = new HashMap<String, IDataset>();
 				Iterator<String> itr = evalSymbolTable.keySet().iterator();
+				int[] sliceShape = null;
 				while (itr.hasNext()) {
 					String varName = itr.next();
 					ILazyDataset lzd = varMapping.get(varName).getData().get(0);	// TODO: This only works for SelectedFile objects
-					dataSlices.put(varName, lzd.getSlice(start, stop, step));
+					IDataset lzdSlice = lzd.getSlice(start, stop, step); 
+					dataSlices.put(varName, lzdSlice);
+					// All datasets and slices should have the same shape
+					if (sliceShape == null) {
+						sliceShape = lzdSlice.getShape();
+					}
 				}
 				
-				AbstractDataset ds = AbstractDataset.zeros(shape, AbstractDataset.FLOAT64).getSlice(start, stop, step);
+				AbstractDataset ds = AbstractDataset.zeros(sliceShape, AbstractDataset.FLOAT64); 
 				IndexIterator iter = ds.getIterator();
 				while (iter.hasNext()) {
 					int[] idx = ds.getNDPosition(iter.index);
