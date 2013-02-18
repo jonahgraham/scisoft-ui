@@ -1807,7 +1807,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					dataSlices.put(varName, lzd.getSlice(start, stop, step));
 				}
 				
-				AbstractDataset ds = AbstractDataset.zeros(shape, AbstractDataset.FLOAT64);
+				AbstractDataset ds = AbstractDataset.zeros(shape, AbstractDataset.FLOAT64).getSlice(start, stop, step);
 				IndexIterator iter = ds.getIterator();
 				while (iter.hasNext()) {
 					int[] idx = ds.getNDPosition(iter.index);
