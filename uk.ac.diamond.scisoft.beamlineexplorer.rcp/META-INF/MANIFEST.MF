@@ -14,6 +14,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.ui.navigator.resources,
  org.slf4j
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/ojdbc6.jar
 Export-Package: uk.ac.diamond.scisoft.beamlineexplorer.rcp.projects,
  uk.ac.diamond.scisoft.beamlinexplorer.rcp.natures

@@ -104,6 +104,8 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 			protected IStatus run(IProgressMonitor monitor) {
 				monitor.beginTask("Importing content", 100);
 				try {
+					logger.debug("project: " + project);
+					logger.debug("directory: " + directory);
 					BeamlineDataProjectUtils.createImportProjectAndFolder(project, "beamlinedata", directory, SingleLevelProjectNature.NATURE_ID, null, monitor);
 				} catch (CoreException e) {
 					logger.error("Error creating project " + project, e);
