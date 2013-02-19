@@ -30,6 +30,9 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
+import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
+import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.gda.util.OSUtils;
 
 public class FileLabelProvider extends ColumnLabelProvider {
@@ -90,12 +93,33 @@ public class FileLabelProvider extends ColumnLabelProvider {
 			return node.isDirectory() ? "Directory" : FileUtils.getFileExtension(node);
 		case 3:
 			return formatSize(node.length());
+		case 4:
+			return node.isDirectory() ? "" : getASCIIScanCommand(node);
 		default:
 			return null;
 		}
 	}
 
-    private String getRootLabel(File node) {
+    private String getASCIIScanCommand(File node) {
+    	// make it work just for srs files for now
+    	if(!FileUtils.getFileExtension(node).equals("dat") && !FileUtils.getFileExtension(node).equals("srs")) return "";
+    	String result = "N/A";
+    	IExtendedMetadata metaData = null;
+    	try {
+			IMetaData metaDataTest=LoaderFactory.getMetaData(node.getAbsolutePath(), null);
+			if(metaDataTest instanceof IExtendedMetadata){
+				metaData = (IExtendedMetadata)LoaderFactory.getMetaData(node.getAbsolutePath(), null);
+				if(metaData == null) return result;
+				result = metaData.getScanCommand();
+			}
+		} catch (Exception ne) {
+			ne.printStackTrace();
+			return result;
+		}
+		return result;
+	}
+
+	private String getRootLabel(File node) {
     	if (OSUtils.isWindowsOS()) {
     		return	"("+node.getAbsolutePath().substring(0, node.getAbsolutePath().length()-1)+")";
     	}
@@ -117,5 +141,4 @@ public class FileLabelProvider extends ColumnLabelProvider {
         }
         return "" + (int)size + " bytes";
     }
-
 }

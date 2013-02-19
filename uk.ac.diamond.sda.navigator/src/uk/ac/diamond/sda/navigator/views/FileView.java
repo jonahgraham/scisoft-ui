@@ -132,6 +132,7 @@ public class FileView extends ViewPart implements IFileSelector {
 	 * 
 	 * @return String
 	 */
+	@Override
 	public File getSelectedFile() {
 		File sel = (File)((IStructuredSelection)tree.getSelection()).getFirstElement();
 		if (sel==null) sel = savedSelection;
@@ -255,8 +256,8 @@ public class FileView extends ViewPart implements IFileSelector {
 			}
 		});
 
-		final String[] titles = { "Name", "Date", "Type", "Size" };
-		final int[]    widths = { 250, 120, 80, 150 };
+		final String[] titles = { "Name", "Date", "Type", "Size", "Scan Command" };
+		final int[]    widths = { 250, 120, 80, 150, 300 };
 		TreeViewerColumn tVCol;
 		for (int i = 0; i < titles.length; i++) {
 			tVCol = new TreeViewerColumn(tree, SWT.NONE);
