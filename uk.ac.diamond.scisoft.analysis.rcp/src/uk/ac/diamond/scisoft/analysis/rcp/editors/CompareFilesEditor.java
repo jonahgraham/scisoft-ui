@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -503,6 +504,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					idx.add(obj.getIndex());
 				}
 			}
+			Collections.sort(idx);
 			cell.setText(idx.toString());
 		}
 	}
@@ -867,11 +869,13 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				SelectedFile sf = (SelectedFile) element;
 				if (column == Column.VARIABLE) {
 					if (expressionList != null) {
-						Set<Variable> vars = new HashSet<Variable>();
+						Set<String> vars = new HashSet<String>();
 						for (SelectedNode tmp : expressionList) {
 							vars.addAll(tmp.symbolTable.keySet());
 						}
-						((ComboBoxViewerCellEditor) variableEditor.getCellEditor(null)).setInput(vars.toArray());
+						List<String> varList = new ArrayList<String>(vars);
+						Collections.sort(varList);
+						((ComboBoxViewerCellEditor) variableEditor.getCellEditor(null)).setInput(varList.toArray());
 					}
 					return sf.getVariableName();
 				}
@@ -934,6 +938,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	 */
 	private void updateVariableMappings() {
 		List<SelectedFile> selFiles = (List<SelectedFile>) viewer.getInput();
+		Set<String> varNames = new HashSet<String>();
         if (expressionList != null) {
         	for (SelectedNode expr : expressionList) {
         		SymbolTable st = expr.symbolTable;
@@ -949,9 +954,16 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
         						((Set<SelectedObject>)var.getValue()).add(sf);
         					}
         				}
+        				varNames.add(varName);
         			}
         		}
         	}
+        }
+        
+        Set<String> oldNames = new HashSet<String>(variableMap.keySet());
+        for (String oldName : oldNames) {
+        	if (!varNames.contains(oldName))
+        		variableMap.remove(oldName);
         }
         
         if (expressionList != null) {
@@ -1684,7 +1696,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		@Override
 		public boolean hasData() {
-			Set vars = symbolTable.keySet();
+			Set<String> vars = symbolTable.keySet();
 			if (vars.isEmpty()) {
 				return false;
 			}
