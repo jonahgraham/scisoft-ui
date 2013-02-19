@@ -108,6 +108,7 @@ public class OneDViewPage extends MappingPageBookViewPage implements IMappingVie
 	@Override
 	public void setFocus() {
 		// Do nothing
+		logger.warn("Focus gained in one d:{}", nodeName);
 	}
 
 	@Override
@@ -139,7 +140,6 @@ public class OneDViewPage extends MappingPageBookViewPage implements IMappingVie
 			activePage = oneDShowing3DPage;
 		} else {
 			activePage.removeCompositeSelectionListener(pageSelectionListener);
-			activePage.cleanup();
 			activePage = blankPageComposite;
 		}
 		pgBook.showPage(activePage);

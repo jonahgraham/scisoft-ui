@@ -62,8 +62,6 @@ public abstract class BaseViewPageComposite extends Composite {
 	public abstract void selectionChanged(IWorkbenchPart part,
 			ISelection selection);
 
-	public abstract void cleanup();
-
 	public abstract void updatePlot() throws Exception;
 
 	public abstract void initialPlot() throws Exception;

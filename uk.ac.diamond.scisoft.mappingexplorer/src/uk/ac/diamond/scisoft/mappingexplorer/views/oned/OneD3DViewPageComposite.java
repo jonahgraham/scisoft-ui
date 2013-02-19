@@ -27,6 +27,7 @@ import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.ColorConstants;
@@ -72,6 +73,8 @@ import uk.ac.gda.ui.components.StepperChangedEvent;
  * @author rsr31645
  */
 public class OneD3DViewPageComposite extends BaseViewPageComposite {
+	private static final String PREPARE_PIXEL_SELECTION = "Prepare Pixel Selection";
+	private static final String PLOT_PART_NAME = "OneDPlot";
 	private Button rdDimension1;
 	private Button rdDimension2;
 	private Button rdDimension3;
@@ -127,7 +130,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 		} catch (Exception e) {
 			logger.error("Problem creating plotting system", e);
 		}
-		plottingSystem.createPlotPart(plotComposite, "OneDPlot", page.getSite().getActionBars(), PlotType.XY_STACKED,
+		plottingSystem.createPlotPart(plotComposite, PLOT_PART_NAME, page.getSite().getActionBars(), PlotType.XY_STACKED,
 				null);
 
 		disablePlottingSystemActions(plottingSystem);
@@ -309,6 +312,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 
 	private class UpdatePlotJob extends Job {
 
+		private static final String DATA_SLICE_TO_BE_DISPLAYED = "Data slice";
 		private final Display display;
 		private boolean dim1Selection;
 		private boolean dim2Selection;
@@ -401,11 +405,11 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 
 							if (sliceToPlot != null) {
 								sliceToPlot.setShape(shapeToplot);
-								sliceToPlot.setName("Data slice");
+								sliceToPlot.setName(DATA_SLICE_TO_BE_DISPLAYED);
 								if (xAxisLabelToPlot != null) {
 									plottingSystem.getSelectedXAxis().setTitle(xAxisLabelToPlot);
 								}
-								plottingSystem.updatePlot1D(null, Arrays.asList(sliceToPlot), monitor);
+								plottingSystem.updatePlot1D(null, Arrays.asList(sliceToPlot), new NullProgressMonitor());
 								plottingSystem.setTitle("One D plot across slices");
 								plottingSystem.autoscaleAxes();
 							}
@@ -461,7 +465,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 		final int x = pixelSelection.getSelectedPixel()[0];
 		final int y = pixelSelection.getSelectedPixel()[1];
 		if (getDisplay() != null) {
-			UIJob job = new UIJob(getDisplay(), "Prepare Pixel Selection") {
+			UIJob job = new UIJob(getDisplay(), PREPARE_PIXEL_SELECTION) {
 
 				@Override
 				public IStatus runInUIThread(IProgressMonitor monitor) {
@@ -543,7 +547,6 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 				}
 			}
 			if (MappingViewSelectionChangedEvent.PIXEL_SELECTION == sel.getChangedEvent()) {
-				// selectDimensionAxis(sel.getAxisDimensionSelection());
 				selectPixel(sel.getPixelSelection(), sel.isFlipped());
 			}
 		}
@@ -556,11 +559,6 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 	@Override
 	public ISelection getSelection() {
 		return null;
-	}
-
-	@Override
-	public void cleanup() {
-		// dataSetPlotter.cleanUp();
 	}
 
 	@Override

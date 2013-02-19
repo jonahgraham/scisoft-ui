@@ -52,11 +52,6 @@ public class BlankPageComposite extends BaseViewPageComposite {
 	}
 
 	@Override
-	public void cleanup() {
-
-	}
-
-	@Override
 	public void updatePlot() throws Exception {
 
 	}

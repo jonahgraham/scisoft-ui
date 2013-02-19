@@ -103,7 +103,6 @@ public class TwoDViewPage extends MappingPageBookViewPage implements IMappingVie
 			IMappingView2dData dataIn3D = (IMappingView2dData) data;
 			if (!activePage.equals(twoDDataSetPlotterComposite)) {
 				twoDDataSetPlotterComposite.setMappingViewData(dataIn3D);
-				activePage.cleanup();
 				activePage.removeCompositeSelectionListener(pageSelectionListener);
 
 				twoDDataSetPlotterComposite.addCompositeSelectionListener(pageSelectionListener);
@@ -123,7 +122,6 @@ public class TwoDViewPage extends MappingPageBookViewPage implements IMappingVie
 
 			activePage = twoDDataSetPlotterComposite;
 		} else {
-			activePage.cleanup();
 			activePage.removeCompositeSelectionListener(pageSelectionListener);
 			activePage = blankPageComposite;
 		}

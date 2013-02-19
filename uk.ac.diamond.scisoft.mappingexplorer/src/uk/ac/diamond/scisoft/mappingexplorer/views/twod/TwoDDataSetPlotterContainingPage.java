@@ -274,7 +274,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		infoComposite.setBackground(ColorConstants.white);
 		infoComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		GridLayout gl2 = new GridLayout(2, false);
+		GridLayout gl2 = new GridLayout();
 		gl2.marginWidth = 0;
 		gl2.marginHeight = 0;
 		gl2.verticalSpacing = 0;
@@ -307,7 +307,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		lblIntensityValue.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		Composite cmpAddnlButtons = formToolkit.createComposite(infoComposite);
-		GridData layoutData = new GridData();
+		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		cmpAddnlButtons.setLayoutData(layoutData);
 		GridLayout gl3 = new GridLayout(3, true);
 		gl3.marginWidth = 0;
@@ -348,7 +348,6 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		thirdDimensionScaler.addStepperSelectionListener(stepperSelectionListener);
 		createUpdatePlotJob();
 	}
-
 
 	private Update2DPlotJob updatePlotJob;
 
@@ -556,7 +555,6 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 					notifyPixelChanged(new int[] { 0, 0 });
 					fireNotifyDimensionChanged(DimensionChanged.INDEX);
 
-					cleanup();
 				}
 
 				if (plottingSystem != null) {
@@ -657,7 +655,6 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		if (!thirdDimensionScaler.isDisposed()) {
 			thirdDimensionScaler.removeStepperSelectionListener(stepperSelectionListener);
 		}
-		cleanup();
 		super.dispose();
 	}
 
@@ -1010,11 +1007,6 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 	}
 
 	@Override
-	public void cleanup() {
-		// consumer.clearOverlays();
-	}
-
-	@Override
 	public IMappingView2dData getMappingViewData() {
 		if (mapping3DData != null) {
 			return mapping3DData;
@@ -1102,6 +1094,12 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		if (is[1] < 0)
 			is[1] = 0;
 		return is;
+	}
+
+	@Override
+	public boolean setFocus() {
+		logger.warn("focus set in 2 d plot composite");
+		return super.setFocus();
 	}
 
 }
