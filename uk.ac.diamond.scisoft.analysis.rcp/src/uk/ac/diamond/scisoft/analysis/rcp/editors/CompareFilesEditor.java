@@ -489,23 +489,25 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 	}
 
-	private class MathComboLabelProvider extends CellLabelProvider {
-		@Override
-		public void update(ViewerCell cell) {
-			VariableMapping sf = (VariableMapping) cell.getElement();
-			cell.setText(sf.getMathOp().name());
-		}
-	}
+	//private class MathComboLabelProvider extends CellLabelProvider {
+	//	@Override
+	//	public void update(ViewerCell cell) {
+	//		VariableMapping sf = (VariableMapping) cell.getElement();
+	//		cell.setText(sf.getMathOp().name());
+	//	}
+	//}
 
 	private class IndexLabelProvider extends CellLabelProvider {
 		@Override
 		public void update(ViewerCell cell) {
 			VariableMapping var = (VariableMapping) cell.getElement();
-			List<ILazyDataset> datasets = var.getDatasets();
+			String name = var.getName();
 			List<String> idx = new ArrayList<String>();
-			for (SelectedFile sf : fileList) {
-				if (datasets.contains(sf.getData().get(0))) {
-					idx.add(sf.getIndex());
+			for (VariableMapping vm : variableList) {
+				if (vm.getName().equals(name)) {
+					for (SelectedObject obj: vm.getDatasets()) {
+						idx.add(obj.getIndex());
+					}
 				}
 			}
 			cell.setText(idx.toString());
@@ -674,7 +676,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 
 		createExpressionTable(display);
-		createVariableTable(display);
+		createVariableTable();
 		
 		try {
 			explorer = expClass.getConstructor(Composite.class, IWorkbenchPartSite.class, ISelectionChangedListener.class).newInstance(sashComp, getSite(), this);
@@ -739,7 +741,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		expressionViewer.setInput(expressionList);
 	}
 
-	private void createVariableTable(Display display) {
+	private void createVariableTable() {
 		variableViewer = new TableViewer(sashComp, SWT.V_SCROLL);
 		
 		TableViewerColumn tVCol;
@@ -754,14 +756,14 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		//tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.VALUE, null));
 		tVCol.setLabelProvider(new VariableNameLabelProvider());
 		
-		tVCol = new TableViewerColumn(variableViewer, SWT.NONE);
-		tCol = tVCol.getColumn();
-		tCol.setText("Math");
-		tCol.setToolTipText("Select mathematical operation to apply on this file");
-		tCol.setWidth(150);
-		tCol.setMoveable(false);
+		//tVCol = new TableViewerColumn(variableViewer, SWT.NONE);
+		//tCol = tVCol.getColumn();
+		//tCol.setText("Math");
+		//tCol.setToolTipText("Select mathematical operation to apply on this file");
+		//tCol.setWidth(150);
+		//tCol.setMoveable(false);
 		//tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.COMBO, null));
-		tVCol.setLabelProvider(new MathComboLabelProvider());
+		//tVCol.setLabelProvider(new MathComboLabelProvider());
 		
 		tVCol = new TableViewerColumn(variableViewer, SWT.NONE);
 		tCol = tVCol.getColumn();
@@ -977,15 +979,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
         				if (!exists) {
             				Variable var = st.getVar(varName);
         					List<SelectedObject> objList = new ArrayList<SelectedObject>((Set<SelectedObject>) var.getValue());
-        					List<ILazyDataset> ds = new ArrayList<ILazyDataset>(); 
-        					for (SelectedObject obj : objList) {
-        						List<ILazyDataset> lst = obj.getData();
-        						if (lst != null && !(lst.isEmpty())) {
-        							ds.add(obj.getData().get(0));
-        						}
-        					}
         					VariableMapping newMap = new VariableMapping(varName);
-        					newMap.setDatasets(ds);
+        					newMap.setDatasets(objList);
         					newMap.setMathOp(MathOp.DAT);
         					variableList.add(newMap);
         				}
@@ -993,7 +988,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
         		}
         	}
         }
-        variableViewer.refresh();
+        variableViewer.setInput(variableList);
 	}
 	
 	/**
@@ -2018,7 +2013,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		
 		private String name;
 		private MathOp mathOp;
-		private List<ILazyDataset> datasets;
+		private List<SelectedObject> datasets;
 		
 		public VariableMapping(String name) {
 			super();
@@ -2041,11 +2036,11 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			this.mathOp = mathOp;
 		}
 
-		public List<ILazyDataset> getDatasets() {
+		public List<SelectedObject> getDatasets() {
 			return datasets;
 		}
 
-		public void setDatasets(List<ILazyDataset> datasets) {
+		public void setDatasets(List<SelectedObject> datasets) {
 			this.datasets = datasets;
 		}
 	}
