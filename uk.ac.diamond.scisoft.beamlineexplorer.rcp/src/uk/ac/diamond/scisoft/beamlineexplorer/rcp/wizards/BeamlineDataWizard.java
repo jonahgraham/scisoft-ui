@@ -136,7 +136,7 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().asyncExec
 			    (new Runnable() {
 			        public void run() {
-			            MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+			            MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 			            		.getShell(),"Error","Data directory does not exist on file system:\n" + directory);
 			            }
 			    });

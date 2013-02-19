@@ -186,7 +186,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().asyncExec
 						    (new Runnable() {
 						        public void run() {
-						            MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+						            MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 						            		.getShell(),"Error","Please specify at least either FEDID OR BEAMLINE. \nThey cannot be both blank.");
 						            txtFedidValue.setText(computeFedid());
 						        }
