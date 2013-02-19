@@ -24,12 +24,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +99,9 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 		final String project = page.getProject();
 		final String directory = page.getDirectory();
 		//final String folder = page.getFolder();
-
+		
+		File f = new File(directory);
+		if (f.exists()){
 		final Job loadDataProject = new Job("Load Beamline Data") {
 
 			@Override
@@ -126,7 +130,17 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 			//settings.put(DIALOG_SETTING_KEY_FOLDER, folder);
 			settings.put(DIALOG_SETTING_KEY_DIRECTORY, directory);
 		}
-				
+	}else //directory does not exist in file system
+	{
+		logger.error("Data directory does not exist on file system: " + directory);
+		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().asyncExec
+			    (new Runnable() {
+			        public void run() {
+			            MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+			            		.getShell(),"Error","Data directory does not exist on file system:\n" + directory);
+			            }
+			    });
+	}
 		return true;
 	}
 
