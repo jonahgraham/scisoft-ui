@@ -21,6 +21,7 @@ import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -439,13 +440,12 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 				" where investigation.id = investigator.investigation_id and investigator.facility_user_id = facility_user.facility_user_id " + fedidsql + beamlineSql + " order by investigation.inv_start_date desc";
 								
 		   // getting the connection to the database
-			Connection conn =  ICATDBClient.getConnection();
-			if (conn != null) {
+			if (ICATDBClient.getConnection() != null) {
 		    				try {
 
 		    					// run the final query
 		    					logger.info("\nsqlStatement: " + sqlStatement);
-		    					Statement st = conn.createStatement();
+		    					Statement st = ICATDBClient.getConnection().createStatement();
 		    					ResultSet rs = st.executeQuery(sqlStatement);
 
 		    					ResultSetMetaData rsmd = rs.getMetaData();
@@ -507,6 +507,14 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		    				}
 
 		    			}
+			
+			try {
+				ICATDBClient.getConnection().close();
+				logger.debug("ICAT DB connection closed!");
+			} catch (SQLException e) {
+				logger.error("Error closing ICAT database connection");
+			}
+			
 			return visitList;				
 	}
 }
