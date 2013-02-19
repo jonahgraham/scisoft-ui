@@ -298,26 +298,34 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	public String getProject() {
 		
  	    String beamline = null;
+ 	    String visitText = "";
 		for (int counter=0; counter< visitList.size(); counter++){
 			VisitDetails currentVisit = visitList.get(counter);
+			
+			String[] splits = getVisit().split(DELIMITER);
+			visitText = splits[0];
 	
-		if (currentVisit.getVisit_id().equalsIgnoreCase(getVisit())){
+		if (currentVisit.getVisit_id().equalsIgnoreCase(visitText)){
 			beamline = currentVisit.getInstrument();
 			break;
 		 }
 		}
 		// return the name of the created project
-		return beamline + "-" + getVisit();
+		return beamline + "-" + visitText;
 	}
 
 	public String getDirectory() {
 		// get following info from results not GUI as it can be blank
 		String year = "";
  	    String beamline = "";
+ 	    String visitText = "";
 		for (int counter=0; counter< visitList.size(); counter++){
 			VisitDetails currentVisit = visitList.get(counter);
-	
-		if (currentVisit.getVisit_id().equalsIgnoreCase(getVisit())){
+			
+			String[] splits = getVisit().split(DELIMITER);
+			visitText = splits[0];
+			
+		if (currentVisit.getVisit_id().equalsIgnoreCase(visitText)){
 			year = currentVisit.getStart_date().substring(0,4);
 			beamline = currentVisit.getInstrument();
 			logger.debug("retrieved year: " + year + " beamline: "+ beamline);
@@ -325,7 +333,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		 }
 		}
 		
-		String directoryPath = "/dls/"+beamline+"/data/"+ year + "/" + getVisit();	
+		String directoryPath = "/dls/"+beamline+"/data/"+ year + "/" + visitText;	
 		return 	directoryPath; 
 	}
 	

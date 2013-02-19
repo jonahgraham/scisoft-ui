@@ -73,13 +73,14 @@ public class HideDeepProjects extends ViewerFilter {
 //				}
 			}
 		}// is topProjectSingleLevel
-
+		
+		//refreshProjectExplorer((IResource)element);
 		return true;
 	}
 	
 
 //	private void refreshProjectExplorer(IResource itemToExpand) {
-//		
+//		logger.debug("custom refresh of project: " + itemToExpand.getName());
 //		ProjectExplorer projectExplorer = (ProjectExplorer)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(IPageLayout.ID_PROJECT_EXPLORER);
 //		if (projectExplorer!=null) {
 //			//projectExplorer.getCommonViewer().expandToLevel(itemToExpand, IResource.DEPTH_ONE);//.expandAll();
