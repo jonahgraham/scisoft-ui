@@ -16,13 +16,17 @@
 
 package uk.ac.diamond.scisoft.beamlineexplorer.rcp.wizards;
 
+import java.io.File;
 import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.IDialogPage;
@@ -55,6 +59,7 @@ import uk.ac.diamond.scisoft.beamlineexplorer.rcp.icat.ICATDBClient;
 public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
 	private static final String DEFAULT_BEAMLINE = "";
+	private static final String DELIMITER =" - ";
 	private Text txtProject;
 	private Text txtFedidValue;
 	private Button btnCheckButton;
@@ -101,7 +106,9 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	@Override
 	public void createControl(Composite parent) {
 		
-		// sort beamline list by name
+		/*
+		 *  sort beamline list by name
+		 * */
 		Arrays.sort(beamlineList);
 		
 		Composite container = new Composite(parent, SWT.NULL);
@@ -161,7 +168,10 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 				for (int counter=0; counter< visitList.size(); counter++){
 					VisitDetails currentVisit = visitList.get(counter);
 			
-				if (currentVisit.getVisit_id().equalsIgnoreCase(getVisit())){
+				String visitItemText = getVisit();
+				String[] splits = visitItemText.split(DELIMITER);
+				String visitidText =  splits[0].trim();
+				if (currentVisit.getVisit_id().equalsIgnoreCase(visitidText)){
 					beamline = currentVisit.getInstrument();
 					break;
 				 }
@@ -204,7 +214,10 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 					String[] items = new String[visitList.size()];
 					// populate list of VisitDetails
 					for (int i=0; i< visitList.size(); i++){
-						items[i] = visitList.get(i).getVisit_id().toLowerCase();
+						items[i] = visitList.get(i).getVisit_id().toLowerCase()+ DELIMITER +
+								   visitList.get(i).getInstrument() + DELIMITER + 
+								   getDate(visitList.get(i).getStart_date()) ;
+								   //+ DELIMITER + getNbFiles(visitList.get(i).getVisit_id(), visitList.get(i).getInstrument());
 					}
 					
 					visitListCombo.setItems(items);
@@ -222,19 +235,40 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		btnCheckButton.setLayoutData(gd_btnCheckButton);
 		btnCheckButton.setEnabled(false);
 		btnCheckButton.setGrayed(true);
-		btnCheckButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				// set global variable to the check box selection
-				BeamlineDataWizard.RECURSIVE_BROWSING = btnCheckButton.getSelection();
-			}
-		});
 		btnCheckButton.setText("Show files only");
 		new Label(container, SWT.NONE);
 		new Label(container, SWT.NONE);
 		
 		//
 		dialogChanged() ;
+	}
+
+//	protected String getNbFiles(String visit_id, String instrument) {
+//		int nbFiles = 0;
+//		String directoryPath = "/dls/" + instrument + "/data/" + visit_id+ "/";
+//		
+//		logger.debug("counting number of files in: " + directoryPath);
+//		
+//		File file = new File(directoryPath);
+//		if (file.exists()){
+//			nbFiles = file.list().length;
+//		}
+//		return  nbFiles + " files";
+//	}
+
+	protected String getDate(String start_date) {
+		Date date = null;
+		try {
+			date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(start_date);
+		} catch (ParseException e) {
+			logger.error("cannot parse date: " + start_date);
+		}
+				
+		if (date != null)
+			return new SimpleDateFormat("yyyy-MM-dd").format(date);
+		else
+			return "";
+		
 	}
 
 	/**
@@ -345,8 +379,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		    });
 		}
 		
-		logger.info("hostname: "+ hostname);
-
 		int index = hostname.lastIndexOf("-");	
 
 		if(index != -1 ){
