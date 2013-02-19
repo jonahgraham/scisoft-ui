@@ -117,7 +117,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		lblBeamline.setLayoutData(gd_lblBeamline);
 		lblBeamline.setText("Beamline");
 				
-		beamlineListCombo = new Combo(container, SWT.NONE);
+		beamlineListCombo = new Combo(container, SWT.READ_ONLY);
 		beamlineListCombo.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
@@ -152,7 +152,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		Label lblVisitList = new Label(container, SWT.NULL);
 		lblVisitList.setText("Visit List");
 		
-		visitListCombo = new Combo(container, SWT.NONE);
+		visitListCombo = new Combo(container, SWT.READ_ONLY);
 		visitListCombo.addModifyListener(new ModifyListener() {
 			// change beamline value when visit_id changes
 			@Override
