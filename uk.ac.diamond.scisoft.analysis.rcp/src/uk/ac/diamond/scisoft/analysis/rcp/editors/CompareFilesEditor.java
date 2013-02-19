@@ -563,7 +563,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		TableViewerColumn tVCol;
 		TableColumn tCol;
 
-		tVCol = new TableViewerColumn(viewer, SWT.NONE);
+		tVCol = new TableViewerColumn(viewer, SWT.CENTER);
 		tCol = tVCol.getColumn();
 		tCol.setText("Use");
 		tCol.setToolTipText("Toggle to use in dataset inspector (a yellow background indicates a missing or incompatible dataset)");
@@ -572,7 +572,16 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.TICK, null));
 		tVCol.setLabelProvider(new TickLabelProvider(display));
 
-		tVCol = new TableViewerColumn(viewer, SWT.NONE);
+		tVCol = new TableViewerColumn(viewer, SWT.CENTER);
+		valueColumn = tVCol.getColumn();
+		valueColumn.setText(VALUE_DEFAULT_TEXT);
+		valueColumn.setToolTipText("Value of resource (a yellow background indicates a missing value)");
+		valueColumn.setWidth(40);
+		valueColumn.setMoveable(false);
+		tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.VALUE, null));
+		tVCol.setLabelProvider(new ValueLabelProvider(display));
+		
+		tVCol = new TableViewerColumn(viewer, SWT.CENTER);
 		tCol = tVCol.getColumn();
 		tCol.setText("Math");
 		tCol.setToolTipText("Select mathematical operation to apply on this file");
@@ -581,7 +590,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.COMBO, null));
 		tVCol.setLabelProvider(new ComboLabelProvider());
 		
-		tVCol = new TableViewerColumn(viewer, SWT.NONE);
+		tVCol = new TableViewerColumn(viewer, SWT.CENTER);
 		tCol = tVCol.getColumn();
 		tCol.setText("Var");
 		tCol.setToolTipText("Select mathematical operation to apply on this file");
@@ -591,7 +600,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		tVCol.setEditingSupport(variableEditor);
 		tVCol.setLabelProvider(new VariableLabelProvider());
 		
-		tVCol = new TableViewerColumn(viewer, SWT.NONE);
+		tVCol = new TableViewerColumn(viewer, SWT.LEFT);
 		tCol = tVCol.getColumn();
 		tCol.setText("File name");
 		tCol.setToolTipText("Name of resource");
@@ -599,15 +608,6 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		tCol.setMoveable(false);
 		tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.PATH, null));
 		tVCol.setLabelProvider(new PathLabelProvider(display));
-
-		tVCol = new TableViewerColumn(viewer, SWT.NONE);
-		valueColumn = tVCol.getColumn();
-		valueColumn.setText(VALUE_DEFAULT_TEXT);
-		valueColumn.setToolTipText("Value of resource (a yellow background indicates a missing value)");
-		valueColumn.setWidth(40);
-		valueColumn.setMoveable(false);
-		tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.VALUE, null));
-		tVCol.setLabelProvider(new ValueLabelProvider(display));
 
 		viewer.setContentProvider(new IStructuredContentProvider() {
 			
@@ -699,7 +699,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		TableViewerColumn tVCol;
 		TableColumn tCol;
 
-		tVCol = new TableViewerColumn(expressionViewer, SWT.NONE);
+		tVCol = new TableViewerColumn(expressionViewer, SWT.CENTER);
 		tCol = tVCol.getColumn();
 		tCol.setText("Use");
 		tCol.setToolTipText("Toggle to use in dataset inspector (a yellow background indicates a missing or incompatible dataset)");
@@ -710,9 +710,17 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		tVCol = new TableViewerColumn(expressionViewer, SWT.CENTER);
 		tCol = tVCol.getColumn();
+		tCol.setText(VALUE_DEFAULT_TEXT);
+		tCol.setToolTipText("Value of resource (a yellow background indicates a missing value)");
+		tCol.setWidth(40);
+		tCol.setMoveable(false);
+		tVCol.setLabelProvider(new ValueLabelProvider(display));
+
+		tVCol = new TableViewerColumn(expressionViewer, SWT.LEFT);
+		tCol = tVCol.getColumn();
 		tCol.setText("Expression");
 		tCol.setToolTipText("Mathematical exprossion evaluated on the input data");
-		tCol.setWidth(40);
+		tCol.setWidth(250);
 		tCol.setMoveable(false);
 		tVCol.setEditingSupport(new CFEditingSupport(expressionViewer, Column.EXPRESSION, null));
 		tVCol.setLabelProvider(new ExpressionLabelProvider());
@@ -737,7 +745,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		
 		expressionViewer.setContentProvider(ArrayContentProvider.getInstance());
 		
-		expressionList.add(new SelectedNode(0, DEFAULT_EXPRESSION));
+		expressionList.add(new SelectedNode(fileList.size(), DEFAULT_EXPRESSION));
 		expressionViewer.setInput(expressionList);
 	}
 
@@ -747,13 +755,12 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		TableViewerColumn tVCol;
 		TableColumn tCol;
 		
-		tVCol = new TableViewerColumn(variableViewer, SWT.NONE);
+		tVCol = new TableViewerColumn(variableViewer, SWT.CENTER);
 		variableColumn = tVCol.getColumn();
-		variableColumn.setText("Variable");
+		variableColumn.setText("Var");
 		variableColumn.setToolTipText("Value of resource (a yellow background indicates a missing value)");
 		variableColumn.setWidth(40);
 		variableColumn.setMoveable(false);
-		//tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.VALUE, null));
 		tVCol.setLabelProvider(new VariableNameLabelProvider());
 		
 		//tVCol = new TableViewerColumn(variableViewer, SWT.NONE);
@@ -765,7 +772,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		//tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.COMBO, null));
 		//tVCol.setLabelProvider(new MathComboLabelProvider());
 		
-		tVCol = new TableViewerColumn(variableViewer, SWT.NONE);
+		tVCol = new TableViewerColumn(variableViewer, SWT.LEFT);
 		tCol = tVCol.getColumn();
 		tCol.setText("Indices");
 		tCol.setToolTipText("List of indicies of datasets mapped to this variable");
