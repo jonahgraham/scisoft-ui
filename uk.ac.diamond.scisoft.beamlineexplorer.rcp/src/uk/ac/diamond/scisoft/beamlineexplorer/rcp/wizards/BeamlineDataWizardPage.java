@@ -100,6 +100,10 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	 */
 	@Override
 	public void createControl(Composite parent) {
+		
+		// sort beamline list by name
+		Arrays.sort(beamlineList);
+		
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
 		container.setLayout(layout);
@@ -112,7 +116,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		gd_lblBeamline.heightHint = 26;
 		lblBeamline.setLayoutData(gd_lblBeamline);
 		lblBeamline.setText("Beamline");
-		
+				
 		beamlineListCombo = new Combo(container, SWT.NONE);
 		beamlineListCombo.addMouseListener(new MouseAdapter() {
 			@Override
@@ -130,8 +134,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		
 		Label lblFedid = new Label(container, SWT.NONE);
 		lblFedid.setText("Detected Fedid");
-		// sort beamline list by name
-		Arrays.sort(beamlineList);
 		setControl(container);
 		
 		txtFedidValue = new Text(container, SWT.BORDER);
@@ -334,6 +336,13 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		} catch (UnknownHostException e) {
 			// display error message
 			logger.error("Error getting hostname! " + e.getMessage());
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().asyncExec
+		    (new Runnable() {
+		        public void run() {
+		            MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+		            		.getShell(),"Error","Error getting hostname.\n");
+		        }
+		    });
 		}
 		
 		logger.info("hostname: "+ hostname);
