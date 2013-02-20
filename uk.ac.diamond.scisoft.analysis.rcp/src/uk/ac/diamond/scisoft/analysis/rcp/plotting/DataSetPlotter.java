@@ -32,6 +32,7 @@ import javax.swing.JApplet;
 import javax.swing.JPanel;
 
 import org.dawb.common.ui.plot.roi.data.SurfacePlotROI;
+import org.dawb.common.ui.printing.PrintSettings;
 import org.dawnsci.plotting.jreality.compositing.CompositeEntry;
 import org.dawnsci.plotting.jreality.compositing.CompositeOp;
 import org.dawnsci.plotting.jreality.compositing.CompositingControl;
@@ -58,6 +59,8 @@ import org.dawnsci.plotting.jreality.legend.LegendTable;
 import org.dawnsci.plotting.jreality.overlay.Overlay1DConsumer;
 import org.dawnsci.plotting.jreality.overlay.Overlay2DConsumer;
 import org.dawnsci.plotting.jreality.overlay.OverlayConsumer;
+import org.dawnsci.plotting.jreality.print.JRealityPrintDialog;
+import org.dawnsci.plotting.jreality.print.PlotExportUtil;
 import org.dawnsci.plotting.jreality.swt.InfoBoxComponent;
 import org.dawnsci.plotting.jreality.tick.TickFormatting;
 import org.dawnsci.plotting.jreality.tool.CameraRotationTool;
@@ -70,7 +73,6 @@ import org.dawnsci.plotting.jreality.tool.PlotActionEventListener;
 import org.dawnsci.plotting.jreality.tool.SceneDragTool;
 import org.dawnsci.plotting.jreality.util.JOGLChecker;
 import org.dawnsci.plotting.jreality.util.PlotColorUtility;
-import org.dawnsci.plotting.jreality.util.PlotExportUtil;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -108,8 +110,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColourLookupTable;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PlotPrintPreviewDialog;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PrintSettings;
 import de.jreality.math.MatrixBuilder;
 import de.jreality.scene.Camera;
 import de.jreality.scene.SceneGraphComponent;
@@ -2069,13 +2069,13 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 			if(defaultPrinterData==null)
 				defaultPrinterData=Printer.getDefaultPrinterData();
 			if (settings==null) settings = new PrintSettings();
-			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),graphColourTable, settings);
+			JRealityPrintDialog dialog = new JRealityPrintDialog(viewerApp, container.getDisplay(),graphColourTable, settings);
 			settings=dialog.open();
 		} else{
 			if(defaultPrinterData==null)
 				defaultPrinterData=Printer.getDefaultPrinterData();
 			if (settings==null) settings = new PrintSettings();
-			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),null, settings);
+			JRealityPrintDialog dialog = new JRealityPrintDialog(viewerApp, container.getDisplay(),null, settings);
 			settings=dialog.open();
 		}
 		isInExporting = false;

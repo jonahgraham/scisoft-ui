@@ -26,7 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.dawnsci.plotting.jreality.util.PlotExportUtil;
+import org.dawnsci.plotting.jreality.print.PlotExportUtil;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.Separator;

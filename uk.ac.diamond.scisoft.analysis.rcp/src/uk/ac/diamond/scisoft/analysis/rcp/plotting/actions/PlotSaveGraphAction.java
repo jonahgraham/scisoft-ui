@@ -20,7 +20,7 @@ import java.io.File;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.util.EclipseUtils;
-import org.dawnsci.plotting.jreality.util.PlotExportUtil;
+import org.dawnsci.plotting.jreality.print.PlotExportUtil;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
