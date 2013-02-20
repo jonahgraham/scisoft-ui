@@ -90,6 +90,9 @@ import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.forms.events.ExpansionAdapter;
+import org.eclipse.ui.forms.events.ExpansionEvent;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.part.EditorPart;
 import org.nfunk.jep.JEP;
 import org.nfunk.jep.ParseException;
@@ -438,7 +441,10 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		@Override
 		public void update(ViewerCell cell) {
 			SelectedFile sf = (SelectedFile) cell.getElement();
-			cell.setText(sf.getAbsolutePath());
+			String path = sf.getAbsolutePath(); 
+			if (path != null) {
+				cell.setText(new File(path).getName());
+			}
 			cell.setForeground(sf.doUse() ? null : display.getSystemColor(SWT.COLOR_GRAY));
 		}
 
@@ -539,7 +545,26 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		Display display = parent.getDisplay();
 		sashComp = new SashForm(parent, SWT.VERTICAL);
 		sashComp.setLayout(new FillLayout(SWT.VERTICAL));
-		viewer = new TableViewer(sashComp, SWT.V_SCROLL);
+		
+		try {
+			explorer = expClass.getConstructor(Composite.class, IWorkbenchPartSite.class, ISelectionChangedListener.class).newInstance(sashComp, getSite(), this);
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Cannot make explorer", e);
+		}
+
+		try {
+			explorer.loadFileAndDisplay(firstFileName, null);
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Explorer cannot load file", e);
+		}
+		
+		final ExpandableComposite viewerComp = new ExpandableComposite(sashComp, SWT.BORDER);
+		viewerComp.setText("Datasets");
+		viewerComp.setToolTipText("List of selected datasets");
+		viewerComp.setLayout(new FillLayout());
+		final Composite vg = new Composite(viewerComp, SWT.NONE);
+		vg.setLayout(new FillLayout());
+		viewer = new TableViewer(vg, SWT.V_SCROLL);
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
@@ -661,26 +686,59 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			}
 		}
 
-		createExpressionTable(display);
-		createVariableTable();
+		viewerComp.setClient(vg);
+		viewerComp.setExpanded(true);
+		viewerComp.addExpansionListener(new ExpansionAdapter() {
+			@Override
+			public void expansionStateChanged(ExpansionEvent e) {
+				sashComp.layout();
+			}		
+		});
 		
-		try {
-			explorer = expClass.getConstructor(Composite.class, IWorkbenchPartSite.class, ISelectionChangedListener.class).newInstance(sashComp, getSite(), this);
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Cannot make explorer", e);
+		ExpandableComposite expComp = new ExpandableComposite(sashComp, SWT.BORDER);
+		expComp.setText("Mathematical Expressions");
+		expComp.setToolTipText("Define mathematical expressions using datasets");
+		expComp.setLayout(new FillLayout());
+		expComp.addExpansionListener(new ExpansionAdapter() {
+			@Override
+			public void expansionStateChanged(ExpansionEvent e) {
+				sashComp.layout();
+			}		
+		});
+		{
+			Composite g = new Composite(expComp, SWT.NONE);
+			g.setLayout(new FillLayout());
+			createExpressionTable(g, display);
+			expComp.setClient(g);
+			expComp.setExpanded(false);
 		}
-
-		try {
-			explorer.loadFileAndDisplay(firstFileName, null);
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Explorer cannot load file", e);
+		
+		ExpandableComposite varComp = new ExpandableComposite(sashComp, SWT.BORDER);
+		varComp.setText("Variable Assignments");
+		varComp.setToolTipText("List of dataset indecies assigned to every variable");
+		varComp.setLayout(new FillLayout());
+		varComp.addExpansionListener(new ExpansionAdapter() {
+			@Override
+			public void expansionStateChanged(ExpansionEvent e) {
+				sashComp.layout();
+			}		
+		});
+		{
+			Composite g = new Composite(varComp, SWT.NONE);
+			g.setLayout(new FillLayout());
+			createVariableTable(g);
+			varComp.setClient(g);
+			varComp.setExpanded(false);
 		}
+		
+		sashComp.setWeights(new int[] {5, 1 ,1 ,1});
+		
 		explorer.addSelectionChangedListener(this);
 		getSite().setSelectionProvider(this);
 	}
 
-	private void createExpressionTable(Display display) {
-		expressionViewer = new TableViewer(sashComp, SWT.V_SCROLL);
+	private void createExpressionTable(Composite g, Display display) {
+		expressionViewer = new TableViewer(g, SWT.V_SCROLL);
 		
 		TableViewerColumn tVCol;
 		TableColumn tCol;
@@ -733,8 +791,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		expressionViewer.setInput(expressionList);
 	}
 
-	private void createVariableTable() {
-		variableViewer = new TableViewer(sashComp, SWT.V_SCROLL);
+	private void createVariableTable(Composite g) {
+		variableViewer = new TableViewer(g, SWT.V_SCROLL);
 		
 		TableViewerColumn tVCol;
 		TableColumn tCol;
