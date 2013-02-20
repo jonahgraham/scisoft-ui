@@ -300,7 +300,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	 * @return true, if file can be added
 	 */
 	public boolean addFile(String path) {
-		return addFile(path, fileList.size());
+		return addFile(path, getNewIndex());
 	}
 
 	/**
@@ -321,11 +321,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			logger.warn("Cannot add file to top of order");
 			index = 1;
 		}
-		fileList.add(index, sf);
-		int i = 0;
-		for (SelectedFile f : fileList) // update index values
-			f.setIndex(i++);
-
+		sf.setIndex(index);
+		fileList.add(sf);
 		if (currentDatasetSelection != null) {
 			changeSelection();
 		} else {
@@ -462,7 +459,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			SelectedObject sf = (SelectedObject) cell.getElement();
 			Color colour = null;
 			if (useRowIndexAsValue) {
-				cell.setText(sf.getIndex());
+				cell.setText(String.valueOf(sf.getIndex()));
 			} else {
 				cell.setText(sf.toString());
 				if (!sf.hasMetaValue()) {
@@ -507,7 +504,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			if (variableMap.containsKey(name)) {
 				VariableMapping vm = variableMap.get(name);
 				for (SelectedObject obj: vm.getDatasets()) {
-					idx.add(obj.getIndex());
+					idx.add(String.valueOf(obj.getIndex()));
 				}
 			}
 			Collections.sort(idx);
@@ -778,8 +775,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		item.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				int idxNew = fileList.size() + expressionList.size();
-				expressionList.add(new SelectedNode(idxNew, DEFAULT_EXPRESSION));
+				expressionList.add(new SelectedNode(getNewIndex(), DEFAULT_EXPRESSION));
 				updateVariableMappings();
 				expressionViewer.refresh();
 			}
@@ -835,6 +831,22 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			selectionChanged(new SelectionChangedEvent(this, currentDatasetSelection));
 		}
 	}
+	
+	/**
+	 *  Generate new index values from current list of included files and expressions
+	 * @return New index equal to the maximum index incremented by one 
+	 */
+	private int getNewIndex() {
+		List<Integer> idxList = new ArrayList<Integer>();
+		for (SelectedObject obj : fileList) {
+			idxList.add(obj.getIndex());
+		}
+		for (SelectedObject obj : expressionList) {
+			idxList.add(obj.getIndex());
+		}
+		int idxNew = Collections.max(idxList) + 1;
+		return idxNew;
+	}
 
 	final private class CFDropAdapter extends ViewerDropAdapter {
 
@@ -853,7 +865,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			String[] files = (String[]) data;
 			boolean ok = true;
 			for (String f : files) {
-				ok |= addFile(f, index++);
+				ok |= addFile(f, getNewIndex());
 			}
 			return ok;
 		}
@@ -1588,8 +1600,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			i.setName(CompareFilesEditor.INDEX);
 		}
 
-		public String getIndex() {
-			return i.getString(0);
+		public int getIndex() {
+			return i.get(0);
 		}
 
 		public String getVariableName() {
