@@ -34,6 +34,7 @@ import org.dawnsci.plotting.jreality.tick.TickFormatting;
 import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
 import org.dawnsci.plotting.jreality.tool.PlotActionEventListener;
 import org.dawnsci.plotting.jreality.util.PlotColorUtility;
+import org.dawnsci.plotting.jreality.util.PlotExportUtil;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
@@ -49,7 +50,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 
 import com.swtdesigner.ResourceManager;
