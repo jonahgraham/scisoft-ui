@@ -624,13 +624,15 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				List<ISelection> selElements = new ArrayList<ISelection>();
-				TwoDSelection selection = new TwoDSelection(secondaryId,
-						MappingViewSelectionChangedEvent.DIMENSION_SELECTION, getSelectedDimension(),
-						btnFlipAxis.getSelection());
-				selection.getAxisDimensionSelection().setChangeAffected(dimensionChangeAffected);
-				selElements.add(selection);
-				StructuredSelection sel = new StructuredSelection(selElements);
-				notifyListeners(sel);
+				if (getSelectedDimension() != null) {
+					TwoDSelection selection = new TwoDSelection(secondaryId,
+							MappingViewSelectionChangedEvent.DIMENSION_SELECTION, getSelectedDimension(),
+							btnFlipAxis.getSelection());
+					selection.getAxisDimensionSelection().setChangeAffected(dimensionChangeAffected);
+					selElements.add(selection);
+					StructuredSelection sel = new StructuredSelection(selElements);
+					notifyListeners(sel);
+				}
 				return Status.OK_STATUS;
 			}
 		};
@@ -858,7 +860,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		List<ISelection> selections = new ArrayList<ISelection>();
 		selections.add(new TwoDSelection(secondaryId, MappingViewSelectionChangedEvent.DIMENSION_SELECTION,
 				getSelectedDimension(), btnFlipAxis.getSelection()));
-		// selections.add(getHistogramSelectionDataset());
+		selections.add(getHistogramSelectionDataset());
 		return new StructuredSelection(selections);
 	}
 
