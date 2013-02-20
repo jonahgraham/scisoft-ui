@@ -1508,7 +1508,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	}
 	
 	private enum MathOp {
-		IDX, ADD, AVR;
+		IDX, ADD, AVR, MUL, MAX, MIN;
 	}
 
 	private class SelectedObject {
@@ -1943,12 +1943,40 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 							AbstractDataset tmpData = DatasetUtils.convertToAbstractDataset(dataList.get(idx).getSlice(
 									start, stop, step));
 							if (accDataset == null) {
-								accDataset = AbstractDataset.zeros(tmpData.getShape(), tmpData.getDtype());
+								switch (mathOp) {
+								case ADD:
+								case AVR:
+									accDataset = AbstractDataset.zeros(tmpData.getShape(), tmpData.getDtype());
+									break;
+								case MUL:
+									accDataset = AbstractDataset.ones(tmpData.getShape(), tmpData.getDtype());
+									break;
+								case MAX:
+								case MIN:
+									accDataset = AbstractDataset.zeros(tmpData.getShape(), tmpData.getDtype());
+									IndexIterator iter = accDataset.getIterator();
+									tmpData.fillDataset(accDataset, iter);
+									break;
+								default:
+									break;
+								}
+							}
+							if (accDataset == null) {
+								return null;
 							}
 							switch (mathOp) {
 							case ADD:
 							case AVR:
 								accDataset.iadd(tmpData);
+								break;
+							case MUL:
+								accDataset.imultiply(tmpData);
+								break;
+							case MAX:
+								accDataset = DatasetUtils.maximum(tmpData, accDataset);
+								break;
+							case MIN:
+								accDataset = DatasetUtils.minimum(tmpData, accDataset);
 								break;
 							default:
 								break;
