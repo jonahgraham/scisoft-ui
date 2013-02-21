@@ -142,5 +142,13 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.PRINTSETTINGS_SCALE, DEFAULT_PRINTSETTINGS_SCALE);
 		store.setDefault(PreferenceConstants.PRINTSETTINGS_RESOLUTION, DEFAULT_PRINTSETTINGS_RESOLUTION);
 		store.setDefault(PreferenceConstants.PRINTSETTINGS_ORIENTATION, DEFAULT_PRINTSETTINGS_ORIENTATION);
+
+		//File navigator preferences
+		store.setDefault(PreferenceConstants.SHOW_DATE_COLUMN, true);
+		store.setDefault(PreferenceConstants.SHOW_TYPE_COLUMN, true);
+		store.setDefault(PreferenceConstants.SHOW_SIZE_COLUMN, true);
+		store.setDefault(PreferenceConstants.SHOW_SCANCMD_COLUMN, false);
+		store.setDefault(PreferenceConstants.SHOW_COMMENT_COLUMN, false);
+
 	}
 }

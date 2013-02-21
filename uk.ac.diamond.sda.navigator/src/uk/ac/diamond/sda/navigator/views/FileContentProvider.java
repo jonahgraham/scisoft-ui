@@ -61,6 +61,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	 * NOTE Is there a better way of doing this.
 	 */
 	private Map<File, List<File>> cachedSorting;
+	@SuppressWarnings("unused")
 	private IStatusLineManager statusManager;
 
 	public FileContentProvider(final IStatusLineManager statusManager) {

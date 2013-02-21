@@ -38,13 +38,14 @@ public class NavigatorUtils {
 	 * @throws Exception
 	 */
 	public static String getScanCommand(File file) throws Exception{
-		if(FileUtils.getFileExtension(file).equals("dat") 
-				|| FileUtils.getFileExtension(file).equals("srs")) 
+		String extension = FileUtils.getFileExtension(file);
+		if(extension.equals("dat") 
+				|| extension.equals("srs")) 
 			return getASCIIScanCommand(file);
-		else if(FileUtils.getFileExtension(file).equals("hdf5") 
-				|| FileUtils.getFileExtension(file).equals("hdf")
-				|| FileUtils.getFileExtension(file).equals("h5")
-				|| FileUtils.getFileExtension(file).equals("nxs")) 
+		else if(extension.equals("hdf5") 
+				|| extension.equals("hdf")
+				|| extension.equals("h5")
+				|| extension.equals("nxs")) 
 			return getHDF5ScanCommand(file.getAbsolutePath());
 		else return "";
 	}
@@ -148,6 +149,21 @@ public class NavigatorUtils {
 	 * @throws Exception
 	 */
 	public static String getHDF5ScanCommand(String fullpath) throws Exception {
+		return getHDF5ScanCommandOrTitle(fullpath, scanCmdName);
+	}
+
+	/**
+	 * Method that returns the title of the nxs file being looked at.<br>
+	 * If there are more than one title, it returns the first one<br>
+	 * @param fullpath
+	 * @return a String 
+	 * @throws Exception
+	 */
+	public static String getHDF5Title(String fullpath) throws Exception {
+		return getHDF5ScanCommandOrTitle(fullpath, titleName);
+	}
+
+	private static String getHDF5ScanCommandOrTitle(String fullpath, String type) throws Exception {
 		// make it work just for nxs and hdf5 files
 		File node = new File(fullpath);
 		if(!FileUtils.getFileExtension(node).equals("hdf5") 
@@ -155,7 +171,7 @@ public class NavigatorUtils {
 				&& !FileUtils.getFileExtension(node).equals("h5")
 				&& !FileUtils.getFileExtension(node).equals("nxs")) return "";
 
-		List<ILazyDataset> list = new HDF5Loader(fullpath).findDatasets(new String[] {scanCmdName}, 1, null);
+		List<ILazyDataset> list = new HDF5Loader(fullpath).findDatasets(new String[] {type}, 1, null);
 
 		List<String> scans = new ArrayList<String>();
 		for (ILazyDataset d : list) {
@@ -164,7 +180,7 @@ public class NavigatorUtils {
 				if (n == null) {
 					continue;
 				}
-				if (n.contains(scanCmdName)) {
+				if (n.contains(type)) {
 					scans.add(d.toString());
 					if(scans.size()>1) break; // get out of the loop if more than 1 scan command
 				}
@@ -185,4 +201,21 @@ public class NavigatorUtils {
 		}
 		return result;
 	}
+
+	/**
+	 * Method that returns a title if the parameter is a nexus file, a comment if Ascii
+	 * @param file
+	 * @return a String
+	 * @throws Exception
+	 */
+	public static String getComment(File file) throws Exception {
+		String extension = FileUtils.getFileExtension(file);
+		if(extension.equals("hdf5") 
+				|| extension.equals("hdf")
+				|| extension.equals("h5")
+				|| extension.equals("nxs")) 
+			return getHDF5Title(file.getAbsolutePath());
+		return "";
+	}
+
 }
