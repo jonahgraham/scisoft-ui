@@ -216,7 +216,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 
 			mainRegionInfoExpander.setClient(mainRegionComposite);
 			mainRegionInfoExpander.addExpansionListener(expansionAdapter);
-			mainRegionInfoExpander.setExpanded(false);
+			mainRegionInfoExpander.setExpanded(true);
 			
 			//vertical
 			ExpandableComposite verticalRegionInfoExpander = new ExpandableComposite(contentComposite, SWT.NONE);
