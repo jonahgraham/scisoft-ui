@@ -198,7 +198,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			mainRegionComposite.setLayout(new GridLayout(1, false));
 			mainRegionComposite.setLayoutData(gridData);
 			
-			myROIWidget = new ROIWidget(mainRegionComposite, plottingSystem);
+			myROIWidget = new ROIWidget(mainRegionComposite, plottingSystem, "Perimeter Box region editor");
 			myROIWidget.createWidget();
 			myROIWidget.addSelectionChangedListener(new ISelectionChangedListener() {
 				
@@ -228,7 +228,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			verticalProfileComposite.setLayout(new GridLayout(1, false));
 			verticalProfileComposite.setLayoutData(gridData);
 
-			verticalProfileROIWidget = new ROIWidget(verticalProfileComposite, verticalProfilePlottingSystem);
+			verticalProfileROIWidget = new ROIWidget(verticalProfileComposite, verticalProfilePlottingSystem, "Left/Right region editor");
 			verticalProfileROIWidget.setIsProfile(true);
 			verticalProfileROIWidget.showSumMinMax(false);
 			verticalProfileROIWidget.createWidget();
@@ -260,7 +260,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			horizontalProfileComposite.setLayout(new GridLayout(1, false));
 			horizontalProfileComposite.setLayoutData(gridData);
 
-			horizontalProfileROIWidget = new ROIWidget(horizontalProfileComposite, horizontalProfilePlottingSystem);
+			horizontalProfileROIWidget = new ROIWidget(horizontalProfileComposite, horizontalProfilePlottingSystem, "Bottom/Up region editor");
 			horizontalProfileROIWidget.setIsProfile(true);
 			horizontalProfileROIWidget.showSumMinMax(false);
 			horizontalProfileROIWidget.createWidget();
