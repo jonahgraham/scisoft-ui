@@ -17,7 +17,10 @@
  */
 package uk.ac.diamond.scisoft.mappingexplorer.views.oned;
 
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.INullSelectionListener;
+import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
@@ -31,6 +34,8 @@ import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView2dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView3dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.MappingPageBookView;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.IMappingDataControllingView;
+import uk.ac.diamond.scisoft.mappingexplorer.views.twod.TwoDMappingView;
+import uk.ac.diamond.scisoft.mappingexplorer.views.twod.TwoDViewPage;
 
 /**
  * PageBook view for One D Mapping viewer. One D display of a dataset that contains at least 3 dimensions.
@@ -40,6 +45,34 @@ import uk.ac.diamond.scisoft.mappingexplorer.views.twod.IMappingDataControllingV
 public class OneDMappingView extends MappingPageBookView implements IDatasetPlotterContainingView {
 	private static final String PART_NAME = "OneD View - %1$s";
 	public static final String ID = "uk.ac.diamond.scisoft.mappingexplorer.onedimension";
+
+	protected String getTwoDViewId() {
+		String secondaryId = getViewSite().getSecondaryId();
+		if (secondaryId != null) {
+			return TwoDMappingView.ID + ":" + secondaryId;
+		}
+		return TwoDMappingView.ID;
+	}
+
+	private ISelectionListener twoDViewSelectionListener = new INullSelectionListener() {
+		@Override
+		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+			if (getCurrentPage() instanceof OneDViewPage) {
+				OneDViewPage oneDViewPage = (OneDViewPage) getCurrentPage();
+				oneDViewPage.doSelectionChangedOnTwoDView(part, selection);
+			}
+		}
+
+	};
+
+	@Override
+	public void createPartControl(org.eclipse.swt.widgets.Composite parent) {
+		super.createPartControl(parent);
+		String viewId = getTwoDViewId();
+
+		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(viewId, twoDViewSelectionListener);
+
+	}
 
 	@Override
 	protected OneDViewPage createPage(IWorkbenchPart part) {
@@ -139,4 +172,11 @@ public class OneDMappingView extends MappingPageBookView implements IDatasetPlot
 		}
 		return null;
 	}
+
+	@Override
+	public void dispose() {
+		getSite().getWorkbenchWindow().getSelectionService()
+				.removeSelectionListener(getTwoDViewId(), twoDViewSelectionListener);
+	}
+
 }

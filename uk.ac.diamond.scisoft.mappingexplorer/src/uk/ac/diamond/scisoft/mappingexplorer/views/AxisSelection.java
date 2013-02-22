@@ -21,28 +21,14 @@ import org.eclipse.jface.viewers.ISelection;
 
 /**
  * @author rsr31645
- * 
  */
 public class AxisSelection implements ISelection {
 	private String dimLabel;
 	private int dimension;
 
-	private int dimensionValue;
-
-	public enum DimensionChanged {
-		INDEX, VALUE;
-	}
-
-	private DimensionChanged changeAffected = DimensionChanged.INDEX;
-
 	public AxisSelection(String dimLabel, int dimension) {
 		this.dimLabel = dimLabel;
 		this.dimension = dimension;
-	}
-
-	public AxisSelection(String dimLabel, int dimension, int dimensionVal) {
-		this(dimLabel, dimension);
-		this.dimensionValue = dimensionVal;
 	}
 
 	public String getLabel() {
@@ -51,22 +37,6 @@ public class AxisSelection implements ISelection {
 
 	public int getDimension() {
 		return dimension;
-	}
-
-	public void setDimensionValue(int dimensionValue) {
-		this.dimensionValue = dimensionValue;
-	}
-
-	public int getDimensionValue() {
-		return dimensionValue;
-	}
-
-	public void setChangeAffected(DimensionChanged changeAffected) {
-		this.changeAffected = changeAffected;
-	}
-
-	public DimensionChanged getChangeAffected() {
-		return changeAffected;
 	}
 
 	@Override

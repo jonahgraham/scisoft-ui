@@ -22,8 +22,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.INullSelectionListener;
-import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPart2;
@@ -32,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor;
+import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5Selection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite.ViewPageCompositeListener;
@@ -43,7 +42,6 @@ import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingViewData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingViewDataContainingPage;
 import uk.ac.diamond.scisoft.mappingexplorer.views.MappingPageBookViewPage;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.BlankPageComposite;
-import uk.ac.diamond.scisoft.mappingexplorer.views.twod.TwoDMappingView;
 
 /**
  * @author rsr31645
@@ -60,6 +58,8 @@ public class OneDViewPage extends MappingPageBookViewPage implements IMappingVie
 
 	private String nodeName;
 
+	private IMappingViewData data;
+
 	public OneDViewPage(IWorkbenchPart partCreatedFor, String secondaryViewId) {
 		super(partCreatedFor, secondaryViewId);
 	}
@@ -67,8 +67,13 @@ public class OneDViewPage extends MappingPageBookViewPage implements IMappingVie
 	@Override
 	protected void doSelectionForEditorSelectionChange(IWorkbenchPart part, ISelection selection) {
 		if (this.part.equals(part) && selection instanceof DatasetSelection) {
-			IMappingViewData mappingViewData = HDF5MappingViewData.getMappingViewData((DatasetSelection) selection);
-			setMappingViewData(mappingViewData);
+			HDF5Selection hdf5Selection = (HDF5Selection) selection;
+			if (nodeName == null || (nodeName != null && !hdf5Selection.getNode().equals(nodeName))) {
+				nodeName = hdf5Selection.getNode();
+				IMappingViewData mappingViewData = HDF5MappingViewData.getMappingViewData((DatasetSelection) selection);
+
+				setMappingViewData(mappingViewData);
+			}
 		}
 	}
 
@@ -88,16 +93,7 @@ public class OneDViewPage extends MappingPageBookViewPage implements IMappingVie
 		activePage = blankPageComposite;
 
 		pgBook.showPage(activePage);
-		String viewId = getTwoDViewId();
 
-		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(viewId, twoDViewSelectionListener);
-	}
-
-	protected String getTwoDViewId() {
-		if (getSecondaryViewId() != null) {
-			return TwoDMappingView.ID + ":" + getSecondaryViewId();
-		}
-		return TwoDMappingView.ID;
 	}
 
 	@Override
@@ -117,32 +113,35 @@ public class OneDViewPage extends MappingPageBookViewPage implements IMappingVie
 	}
 
 	public void setMappingViewData(IMappingViewData data) {
-		if (data instanceof IMappingView3dData) {
-			IMappingView3dData dataIn3D = (IMappingView3dData) data;
-			if (!activePage.equals(oneDShowing3DPage)) {
-				activePage.removeCompositeSelectionListener(pageSelectionListener);
+		if (this.data != data) {
+			this.data = data;
+			if (data instanceof IMappingView3dData) {
+				IMappingView3dData dataIn3D = (IMappingView3dData) data;
+				if (!activePage.equals(oneDShowing3DPage)) {
+					activePage.removeCompositeSelectionListener(pageSelectionListener);
 
-				oneDShowing3DPage.addCompositeSelectionListener(pageSelectionListener);
-				oneDShowing3DPage.setMappingViewData(dataIn3D);
-				try {
-					oneDShowing3DPage.initialPlot();
-				} catch (Exception e) {
-					logger.error("Initial plotting error in 3D view page {}", e);
+					oneDShowing3DPage.addCompositeSelectionListener(pageSelectionListener);
+					oneDShowing3DPage.setMappingViewData(dataIn3D);
+					try {
+						oneDShowing3DPage.initialPlot();
+					} catch (Exception e) {
+						logger.error("Initial plotting error in 3D view page {}", e);
+					}
+				} else {
+					oneDShowing3DPage.setMappingViewData(dataIn3D);
+					try {
+						oneDShowing3DPage.initialPlot();
+					} catch (Exception e) {
+						logger.error("Initial plotting error in 3D view page {}", e);
+					}
 				}
+				activePage = oneDShowing3DPage;
 			} else {
-				oneDShowing3DPage.setMappingViewData(dataIn3D);
-				try {
-					oneDShowing3DPage.initialPlot();
-				} catch (Exception e) {
-					logger.error("Initial plotting error in 3D view page {}", e);
-				}
+				activePage.removeCompositeSelectionListener(pageSelectionListener);
+				activePage = blankPageComposite;
 			}
-			activePage = oneDShowing3DPage;
-		} else {
-			activePage.removeCompositeSelectionListener(pageSelectionListener);
-			activePage = blankPageComposite;
+			pgBook.showPage(activePage);
 		}
-		pgBook.showPage(activePage);
 	}
 
 	private ViewPageCompositeListener pageSelectionListener = new ViewPageCompositeListener() {
@@ -184,15 +183,7 @@ public class OneDViewPage extends MappingPageBookViewPage implements IMappingVie
 		return null;
 	}
 
-	private ISelectionListener twoDViewSelectionListener = new INullSelectionListener() {
-		@Override
-		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			doSelectionChangedOnTwoDView(part, selection);
-		}
-
-	};
-
-	private void doSelectionChangedOnTwoDView(IWorkbenchPart part, ISelection selection) {
+	protected void doSelectionChangedOnTwoDView(IWorkbenchPart part, ISelection selection) {
 		if (part == null && selection == null) {
 			// this will be the effect of using a INullSelectionListener
 			activePage.selectionChanged(null, null);
@@ -215,8 +206,6 @@ public class OneDViewPage extends MappingPageBookViewPage implements IMappingVie
 	@Override
 	public void dispose() {
 		activePage.removeCompositeSelectionListener(pageSelectionListener);
-		getSite().getWorkbenchWindow().getSelectionService()
-				.removeSelectionListener(getTwoDViewId(), twoDViewSelectionListener);
 		super.dispose();
 	}
 

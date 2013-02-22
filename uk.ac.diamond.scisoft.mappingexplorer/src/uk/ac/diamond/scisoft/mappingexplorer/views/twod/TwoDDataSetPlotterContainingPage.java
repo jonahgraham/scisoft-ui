@@ -76,13 +76,12 @@ import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.diamond.scisoft.mappingexplorer.views.AxisSelection;
-import uk.ac.diamond.scisoft.mappingexplorer.views.AxisSelection.DimensionChanged;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView2dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView3dData;
-import uk.ac.diamond.scisoft.mappingexplorer.views.MappingViewSelectionChangedEvent;
 import uk.ac.diamond.scisoft.mappingexplorer.views.histogram.HistogramSelection;
 import uk.ac.diamond.scisoft.mappingexplorer.views.oned.IOneDSelection;
+import uk.ac.diamond.scisoft.mappingexplorer.views.twod.ITwoDSelection.PixelSelection;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.ITwoDSelection.TwoDSelection;
 import uk.ac.gda.ui.components.IStepperSelectionListener;
 import uk.ac.gda.ui.components.Stepper;
@@ -95,6 +94,8 @@ import uk.ac.gda.ui.components.StepperChangedEvent;
  * @author rsr31645
  */
 public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
+	private int xPoint;
+	private int yPoint;
 
 	private static final String REGION_X_STATIC = "X-Static";
 	private static final String REGION_Y_STATIC = "Y-Static";
@@ -424,10 +425,10 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			}
 
 			try {
-				double xPoint = plottingSystem.getSelectedXAxis().getPositionValue(me.x);
-				double yPoint = plottingSystem.getSelectedYAxis().getPositionValue(me.y);
+				xPoint = (int) plottingSystem.getSelectedXAxis().getPositionValue(me.x);
+				yPoint = (int) plottingSystem.getSelectedYAxis().getPositionValue(me.y);
 
-				notifyPixelChanged(new int[] { (int) xPoint, (int) yPoint });
+				notifyPixelChanged();
 			} catch (Exception e) {
 				logger.error("Problem getting point in axis co-ordinates.", e);
 			}
@@ -552,9 +553,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 					removeAreaRegion();
 
 					fireUpdatePlot();
-					notifyPixelChanged(new int[] { 0, 0 });
-					fireNotifyDimensionChanged(DimensionChanged.INDEX);
-
+					notifyPixelChanged();
 				}
 
 				if (plottingSystem != null) {
@@ -612,23 +611,20 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 
 	private AxisSelection getSelectedDimension() {
 		if (mapping3DData != null) {
-			return new AxisSelection(getSelectedDimensionLabel(getSelectedRdBtnVal()), getSelectedRdBtnVal(),
-					thirdDimensionScaler.getSelection());
+			return new AxisSelection(getSelectedDimensionLabel(getSelectedRdBtnVal()), getSelectedRdBtnVal());
 		}
 		return null;
 	}
 
-	protected void fireNotifyDimensionChanged(final DimensionChanged dimensionChangeAffected) {
+	protected void fireNotifyDimensionChanged() {
 		UIJob job = new UIJob(getDisplay(), NOTIFY_DIMENSION_CHANGED) {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				List<ISelection> selElements = new ArrayList<ISelection>();
 				if (getSelectedDimension() != null) {
-					TwoDSelection selection = new TwoDSelection(secondaryId,
-							MappingViewSelectionChangedEvent.DIMENSION_SELECTION, getSelectedDimension(),
-							btnFlipAxis.getSelection());
-					selection.getAxisDimensionSelection().setChangeAffected(dimensionChangeAffected);
+					TwoDSelection selection = new TwoDSelection(secondaryId, getSelectedDimension(),
+							getPixelSelection(), btnFlipAxis.getSelection());
 					selElements.add(selection);
 					StructuredSelection sel = new StructuredSelection(selElements);
 					notifyListeners(sel);
@@ -685,7 +681,6 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			thirdDimensionScaler.setText(mapping3DData.getDimension1Label());
 			thirdDimensionScaler.layout();
 		}
-		fireNotifyDimensionChanged(DimensionChanged.INDEX);
 		updatePlot();
 	}
 
@@ -852,14 +847,16 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		if (yRegion != null) {
 			plottingSystem.removeRegion(yRegion);
 		}
-
+		xPoint = 0;
+		yPoint = 0;
 	}
 
 	@Override
 	public ISelection getSelection() {
 		List<ISelection> selections = new ArrayList<ISelection>();
-		selections.add(new TwoDSelection(secondaryId, MappingViewSelectionChangedEvent.DIMENSION_SELECTION,
-				getSelectedDimension(), btnFlipAxis.getSelection()));
+		TwoDSelection twdSel = new TwoDSelection(secondaryId, getSelectedDimension(), getPixelSelection(),
+				btnFlipAxis.getSelection());
+		selections.add(twdSel);
 		selections.add(getHistogramSelectionDataset());
 		return new StructuredSelection(selections);
 	}
@@ -948,6 +945,8 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				logger.warn("Unable to create Y static region for cross hair", e);
 			}
 		}
+		xPoint = pos1;
+		yPoint = pos2;
 	}
 
 	private void notifyAreaSelectedChanged() {
@@ -962,15 +961,13 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		job.schedule();
 	}
 
-	protected void notifyPixelChanged(final int[] endPosition) {
+	protected void notifyPixelChanged() {
 		UIJob job = new UIJob(getDisplay(), NOTIFY_PIXEL_CHANGED_job_lbl) {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				TwoDSelection selection = new TwoDSelection(secondaryId,
-						MappingViewSelectionChangedEvent.PIXEL_SELECTION, getSelectedDimension(),
+				TwoDSelection selection = new TwoDSelection(secondaryId, getSelectedDimension(), getPixelSelection(),
 						btnFlipAxis.getSelection());
-				selection.setPixelSelection(new ITwoDSelection.PixelSelection(endPosition));
 
 				notifyListeners(selection);
 				return Status.OK_STATUS;
@@ -1102,6 +1099,10 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 	public boolean setFocus() {
 		logger.warn("focus set in 2 d plot composite");
 		return super.setFocus();
+	}
+
+	private PixelSelection getPixelSelection() {
+		return new ITwoDSelection.PixelSelection(new int[] { xPoint, yPoint });
 	}
 
 }

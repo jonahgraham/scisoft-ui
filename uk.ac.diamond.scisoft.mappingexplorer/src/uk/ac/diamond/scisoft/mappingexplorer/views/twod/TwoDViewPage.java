@@ -84,16 +84,7 @@ public class TwoDViewPage extends MappingPageBookViewPage implements IMappingVie
 		activePage = blankPageComposite;
 
 		pgBook.showPage(activePage);
-		String viewId = getOneDViewId();
 
-		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(viewId, oneDViewSelectionListener);
-	}
-
-	protected String getOneDViewId() {
-		if (getSecondaryViewId() != null) {
-			return OneDMappingView.ID + ":" + getSecondaryViewId();
-		}
-		return OneDMappingView.ID;
 	}
 
 	public void setMappingViewData(IMappingViewData data) {
@@ -212,22 +203,11 @@ public class TwoDViewPage extends MappingPageBookViewPage implements IMappingVie
 
 	@Override
 	public void dispose() {
-		getSite().getWorkbenchWindow().getSelectionService()
-				.removeSelectionListener(getOneDViewId(), oneDViewSelectionListener);
 		fireNotifySelectionChanged(StructuredSelection.EMPTY);
 		super.dispose();
 	}
 
-	private ISelectionListener oneDViewSelectionListener = new ISelectionListener() {
-
-		@Override
-		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			doSelectionChangedOnOneDView(part, selection);
-		}
-
-	};
-
-	private void doSelectionChangedOnOneDView(IWorkbenchPart part, ISelection selection) {
+	protected void doSelectionChangedOnOneDView(IWorkbenchPart part, ISelection selection) {
 		if (part == null && selection == null) {
 			// this will be the effect of using a INullSelectionListener
 			activePage.selectionChanged(null, null);

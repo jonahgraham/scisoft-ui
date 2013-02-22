@@ -20,8 +20,11 @@ package uk.ac.diamond.scisoft.mappingexplorer.views.twod;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.IPage;
 import org.eclipse.ui.part.Page;
@@ -37,6 +40,7 @@ import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView2dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView3dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingViewDataContainingPage;
 import uk.ac.diamond.scisoft.mappingexplorer.views.MappingPageBookView;
+import uk.ac.diamond.scisoft.mappingexplorer.views.oned.OneDMappingView;
 
 /**
  * @author rsr31645
@@ -49,6 +53,33 @@ public class TwoDMappingView extends MappingPageBookView implements IDatasetPlot
 
 	public TwoDMappingView() {
 		logger.info("TwoD mapping View created");
+	}
+
+	protected String getOneDViewId() {
+		String secondaryId = getViewSite().getSecondaryId();
+		if (secondaryId != null) {
+			return OneDMappingView.ID + ":" + secondaryId;
+		}
+		return OneDMappingView.ID;
+	}
+
+	private ISelectionListener oneDViewSelectionListener = new ISelectionListener() {
+
+		@Override
+		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+			if (getCurrentPage() instanceof TwoDViewPage) {
+				TwoDViewPage twoDViewPage = (TwoDViewPage) getCurrentPage();
+				twoDViewPage.doSelectionChangedOnOneDView(part, selection);
+			}
+		}
+
+	};
+
+	@Override
+	public void createPartControl(Composite parent) {
+		super.createPartControl(parent);
+		String viewId = getOneDViewId();
+		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(viewId, oneDViewSelectionListener);
 	}
 
 	@Override
@@ -154,6 +185,13 @@ public class TwoDMappingView extends MappingPageBookView implements IDatasetPlot
 			IHistogramDataUpdateProvider histDataUpdater = (IHistogramDataUpdateProvider) getCurrentPage();
 			histDataUpdater.selectAllForHistogram();
 		}
+	}
+
+	@Override
+	public void dispose() {
+		getSite().getWorkbenchWindow().getSelectionService()
+				.removeSelectionListener(getOneDViewId(), oneDViewSelectionListener);
+		super.dispose();
 	}
 
 }

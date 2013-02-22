@@ -59,7 +59,6 @@ import uk.ac.diamond.scisoft.mappingexplorer.views.AxisSelection;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView3dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingViewData;
-import uk.ac.diamond.scisoft.mappingexplorer.views.MappingViewSelectionChangedEvent;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.ITwoDSelection;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.ITwoDSelection.IPixelSelection;
 import uk.ac.gda.monitor.IMonitor;
@@ -130,8 +129,8 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 		} catch (Exception e) {
 			logger.error("Problem creating plotting system", e);
 		}
-		plottingSystem.createPlotPart(plotComposite, PLOT_PART_NAME, page.getSite().getActionBars(), PlotType.XY_STACKED,
-				null);
+		plottingSystem.createPlotPart(plotComposite, PLOT_PART_NAME, page.getSite().getActionBars(),
+				PlotType.XY_STACKED, null);
 
 		disablePlottingSystemActions(plottingSystem);
 
@@ -448,10 +447,12 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 							rdDimension2.setSelection(false);
 							rdDimension3.setSelection(true);
 						}
-						try {
-							fireUpdatePlot();
-						} catch (Exception e) {
-							logger.error("Problem setting radio button control", e);
+						if (changed) {
+							try {
+								fireUpdatePlot();
+							} catch (Exception e) {
+								logger.error("Problem setting radio button control", e);
+							}
 						}
 					}
 					return new Status(IStatus.OK, MappingExplorerPlugin.PLUGIN_ID, Boolean.toString(changed));
@@ -540,15 +541,11 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 		}
 		if (sel != null && isSecondaryIdSame(sel.getSecondaryViewId())) {
 			disableAxisComposite();
-			if (MappingViewSelectionChangedEvent.DIMENSION_SELECTION == sel.getChangedEvent()) {
-				AxisSelection selectedChangedObject = sel.getAxisDimensionSelection();
-				if (selectedChangedObject != null) {
-					selectDimensionAxis(selectedChangedObject);
-				}
+			AxisSelection selectedChangedObject = sel.getAxisDimensionSelection();
+			if (selectedChangedObject != null) {
+				selectDimensionAxis(selectedChangedObject);
 			}
-			if (MappingViewSelectionChangedEvent.PIXEL_SELECTION == sel.getChangedEvent()) {
-				selectPixel(sel.getPixelSelection(), sel.isFlipped());
-			}
+			selectPixel(sel.getPixelSelection(), sel.isFlipped());
 		}
 		if (selection == null) {
 			// apparently this should be true when the twod view is disposed.
