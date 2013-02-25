@@ -20,74 +20,57 @@ package uk.ac.diamond.scisoft.beamlineexplorer.rcp.projects;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IPageLayout;
-import org.eclipse.ui.IViewReference;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.navigator.resources.ProjectExplorer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.beamlineexplorer.rcp.wizards.BeamlineDataWizard;
 
 
 public class HideDeepProjects extends ViewerFilter {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(HideDeepProjects.class);
+	private static Logger logger = LoggerFactory.getLogger(HideDeepProjects.class);
 	
-	static final String SINGLE_LEVEL_NATURE = uk.ac.diamond.scisoft.beamlineexplorer.rcp.natures.SingleLevelProjectNature.NATURE_ID;
+	static final String BEAMLINE_RECURSIVE_CONTROLLED = uk.ac.diamond.scisoft.beamlineexplorer.rcp.natures.BeamlineRecursiveControlledNature.NATURE_ID;
 	
 	
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
-
+	
 		if(element instanceof IResource){
 
-			boolean isTopProjectSingleLevel = false;
+			boolean isTopRecursiveControlled = false;
 			try {
 				if(((IResource)element).getProject().isAccessible()){
-					isTopProjectSingleLevel = ((IResource)element).getProject().hasNature(SINGLE_LEVEL_NATURE);
+					if( ((IResource)element).getParent().getProject() != null)
+						isTopRecursiveControlled = ((IResource)element).getParent().getProject().hasNature(BEAMLINE_RECURSIVE_CONTROLLED);
 				}
 			} catch (CoreException e1) {
 				e1.printStackTrace();
 			}
 
-			boolean recursiveBrowsing = BeamlineDataWizard.RECURSIVE_BROWSING;
-
-			if  (isTopProjectSingleLevel){
-				
-//				System.out.println("top project: " + ((IResource) element).getName());
-
-//				if(!recursiveBrowsing){
-					if (!(((IResource)element) instanceof IFile) && ((IResource)element).getParent().isLinked()){
-
+			if  (isTopRecursiveControlled){
+				if (((IResource)element).getParent().isLinked()){
+					
+					// get project persistent property
+					QualifiedName qRecursiveBrowsingStatus = new QualifiedName("RECURSIVE.VIEWING", "String");
+					boolean showFilesOnly = false;
+					try {
+						showFilesOnly = Boolean.valueOf(((IResource)element).getParent().getParent().getPersistentProperty(qRecursiveBrowsingStatus));
+					} catch (CoreException e) {
+						logger.error("can't extract persistent property");
+					}
+					
+					if (showFilesOnly && !(((IResource)element) instanceof IFile)){
 						return false;
 					}
-//
-//				}else {
-//					logger.debug("ELSE - RECURSIVE_BROWSING: " + ((IResource)element).getName());
-//					return true;
-//				}
+					
+				}
+
 			}
-		}// is topProjectSingleLevel
+		}// isTopRecursiveControlled
 		
-		//refreshProjectExplorer((IResource)element);
 		return true;
 	}
-	
-
-//	private void refreshProjectExplorer(IResource itemToExpand) {
-//		logger.debug("custom refresh of project: " + itemToExpand.getName());
-//		ProjectExplorer projectExplorer = (ProjectExplorer)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(IPageLayout.ID_PROJECT_EXPLORER);
-//		if (projectExplorer!=null) {
-//			//projectExplorer.getCommonViewer().expandToLevel(itemToExpand, IResource.DEPTH_ONE);//.expandAll();
-//			projectExplorer.getCommonViewer().expandToLevel(itemToExpand, IResource.DEPTH_ONE);
-//			projectExplorer.getCommonViewer().refresh(true);
-//		}
-//	}
-
-	
+		
 }

@@ -18,9 +18,17 @@ package uk.ac.diamond.scisoft.beamlineexplorer.rcp.wizards;
 
 import java.io.File;
 
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -36,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.beamlineexplorer.rcp.internal.BeamlineExplorerProjectActivator;
-import uk.ac.diamond.scisoft.beamlineexplorer.rcp.natures.SingleLevelProjectNature;
+import uk.ac.diamond.scisoft.beamlineexplorer.rcp.natures.BeamlineRecursiveControlledNature;
 
 
 public class BeamlineDataWizard extends Wizard implements INewWizard {
@@ -49,7 +57,7 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 	private ISelection selection;
 	private String defaultDataLocation, defaultFolderName;
 	
-	public static boolean RECURSIVE_BROWSING = false;
+	public static boolean SHOW_FILES_ONLY = false;
 
 	/**
 	 * Constructor for TestWizard.
@@ -98,7 +106,10 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 	
 		final String project = page.getProject();
 		final String directory = page.getDirectory();
+		final boolean showFilesOnly = page.showFilesOnly();
 		//final String folder = page.getFolder();
+		
+		SHOW_FILES_ONLY = showFilesOnly;
 		
 		File f = new File(directory);
 		if (f.exists()){
@@ -108,9 +119,44 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 			protected IStatus run(IProgressMonitor monitor) {
 				monitor.beginTask("Importing content", 100);
 				try {
-					logger.debug("project: " + project);
-					logger.debug("directory: " + directory);
-					BeamlineDataProjectUtils.createImportProjectAndFolder(project, "beamlinedata", directory, SingleLevelProjectNature.NATURE_ID, null, monitor);
+						// create project
+						IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+
+						IProject iproject = root.getProject(project);
+						iproject.create(monitor);
+						iproject.open(monitor);
+						
+						// adding persistent properties needed to differentiate between multiple beamline data projects
+						QualifiedName qRecursiveBrowsingStatus = new QualifiedName("RECURSIVE.VIEWING", "String");
+						iproject.setPersistentProperty(qRecursiveBrowsingStatus, String.valueOf(SHOW_FILES_ONLY));
+				
+						// associating the beamlineData nature to the newly created project
+						try {
+							IProjectDescription description = iproject.getDescription();
+							String[] natures = description.getNatureIds();
+							String[] newNatures = new String[natures.length + 1];
+							System.arraycopy(natures, 0, newNatures, 0, natures.length);
+
+							newNatures[natures.length] = BeamlineRecursiveControlledNature.NATURE_ID;
+							description.setNatureIds(newNatures);
+							iproject.setDescription(description, monitor);
+
+						} catch (CoreException e) {
+							logger.error("problem setting BeamlineData Project nature to project: " + iproject.getName() + " - Error: " + e);
+						}
+						
+						logger.debug("BeamlineData project created: " + project);
+
+						// create link into project
+						if (iproject.findMember(directory) == null) {
+							final IFolder src = iproject.getFolder("beamlineData");
+							src.createLink(new Path(directory), IResource.DEPTH_ZERO, monitor);
+						}
+						
+						// refresh
+						//iproject.refreshLocal(IResource.BACKGROUND_REFRESH, null);
+						logger.debug("project structure for '" + iproject.getName() + "' created.");
+					
 				} catch (CoreException e) {
 					logger.error("Error creating project " + project, e);
 					return new Status(IStatus.ERROR, BeamlineExplorerProjectActivator.PLUGIN_ID, "Error creating project " + project + "\n folder '"+ directory + "' does not exit on file system");
@@ -135,7 +181,8 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 		logger.error("Data directory does not exist on file system: " + directory);
 		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().asyncExec
 			    (new Runnable() {
-			        public void run() {
+			        @Override
+					public void run() {
 			            MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 			            		.getShell(),"Error","Data directory does not exist on file system:\n" + directory);
 			            }
@@ -153,11 +200,5 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		this.selection = selection;
 	}
-
-	public void setDataLocation(File selectedPath) {
-		this.defaultDataLocation = selectedPath.getAbsolutePath();
-		this.defaultFolderName   = selectedPath.getName();
-	}
-	
 
 }
