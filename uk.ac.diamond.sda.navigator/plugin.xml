@@ -429,6 +429,15 @@
                tooltip="Enable/disable re-use editor">
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:uk.ac.diamond.sda.navigator.views.FileView?after=additions">
+         <command
+               commandId="uk.ac.diamond.sda.navigator.showFileNavigatorPreferences"
+               label="Show preferences"
+               style="push">
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -459,6 +468,11 @@
             defaultHandler="uk.ac.diamond.sda.navigator.views.ExplorerOSHandler"
             id="uk.ac.diamond.sda.navigator.exploreros"
             name="Open in File Explorer">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.sda.navigator.views.ShowPreferencesHandler"
+            id="uk.ac.diamond.sda.navigator.showFileNavigatorPreferences"
+            name="Show preferences">
       </command>
    </extension>
    <extension

@@ -24,12 +24,16 @@ import java.util.Date;
 import org.dawb.common.services.IFileIconService;
 import org.dawb.common.services.ServiceManager;
 import org.dawb.common.util.io.FileUtils;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
+import uk.ac.diamond.sda.navigator.util.NavigatorUtils;
 import uk.ac.gda.util.OSUtils;
 
 public class FileLabelProvider extends ColumnLabelProvider {
@@ -37,14 +41,15 @@ public class FileLabelProvider extends ColumnLabelProvider {
 	private int columnIndex;
 	private SimpleDateFormat dateFormat;
 	private IFileIconService service;
+	private IPreferenceStore store;
 
 	public FileLabelProvider(final int column) throws Exception {
 		this.columnIndex = column;
 		this.dateFormat  = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 		this.service = (IFileIconService)ServiceManager.getService(IFileIconService.class);
-
+		this.store = AnalysisRCPActivator.getDefault().getPreferenceStore();
 	}
-	
+
 	@Override
 	public Color getForeground(Object element) {
 		if (columnIndex==0) return null;
@@ -76,6 +81,9 @@ public class FileLabelProvider extends ColumnLabelProvider {
 	@Override
 	public String getText(Object element) {
 		
+		boolean showComment = store.getBoolean(PreferenceConstants.SHOW_COMMENT_COLUMN);
+		boolean showScanCmd = store.getBoolean(PreferenceConstants.SHOW_SCANCMD_COLUMN);
+
 		if (element instanceof String) return (String)element;
 		final File node   = (File)element;
 	
@@ -90,12 +98,38 @@ public class FileLabelProvider extends ColumnLabelProvider {
 			return node.isDirectory() ? "Directory" : FileUtils.getFileExtension(node);
 		case 3:
 			return formatSize(node.length());
+		case 4:
+			String comment;
+			if(!node.isDirectory() && showComment){
+				try {
+					comment = NavigatorUtils.getComment(node);
+				} catch (Exception e) {
+					e.printStackTrace();
+					comment = "N/A";
+				}
+			} else {
+				comment = "";
+			}
+			return comment;
+		case 5:
+			String scanCmd;
+			if(!node.isDirectory() && showScanCmd){
+				try {
+					scanCmd = NavigatorUtils.getScanCommand(node);
+				} catch (Exception e) {
+					e.printStackTrace();
+					scanCmd = "N/A";
+				}
+			} else {
+				scanCmd = "";
+			}
+			return scanCmd;
 		default:
 			return null;
 		}
 	}
 
-    private String getRootLabel(File node) {
+	private String getRootLabel(File node) {
     	if (OSUtils.isWindowsOS()) {
     		return	"("+node.getAbsolutePath().substring(0, node.getAbsolutePath().length()-1)+")";
     	}
@@ -117,5 +151,4 @@ public class FileLabelProvider extends ColumnLabelProvider {
         }
         return "" + (int)size + " bytes";
     }
-
 }
