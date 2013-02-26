@@ -39,6 +39,7 @@ import org.dawb.common.ui.plot.tool.IToolPage.ToolPageRole;
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
 import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.dawb.common.ui.plot.trace.IPaletteListener;
+import org.dawb.common.ui.plot.trace.IPaletteTrace;
 import org.dawb.common.ui.plot.trace.ITrace;
 import org.dawb.common.ui.plot.trace.PaletteEvent;
 import org.dawnsci.plotting.jreality.core.AxisMode;
@@ -828,7 +829,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 		};
 	}
 	
-	private ColorMappingUpdate getColorMappingUpdate(IImageTrace trace){
+	private ColorMappingUpdate getColorMappingUpdate(IPaletteTrace trace){
 		double minValue = trace.getMin().doubleValue();
 		double maxValue = trace.getMax().doubleValue();
 		return new ColorMappingUpdate(trace.getPaletteData(), minValue, maxValue);
