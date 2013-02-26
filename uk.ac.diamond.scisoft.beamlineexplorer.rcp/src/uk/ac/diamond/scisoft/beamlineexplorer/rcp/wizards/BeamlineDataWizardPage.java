@@ -16,9 +16,7 @@
 
 package uk.ac.diamond.scisoft.beamlineexplorer.rcp.wizards;
 
-import java.io.File;
 import java.net.UnknownHostException;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -41,8 +39,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -55,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.beamlineexplorer.rcp.icat.ICATDBClient;
+
 
 
 public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
@@ -234,8 +231,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		GridData gd_btnCheckButton = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_btnCheckButton.heightHint = 45;
 		btnCheckButton.setLayoutData(gd_btnCheckButton);
-		btnCheckButton.setEnabled(false);
-		btnCheckButton.setGrayed(true);
 		btnCheckButton.setText("Show files only");
 		new Label(container, SWT.NONE);
 		new Label(container, SWT.NONE);
@@ -243,19 +238,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		//
 		dialogChanged() ;
 	}
-
-//	protected String getNbFiles(String visit_id, String instrument) {
-//		int nbFiles = 0;
-//		String directoryPath = "/dls/" + instrument + "/data/" + visit_id+ "/";
-//		
-//		logger.debug("counting number of files in: " + directoryPath);
-//		
-//		File file = new File(directoryPath);
-//		if (file.exists()){
-//			nbFiles = file.list().length;
-//		}
-//		return  nbFiles + " files";
-//	}
 
 	protected String getDate(String start_date) {
 		Date date = null;
@@ -427,17 +409,16 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		String beamlineSql = "";
 		
 		if ( !fedid.trim().equals("")){
-			logger.debug("fedid-" + fedid +"-");
 			fedidsql = " and federal_id='"+ fedid + "'";
 		}
 		if ( !beamline.trim().equals("")){
-			logger.debug("beamline-" + beamline +"-");
 			beamlineSql = " and instrument ='"+ beamline + "'";
 		}
 		
 		// build sql query
+		// ignore visits that are more than 1 month in the future
 		String sqlStatement = "select investigation.visit_id, investigation.instrument, investigation.inv_start_date, investigator.facility_user_id, federal_id from investigation, investigator, facility_user" +
-				" where investigation.id = investigator.investigation_id and investigator.facility_user_id = facility_user.facility_user_id " + fedidsql + beamlineSql + " order by investigation.inv_start_date desc";
+				" where investigation.id = investigator.investigation_id and investigator.facility_user_id = facility_user.facility_user_id " + fedidsql + beamlineSql + " and investigation.inv_start_date < ADD_Months(Sysdate, +1) order by investigation.inv_start_date desc";
 								
 		   // getting the connection to the database
 			if (ICATDBClient.getConnection() != null) {
@@ -450,8 +431,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
 		    					ResultSetMetaData rsmd = rs.getMetaData();
 		    					columnsCount = rsmd.getColumnCount();
-
-		    					//logger.debug("\nNumber of Columns=" + columnsCount);
 
 		    					// Get the column names; column indices start from 1
 		    					for (int i = 1; i < columnsCount + 1; i++) {
@@ -516,5 +495,9 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 			}
 			
 			return visitList;				
+	}
+
+	public boolean showFilesOnly() {
+		return btnCheckButton.getSelection();
 	}
 }
