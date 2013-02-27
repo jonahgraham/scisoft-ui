@@ -19,6 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.explorers;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -280,12 +281,12 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		File parent = new File(file.getParent());
 		if(parent.isDirectory()) {
 			for (String fName : parent.list()) {
-				
 				if (fName.endsWith(ext)) imageFilenames.add((new File(parent,fName)).getAbsolutePath());
 			}
 		}
 		
 		if (imageFilenames.size() > 1) {
+			Collections.sort(imageFilenames);
 			ImageStackLoader loader = new ImageStackLoader(imageFilenames , mon);
 			LazyDataset lazyDataset = new LazyDataset("Folder Stack", loader.getDtype(), loader.getShape(), loader);
 			data.addDataset(lazyDataset.getName(), lazyDataset);
