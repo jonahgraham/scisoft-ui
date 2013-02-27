@@ -106,8 +106,8 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 	
 		final String project = page.getProject();
 		final String directory = page.getDirectory();
-		final boolean showFilesOnly = page.showFilesOnly();
-		//final String folder = page.getFolder();
+		final String link = page.getLink();
+		final boolean showFilesOnly = page.isShowFilesOnly();
 		
 		SHOW_FILES_ONLY = showFilesOnly;
 		
@@ -126,7 +126,9 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 						iproject.create(monitor);
 						iproject.open(monitor);
 						
-						// adding persistent properties needed to differentiate between multiple beamline data projects
+						/*
+						 * adding persistent properties needed to differentiate between multiple beamline data projects
+						 * */ 
 						QualifiedName qRecursiveBrowsingStatus = new QualifiedName("RECURSIVE.VIEWING", "String");
 						iproject.setPersistentProperty(qRecursiveBrowsingStatus, String.valueOf(SHOW_FILES_ONLY));
 				
@@ -149,12 +151,10 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 
 						// create link into project
 						if (iproject.findMember(directory) == null) {
-							final IFolder src = iproject.getFolder("beamlineData");
+							final IFolder src = iproject.getFolder(link);
 							src.createLink(new Path(directory), IResource.DEPTH_ZERO, monitor);
 						}
 						
-						// refresh
-						//iproject.refreshLocal(IResource.BACKGROUND_REFRESH, null);
 						logger.debug("project structure for '" + iproject.getName() + "' created.");
 					
 				} catch (CoreException e) {
@@ -173,7 +173,6 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 		IDialogSettings settings = getDialogSettings();
 		if( settings != null){
 			settings.put(DIALOG_SETTING_KEY_PROJECT, project);
-			//settings.put(DIALOG_SETTING_KEY_FOLDER, folder);
 			settings.put(DIALOG_SETTING_KEY_DIRECTORY, directory);
 		}
 	}else //directory does not exist in file system
