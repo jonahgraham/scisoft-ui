@@ -62,9 +62,9 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
 	private static final String DEFAULT_BEAMLINE = "";
 	private static final String DELIMITER = " - ";
+	private static final String DEFAULT_LINK_NAME = "beamlineData";
 	private String START_DATE;
 	private String END_DATE;
-	private Text txtProject;
 	private Text txtFedidValue;
 	private Button btnCheckButton;
 	private Combo beamlineListCombo;
@@ -147,6 +147,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 					visitListCombo.deselectAll();
 					visitListCombo.clearSelection();
 				}
+				dialogChanged();
 			}
 		});
 		beamlineListCombo.setItems(beamlineList);
@@ -168,6 +169,8 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 					visitListCombo.clearSelection();
 					visitListCombo.removeAll();
 				}
+				
+				dialogChanged();
 			}
 		});
 		txtFedidValue.setText(computeFedid());
@@ -367,7 +370,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		new Label(composite, SWT.NONE);
 		new Label(composite, SWT.NONE);
 
-		// dialogChanged() ;
+		dialogChanged();
 	}
 
 	protected String getDate(String start_date) {
@@ -388,14 +391,8 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	/**
 	 * Ensures that both text fields are set.
 	 */
-
 	private void dialogChanged() {
-
-		if (getBeamline().length() == 0 && getFedid().length() == 0) {
-			updateStatus("Either fedid and/or beamline must specified.");
-			return;
-		}
-
+				
 		if (getBeamline().length() == 0 && getFedid().length() == 0) {
 			updateStatus("Either fedid and/or beamline must specified.");
 			return;
@@ -428,7 +425,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 			// return the name of the created project
 			return beamline + "-" + visitText;
 		}
-
+		// return project name from field
 		return txtProjectname.getText();
 	}
 
@@ -457,7 +454,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
 	public String getLink() {
 		if (txtLinkname.getTextChars().length == 0) {
-			return "beamlineData";
+			return DEFAULT_LINK_NAME;
 		}
 		return txtLinkname.getText();
 	}
@@ -476,14 +473,13 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-
+		System.out.println("xxxxxxxxxxxxxxxx: " + e.getSource());
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if (e.getSource().equals(txtProject)) {
-			dialogChanged();
-		}
+		System.out.println("yyyyyyyyyyyyyyyyyyy: " + e.getSource());
+		
 		if (e.getSource().equals(txtFedidValue)) {
 			dialogChanged();
 		}
@@ -555,7 +551,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		}
 
 		// build sql query
-		// ignore visits that are more than 1 month in the future
 		String sqlStatement = "select investigation.visit_id, investigation.instrument, investigation.inv_start_date, investigator.facility_user_id, federal_id from investigation, investigator, facility_user"
 				+ " where investigation.id = investigator.investigation_id and investigator.facility_user_id = facility_user.facility_user_id "
 				+ fedidsql
