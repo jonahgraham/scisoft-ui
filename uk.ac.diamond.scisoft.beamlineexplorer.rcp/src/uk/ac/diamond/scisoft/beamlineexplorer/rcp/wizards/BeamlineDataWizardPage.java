@@ -472,22 +472,10 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	}
 
 	@Override
-	public void keyPressed(KeyEvent e) {
-		System.out.println("xxxxxxxxxxxxxxxx: " + e.getSource());
-	}
+	public void keyPressed(KeyEvent e) {}
 
 	@Override
-	public void keyReleased(KeyEvent e) {
-		System.out.println("yyyyyyyyyyyyyyyyyyy: " + e.getSource());
-		
-		if (e.getSource().equals(txtFedidValue)) {
-			dialogChanged();
-		}
-		if (e.getSource().equals(beamlineListCombo)) {
-			dialogChanged();
-		}
-
-	}
+	public void keyReleased(KeyEvent e) {}
 
 	private String computeBeamline() {
 		String hostname = "";
