@@ -350,12 +350,12 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
 		Label lblProjectname = new Label(optionsComposite, SWT.NONE);
 		lblProjectname.setText("Project Name:");
-		txtProjectname = new Text(optionsComposite, SWT.NONE);
+		txtProjectname = new Text(optionsComposite, SWT.BORDER);
 		txtProjectname.setText(DEFAULT_PROJECT_NAME);
 
 		Label lblLinkname = new Label(optionsComposite, SWT.NONE);
 		lblLinkname.setText("Link Name:");
-		txtLinkname = new Text(optionsComposite, SWT.NONE);
+		txtLinkname = new Text(optionsComposite, SWT.BORDER);
 		txtLinkname.setText(DEFAULT_LINK_NAME);
 
 		Label lblFrom = new Label(optionsComposite, SWT.NONE);
@@ -405,19 +405,19 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		dateTo.setMonth(calA.get(Calendar.MONTH) + 1);
 		dateTo.setDay(calA.get(Calendar.DAY_OF_YEAR));
 
-		advancedOptionsExpander.setClient(optionsComposite);
 		new Label(optionsComposite, SWT.NONE);
 		new Label(optionsComposite, SWT.NONE);
-		advancedOptionsExpander.addExpansionListener(expansionAdapter);
 		new Label(composite, SWT.NONE);
 		new Label(composite, SWT.NONE);
-		// sc.setMinSize(new Point(400, 600));
-		setControl(composite);
 		new Label(composite, SWT.NONE);
 		new Label(composite, SWT.NONE);
 		new Label(composite, SWT.NONE);
 		new Label(composite, SWT.NONE);
 
+		advancedOptionsExpander.setClient(optionsComposite);
+		advancedOptionsExpander.addExpansionListener(expansionAdapter);
+		setControl(composite);
+		
 		dialogChanged();
 	}
 
