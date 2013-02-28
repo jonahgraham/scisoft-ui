@@ -197,7 +197,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		Label lblFedid = new Label(composite, SWT.NONE);
 		lblFedid.setText("Detected Fedid:");
 
-		txtFedidValue = new Text(composite, SWT.NONE);
+		txtFedidValue = new Text(composite, SWT.BORDER);
 		GridData gd_txtFedidValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_txtFedidValue.widthHint = 217;
 		txtFedidValue.setLayoutData(gd_txtFedidValue);
