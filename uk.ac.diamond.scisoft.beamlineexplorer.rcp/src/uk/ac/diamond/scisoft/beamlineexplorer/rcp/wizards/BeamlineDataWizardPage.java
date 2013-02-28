@@ -245,6 +245,9 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
 				int index = beamlineListCombo.indexOf(beamline);
 				beamlineListCombo.select(index);
+				
+				dialogChanged();
+				
 			}
 		});
 
@@ -440,13 +443,18 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	 * Ensures that both text fields are set.
 	 */
 	private void dialogChanged() {
-				
-		if (getBeamline().length() == 0 && getFedid().length() == 0) {
-			updateStatus("Either fedid and/or beamline must specified.");
-			return;
+
+		try{
+			if (getVisit().length() == 0) {
+				updateStatus("a visit must be specified in order to create the project");
+				return;
+			}
+			updateStatus(null);
+		}catch(Exception e){
+			logger.error("dialogChanged: " + e.getMessage());
 		}
 
-		updateStatus(null);
+		
 	}
 
 	private void updateStatus(String message) {
