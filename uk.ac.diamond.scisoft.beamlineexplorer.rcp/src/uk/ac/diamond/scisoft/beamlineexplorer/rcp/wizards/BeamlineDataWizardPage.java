@@ -57,6 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.beamlineexplorer.rcp.icat.ICATDBClient;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
@@ -349,7 +350,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
 		Label lblProjectname = new Label(optionsComposite, SWT.NONE);
 		lblProjectname.setText("Project Name:");
-		txtProjectname = new Text(optionsComposite, SWT.FILL);
+		txtProjectname = new Text(optionsComposite, SWT.NONE);
 		txtProjectname.setText(DEFAULT_PROJECT_NAME);
 
 		Label lblLinkname = new Label(optionsComposite, SWT.NONE);
@@ -360,6 +361,8 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		Label lblFrom = new Label(optionsComposite, SWT.NONE);
 		lblFrom.setText("Visit StartDate from:");
 		dateFrom = new DateTime(optionsComposite, SWT.NONE | SWT.CALENDAR | SWT.DROP_DOWN);
+		dateFrom.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
+		dateFrom.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
 		dateFrom.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -382,6 +385,8 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		Label lblTo = new Label(optionsComposite, SWT.NONE);
 		lblTo.setText("Visit StartDate till:");
 		dateTo = new DateTime(optionsComposite, SWT.NONE | SWT.CALENDAR | SWT.DROP_DOWN);
+		dateTo.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
+		dateTo.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
 		dateTo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
