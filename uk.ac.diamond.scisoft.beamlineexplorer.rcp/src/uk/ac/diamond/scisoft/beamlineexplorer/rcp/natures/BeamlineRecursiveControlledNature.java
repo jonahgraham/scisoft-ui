@@ -20,9 +20,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 
-public class SingleLevelProjectNature implements IProjectNature {
+public class BeamlineRecursiveControlledNature implements IProjectNature {
 
-	public static final String NATURE_ID = "uk.ac.diamond.scisoft.singlelevelproject.rcp.nature"; //$NON-NLS-1$
+	public static final String NATURE_ID = "uk.ac.diamond.scisoft.beamlineexplorer.rcp.recursivecontrolled"; //$NON-NLS-1$
 	
     private IProject project;
 	

@@ -19,6 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.explorers;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -47,13 +48,14 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PlatformUI;
 
-import org.apache.commons.lang.ArrayUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.AbstractFileLoader;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.ImageStackLoader;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
@@ -237,8 +239,15 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
 		this.fileName = fileName;
 
-		data = LoaderFactory.getData(fileName, mon);
-		if (data != null) {
+		DataHolder loadedData = LoaderFactory.getData(fileName, mon);
+		data = new DataHolder();
+		if (loadedData != null) {
+			for (String name : loadedData.getNames()) {
+				data.addDataset(name, loadedData.getLazyDataset(name), loadedData.getMetadata());
+			} 
+			
+			addAllFolderStack(mon);
+			
 			if (display != null) {
 				final IMetaData meta = data.getMetadata();
 
@@ -259,6 +268,32 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		}
 	}
 
+	/**
+	 * Has a look at the folder to see if there are any other images there of the same type, and if so it creates a virtual stack with them all in.
+	 * @param mon a monitor for the initial stack creation
+	 * @throws Exception if there is a problem with the creation of the stack.
+	 */
+	private void addAllFolderStack(IMonitor mon) throws Exception {
+		List<String> imageFilenames = new ArrayList<String>();
+		File file = new File(fileName);
+		int index = fileName.lastIndexOf(".");
+		String ext = fileName.substring(index);
+		File parent = new File(file.getParent());
+		if(parent.isDirectory()) {
+			for (String fName : parent.list()) {
+				if (fName.endsWith(ext)) imageFilenames.add((new File(parent,fName)).getAbsolutePath());
+			}
+		}
+		
+		if (imageFilenames.size() > 1) {
+			Collections.sort(imageFilenames);
+			ImageStackLoader loader = new ImageStackLoader(imageFilenames , mon);
+			LazyDataset lazyDataset = new LazyDataset("Folder Stack", loader.getDtype(), loader.getShape(), loader);
+			data.addDataset(lazyDataset.getName(), lazyDataset);
+		}
+		
+	}
+
 	private ILazyDataset getActiveData() {
 		ISelection selection = viewer.getSelection();
 		Object obj = ((IStructuredSelection) selection).getFirstElement();
@@ -268,9 +303,6 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		} else if (obj instanceof ILazyDataset) {
 			d = (ILazyDataset) obj;
 		} else
-			return null;
-	
-		if (d.getRank() > 2)
 			return null;
 	
 		if (d.getRank() == 1) {
@@ -299,11 +331,6 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 				ILazyDataset ldataset = data.getLazyDataset(i);
 				if (ldataset.equals(d))
 					continue;
-				if (ArrayUtils.contains(ldataset.getShape(), len)) {
-					newChoice = new AxisChoice(ldataset);
-					newChoice.setAxisNumber(j);
-					axisSelection.addChoice(newChoice, i + 1);
-				}
 			}
 		}
 	

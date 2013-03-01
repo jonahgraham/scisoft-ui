@@ -33,11 +33,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.beamlineexplorer.rcp.internal.BeamlineExplorerProjectActivator;
 
 
 public class BeamlineDataProjectUtils {
+	
+	private static Logger logger = LoggerFactory.getLogger(BeamlineDataProjectUtils.class);
 
 	public static IProject createImportProjectAndFolder(final String projectName, final String folderName,
 			final String importFolder, final String natureId, final List<ResourceFilterWrapper> resourceFilterWrappers,
@@ -64,6 +68,8 @@ public class BeamlineDataProjectUtils {
 						description.setNatureIds(new String[] { natureId });
 						project.setDescription(description, monitor);
 					}
+				}else{
+					logger.error("Project exists already: " + project.getName());
 				}
 
 				project.open(monitor);

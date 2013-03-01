@@ -5,7 +5,7 @@
          id="application"
          point="org.eclipse.core.runtime.applications">
       <application
-            icon="icons/synchrotron-256x160.jpg">
+            icon="icons/synchrotron-8x8.jpg">
          <run
                class="uk.ac.diamond.scisoft.beamlineexplorer.rcp.internal.Application">
          </run>
@@ -42,7 +42,7 @@
              allowMultiple="false"
              category="uk.ac.diamond.scisoft.beamlineexplorer.rcp"
              class="org.eclipse.ui.navigator.CommonNavigator"
-             icon="icons/synchrotron-256x160.jpg"
+             icon="icons/synchrotron-8x8.jpg"
              id="uk.ac.diamond.scisoft.beamlineexplorer.view"
              name="Non-Recursive View">
        </view>
@@ -161,9 +161,9 @@
       </commonFilter>
    </extension>
    
-   
-     <extension point="org.eclipse.ui.navigator.navigatorContent">
-    <commonFilter
+      <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <commonFilter
           activeByDefault="true"
           class="uk.ac.diamond.scisoft.beamlineexplorer.rcp.projects.HideDeepProjects"
           description="hide deep content"
@@ -171,7 +171,9 @@
           name="*.top level items"
           visibleInUI="true">
        </commonFilter>
-</extension>
+   </extension>
+   
+   
 <extension point="org.eclipse.ui.navigator.viewer">
     <viewerContentBinding
           viewerId="org.eclipse.ui.navigator.ProjectExplorer">
@@ -191,34 +193,28 @@
       <wizard
       		category="uk.ac.diamond.scisoft.beamlineexplorer.rcp.wizard.category"
             class="uk.ac.diamond.scisoft.beamlineexplorer.rcp.wizards.BeamlineDataWizard"
-            icon="icons/synchrotron-256x160.jpg"
+            icon="icons/synchrotron-600x375.jpg"
             id="uk.ac.diamond.scisoft.beamlineexplorer.rcp.NonRecursiveWizard"
             name="Create Beamline Data Project"
             project="true">
       </wizard>
    </extension>
      <extension
-         id="uk.ac.diamond.scisoft.singlelevelproject.rcp.nature"
+         id="recursivecontrolled"
          name="Single Level nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="uk.ac.diamond.scisoft.beamlineexplorer.rcp.natures.SingleLevelProjectNature">
+               class="uk.ac.diamond.scisoft.beamlineexplorer.rcp.natures.BeamlineRecursiveControlledNature">
          </run>
       </runtime>
    </extension>
    <extension
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
-            icon="icons/synchrotron-256x160.jpg"
-            id="beamlineexplorer.projectNature.img"
-            natureId="uk.ac.diamond.scisoft.singlelevelproject.rcp.nature">
+            icon="icons/synchrotron-16x16.jpg"
+            id="recursivecontrolled.img"
+            natureId="uk.ac.diamond.scisoft.beamlineexplorer.rcp.recursivecontrolled">
       </image>
    </extension>
-  
-  
-
-
-  
-  
 </plugin>
