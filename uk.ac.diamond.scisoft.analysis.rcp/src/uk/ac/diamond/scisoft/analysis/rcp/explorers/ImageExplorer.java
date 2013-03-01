@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.dawb.common.util.io.SortingUtils;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -62,6 +63,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
+import uk.ac.gda.util.list.SortNatural;
 
 public class ImageExplorer extends AbstractExplorer implements ISelectionProvider {
 
@@ -286,7 +288,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		}
 		
 		if (imageFilenames.size() > 1) {
-			Collections.sort(imageFilenames);
+ 		    Collections.sort(imageFilenames, new SortNatural<String>(true));
 			ImageStackLoader loader = new ImageStackLoader(imageFilenames , mon);
 			LazyDataset lazyDataset = new LazyDataset("Folder Stack", loader.getDtype(), loader.getShape(), loader);
 			data.addDataset(lazyDataset.getName(), lazyDataset);
