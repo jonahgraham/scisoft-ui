@@ -172,6 +172,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 					visitListCombo.clearSelection();
 				}
 				dialogChanged();
+				
 				// update project name
 				String projectNameContent = "";
 				try {
@@ -335,7 +336,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		new Label(composite, SWT.NONE);
 		new Label(composite, SWT.NONE);
 		new Label(composite, SWT.NONE);
-		// set default FROM date 1 year backward
+		// set default FROM date to current date
 		Calendar calA = Calendar.getInstance();
 		//int lastYear = calA.get(Calendar.YEAR) - 1;
 
@@ -355,13 +356,14 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		lblProjectname.setText("Project Name:");
 		txtProjectname = new Text(optionsComposite, SWT.BORDER);
 		txtProjectname.setText(DEFAULT_PROJECT_NAME);
-
+		
 		Label lblLinkname = new Label(optionsComposite, SWT.NONE);
 		lblLinkname.setText("Link Name:");
 		txtLinkname = new Text(optionsComposite, SWT.BORDER);
 		txtLinkname.setText(DEFAULT_LINK_NAME);
 
 		Label lblFrom = new Label(optionsComposite, SWT.NONE);
+		lblFrom.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 		lblFrom.setText("Visit StartDate from:");
 		dateFrom = new DateTime(optionsComposite, SWT.NONE | SWT.CALENDAR | SWT.DROP_DOWN);
 		dateFrom.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
@@ -386,7 +388,8 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		dateFrom.setDay(calA.get(Calendar.DAY_OF_YEAR));
 
 		Label lblTo = new Label(optionsComposite, SWT.NONE);
-		lblTo.setText("Visit StartDate till:");
+		lblTo.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
+		lblTo.setText("Visit StartDate to:");
 		dateTo = new DateTime(optionsComposite, SWT.NONE | SWT.CALENDAR | SWT.DROP_DOWN);
 		dateTo.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
 		dateTo.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
@@ -407,15 +410,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		dateTo.setYear(calA.get(Calendar.YEAR));
 		dateTo.setMonth(calA.get(Calendar.MONTH) + 1);
 		dateTo.setDay(calA.get(Calendar.DAY_OF_YEAR));
-
-		new Label(optionsComposite, SWT.NONE);
-		new Label(optionsComposite, SWT.NONE);
-		new Label(composite, SWT.NONE);
-		new Label(composite, SWT.NONE);
-		new Label(composite, SWT.NONE);
-		new Label(composite, SWT.NONE);
-		new Label(composite, SWT.NONE);
-		new Label(composite, SWT.NONE);
 
 		advancedOptionsExpander.setClient(optionsComposite);
 		advancedOptionsExpander.addExpansionListener(expansionAdapter);
@@ -640,7 +634,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 						String delims = "#SEP#";
 						String[] tokens = resultRow.split(delims);
 						visitList.add(new VisitDetails(tokens[0], tokens[4], tokens[3], tokens[2]));
-						logger.info(resultRow);
+						//logger.info(resultRow);
 
 					} while (rs.next());
 				} else {
