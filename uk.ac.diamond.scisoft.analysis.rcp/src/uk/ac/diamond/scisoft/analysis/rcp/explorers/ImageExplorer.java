@@ -69,6 +69,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
+import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
 import uk.ac.gda.util.list.SortNatural;
 
 public class ImageExplorer extends AbstractExplorer implements ISelectionProvider {
@@ -368,18 +369,8 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 
 					@Override
 					protected IStatus run(IProgressMonitor monitor) {
-						final IProgressMonitor mon = monitor;
 						try {
-							addAllFolderStack(new IMonitor() {
-								@Override
-								public void worked(int amount) {
-								}
-								@Override
-								public boolean isCancelled() {
-									mon.isCanceled();
-									return false;
-								}
-							});
+							addAllFolderStack(new ProgressMonitorWrapper(monitor));
 						} catch (Exception e) {
 							logger.error("Failed to load Image Stack sucsesfully", e);
 						}
