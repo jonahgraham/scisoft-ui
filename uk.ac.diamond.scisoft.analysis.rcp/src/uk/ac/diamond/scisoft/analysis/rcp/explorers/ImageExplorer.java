@@ -23,6 +23,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -47,8 +51,11 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PlatformUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
@@ -65,6 +72,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorTy
 
 public class ImageExplorer extends AbstractExplorer implements ISelectionProvider {
 
+	private static final Logger logger = LoggerFactory.getLogger(ImageExplorer.class);
+	
+	private static final String FOLDER_STACK = "Folder Stack";
 	private TableViewer viewer;
 	private DataHolder data = null;
 	private ISelectionChangedListener listener;
@@ -159,11 +169,11 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 				if (index == 0)
 					return dataset.getName();
 				if (index == 1)
-					return "Not Available";
+					return "-";
 				if (index == 2)
-					return "Not Available";
+					return "-";
 				if (index == 3)
-					return "Not Available";
+					return "Lazy";
 			}
 
 			return null;
@@ -246,7 +256,8 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 				data.addDataset(name, loadedData.getLazyDataset(name), loadedData.getMetadata());
 			} 
 			
-			addAllFolderStack(mon);
+			// Add a placeholder to let the user know they can do this.
+			addPlaceholderFolderStack();
 			
 			if (display != null) {
 				final IMetaData meta = data.getMetadata();
@@ -266,6 +277,12 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 
 			selectItemSelection();
 		}
+	}
+
+	private void addPlaceholderFolderStack() {
+		DoubleDataset dataset = new DoubleDataset(1);
+		dataset.setName(FOLDER_STACK);
+		data.addDataset(dataset.getName(), dataset);
 	}
 
 	/**
@@ -288,7 +305,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		if (imageFilenames.size() > 1) {
 			Collections.sort(imageFilenames);
 			ImageStackLoader loader = new ImageStackLoader(imageFilenames , mon);
-			LazyDataset lazyDataset = new LazyDataset("Folder Stack", loader.getDtype(), loader.getShape(), loader);
+			LazyDataset lazyDataset = new LazyDataset(FOLDER_STACK, loader.getDtype(), loader.getShape(), loader);
 			data.addDataset(lazyDataset.getName(), lazyDataset);
 		}
 		
@@ -341,7 +358,56 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		ILazyDataset d = getActiveData();
 		if (d == null)
 			return;
+		
+		if (d.getName().contains(FOLDER_STACK)) {
+			if (d.getShape().length < 3 ) {
+				data.remove(1);
+				
+				Job job = new Job("Load Image Stack") {
 
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						final IProgressMonitor mon = monitor;
+						try {
+							addAllFolderStack(new IMonitor() {
+								@Override
+								public void worked(int amount) {
+								}
+								@Override
+								public boolean isCancelled() {
+									mon.isCanceled();
+									return false;
+								}
+							});
+						} catch (Exception e) {
+							logger.error("Failed to load Image Stack sucsesfully", e);
+						}
+						
+						
+						PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+							
+							@Override
+							public void run() {
+								viewer.refresh();
+								ILazyDataset ds = data.getLazyDataset(FOLDER_STACK);
+								if (ds != null) {
+									ds = ds.clone();
+									ds.setName(new File(fileName).getName() + AbstractFileLoader.FILEPATH_DATASET_SEPARATOR + ds.getName());
+									DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, getAxes(ds), ds);
+									setSelection(datasetSelection);
+								}
+							}
+						});
+						return Status.OK_STATUS;
+					}
+				};
+				
+				job.setUser(true);
+				job.setPriority(Job.INTERACTIVE);
+				job.schedule();
+			}
+		}
+		
 		d = d.clone();
 		d.setName(new File(fileName).getName() + AbstractFileLoader.FILEPATH_DATASET_SEPARATOR + d.getName());
 		DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, getAxes(d), d);
