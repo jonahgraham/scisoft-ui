@@ -323,7 +323,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 				composite.layout();
 				sc.notifyListeners(SWT.Resize, null);
 			
-				 // Force the shell size
+				 // force shell resize
 				Point size;
 				if (e.getState())
 					size = getShell().computeSize( 550, 870 );
