@@ -320,12 +320,16 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
 				// advanced options expanded, resize
-				logger.debug("advanced options expanded, resize");
 				composite.layout();
 				sc.notifyListeners(SWT.Resize, null);
 			
-				// Force the shell size
-				 Point size = getShell().computeSize( 550, 870 );
+				 // Force the shell size
+				Point size;
+				if (e.getState())
+					size = getShell().computeSize( 550, 870 );
+				else
+					size = getShell().computeSize( 550, 450 );
+
 				 getShell().setSize( size );
 			}
 		};
@@ -658,7 +662,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 							resultRow = rs.getString(i) + "#SEP#" + resultRow;
 						}
 						resultRows.add(resultRow);
-						logger.info(resultRow);
+						//logger.info(resultRow);
 						// populate the result array
 						String delims = "#SEP#";
 						String[] tokens = resultRow.split(delims);
