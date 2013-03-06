@@ -37,6 +37,7 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -64,7 +65,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	private static final String DEFAULT_BEAMLINE = "";
 	private static final String DELIMITER = " - ";
 	private static final String DEFAULT_LINK_NAME = "beamlineData";
-	private static final String DEFAULT_PROJECT_NAME = "Beamline-Visit";
 	private String START_DATE;
 	private String END_DATE;
 	private Text txtFedidValue;
@@ -78,6 +78,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	private ScrolledComposite sc;
 	private Text txtProjectname;
 	private Text txtLinkname;
+	private Label lblDefaultProjectname;
 	private DateTime dateFrom;
 	private DateTime dateTo;
 	private ExpansionAdapter expansionAdapter;
@@ -124,7 +125,8 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		String beamline = computeBeamline();
 
 		// Set up the composite to hold all the information
-		sc = new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL);
+		sc = new ScrolledComposite(parent, SWT.BORDER);
+		sc.setAlwaysShowScrollBars(true);
 		sc.setLayout(new FillLayout());
 
 		final Composite composite = new Composite(sc, SWT.NONE);
@@ -156,7 +158,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 				}catch(NullPointerException ex){}
 				
 				try{
-					txtProjectname.setText(projectNameContent);
+					lblDefaultProjectname.setText("DEF: " + projectNameContent);
 				}catch(NullPointerException ex){}
 				
 			}
@@ -187,7 +189,8 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 				}catch(NullPointerException ex){}
 				
 				try{
-					txtProjectname.setText(projectNameContent);
+					//txtProjectname.setText(projectNameContent);
+					lblDefaultProjectname.setText(projectNameContent);
 				}catch(NullPointerException ex){}
 			}
 		});
@@ -246,7 +249,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
 				int index = beamlineListCombo.indexOf(beamline);
 				beamlineListCombo.select(index);
-				
+								
 				dialogChanged();
 				
 			}
@@ -316,8 +319,14 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		expansionAdapter = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
+				// advanced options expanded, resize
+				logger.debug("advanced options expanded, resize");
 				composite.layout();
 				sc.notifyListeners(SWT.Resize, null);
+			
+				// Force the shell size
+				 Point size = getShell().computeSize( 550, 870 );
+				 getShell().setSize( size );
 			}
 		};
 		new Label(composite, SWT.NONE);
@@ -336,31 +345,39 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		new Label(composite, SWT.NONE);
 		new Label(composite, SWT.NONE);
 		new Label(composite, SWT.NONE);
+
 		// set default FROM date to current date
 		Calendar calA = Calendar.getInstance();
-		//int lastYear = calA.get(Calendar.YEAR) - 1;
 
 		advancedOptionsExpander = new ExpandableComposite(composite, SWT.NONE);
 		GridData gd_advancedOptionsExpander = new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1);
-		gd_advancedOptionsExpander.widthHint = 242;
+		gd_advancedOptionsExpander.widthHint = 400;
 		advancedOptionsExpander.setLayoutData(gd_advancedOptionsExpander);
 		advancedOptionsExpander.setLayout(new GridLayout(1, false));
 		advancedOptionsExpander.setText("Advanced Options");
 		advancedOptionsExpander.setExpanded(false);
 
 		Composite optionsComposite = new Composite(advancedOptionsExpander, SWT.NONE);
-		optionsComposite.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
-		optionsComposite.setLayout(new GridLayout(2, false));
-
+		optionsComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
+		optionsComposite.setLayout(new GridLayout(3, false));
+				
 		Label lblProjectname = new Label(optionsComposite, SWT.NONE);
 		lblProjectname.setText("Project Name:");
-		txtProjectname = new Text(optionsComposite, SWT.BORDER);
-		txtProjectname.setText(DEFAULT_PROJECT_NAME);
+		txtProjectname = new Text(optionsComposite, SWT.NONE | SWT.BORDER);
+		GridData gd_txtProjectname = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_txtProjectname.widthHint = 174;
+		txtProjectname.setLayoutData(gd_txtProjectname);
+		lblDefaultProjectname = new Label(optionsComposite, SWT.NONE);
+		lblDefaultProjectname.setText("DEF: beamline-visit_id");
 		
 		Label lblLinkname = new Label(optionsComposite, SWT.NONE);
 		lblLinkname.setText("Link Name:");
 		txtLinkname = new Text(optionsComposite, SWT.BORDER);
-		txtLinkname.setText(DEFAULT_LINK_NAME);
+		GridData gd_txtLinkname = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_txtLinkname.widthHint = 175;
+		txtLinkname.setLayoutData(gd_txtLinkname);
+		Label lblDefaultLinkname = new Label(optionsComposite, SWT.NONE);
+		lblDefaultLinkname.setText("DEF: " + DEFAULT_LINK_NAME);
 
 		Label lblFrom = new Label(optionsComposite, SWT.NONE);
 		lblFrom.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
@@ -368,6 +385,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		dateFrom = new DateTime(optionsComposite, SWT.NONE | SWT.CALENDAR | SWT.DROP_DOWN);
 		dateFrom.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
 		dateFrom.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
+		logger.debug("dateFrom size: X: " + dateFrom.getSize().x + " Y: " + dateFrom.getSize().y);
 		dateFrom.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -382,11 +400,13 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 			}
 
 		});
-		// begin from last year same date
 		dateFrom.setYear(calA.get(Calendar.YEAR));
 		dateFrom.setMonth(calA.get(Calendar.MONTH));
 		dateFrom.setDay(calA.get(Calendar.DAY_OF_YEAR));
-
+		Label lblFromPadding = new Label(optionsComposite, SWT.NONE);
+		lblFromPadding.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
+		
+		
 		Label lblTo = new Label(optionsComposite, SWT.NONE);
 		lblTo.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 		lblTo.setText("Visit StartDate to:");
@@ -412,6 +432,10 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		dateTo.setDay(calA.get(Calendar.DAY_OF_YEAR));
 
 		advancedOptionsExpander.setClient(optionsComposite);
+		new Label(optionsComposite, SWT.NONE);
+		new Label(optionsComposite, SWT.NONE);
+		new Label(optionsComposite, SWT.NONE);
+		new Label(optionsComposite, SWT.NONE);
 		advancedOptionsExpander.addExpansionListener(expansionAdapter);
 		setControl(composite);
 		
@@ -576,7 +600,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		int rowCount = 0;
 		int columnsCount = 0;
 		List<String> columnNames = new ArrayList<String>();
-		List<String> resultRows = new ArrayList<String>();
+		List<String> resultRows  = new ArrayList<String>();
 
 		String fedidsql = "";
 		String beamlineSql = "";
@@ -657,7 +681,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 						+ this.getClass().getName() + "#computeVisitList" + e.getMessage();
 
 				logger.error(faultMessage);
-				// throw new BadDataExceptionException(faultMessage);
 			}
 
 		}
