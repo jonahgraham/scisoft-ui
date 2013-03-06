@@ -104,9 +104,9 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 	@Override
 	public boolean performFinish() {
 	
-		final String project = page.getProject();
+		final String project   = page.getProject();
 		final String directory = page.getDirectory();
-		final String link = page.getLink();
+		final String link      = page.getLink();
 		final boolean showFilesOnly = page.isShowFilesOnly();
 		
 		SHOW_FILES_ONLY = showFilesOnly;
@@ -117,7 +117,7 @@ public class BeamlineDataWizard extends Wizard implements INewWizard {
 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				monitor.beginTask("Importing content", 100);
+				monitor.beginTask("Importing content...", 100);
 				try {
 						// create project
 						IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();

@@ -602,26 +602,30 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		List<String> columnNames = new ArrayList<String>();
 		List<String> resultRows  = new ArrayList<String>();
 
-		String fedidsql = "";
-		String beamlineSql = "";
+		String fedidConstraintSql = "";
+		String fedidTableSql  = "";
+		String fedidWhereSql  = "";
+		String beamlineConstraintSql = "";
 
 		if (!fedid.trim().equals("")) {
-			fedidsql = " and federal_id='" + fedid + "'";
+			fedidConstraintSql = " and federal_id='" + fedid + "'";
+			fedidTableSql = ", investigator.facility_user_id , federal_id ";
+			fedidWhereSql = " AND investigator.facility_user_id = facility_user.facility_user_id ";
 		}
 		if (!beamline.trim().equals("")) {
-			beamlineSql = " and instrument ='" + beamline + "'";
+			beamlineConstraintSql = " and instrument ='" + beamline + "'";
 		}
 
 		// build sql query
-		String sqlStatement = "select investigation.visit_id, investigation.instrument, investigation.inv_start_date, investigator.facility_user_id, federal_id from investigation, investigator, facility_user"
-				+ " where investigation.id = investigator.investigation_id and investigator.facility_user_id = facility_user.facility_user_id "
-				+ fedidsql
-				+ beamlineSql
-				+ " and investigation.inv_start_date >= to_date('"
+		String sqlStatement = "SELECT DISTINCT investigation.visit_id, investigation.instrument, investigation.inv_start_date " + fedidTableSql + " from investigation, investigator, facility_user"
+				+ " WHERE investigation.id = investigator.investigation_id " + fedidWhereSql  
+				+ fedidConstraintSql
+				+ beamlineConstraintSql
+				+ " AND investigation.inv_start_date >= to_date('"
 				+ START_DATE
 				+ "', 'DD-MM-YYYY') and investigation.inv_end_date <= to_date('"
 				+ END_DATE
-				+ "', 'DD-MM-YYYY') order by investigation.inv_start_date desc";
+				+ "', 'DD-MM-YYYY') order by investigation.inv_start_date DESC";
 
 		// getting the connection to the database
 		if (ICATDBClient.getConnection() != null) {
@@ -654,11 +658,16 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 							resultRow = rs.getString(i) + "#SEP#" + resultRow;
 						}
 						resultRows.add(resultRow);
+						logger.info(resultRow);
 						// populate the result array
 						String delims = "#SEP#";
 						String[] tokens = resultRow.split(delims);
-						visitList.add(new VisitDetails(tokens[0], tokens[4], tokens[3], tokens[2]));
-						//logger.info(resultRow);
+						if(fedid.equals(null) || fedid.trim().equals("")){
+							visitList.add(new VisitDetails("N/A", tokens[2], tokens[1], tokens[0]));
+						}else{
+							visitList.add(new VisitDetails(tokens[0], tokens[4], tokens[3], tokens[2]));
+
+						}
 
 					} while (rs.next());
 				} else {
@@ -667,8 +676,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
 					logger.error(faultMessage);
 				}
-				// rs.last();
-
 				logger.info("Number of Rows= " + rowCount);
 
 				// closing result set and statement
