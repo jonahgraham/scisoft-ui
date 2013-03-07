@@ -350,9 +350,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		new Label(composite, SWT.NONE);
 		new Label(composite, SWT.NONE);
 
-		// set default FROM date to current date
-		Calendar calA = Calendar.getInstance();
-
 		advancedOptionsExpander = new ExpandableComposite(composite, SWT.NONE);
 		GridData gd_advancedOptionsExpander = new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1);
 		gd_advancedOptionsExpander.widthHint = 400;
@@ -389,7 +386,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		dateFrom = new DateTime(optionsComposite, SWT.NONE | SWT.CALENDAR | SWT.DROP_DOWN);
 		dateFrom.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
 		dateFrom.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
-		logger.debug("dateFrom size: X: " + dateFrom.getSize().x + " Y: " + dateFrom.getSize().y);
+		logger.debug("dateFrom size: X: " + dateFrom.getBounds().x + " Y: " + dateFrom.getBounds().y + " width: " + dateFrom.getBounds().width);
 		dateFrom.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -404,9 +401,10 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 			}
 
 		});
-		dateFrom.setYear(calA.get(Calendar.YEAR));
-		dateFrom.setMonth(calA.get(Calendar.MONTH));
-		dateFrom.setDay(calA.get(Calendar.DAY_OF_YEAR));
+		// set default FROM date to current date minus 1 month
+		Calendar calA = Calendar.getInstance();
+		calA.add(Calendar.MONTH, -1);
+		dateFrom.setDate(calA.get(Calendar.YEAR), calA.get(Calendar.MONTH), calA.get(Calendar.DAY_OF_MONTH));
 		Label lblFromPadding = new Label(optionsComposite, SWT.NONE);
 		lblFromPadding.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 		
@@ -430,11 +428,11 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 				setSqlToDate();
 			}
 		});
-		// end with current date + 1 month
-		dateTo.setYear(calA.get(Calendar.YEAR));
-		dateTo.setMonth(calA.get(Calendar.MONTH) + 1);
-		dateTo.setDay(calA.get(Calendar.DAY_OF_YEAR));
-
+		// end with current date + 2 days forward
+		Calendar calB = Calendar.getInstance();
+		calB.add(Calendar.DATE, 2);
+		dateTo.setDate(calB.get(Calendar.YEAR), calB.get(Calendar.MONTH), calB.get(Calendar.DAY_OF_MONTH));
+		
 		advancedOptionsExpander.setClient(optionsComposite);
 		new Label(optionsComposite, SWT.NONE);
 		new Label(optionsComposite, SWT.NONE);
