@@ -25,6 +25,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IMemento;
 import org.eclipse.ui.INavigationHistory;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IPartListener2;
@@ -529,5 +530,14 @@ class MockWorkbenchPage implements IWorkbenchPage {
 	public void activate(IWorkbenchPart part) {
 		throw new AssertionFailedError("Methods in MockWorkbenchPage should not be called");
 
+	}
+	
+	public IMemento[] getEditorState(IEditorReference[] editorRefs,
+            boolean includeInputState) {
+		throw new AssertionFailedError("Methods in MockWorkbenchPage should not be called");
+	}
+
+	public IEditorReference[] openEditors(IEditorInput[] iei, String[] sa, IMemento[] memos, int i) {
+		throw new AssertionFailedError("Methods in MockWorkbenchPage should not be called");
 	}
 }
