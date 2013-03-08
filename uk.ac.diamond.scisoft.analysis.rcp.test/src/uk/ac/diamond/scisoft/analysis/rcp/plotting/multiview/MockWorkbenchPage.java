@@ -531,13 +531,18 @@ class MockWorkbenchPage implements IWorkbenchPage {
 		throw new AssertionFailedError("Methods in MockWorkbenchPage should not be called");
 
 	}
-	
-	public IMemento[] getEditorState(IEditorReference[] editorRefs,
-            boolean includeInputState) {
+
+	/* @Override omitted, since this method was only added in the Eclipse 3.8.2 target platform, and this code needs to compile against 3.7.2 as well
+	   Suppress "method should be tagged with @Override since it actually overrides a superinterface ". */
+	@SuppressWarnings("all")
+	public IEditorReference[] openEditors(IEditorInput[] iei, String[] sa, IMemento[] memos, int i) {
 		throw new AssertionFailedError("Methods in MockWorkbenchPage should not be called");
 	}
 
-	public IEditorReference[] openEditors(IEditorInput[] iei, String[] sa, IMemento[] memos, int i) {
+	/* @Override omitted, since this method was only added in the Eclipse 3.8.2 target platform, and this code needs to compile against 3.7.2 as well
+	   Suppress "method should be tagged with @Override since it actually overrides a superinterface ". */
+	@SuppressWarnings("all") 
+	public IMemento[] getEditorState(IEditorReference[] editorRefs) {
 		throw new AssertionFailedError("Methods in MockWorkbenchPage should not be called");
 	}
 }
