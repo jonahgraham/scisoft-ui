@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.dawnsci.plotting.jreality.impl.PlotException;
+import org.dawnsci.plotting.jreality.print.PlotExportUtil;
 import org.dawnsci.plotting.jreality.tick.TickFormatting;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -47,7 +48,6 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 

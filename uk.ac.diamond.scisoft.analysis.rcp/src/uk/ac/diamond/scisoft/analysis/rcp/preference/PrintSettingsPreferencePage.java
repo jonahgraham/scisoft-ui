@@ -16,6 +16,10 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
+import org.dawb.common.ui.printing.PrintSettings;
+import org.dawb.common.ui.printing.PrintSettings.Orientation;
+import org.dawb.common.ui.printing.PrintSettings.Resolution;
+import org.dawb.common.ui.printing.PrintSettings.Scale;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -34,10 +38,6 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PrintSettings;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PrintSettings.Orientation;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PrintSettings.Resolution;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PrintSettings.Scale;
 
 public class PrintSettingsPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 

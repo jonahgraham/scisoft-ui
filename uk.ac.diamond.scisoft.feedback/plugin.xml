@@ -19,11 +19,11 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            id="uk.ac.diamond.scisoft"
+            id="org.dawb.workbench.application.data.analysis"
             name="DAWN">
       </category>
       <view
-            category="uk.ac.diamond.scisoft"
+            category="org.dawb.workbench.application.data.analysis"
             class="uk.ac.diamond.scisoft.feedback.FeedbackView"
             icon="icons/editor.gif"
             id="uk.ac.diamond.scisoft.feedback.FeedbackView"

@@ -39,6 +39,10 @@ import org.eclipse.jface.fieldassist.ContentProposalAdapter;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -71,10 +75,13 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 import uk.ac.diamond.sda.navigator.views.FileContentProvider.FileSortType;
 import uk.ac.gda.ui.content.FileContentProposalProvider;
@@ -132,6 +139,7 @@ public class FileView extends ViewPart implements IFileSelector {
 	 * 
 	 * @return String
 	 */
+	@Override
 	public File getSelectedFile() {
 		File sel = (File)((IStructuredSelection)tree.getSelection()).getFirstElement();
 		if (sel==null) sel = savedSelection;
@@ -255,8 +263,40 @@ public class FileView extends ViewPart implements IFileSelector {
 			}
 		});
 
-		final String[] titles = { "Name", "Date", "Type", "Size" };
-		final int[]    widths = { 250, 120, 80, 150 };
+		final String[] titles = { "Name", "Date", "Type", "Size", "Comment", "Scan Command" };
+
+		IPreferenceStore store = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		boolean showDate = store.getDefaultBoolean(PreferenceConstants.SHOW_DATE_COLUMN);
+		boolean showType = store.getDefaultBoolean(PreferenceConstants.SHOW_TYPE_COLUMN);
+		boolean showSize = store.getDefaultBoolean(PreferenceConstants.SHOW_SIZE_COLUMN);
+		boolean showComment = store.getDefaultBoolean(PreferenceConstants.SHOW_COMMENT_COLUMN);
+		boolean showScanCmd = store.getDefaultBoolean(PreferenceConstants.SHOW_SCANCMD_COLUMN);
+
+		// we listen to the preference store property changes
+		store.addPropertyChangeListener(new IPropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				if (event.getProperty().equals(PreferenceConstants.SHOW_DATE_COLUMN)) {
+					setColumnVisible(1, 120, (Boolean) event.getNewValue());
+				} else if (event.getProperty().equals(PreferenceConstants.SHOW_TYPE_COLUMN)) {
+					setColumnVisible(2, 80, (Boolean) event.getNewValue());
+				} else if (event.getProperty().equals(PreferenceConstants.SHOW_SIZE_COLUMN)) {
+					setColumnVisible(3, 150, (Boolean) event.getNewValue());
+				} else if (event.getProperty().equals(PreferenceConstants.SHOW_COMMENT_COLUMN)) {
+					setColumnVisible(4, 250, (Boolean) event.getNewValue());
+				} else if (event.getProperty().equals(PreferenceConstants.SHOW_SCANCMD_COLUMN)) {
+					setColumnVisible(5, 300, (Boolean) event.getNewValue());
+				}
+			}
+		});
+
+		int dateWidth = showDate ? 120 : 0;
+		int typeWidth = showType ? 80 : 0;
+		int sizeWidth = showSize ? 150 : 0;
+		int commentWidth = showComment ? 250 : 0;
+		int scanCmdWidth = showScanCmd ? 300 : 0;
+
+		final int[]    widths = { 250, dateWidth, typeWidth, sizeWidth, commentWidth, scanCmdWidth };
 		TreeViewerColumn tVCol;
 		for (int i = 0; i < titles.length; i++) {
 			tVCol = new TreeViewerColumn(tree, SWT.NONE);
@@ -273,7 +313,7 @@ public class FileView extends ViewPart implements IFileSelector {
 		getSite().setSelectionProvider(tree);
 		
 		createContent(true);
-				
+
 		// Make drag source, it can then drag into projects
 		final DragSource dragSource = new DragSource(tree.getControl(), DND.DROP_MOVE| DND.DROP_DEFAULT| DND.DROP_COPY);
 		dragSource.setTransfer(new Transfer[] { FileTransfer.getInstance () });
@@ -314,7 +354,7 @@ public class FileView extends ViewPart implements IFileSelector {
 
 		if (savedSelection!=null) {
 			if (savedSelection.exists()) {
-			    tree.setSelection(new StructuredSelection(savedSelection));
+				tree.setSelection(new StructuredSelection(savedSelection));
 			} else if (savedSelection.getParentFile()!=null && savedSelection.getParentFile().exists()) {
 				// If file deleted, select parent.
 				tree.setSelection(new StructuredSelection(savedSelection.getParentFile()));
@@ -334,7 +374,20 @@ public class FileView extends ViewPart implements IFileSelector {
 	public void collapseAll() {
 		this.tree.collapseAll();
 	}
-	
+
+	public void showPreferences() {
+		PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(
+				getViewSite().getShell(), "uk.ac.diamond.scisoft.analysis.rcp.fileNavigatorPreferencePage", null, null);
+		if (pref != null) {
+			pref.open();
+		}
+	}
+
+	private void setColumnVisible(final int col, final int width, boolean isVis) {
+		if (this.tree==null || this.tree.getControl().isDisposed()) return;
+		tree.getTree().getColumn(col).setWidth(isVis?width:0);
+	}
+
 	public void refresh() {
 		final File     file     = getSelectedFile();
 		refresh(file);

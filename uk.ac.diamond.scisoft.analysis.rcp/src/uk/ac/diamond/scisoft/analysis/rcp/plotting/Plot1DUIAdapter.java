@@ -30,6 +30,7 @@ import org.dawnsci.plotting.jreality.core.ScaleType;
 import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
 import org.dawnsci.plotting.jreality.impl.Plot1DGraphTable;
 import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
+import org.dawnsci.plotting.jreality.print.PlotExportUtil;
 import org.dawnsci.plotting.jreality.tick.TickFormatting;
 import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
 import org.dawnsci.plotting.jreality.tool.PlotActionEventListener;
@@ -49,7 +50,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 
 import com.swtdesigner.ResourceManager;

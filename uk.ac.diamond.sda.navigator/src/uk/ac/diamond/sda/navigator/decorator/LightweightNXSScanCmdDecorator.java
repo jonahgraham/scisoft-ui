@@ -18,9 +18,6 @@ package uk.ac.diamond.sda.navigator.decorator;
 
 import gda.analysis.io.ScanFileHolderException;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.IDecoration;
@@ -30,9 +27,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.StringDataset;
-import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.diamond.sda.navigator.util.NavigatorUtils;
 
 public class LightweightNXSScanCmdDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
@@ -77,7 +72,7 @@ public class LightweightNXSScanCmdDecorator extends LabelProvider implements ILi
 				IFile ifile = (IFile) element;
 
 				try {
-					String[][] listTitlesAndScanCmd = getHDF5TitleAndScanCmd(ifile.getLocation().toString());
+					String[][] listTitlesAndScanCmd = NavigatorUtils.getHDF5TitlesAndScanCmds(ifile.getLocation().toString());
 					for (int i = 0; i < listTitlesAndScanCmd[0].length; i++) {
 						decorator = listTitlesAndScanCmd[0][i] + listTitlesAndScanCmd[1][i];
 						decoration.addSuffix(decorator);
@@ -91,65 +86,4 @@ public class LightweightNXSScanCmdDecorator extends LabelProvider implements ILi
 		}		
 	}
 
-	public String[][] getMyHDF5TitleAndScanCmd(String fullpath) throws Exception{
-		return getHDF5TitleAndScanCmd(fullpath);
-	}
-
-	private static final String scanCmdName = "scan_command";
-	private static final String titleName = "title";
-
-	private String[][] getHDF5TitleAndScanCmd(String fullpath) throws Exception {
-		List<ILazyDataset> list = new HDF5Loader(fullpath).findDatasets(new String[] {scanCmdName, titleName}, 1, null);
-
-		List<String> scans = new ArrayList<String>();
-		List<String> titles = new ArrayList<String>();
-		for (ILazyDataset d : list) {
-			if (d instanceof StringDataset) {
-				String n = d.getName();
-				if (n == null) {
-					continue;
-				}
-				if (n.contains(scanCmdName)) {
-					scans.add(d.toString());
-					if (scans.size() > titles.size() + 1)
-						titles.add(null); // bulk out list
-				} else if (n.contains(titleName)) {
-					titles.add(d.toString());
-					if (titles.size() > scans.size() + 1)
-						scans.add(null);
-				}
-			}
-		}
-
-		int s = scans.size();
-		int t = titles.size();
-		if (s != t) {
-			// correct size of lists
-//			logger.warn("Scans and titles not in sync!");
-			while (s < t) {
-				scans.add(null);
-				s++;
-			}
-			while (t < s) {
-				titles.add(null);
-				t++;
-			}
-		}
-
-		String[][] results = new String[2][s];
-		for (int i = 0; i < s; i++) {
-			String str = scans.get(i);
-			if (str != null && str.length() > 100) { // restrict to 100 characters
-				str = str.substring(0,  100) + "...";
-			}
-			results[0][i] = str == null ? "" : "\nScanCmd" + (i+1) + ": " + str;
-			str = titles.get(i);
-			if (str != null && str.length() > 100) { // restrict to 100 characters
-				str = str.substring(0,  100) + "...";
-			}
-			results[1][i] = str == null ? "" : "\nTitle" + (i+1) + ": " + str;
-		}
-
-		return results;
-	}
 }

@@ -78,11 +78,11 @@ public static Properties readConfigFile() {
 	try {
 
 		//bundle = new PropertyResourceBundle(ICATDBClient.class.getResourceAsStream("/conf/icatdb.properties"));
-
-		logger.debug("Properties file loaded!");
 		
 		properties = new Properties();
 		properties.load(new FileInputStream("/dls_sw/apps/apache-tomcat-7.0.30/icatproperties/icatdb.properties"));
+		logger.debug("Properties file loaded!");
+
 
 //		Enumeration<String> keys = bundle.getKeys();
 //

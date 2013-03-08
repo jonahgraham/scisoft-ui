@@ -105,4 +105,10 @@ public class PreferenceConstants {
 	public static final String PRINTSETTINGS_RESOLUTION = "printsettings.resolution";
 	public static final String PRINTSETTINGS_ASPECTRATIO = "printsettings.aspectratio";
 
+	// File Navigator preferences
+	public static final String SHOW_DATE_COLUMN         = "show.date.column.in.file.navigator";
+	public static final String SHOW_TYPE_COLUMN         = "show.type.column.in.nexus.editor";
+	public static final String SHOW_SIZE_COLUMN         = "show.size.column.in.file.navigator";
+	public static final String SHOW_SCANCMD_COLUMN         = "show.scancmd.column.in.file.navigator";
+	public static final String SHOW_COMMENT_COLUMN         = "show.comment.column.in.file.navigator";
 }

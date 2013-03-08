@@ -46,7 +46,6 @@
       <plugin id="org.eclipse.ui"/>
       <plugin id="org.eclipse.ui.navigator"/>
       <plugin id="org.eclipse.ui.workbench"/>
-      <plugin id="uk.ac.diamond.scisoft.icatexplorer.rcp"/>
    </plugins>
 
 

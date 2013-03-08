@@ -19,9 +19,14 @@ package uk.ac.diamond.scisoft.analysis.rcp.explorers;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -46,23 +51,32 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PlatformUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.apache.commons.lang.ArrayUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.AbstractFileLoader;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.ImageStackLoader;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
+import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
+import uk.ac.gda.util.list.SortNatural;
 
 public class ImageExplorer extends AbstractExplorer implements ISelectionProvider {
 
+	private static final Logger logger = LoggerFactory.getLogger(ImageExplorer.class);
+	
+	private static final String FOLDER_STACK = "Folder Stack";
 	private TableViewer viewer;
 	private DataHolder data = null;
 	private ISelectionChangedListener listener;
@@ -157,11 +171,11 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 				if (index == 0)
 					return dataset.getName();
 				if (index == 1)
-					return "Not Available";
+					return "-";
 				if (index == 2)
-					return "Not Available";
+					return "-";
 				if (index == 3)
-					return "Not Available";
+					return "Lazy";
 			}
 
 			return null;
@@ -237,8 +251,16 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
 		this.fileName = fileName;
 
-		data = LoaderFactory.getData(fileName, mon);
-		if (data != null) {
+		DataHolder loadedData = LoaderFactory.getData(fileName, mon);
+		data = new DataHolder();
+		if (loadedData != null) {
+			for (String name : loadedData.getNames()) {
+				data.addDataset(name, loadedData.getLazyDataset(name), loadedData.getMetadata());
+			} 
+			
+			// Add a placeholder to let the user know they can do this.
+			addPlaceholderFolderStack();
+			
 			if (display != null) {
 				final IMetaData meta = data.getMetadata();
 
@@ -259,6 +281,38 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		}
 	}
 
+	private void addPlaceholderFolderStack() {
+		DoubleDataset dataset = new DoubleDataset(1);
+		dataset.setName(FOLDER_STACK);
+		data.addDataset(dataset.getName(), dataset);
+	}
+
+	/**
+	 * Has a look at the folder to see if there are any other images there of the same type, and if so it creates a virtual stack with them all in.
+	 * @param mon a monitor for the initial stack creation
+	 * @throws Exception if there is a problem with the creation of the stack.
+	 */
+	private void addAllFolderStack(IMonitor mon) throws Exception {
+		List<String> imageFilenames = new ArrayList<String>();
+		File file = new File(fileName);
+		int index = fileName.lastIndexOf(".");
+		String ext = fileName.substring(index);
+		File parent = new File(file.getParent());
+		if(parent.isDirectory()) {
+			for (String fName : parent.list()) {
+				if (fName.endsWith(ext)) imageFilenames.add((new File(parent,fName)).getAbsolutePath());
+			}
+		}
+		
+		if (imageFilenames.size() > 1) {
+ 		    Collections.sort(imageFilenames, new SortNatural<String>(true));
+			ImageStackLoader loader = new ImageStackLoader(imageFilenames , mon);
+			LazyDataset lazyDataset = new LazyDataset(FOLDER_STACK, loader.getDtype(), loader.getShape(), loader);
+			data.addDataset(lazyDataset.getName(), lazyDataset);
+		}
+		
+	}
+
 	private ILazyDataset getActiveData() {
 		ISelection selection = viewer.getSelection();
 		Object obj = ((IStructuredSelection) selection).getFirstElement();
@@ -268,9 +322,6 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		} else if (obj instanceof ILazyDataset) {
 			d = (ILazyDataset) obj;
 		} else
-			return null;
-	
-		if (d.getRank() > 2)
 			return null;
 	
 		if (d.getRank() == 1) {
@@ -299,11 +350,6 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 				ILazyDataset ldataset = data.getLazyDataset(i);
 				if (ldataset.equals(d))
 					continue;
-				if (ArrayUtils.contains(ldataset.getShape(), len)) {
-					newChoice = new AxisChoice(ldataset);
-					newChoice.setAxisNumber(j);
-					axisSelection.addChoice(newChoice, i + 1);
-				}
 			}
 		}
 	
@@ -314,7 +360,46 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		ILazyDataset d = getActiveData();
 		if (d == null)
 			return;
+		
+		if (d.getName().contains(FOLDER_STACK)) {
+			if (d.getShape().length < 3 ) {
+				data.remove(1);
+				
+				Job job = new Job("Load Image Stack") {
 
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						try {
+							addAllFolderStack(new ProgressMonitorWrapper(monitor));
+						} catch (Exception e) {
+							logger.error("Failed to load Image Stack sucsesfully", e);
+						}
+						
+						
+						PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+							
+							@Override
+							public void run() {
+								viewer.refresh();
+								ILazyDataset ds = data.getLazyDataset(FOLDER_STACK);
+								if (ds != null) {
+									ds = ds.clone();
+									ds.setName(new File(fileName).getName() + AbstractFileLoader.FILEPATH_DATASET_SEPARATOR + ds.getName());
+									DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, getAxes(ds), ds);
+									setSelection(datasetSelection);
+								}
+							}
+						});
+						return Status.OK_STATUS;
+					}
+				};
+				
+				job.setUser(true);
+				job.setPriority(Job.INTERACTIVE);
+				job.schedule();
+			}
+		}
+		
 		d = d.clone();
 		d.setName(new File(fileName).getName() + AbstractFileLoader.FILEPATH_DATASET_SEPARATOR + d.getName());
 		DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, getAxes(d), d);

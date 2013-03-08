@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.sda.navigator.util.NavigatorUtils;
+
 public class LightweightNXSScanCmdDecoratorTest {
 	
 	private String nxsFileName = "testFiles/2.nxs";
@@ -33,10 +35,9 @@ public class LightweightNXSScanCmdDecoratorTest {
 	
 	@Test
 	public void testGetHDF5TitleAndScanCmd(){
-		LightweightNXSScanCmdDecorator scd = new LightweightNXSScanCmdDecorator();
 		
 		try {
-			listTitlesAndScanCmd = scd.getMyHDF5TitleAndScanCmd(nxsFileName);
+			listTitlesAndScanCmd = NavigatorUtils.getHDF5TitlesAndScanCmds(nxsFileName);
 		} catch (Exception e) {
 			logger.error("Could not load NXS Title/ScanCmd: ", e);
 		}
