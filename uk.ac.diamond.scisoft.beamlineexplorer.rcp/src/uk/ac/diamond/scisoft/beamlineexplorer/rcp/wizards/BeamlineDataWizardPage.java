@@ -96,13 +96,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	private Label lblNewLabel;
 	private final FormToolkit formToolkit = new FormToolkit(Display.getDefault());
 
-	/**
-	 * Constructor for BeamlineDataWizardPage.
-	 * 
-	 * @param prevDirectory
-	 * @param prevFolder
-	 * @param prevProject
-	 */
+	
 	public BeamlineDataWizardPage(ISelection selection, String prevProject, String prevFolder, String prevDirectory) {
 		super("BeamlineDataWizardPage");
 		this.initProject = prevProject != null ? prevProject : computeBeamline();
