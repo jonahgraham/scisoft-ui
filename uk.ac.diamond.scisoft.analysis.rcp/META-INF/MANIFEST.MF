@@ -58,5 +58,7 @@ Import-Package: org.apache.commons.beanutils;version="1.8.0",
  org.dawb.common.util.list,
  org.eclipse.draw2d,
  org.eclipse.ui,
- org.slf4j;version="[1.5.0,2.0.0)"
+ org.nfunk.jep;version="2.4.1",
+ org.slf4j;version="[1.5.0,2.0.0)",
+ org.uncommons.maths.combinatorics;version="1.2.3"
 Bundle-ActivationPolicy: lazy
