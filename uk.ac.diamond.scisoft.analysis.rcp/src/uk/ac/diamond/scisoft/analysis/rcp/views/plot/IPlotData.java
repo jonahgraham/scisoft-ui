@@ -16,7 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.views.plot;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
@@ -26,8 +26,6 @@ public interface IPlotData {
 	public IPlotData clone();
 
 	public void clear();
-
-//	public List<Double> getData();
 
 	public int size();
 
@@ -41,6 +39,6 @@ public interface IPlotData {
 
 	public boolean isDataSetsValid();
 
-	public Collection<? extends AbstractDataset> getDataSets();
+	public List<AbstractDataset> getDataSets();
 
 }

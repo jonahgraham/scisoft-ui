@@ -1,17 +1,10 @@
 /*
- * Copyright 2012 Diamond Light Source Ltd.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2012 Diamond Light Source Ltd. Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package uk.ac.diamond.scisoft.analysis.rcp.views.plot;
@@ -19,32 +12,25 @@ package uk.ac.diamond.scisoft.analysis.rcp.views.plot;
 import java.util.Collection;
 import java.util.Map;
 
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.PlotType;
+import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawnsci.plotting.jreality.core.AxisMode;
 import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
 import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
-import org.dawnsci.plotting.jreality.tool.PlotActionComplexEvent;
-import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
 import org.dawnsci.plotting.jreality.util.PlotColorUtility;
-import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotDataTableDialog;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 
 /**
  * Class is extended by classes that require the ability to take a graph snap shot and put it into a static plot. Not
@@ -52,66 +38,33 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
  */
 public abstract class AbstractPlotView extends ViewPart implements PlotView {
 
-	protected DataSetPlotter plotter;
-	protected AxisValues xAxisValues;
 	protected StackLayout stack;
-	protected Composite plotterComposite;
 	protected Composite stackComposite;
-	protected Label positionLabel;
 	protected Label lblNoDataMessage;
-	
-	protected abstract String getYAxis();
+	protected AbstractPlottingSystem system;
 
-	protected abstract String getXAxis();
+	protected abstract String getYAxisName();
+
+	protected abstract String getXAxisName();
 
 	protected abstract String getGraphTitle();
 
-	/**
-	 * Override as required.
-	 * 
-	 * @param parent
-	 * @return IPlotUI
-	 */
-	protected IPlotUI createPlotActions(final Composite parent) {
-		return new Plot1DUIAdapter(getViewSite().getActionBars(), plotter, parent, getPartName()) {
-			@Override
-			public void buildToolActions(IToolBarManager manager) {
-				manager.add(StaticScanPlotView.getOpenStaticPlotAction(AbstractPlotView.this));
-				manager.add(createShowLegend());
-				super.buildToolActions(manager);
-			}
-
-			@Override
-			public void plotActionPerformed(final PlotActionEvent event) {
-				if (event instanceof PlotActionComplexEvent) {
-					parent.getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							PlotDataTableDialog dataDialog = new PlotDataTableDialog(parent.getShell(),
-									(PlotActionComplexEvent) event);
-							dataDialog.open();
-						}
-					});
-				} else {
-					parent.getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							double x = event.getPosition()[0];
-							double y = event.getPosition()[1];
-							positionLabel.setText(String.format("X:%.7g Y:%.7g", x, y));
-						}
-					});
-				}
-			}
-		};
+	@Override
+	public void init(IViewSite site) throws PartInitException {
+		try {
+			system = PlottingFactory.createPlottingSystem();
+		} catch (Exception e) {
+			throw new PartInitException("Exception creating PlottingSystem", e);
+		}
+		super.init(site);
 	}
 
 	/**
 	 * Use this after the first data is received to hide the default message and show the plotter.
 	 */
 	protected void showPlotter() {
-		if (stack.topControl != plotterComposite) {
-			stack.topControl = plotterComposite;
+		if (stack.topControl != system.getPlotComposite()) {
+			stack.topControl = system.getPlotComposite();
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
@@ -121,45 +74,23 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 		}
 	}
 
-
-	/**
-	 * Create contents of the view part
-	 * 
-	 * @param parent
-	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		stackComposite = new Composite(parent,SWT.NONE);
-		
+		stackComposite = new Composite(parent, SWT.NONE);
+
 		stack = new StackLayout();
 		stackComposite.setLayout(stack);
-		
-		plotterComposite = new Composite(stackComposite,SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(plotterComposite);
-		
-		positionLabel = new Label(plotterComposite, SWT.LEFT);
-		positionLabel.setText("X: Y:");
-		GridDataFactory.fillDefaults().applyTo(positionLabel);
 
-		this.plotter = new DataSetPlotter(PlottingMode.ONED, plotterComposite, false);
-		plotter.getComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		system.createPlotPart(stackComposite, getTitle(), // Title also used as
+				// unique id for plot.
+				getViewSite().getActionBars(), PlotType.XY, this);
+		system.setRescale(true);
 
-		this.xAxisValues = new AxisValues();
-		plotter.setAxisModes(getXAxisMode(), getYAxisMode(), AxisMode.LINEAR);
-		plotter.setXAxisValues(xAxisValues, 1);
-		plotter.setXAxisLabel(getXAxis());
-		plotter.setYAxisLabel(getYAxis());
-		plotter.setPlotActionEnabled(true);
-		plotter.setPlotRightClickActionEnabled(true);
+		lblNoDataMessage = new Label(stackComposite, SWT.NONE);
+		lblNoDataMessage.setText("No data to plot.");
 
-		final IPlotUI plotUI = createPlotActions(parent);
-		plotter.registerUI(plotUI);
+		configurePlot(system);
 
-		lblNoDataMessage = new Label(stackComposite,SWT.NONE);
-		lblNoDataMessage.setText("No data received yet.");
-
-		configurePlot(plotter);
-		
 		stack.topControl = lblNoDataMessage;
 
 	}
@@ -167,9 +98,9 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 	/**
 	 * Optionally override if extra plot config needed.
 	 * 
-	 * @param plotter
+	 * @param system2
 	 */
-	public void configurePlot(@SuppressWarnings("unused") final DataSetPlotter plotter) {
+	public void configurePlot(@SuppressWarnings("unused") final AbstractPlottingSystem system2) {
 		// Does nothing
 	}
 
@@ -226,23 +157,14 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 
 	@Override
 	public void setFocus() {
-		plotter.requestFocus();
+		system.setFocus();
 	}
 
 	@Override
 	public void dispose() {
-		if (plotter != null) {
-			plotter.cleanUp();
+		if (system != null) {
+			system.dispose();
 		}
 		super.dispose();
-	}
-
-	/**
-	 * Get the DataSetPlotter object
-	 * 
-	 * @return the DataSetPlotter object
-	 */
-	public DataSetPlotter getPlotter() {
-		return plotter;
 	}
 }
