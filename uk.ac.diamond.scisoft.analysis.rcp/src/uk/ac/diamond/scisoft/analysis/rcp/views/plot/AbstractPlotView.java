@@ -167,4 +167,8 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 		}
 		super.dispose();
 	}
+
+	public AbstractPlottingSystem getPlottingSystem() {
+		return system;
+	}
 }
