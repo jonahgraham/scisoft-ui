@@ -23,7 +23,7 @@
          </property>
          <property
                name="windowImages"
-               value="platform:/plugin/uk.ac.diamond.scisoft.icatexplorer.rcp/icons/favicon.gif">
+               value="platform:/plugin/uk.ac.diamond.scisoft.customprojects.rcp/icons/favicon.gif">
          </property>
          <property
                name="appName"

@@ -30,18 +30,23 @@ public class SliceProperty extends InspectorProperty {
 
 	protected Slice slice;
 	protected int max = -1; // maximum size
+	protected boolean average = false; // average data within the slice
 
 	@Override
 	public SliceProperty clone() {
 		SliceProperty n = new SliceProperty();
 		n.slice = slice.clone();
 		n.max = max;
+		n.average = average;
 		return n;
 	}
 
 	@Override
 	public String toString() {
-		return slice != null ? slice.toString() : ":";
+		String str = slice != null ? slice.toString() : ":";
+		if (average)
+			str = "~" + str;
+		return str;
 	}
 
 	public Slice getValue() {
@@ -108,6 +113,14 @@ public class SliceProperty extends InspectorProperty {
 
 	public int getMax() {
 		return max;
+	}
+	
+	public void setAverage(boolean average) {
+		this.average = average;
+	}
+
+	public boolean isAverage() {
+		return average;
 	}
 	
 	public boolean isSlice() {

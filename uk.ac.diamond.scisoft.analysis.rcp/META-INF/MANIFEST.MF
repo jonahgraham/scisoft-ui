@@ -36,7 +36,6 @@ Export-Package: com.swtdesigner,
  uk.ac.diamond.scisoft.analysis.rcp.inspector,
  uk.ac.diamond.scisoft.analysis.rcp.monitor,
  uk.ac.diamond.scisoft.analysis.rcp.navigator.srs,
- uk.ac.diamond.scisoft.analysis.rcp.pixelinfoutils,
  uk.ac.diamond.scisoft.analysis.rcp.plotting,
  uk.ac.diamond.scisoft.analysis.rcp.plotting.actions,
  uk.ac.diamond.scisoft.analysis.rcp.plotting.roi,
@@ -59,5 +58,7 @@ Import-Package: org.apache.commons.beanutils;version="1.8.0",
  org.dawb.common.util.list,
  org.eclipse.draw2d,
  org.eclipse.ui,
- org.slf4j;version="[1.5.0,2.0.0)"
+ org.nfunk.jep;version="2.4.1",
+ org.slf4j;version="[1.5.0,2.0.0)",
+ org.uncommons.maths.combinatorics;version="1.2.3"
 Bundle-ActivationPolicy: lazy

@@ -48,7 +48,7 @@ public class AxisSlicer {
 	private Text value;
 	private Spinner size;
 	private Spinner step;
-	private Button reset;
+	private Button reset, average;
 	private int length;
 	private SliceProperty slice;
 	private SliceProperty[] axisSlices;
@@ -58,7 +58,7 @@ public class AxisSlicer {
 	private PropertyChangeListener listener;
 	private String name;
 
-	public static final int COLUMNS = 6;
+	public static final int COLUMNS = 7;
 	private static final Image undo = AnalysisRCPActivator.getImageDescriptor("icons/arrow_undo.png").createImage();
 
 	public AxisSlicer(Composite parent) {
@@ -83,12 +83,13 @@ public class AxisSlicer {
 	}
 
 	public void clear() {
-		if (label  != null) label.dispose();
-		if (slider != null) slider.dispose();
-		if (value  != null) value.dispose();
-		if (size   != null) size.dispose();
-		if (step   != null) step.dispose();
-		if (reset  != null) reset.dispose();
+		if (label    != null)   label.dispose();
+		if (slider   != null)   slider.dispose();
+		if (value    != null)   value.dispose();
+		if (size     != null)   size.dispose();
+		if (step     != null)   step.dispose();
+		if (reset    != null)   reset.dispose();
+		if (average  != null)   average.dispose();
 	}
 
 	/**
@@ -193,6 +194,26 @@ public class AxisSlicer {
 			}
 		});
 		reset.setToolTipText("Reset slice");
+		
+		average = new Button(composite, SWT.CHECK);
+		average.setText("Average");
+		average.setToolTipText("Average Dimension");
+		average.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (slice == null)
+					return;
+				if (average.getSelection()) {
+					slice.setAverage(true);
+					step.setEnabled(true);
+					size.setEnabled(true);
+				} else {
+					// reset slice and GUI
+					slice.setAverage(false);
+					init(true);
+				}
+			}
+		});
 	}
 
 	/**
@@ -295,7 +316,13 @@ public class AxisSlicer {
 		step.setValues(t, 1, length, 0, 1, 1);
 		step.setEnabled(mode);
 		size.setEnabled(mode);
+		average.setEnabled(!mode);
+		average.setSelection(slice.isAverage());
 		this.reset.setEnabled(resetable);
+		if (slice.isAverage()) {
+			step.setEnabled(true);
+			size.setEnabled(true);
+		}
 		setVisible(true);
 		composite.layout();
 	}
@@ -311,6 +338,7 @@ public class AxisSlicer {
 		size.setVisible(isVisible);
 		step.setVisible(isVisible);
 		reset.setVisible(isVisible);
+		average.setVisible(isVisible);
 	}
 }
 

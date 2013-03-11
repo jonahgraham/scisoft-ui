@@ -25,6 +25,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IMemento;
 import org.eclipse.ui.INavigationHistory;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IPartListener2;
@@ -529,5 +530,19 @@ class MockWorkbenchPage implements IWorkbenchPage {
 	public void activate(IWorkbenchPart part) {
 		throw new AssertionFailedError("Methods in MockWorkbenchPage should not be called");
 
+	}
+
+	/* @Override omitted, since this method was only added in the Eclipse 3.8.2 target platform, and this code needs to compile against 3.7.2 as well
+	   Suppress "method should be tagged with @Override since it actually overrides a superinterface ". */
+	@SuppressWarnings("all")
+	public IEditorReference[] openEditors(IEditorInput[] iei, String[] sa, IMemento[] memos, int i) {
+		throw new AssertionFailedError("Methods in MockWorkbenchPage should not be called");
+	}
+
+	/* @Override omitted, since this method was only added in the Eclipse 3.8.2 target platform, and this code needs to compile against 3.7.2 as well
+	   Suppress "method should be tagged with @Override since it actually overrides a superinterface ". */
+	@SuppressWarnings("all") 
+	public IMemento[] getEditorState(IEditorReference[] editorRefs) {
+		throw new AssertionFailedError("Methods in MockWorkbenchPage should not be called");
 	}
 }
