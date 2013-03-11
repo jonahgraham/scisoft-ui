@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.dawb.common.util.list.PrimitiveArrayEncoder;
 import org.dawnsci.plotting.jreality.core.AxisMode;
 import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
 import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
@@ -50,6 +51,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
@@ -166,6 +168,10 @@ public class StaticScanPlotView extends ViewPart {
 				AxisMode.LINEAR);
 		plotter.setXAxisLabel(plotBean.getXAxis());
 		plotter.setYAxisLabel(plotBean.getYAxis());
+		if (plotBean.getXAxisValues()!=null) {
+			final double [] da = PrimitiveArrayEncoder.getDoubleArray(plotBean.getXAxisValues());
+			plotter.setXAxisValues(new AxisValues(da), 1);
+		}
 
 		createPlotAndLegend(plotBean);
 		setPartName(plotBean.getPartName());

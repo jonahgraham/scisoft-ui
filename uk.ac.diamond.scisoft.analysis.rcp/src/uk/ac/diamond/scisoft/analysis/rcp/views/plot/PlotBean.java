@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.dawb.common.util.list.PrimitiveArrayEncoder;
 
+import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
@@ -30,6 +31,7 @@ public class PlotBean {
 	private String partName;
 	// NOTE name<->data mapping where data is string as it serialises smaller.
 	private Map<String, String> data;
+	private String xAxisValues;
 	private String xAxis, yAxis;
 	private int xAxisMode, yAxisMode;
 
@@ -40,7 +42,7 @@ public class PlotBean {
 	public void setData(Map<String, String> data) {
 		this.data = data;
 	}
-
+	
 	/**
 	 * Convenience method for transferring the double[]'s to DataSets.
 	 * 
@@ -63,6 +65,19 @@ public class PlotBean {
 		for (String name : ds.keySet()) {
 			data.put(name, PrimitiveArrayEncoder.getString(new DoubleDataset(ds.get(name)).getData()));
 		}
+	}
+	
+
+	public String getXAxisValues() {
+		return xAxisValues;
+	}
+
+	public void setXAxisValues(String axisValues) {
+		xAxisValues = axisValues;
+	}
+
+	public void setXAxisValues(AxisValues values) {
+		this.xAxisValues = values.getValues().toString();
 	}
 
 	public String getXAxis() {
