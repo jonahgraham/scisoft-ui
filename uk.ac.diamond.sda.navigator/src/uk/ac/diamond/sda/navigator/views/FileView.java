@@ -266,11 +266,11 @@ public class FileView extends ViewPart implements IFileSelector {
 		final String[] titles = { "Name", "Date", "Type", "Size", "Comment", "Scan Command" };
 
 		IPreferenceStore store = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		boolean showDate = store.getDefaultBoolean(PreferenceConstants.SHOW_DATE_COLUMN);
-		boolean showType = store.getDefaultBoolean(PreferenceConstants.SHOW_TYPE_COLUMN);
-		boolean showSize = store.getDefaultBoolean(PreferenceConstants.SHOW_SIZE_COLUMN);
-		boolean showComment = store.getDefaultBoolean(PreferenceConstants.SHOW_COMMENT_COLUMN);
-		boolean showScanCmd = store.getDefaultBoolean(PreferenceConstants.SHOW_SCANCMD_COLUMN);
+		boolean showDate = store.getBoolean(PreferenceConstants.SHOW_DATE_COLUMN);
+		boolean showType = store.getBoolean(PreferenceConstants.SHOW_TYPE_COLUMN);
+		boolean showSize = store.getBoolean(PreferenceConstants.SHOW_SIZE_COLUMN);
+		boolean showComment = store.getBoolean(PreferenceConstants.SHOW_COMMENT_COLUMN);
+		boolean showScanCmd = store.getBoolean(PreferenceConstants.SHOW_SCANCMD_COLUMN);
 
 		// we listen to the preference store property changes
 		store.addPropertyChangeListener(new IPropertyChangeListener() {
