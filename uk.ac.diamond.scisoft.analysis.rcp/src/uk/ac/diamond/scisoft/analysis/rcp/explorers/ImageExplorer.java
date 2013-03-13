@@ -76,7 +76,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 
 	private static final Logger logger = LoggerFactory.getLogger(ImageExplorer.class);
 	
-	private static final String FOLDER_STACK = "Folder Stack";
+	private static final String FOLDER_STACK = "Image Stack";
 	private TableViewer viewer;
 	private DataHolder data = null;
 	private ISelectionChangedListener listener;
