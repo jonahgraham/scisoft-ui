@@ -1197,7 +1197,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			InspectorType itype;
 			switch (currentDatasetSelection.getType()) {
 			case IMAGE:
-				itype = InspectorType.MULTIIMAGES;
+				itype = InspectorType.IMAGE;
 				break;
 			case LINE:
 			default:

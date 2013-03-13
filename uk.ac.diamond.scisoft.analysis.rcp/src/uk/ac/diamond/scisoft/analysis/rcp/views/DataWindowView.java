@@ -116,6 +116,8 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 	private AbstractPlottingSystem plottingSystem;
 	private Logger logger = LoggerFactory.getLogger(DataWindowView.class);
 	private Composite plotComp;
+	private int xSize = 0;
+	private int ySize = 0;
 	
 	protected List<IObserver> observers = 
 			Collections.synchronizedList(new LinkedList<IObserver>());
@@ -446,8 +448,8 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 		if (newData != null) {
 			xAxis.clear();
 			yAxis.clear();
-			final int xSize = newData.getShape()[1];
-			final int ySize = newData.getShape()[0];
+			xSize = newData.getShape()[1];
+			ySize = newData.getShape()[0];
 			int xSamplingRate = Math.max(1, xSize / MAXDISPLAYDIM);
 			int ySamplingRate = Math.max(1, ySize / MAXDISPLAYDIM);
 			int[] startPos = new int[]{0,0};
@@ -529,7 +531,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 							int currentYdim = (int)(ySize * yReduce * 0.75f);					
 							spnEndX.setSelection(currentXdim);
 							spnEndY.setSelection(currentYdim);
-							overlay.setSelectPosition(0,0,currentXdim,currentYdim);							
+							overlay.setSelectPosition(0,0,currentXdim,currentYdim, xSize, ySize);
 						} else {
 							spnEndX.setSelection(xSize);
 							spnEndY.setSelection(ySize);						
@@ -728,7 +730,9 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 				overlay.setSelectPosition(startPosX, 
 										  startPosY,
 										  width,
-										  height);
+										  height,
+										  xSize,
+										  ySize);
 				if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 					IRegion region = plottingSystem.getRegion("Surface slice");
 					RectangularROI roi = new RectangularROI(startPosX, startPosY, width, height, 0);
@@ -865,7 +869,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 						Display.getDefault().asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								overlay.setSelectPosition(startX,startY,roiWidth,roiHeight);	
+								overlay.setSelectPosition(startX,startY,roiWidth,roiHeight, xSize, ySize);	
 							}
 						});
 					}
@@ -886,7 +890,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 						Display.getDefault().asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								overlay.setSelectPosition(startX,startY,roiWidth,roiHeight);	
+								overlay.setSelectPosition(startX,startY,roiWidth,roiHeight, xSize, ySize);	
 							}
 						});
 					}
@@ -913,7 +917,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					overlay.setSelectPosition(startX,startY,roiWidth,roiHeight);	
+					overlay.setSelectPosition(startX,startY,roiWidth,roiHeight, xSize, ySize);	
 				}
 			});
 		}
