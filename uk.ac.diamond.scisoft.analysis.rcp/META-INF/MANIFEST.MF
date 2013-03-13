@@ -24,7 +24,8 @@ Require-Bundle: org.eclipse.ui,
  org.dawnsci.plotting.jreality;bundle-version="1.0.0",
  javax.vecmath;bundle-version="1.5.2",
  org.apache.commons.math3;bundle-version="[3.1.0,4.0.0)",
- uk.ac.gda.common;bundle-version="1.2.0"
+ uk.ac.gda.common;bundle-version="1.2.0",
+ org.uncommons.maths;bundle-version="[1.2.3,2.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.swtdesigner,
  uk.ac.diamond.scisoft.analysis.rcp,
@@ -59,6 +60,5 @@ Import-Package: org.apache.commons.beanutils;version="1.8.0",
  org.eclipse.draw2d,
  org.eclipse.ui,
  org.nfunk.jep;version="2.4.1",
- org.slf4j;version="[1.5.0,2.0.0)",
- org.uncommons.maths.combinatorics;version="1.2.3"
+ org.slf4j;version="[1.5.0,2.0.0)"
 Bundle-ActivationPolicy: lazy

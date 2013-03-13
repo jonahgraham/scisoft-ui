@@ -18,7 +18,9 @@ package uk.ac.diamond.scisoft.analysis.rcp.views.plot;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 
@@ -71,8 +73,15 @@ public class DataSetPlotData implements IPlotData {
 	}
 
 	@Override
-	public Collection<AbstractDataset> getDataSets() {
-		return data.values();
+	public List<AbstractDataset> getDataSets() {
+		Collection<AbstractDataset> values = data.values();
+		List<AbstractDataset> vector = new Vector<AbstractDataset>();
+		
+		for(AbstractDataset value : values){
+			vector.add(value);
+		}
+		
+		return vector;
 	}
 
 	@Override
