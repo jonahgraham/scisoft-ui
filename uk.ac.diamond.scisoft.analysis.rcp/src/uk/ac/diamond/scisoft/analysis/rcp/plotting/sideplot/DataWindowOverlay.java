@@ -121,6 +121,19 @@ public class DataWindowOverlay implements Overlay2DConsumer, IObservable {
 	 * @param height
 	 */
 	public void setSelectPosition(int startX, int startY, int width, int height) {
+		setSelectPosition(startX, startY, width, height, 0, 0);
+	}
+
+	/**
+	 * Set new selection position
+	 * @param startX start position in x dimension
+	 * @param startY start position in y dimension
+	 * @param width
+	 * @param height
+	 * @param xSize
+	 * @param ySize
+	 */
+	public void setSelectPosition(int startX, int startY, int width, int height, int xSize, int ySize) {
 		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
 			if (selectPrimID == -1) 
 				selectPrimID = provider.registerPrimitive(PrimitiveType.BOX);
@@ -140,7 +153,13 @@ public class DataWindowOverlay implements Overlay2DConsumer, IObservable {
 		view.setSpinnerValues(selectStartX * xScale, selectStartY * yScale,
 				  Math.abs(selectEndX - selectStartX) * xScale,
 				  Math.abs(selectEndY - selectStartY) * yScale);
-
+		// verify that the start and end point are within the data size
+		if(xSize != 0 && ySize != 0){
+			if(selectStartX < 0) selectStartX = 0;
+			if(selectStartY < 0) selectStartY = 0;
+			if(selectEndX > xSize) selectEndX = xSize;
+			if(selectEndY > ySize) selectEndY = ySize;
+		}
 		notifyObservers();
 	}
 	
