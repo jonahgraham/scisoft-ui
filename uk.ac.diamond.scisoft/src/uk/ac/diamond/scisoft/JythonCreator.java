@@ -105,26 +105,20 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.jama",
 		"uk.ac.diamond.scisoft.analysis",
 		"uk.ac.diamond.scisoft.python",
-//		"uk.ac.diamond.scisoft.ncd",
-//		"uk.ac.diamond.scisoft.ncd.rcp",
 		"uk.ac.gda.common",
-		"jhdf",
 		"com.springsource.slf4j",
 		"com.springsource.ch.qos.logback",
-//		"com.springsource.org.castor",
-//		"com.springsource.org.exolab.castor",
 		"com.springsource.org.apache.commons",
 		"com.springsource.javax.media.jai.core",
+//		"com.springsource.javax.media.jai.codec",
 		"jtransforms",
 		"jai_imageio",
 		"it.tidalwave.imageio.raw",
 		"javax.vecmath",
-//		"jython",
 		"uk.ac.diamond.org.apache.ws.commons.util",
 		"uk.ac.diamond.org.apache.xmlrpc.client",
 		"uk.ac.diamond.org.apache.xmlrpc.common",
-		"uk.ac.diamond.org.apache.xmlrpc.server",
-		"org.dawb.hdf5"
+		"uk.ac.diamond.org.apache.xmlrpc.server"
 	};
 	private static final String[] removedLibEndings = {
 		"pysrc",
@@ -135,7 +129,6 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.scisoft.python",
 		"uk.ac.diamond.CBFlib",
 		"uk.ac.gda.common",
-		"org.dawb.hdf5",
 		"ncsa.hdf",
 		"uk.ac.gda.libs"
 	};
