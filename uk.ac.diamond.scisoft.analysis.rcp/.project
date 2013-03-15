@@ -3,10 +3,8 @@
 	<name>uk.ac.diamond.scisoft.analysis.rcp</name>
 	<comment></comment>
 	<projects>
-		<project>org.dawb.hdf5</project>
 		<project>tp</project>
 		<project>uk.ac.diamond.scisoft.analysis</project>
-		<project>uk.ac.gda.common</project>
 		<project>uk.ac.gda.common.rcp</project>
 	</projects>
 	<buildSpec>

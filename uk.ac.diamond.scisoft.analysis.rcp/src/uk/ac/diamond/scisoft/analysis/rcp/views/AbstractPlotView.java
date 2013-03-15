@@ -31,7 +31,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +44,6 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
@@ -109,12 +107,6 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		getPlotServer().addIObserver(this);
 		setExecSvc(Executors.newFixedThreadPool(2));
 	}
-
-	/**
-	 * Create ViewPart
-	 */
-	@Override
-	public abstract void createPartControl(Composite parent);
 
 	/**
 	 * Required if you want to make tools work with Abstract Plotting System.
@@ -209,7 +201,6 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	@Override
 	public void deleteIObservers() {
 		observers.clear();
-
 	}
 
 	/**
@@ -310,12 +301,6 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		pushGUIState();
 	}
 
-	/**
-	 * Dispose the PlotView and its components
-	 */
-	@Override
-	public abstract void dispose();
-
 	public String getPlotViewName() {
 		return plotViewName;
 	}
@@ -339,20 +324,15 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	public abstract void processGUIUpdate(GuiBean bean);
 
 	/**
-	 * Get the DatasetPlotter
-	 * @return DatasetPlotter
-	 */
-	@Override
-	public abstract DataSetPlotter getMainPlotter();
-
-	/**
 	 * Get the Lightweight PlottingSystem
 	 * @return plottingSystem
 	 */
 	public abstract AbstractPlottingSystem getPlottingSystem();
 
 	@Override
-	public void updateProcessed() {}
+	public void updateProcessed() {
+		// do nothing
+	}
 
 	@Override
 	public IMetaData getMetadata() throws Exception {
