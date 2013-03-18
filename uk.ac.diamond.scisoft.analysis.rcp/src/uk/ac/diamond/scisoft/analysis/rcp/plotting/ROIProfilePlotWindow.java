@@ -29,6 +29,7 @@ import org.dawb.common.ui.plot.tool.ToolPageFactory;
 import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ITrace;
+import org.dawb.common.ui.widgets.ROISumWidget;
 import org.dawb.common.ui.widgets.ROIWidget;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -37,6 +38,7 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -77,13 +79,12 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	private SashForm sashForm2;
 	private SashForm sashForm3;
 
-	//private RROITableInfo xaxisMetadataVertical;
-	//private RROITableInfo xaxisMetadataHorizontal;
 	private ROIWidget myROIWidget;
 	private ROIWidget verticalProfileROIWidget;
 	private ROIWidget horizontalProfileROIWidget;
 	private AbstractPlottingSystem verticalProfilePlottingSystem;
 	private AbstractPlottingSystem horizontalProfilePlottingSystem;
+	private ROISumWidget roiSumWidget;
 	
 	/**
 	 * Obtain the IPlotWindowManager for the running Eclipse.
@@ -130,12 +131,14 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		plotSystemComposite.setLayout(new GridLayout(1, true));
 		sashForm = new SashForm(plotSystemComposite, SWT.HORIZONTAL);
 		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		sashForm.setBackground(new Color(parentComp.getDisplay(), 192, 192, 192));
 		
 		sashForm2 = new SashForm(sashForm, SWT.VERTICAL);
 		sashForm2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		sashForm2.setBackground(new Color(parentComp.getDisplay(), 192, 192, 192));
 		sashForm3 = new SashForm(sashForm, SWT.VERTICAL);
 		sashForm3.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
+		sashForm3.setBackground(new Color(parentComp.getDisplay(), 192, 192, 192));
 		try {
 			plottingSystem = PlottingFactory.createPlottingSystem();
 			plottingSystem.setColorOption(ColorOption.NONE);
@@ -213,7 +216,9 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 					}
 				}
 			});
-
+			
+			roiSumWidget = new ROISumWidget(mainRegionComposite, plottingSystem);
+			
 			mainRegionInfoExpander.setClient(mainRegionComposite);
 			mainRegionInfoExpander.addExpansionListener(expansionAdapter);
 			mainRegionInfoExpander.setExpanded(true);
@@ -230,7 +235,6 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 
 			verticalProfileROIWidget = new ROIWidget(verticalProfileComposite, verticalProfilePlottingSystem, "Left/Right region editor");
 			verticalProfileROIWidget.setIsProfile(true);
-			verticalProfileROIWidget.showSumMinMax(false);
 			verticalProfileROIWidget.createWidget();
 			verticalProfileROIWidget.addSelectionChangedListener(new ISelectionChangedListener() {
 				
@@ -262,7 +266,6 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 
 			horizontalProfileROIWidget = new ROIWidget(horizontalProfileComposite, horizontalProfilePlottingSystem, "Bottom/Up region editor");
 			horizontalProfileROIWidget.setIsProfile(true);
-			horizontalProfileROIWidget.showSumMinMax(false);
 			horizontalProfileROIWidget.createWidget();
 			horizontalProfileROIWidget.addSelectionChangedListener(new ISelectionChangedListener() {
 				
@@ -510,6 +513,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			sideProfile1.dispose();
 			sideProfile2.dispose();
 			myROIWidget.dispose();
+			roiSumWidget.dispose();
 			verticalProfileROIWidget.dispose();
 			horizontalProfileROIWidget.dispose();
 			//xaxisMetadataVertical.dispose();
