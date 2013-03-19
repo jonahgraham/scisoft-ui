@@ -22,13 +22,10 @@
 	<item title="Import the Scisoftpy module">
    	   	<description>	
 			The Scisoftpy module adds lots of functionality to the Jython terminal, including numpy like array functionality, various loading mechanisms for lots of file types and plotting which is available in this framework.
-			<br/><br/>To get access to this you need to import the scisoftpy module by typing this in the console window which should now have some text in it and a prompt (like this <b>>>></b>) for input.			
+			<br/><br/>The scisoftpy module is imported automatically when the Jython console is started (import scisoftpy as dnp). The Jython console will have some text in it and a prompt (like this <b>>>></b>) for input.			
 			<br/><br/>At this prompt type the following 
-			<br/><br/><b>import scisoftpy as dnp</b> 
-			<br/><br/>then press return.  This May take some seconds to complete, and some text could appear in the window.
-			<br/><br/>Once the prompt re-appears type 
 			<br/><br/><b>help(dnp)</b> 
-			<br/><br/>to see some of the available commands
+			<br/><br/>to see some of the available commands in the scisoftpy module.
         </description>
 	</item>
 	<item title="Plot a line using scisoftpy">
