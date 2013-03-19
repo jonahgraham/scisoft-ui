@@ -155,6 +155,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 	}
 
 	private void updateGuiBean(ROIBase roib) {
+		ROIBase tmpRoi = roib;
 		updateRoiMap();
 
 		server.removeGUIInfo(GuiParameters.ROIDATA);
@@ -177,6 +178,22 @@ public class ROIManager implements IROIListener, IRegionListener {
 		Serializable list = createNewROIList(roib);
 		if (list != null)
 			server.putGUIInfo(GuiParameters.ROIDATALIST, list);
+
+		//if the region has been removed, roib will be null
+		//we get the first roi from the roilist and put it in roidata
+		if(tmpRoi == null){
+			@SuppressWarnings("unchecked")
+			ROIList<? extends ROIBase> roilist = (ROIList<? extends ROIBase>) server.getGUIInfo().get(GuiParameters.ROIDATALIST);
+
+			if (list != null && roilist.size() > 0) {
+				tmpRoi = roilist.get(0);
+			}
+			if(tmpRoi != null){
+				server.putGUIInfo(GuiParameters.ROIDATA, roib);
+			} else {
+				server.removeGUIInfo(GuiParameters.ROIDATA);
+			}
+		}
 	}
 
 	public ROIList<? extends ROIBase> createNewROIList(ROIBase roib) {
