@@ -17,9 +17,13 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
+import org.dawb.common.ui.plot.IPlottingSystem;
+import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.region.IROIListener;
 import org.dawb.common.ui.plot.region.IRegion;
 import org.dawb.common.ui.plot.region.IRegionListener;
@@ -41,13 +45,20 @@ import uk.ac.diamond.scisoft.analysis.roi.SectorROIList;
  */
 public class ROIManager implements IROIListener, IRegionListener {
 	private Map<String, ROIBase> roiMap; // region name to ROI map
+	private Map<String, ROIBase> regionMap; // region name to ROI map
 	private String name;
 	private ROIBase roi;
 	private IGuiInfoManager server; // usually plot window
+	private String plotName;
+	private IPlottingSystem plottingSystem;
 
-	public ROIManager(IGuiInfoManager guiManager) {
+	public ROIManager(IGuiInfoManager guiManager, String plotName) {
 		server = guiManager;
 		roiMap = new LinkedHashMap<String, ROIBase>();
+		regionMap = new LinkedHashMap<String, ROIBase>();
+
+		this.plotName = plotName;
+		this.plottingSystem = PlottingFactory.getPlottingSystem(plotName);
 	}
 
 	/**
@@ -130,14 +141,11 @@ public class ROIManager implements IROIListener, IRegionListener {
 		if (eroi == null)
 			return;
 
-//		String id = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart().getSite().getId();
-//		if (id.startsWith(PlotView.ID)) {
-			name = evt.getSource().toString();
-			roi = eroi;
+		name = evt.getSource().toString();
+		roi = eroi;
 
-			roiMap.put(name, eroi);
-			updateGuiBean(roi);
-//		}
+		roiMap.put(name, eroi);
+		updateGuiBean(roi);
 	}
 
 	@Override
@@ -147,6 +155,8 @@ public class ROIManager implements IROIListener, IRegionListener {
 	}
 
 	private void updateGuiBean(ROIBase roib) {
+		updateRoiMap();
+
 		server.removeGUIInfo(GuiParameters.ROIDATA);
 		server.putGUIInfo(GuiParameters.ROIDATA, roib);
 
@@ -215,5 +225,25 @@ public class ROIManager implements IROIListener, IRegionListener {
 		return list;
 	}
 
-
+	/**
+	 * Method to update roiMap when region name is changed through the UI
+	 * This is done by comparing the list of regions in the plottingSystem
+	 * and the regions in RoiMap
+	 */
+	private void updateRoiMap(){
+		if(plottingSystem == null) plottingSystem = PlottingFactory.getPlottingSystem(plotName);
+		if(plottingSystem == null) return;
+		Collection<IRegion> regions = plottingSystem.getRegions();
+		if (regions == null) return;
+		regionMap.clear();
+		for (IRegion iRegion : regions) {
+			regionMap.put(iRegion.getName(), iRegion.getROI());
+		}
+		Set<String> names = roiMap.keySet();
+		Object[] strNames = names.toArray();
+		for (int i = 0; i < strNames.length; i++) {
+			if(!regionMap.containsKey(strNames[i]))
+				roiMap.remove(strNames[i]);
+		}
+	}
 }

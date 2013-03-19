@@ -116,7 +116,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		this.bars = bars;
 		this.page = page;
 		this.name = name;
-		this.setRoiManager(new ROIManager(manager));
+		this.setRoiManager(new ROIManager(manager, name));
 	}
 
 	/**
