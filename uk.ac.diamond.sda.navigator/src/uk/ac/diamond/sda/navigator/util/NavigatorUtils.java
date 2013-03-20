@@ -93,16 +93,17 @@ public class NavigatorUtils {
 		List<String> titles = new ArrayList<String>();
 		for (ILazyDataset d : list) {
 			if (d instanceof StringDataset) {
+				StringDataset sd = (StringDataset) d;
 				String n = d.getName();
 				if (n == null) {
 					continue;
 				}
 				if (n.contains(scanCmdName)) {
-					scans.add(d.toString());
+					scans.add(sd.toString(true));
 					if (scans.size() > titles.size() + 1)
 						titles.add(null); // bulk out list
 				} else if (n.contains(titleName)) {
-					titles.add(d.toString());
+					titles.add(sd.toString(true));
 					if (titles.size() > scans.size() + 1)
 						scans.add(null);
 				}
