@@ -1,19 +1,17 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
- *
- * This file is part of GDA.
- *
- * GDA is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License version 3 as published by the Free
- * Software Foundation.
- *
- * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along
- * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright 2012 Diamond Light Source Ltd.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
@@ -45,13 +43,13 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorTy
 public class HDF5Utils {
 	private static final Logger logger = LoggerFactory.getLogger(HDF5Utils.class);
 
-	private static final String NXAXES = "axes";
-	private static final String NXAXIS = "axis";
-	private static final String NXLABEL = "label";
-	private static final String NXPRIMARY = "primary";
-	private static final String NXSIGNAL = "signal";
-	private static final String NXDATA = "NXdata";
-	private static final String NXNAME = "long_name";
+	private static final String NX_AXES = "axes";
+	private static final String NX_AXIS = "axis";
+	private static final String NX_LABEL = "label";
+	private static final String NX_PRIMARY = "primary";
+	private static final String NX_SIGNAL = "signal";
+	private static final String NX_DATA = "NXdata";
+	private static final String NX_NAME = "long_name";
 	private static final String SDS = "SDS";
 
 	/**
@@ -81,14 +79,14 @@ public class HDF5Utils {
 				return null;
 
 			gNode = (HDF5Group) link.getSource(); // before hunting for axes
-		} else if (nxClass.equals(NXDATA)) {
+		} else if (nxClass.equals(NX_DATA)) {
 			assert node instanceof HDF5Group;
 			gNode = (HDF5Group) node;
 			// find data (signal=1) and check for axes attribute
 			for (HDF5NodeLink l : (HDF5Group) node) {
 				if (l.isDestinationADataset()) {
 					dNode = (HDF5Dataset) l.getDestination();
-					if (dNode.containsAttribute(NXSIGNAL) && dNode.isSupported()) {
+					if (dNode.containsAttribute(NX_SIGNAL) && dNode.isSupported()) {
 						link = l;
 						break; // only one signal per NXdata item
 					}
@@ -105,10 +103,10 @@ public class HDF5Utils {
 			return null;
 		}
 
-		HDF5Attribute axesAttr = dNode.getAttribute(NXAXES);
+		HDF5Attribute axesAttr = dNode.getAttribute(NX_AXES);
 
 		// find possible long name
-		stringAttr = dNode.getAttribute(NXNAME);
+		stringAttr = dNode.getAttribute(NX_NAME);
 		if (stringAttr != null && stringAttr.isString())
 			cData.setName(stringAttr.getFirstElement());
 
@@ -117,13 +115,11 @@ public class HDF5Utils {
 		
 		// Fix to http://jira.diamond.ac.uk/browse/DAWNSCI-333. We put the path in the meta
 		// data in order to put a title containing the file in the plot.
-		if (link.getFile()!=null && link.getFile().getFilename()!=null) {
-	
+		if (link.getFile() != null && link.getFile().getFilename() != null) {
 			final Metadata meta = new Metadata();
 			meta.setFilePath(link.getFile().getFilename());
 			cData.setMetadata(meta);
 			// TODO Maybe	dNode.getAttributeNameIterator()
-
 		}
 
 		// set up slices
@@ -134,7 +130,7 @@ public class HDF5Utils {
 		for (HDF5NodeLink l : gNode) {
 			if (l.isDestinationADataset()) {
 				HDF5Dataset d = (HDF5Dataset) l.getDestination();
-				if (!d.isSupported() || d.isString() || dNode == d || d.containsAttribute(NXSIGNAL))
+				if (!d.isSupported() || d.isString() || dNode == d || d.containsAttribute(NX_SIGNAL))
 					continue;
 
 				ILazyDataset a = d.getDataset();
@@ -149,12 +145,12 @@ public class HDF5Utils {
 					int[] ashape = a.getShape();
 
 					AxisChoice choice = new AxisChoice(a);
-					stringAttr = d.getAttribute(NXNAME);
+					stringAttr = d.getAttribute(NX_NAME);
 					if (stringAttr != null && stringAttr.isString())
 						choice.setLongName(stringAttr.getFirstElement());
 
-					HDF5Attribute attr = d.getAttribute(NXAXIS);
-					HDF5Attribute attr_label = d.getAttribute(NXLABEL);
+					HDF5Attribute attr = d.getAttribute(NX_AXIS);
+					HDF5Attribute attr_label = d.getAttribute(NX_LABEL);
 					int[] intAxis = null;
 					if (attr != null) {
 						if (attr.isString()) {
@@ -233,7 +229,7 @@ public class HDF5Utils {
 					} else
 						choice.setAxisNumber(intAxis[intAxis.length-1]);
 
-					attr = d.getAttribute(NXPRIMARY);
+					attr = d.getAttribute(NX_PRIMARY);
 					if (attr != null) {
 						if (attr.isString()) {
 							Integer intPrimary = Integer.parseInt(attr.getFirstElement());
