@@ -19,3 +19,4 @@ Export-Package: uk.ac.diamond.sda.meta,
  uk.ac.diamond.sda.meta.discriminator,
  uk.ac.diamond.sda.meta.page,
  uk.ac.diamond.sda.meta.views
+Bundle-Vendor: Diamond Light Source
