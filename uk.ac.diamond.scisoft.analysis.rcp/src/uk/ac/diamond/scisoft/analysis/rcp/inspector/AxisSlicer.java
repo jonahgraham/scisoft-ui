@@ -286,7 +286,7 @@ public class AxisSlicer {
 
 		label.setText(name);
 		slider.setMinMax(0, length, adata.getString(0), adata.getString(length-1));
-		slider.setIncrements(1, 5);
+		slider.setIncrements(1, Math.max(5, length/20));
 		String initValue;
 		boolean resetable = false;
 		if (s == null) {
