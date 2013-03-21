@@ -19,8 +19,6 @@ package uk.ac.diamond.scisoft.mappingexplorer.views;
 
 import org.eclipse.ui.IViewPart;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-
 /**
  * Interface to identify that the view part contains a data-set plotter.
  * 
@@ -28,8 +26,4 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
  */
 public interface IDatasetPlotterContainingView extends IViewPart {
 
-	/**
-	 * @return the {@link DataSetPlotter} that is contained within the view.
-	 */
-	DataSetPlotter getDataSetPlotter();
 }

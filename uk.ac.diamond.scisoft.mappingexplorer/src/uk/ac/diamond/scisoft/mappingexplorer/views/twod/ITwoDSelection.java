@@ -20,17 +20,13 @@ package uk.ac.diamond.scisoft.mappingexplorer.views.twod;
 import org.eclipse.jface.viewers.ISelection;
 
 import uk.ac.diamond.scisoft.mappingexplorer.views.AxisSelection;
-import uk.ac.diamond.scisoft.mappingexplorer.views.MappingViewSelectionChangedEvent;
 
 /**
  * @author rsr31645
- * 
  */
 public interface ITwoDSelection extends ISelection {
 
 	String getSecondaryViewId();
-
-	MappingViewSelectionChangedEvent getChangedEvent();
 
 	IPixelSelection getPixelSelection();
 
@@ -87,27 +83,16 @@ public interface ITwoDSelection extends ISelection {
 	public static class TwoDSelection implements ITwoDSelection {
 
 		private final String secondaryViewId;
-		private final MappingViewSelectionChangedEvent selection;
 		private boolean flipped;
 		private AxisSelection dimensionSelection;
 		private IPixelSelection pixelSelection;
 		private IAreaSelection areaSelection;
 
-		public TwoDSelection(String secondaryViewId,
-				MappingViewSelectionChangedEvent sel, AxisSelection dimension) {
+
+		public TwoDSelection(String secondaryViewId, AxisSelection selectedDimension, PixelSelection pixelSelection, boolean isFlipped) {
 			this.secondaryViewId = secondaryViewId;
-			this.selection = sel;
-			this.dimensionSelection = dimension;
-		}
-
-		public TwoDSelection(String secondaryViewId) {
-			this(secondaryViewId, null, null);
-		}
-
-		public TwoDSelection(String secondaryViewId,
-				MappingViewSelectionChangedEvent changedEvent,
-				AxisSelection selectedDimension, boolean isFlipped) {
-			this(secondaryViewId, changedEvent, selectedDimension);
+			dimensionSelection = selectedDimension;
+			this.pixelSelection = pixelSelection;
 			this.flipped = isFlipped;
 		}
 
@@ -118,11 +103,6 @@ public interface ITwoDSelection extends ISelection {
 		@Override
 		public String getSecondaryViewId() {
 			return secondaryViewId;
-		}
-
-		@Override
-		public MappingViewSelectionChangedEvent getChangedEvent() {
-			return selection;
 		}
 
 		@Override

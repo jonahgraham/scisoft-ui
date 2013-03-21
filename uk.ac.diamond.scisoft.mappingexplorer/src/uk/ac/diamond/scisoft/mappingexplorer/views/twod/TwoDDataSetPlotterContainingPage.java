@@ -18,29 +18,50 @@
 package uk.ac.diamond.scisoft.mappingexplorer.views.twod;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import org.dawnsci.plotting.jreality.core.AxisMode;
-import org.dawnsci.plotting.jreality.impl.PlotException;
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.PlotType;
+import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawb.common.ui.plot.axis.IPositionListener;
+import org.dawb.common.ui.plot.axis.PositionEvent;
+import org.dawb.common.ui.plot.region.IROIListener;
+import org.dawb.common.ui.plot.region.IRegion;
+import org.dawb.common.ui.plot.region.IRegion.RegionType;
+import org.dawb.common.ui.plot.region.IRegionListener;
+import org.dawb.common.ui.plot.region.ROIEvent;
+import org.dawb.common.ui.plot.region.RegionEvent;
+import org.dawb.common.ui.plot.tool.IToolChangeListener;
+import org.dawb.common.ui.plot.tool.ToolChangeEvent;
+import org.dawb.common.ui.plot.trace.ITrace;
+import org.dawb.common.ui.plot.trace.ITraceListener;
+import org.dawb.common.ui.plot.trace.TraceEvent;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.MouseListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IViewReference;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.part.Page;
 import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,19 +73,16 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
-import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
+import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.diamond.scisoft.mappingexplorer.views.AxisSelection;
-import uk.ac.diamond.scisoft.mappingexplorer.views.AxisSelection.DimensionChanged;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView2dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView3dData;
-import uk.ac.diamond.scisoft.mappingexplorer.views.MappingViewSelectionChangedEvent;
 import uk.ac.diamond.scisoft.mappingexplorer.views.histogram.HistogramSelection;
 import uk.ac.diamond.scisoft.mappingexplorer.views.oned.IOneDSelection;
+import uk.ac.diamond.scisoft.mappingexplorer.views.twod.ITwoDSelection.PixelSelection;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.ITwoDSelection.TwoDSelection;
-import uk.ac.diamond.scisoft.mappingexplorer.views.twod.TwoDViewOverlayConsumer.IConsumerListener;
 import uk.ac.gda.ui.components.IStepperSelectionListener;
 import uk.ac.gda.ui.components.Stepper;
 import uk.ac.gda.ui.components.StepperChangedEvent;
@@ -76,11 +94,24 @@ import uk.ac.gda.ui.components.StepperChangedEvent;
  * @author rsr31645
  */
 public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
+	private int xPoint;
+	private int yPoint;
 
+	private static final String REGION_X_STATIC = "X-Static";
+	private static final String REGION_Y_STATIC = "Y-Static";
+	private static final String HISTOGRAM_ALL_lbl = "Histogram All";
+	private static final String REGION_Y_HAIR = "Y-Hair";
+	private static final String REGION_X_HAIR = "X-Hair";
+	private static final String PLOT_NAME_TWO_D_PLOT = "TwoDPlot";
+	private static final String REGION_AREA_SELECTION = "AreaSelection";
+	private static final String INTENSITY_lbl = "Value: ";
+	private static final String Y_lbl = "y: ";
+	private static final String X_lbl = "x: ";
+	private static final String POSITION_lbl = "Pos";
+	private static final String PIXEL_lbl = "Pixel";
+	private static final String HISTOGRAM_lbl = "Histogram";
 	private static final String NOTIFY_PIXEL_CHANGED_job_lbl = "Notify Pixel Changed";
 	private static final String NOTIFY_AREA_SELECTED_CHANGED_job_lbl = "Notify Area Selected Changed";
-	private static final String COMMON_VIEW = "CommonView";
-	private static final String UPDATE_COLOUR_MAPPING_lbl = "Update Colour Mapping";
 	private static final String FLIP_AXIS_lbl = "Flip Axis";
 	private static final String NOTIFY_DIMENSION_CHANGED = "Notify dimension changed";
 	private Stepper thirdDimensionScaler;
@@ -92,25 +123,24 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 	private IMappingView3dData mapping3DData;
 	private IMappingView2dData mapping2DData;
 	private String secondaryId;
-	private DataSetPlotter dataSetPlotter;
-	private TwoDViewOverlayConsumer consumer;
+	private AbstractPlottingSystem plottingSystem;
 	private Composite axisSelectionComposite;
 
-	private IConsumerListener consumerListener = new IConsumerListener() {
+	private IRegion areaRegion;
+	private Label lblXValue;
+	private Label lblYValue;
+	private Label lblIntensityValue;
+	private Button btnPixelSelection;
+	private Button btnAreaSelection;
 
-		@Override
-		public void pixelSelected(int[] pixel) {
-			firePixelSelected(pixel);
-		}
+	private IRegion xHair;
+	private IRegion yHair;
 
-		@Override
-		public void areaSelected(Point[] rectangleCoordinates) {
-			notifyAreaSelectedChanged();
-		}
-	};
+	private Button btnHistogramAll;
 
-	public TwoDDataSetPlotterContainingPage(Composite parent, int style, String secondaryViewId) {
+	public TwoDDataSetPlotterContainingPage(Page page, Composite parent, int style, String secondaryViewId) {
 		super(parent, style);
+		FormToolkit formToolkit = new FormToolkit(parent.getDisplay());
 		this.secondaryId = secondaryViewId;
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 2;
@@ -119,36 +149,187 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		layout.horizontalSpacing = 2;
 		this.setLayout(layout);
 		this.setBackground(ColorConstants.white);
-		axisSelectionComposite = new Composite(this, SWT.None);
+		axisSelectionComposite = formToolkit.createComposite(this);
 		axisSelectionComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		axisSelectionComposite.setBackground(ColorConstants.white);
 		axisSelectionComposite.setLayout(new GridLayout(4, true));
 
-		rdDimension1 = new Button(axisSelectionComposite, SWT.RADIO);
+		rdDimension1 = formToolkit.createButton(axisSelectionComposite, "", SWT.RADIO);
 		rdDimension1.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		rdDimension1.setBackground(ColorConstants.white);
 		rdDimension1.addSelectionListener(rdDimensionSelectionListener);
 
-		rdDimension2 = new Button(axisSelectionComposite, SWT.RADIO);
+		rdDimension2 = formToolkit.createButton(axisSelectionComposite, "", SWT.RADIO);
 		rdDimension2.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		rdDimension2.setBackground(ColorConstants.white);
 		rdDimension2.addSelectionListener(rdDimensionSelectionListener);
 
-		rdDimension3 = new Button(axisSelectionComposite, SWT.RADIO);
+		rdDimension3 = formToolkit.createButton(axisSelectionComposite, "", SWT.RADIO);
 		rdDimension3.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		rdDimension3.setBackground(ColorConstants.white);
 		rdDimension3.addSelectionListener(rdDimensionSelectionListener);
 
-		btnFlipAxis = new Button(axisSelectionComposite, SWT.TOGGLE | SWT.RIGHT);
+		btnFlipAxis = formToolkit.createButton(axisSelectionComposite, "", SWT.TOGGLE | SWT.RIGHT);
 		btnFlipAxis.setText(FLIP_AXIS_lbl);
 		btnFlipAxis.setLayoutData(new GridData());
 		btnFlipAxis.setBackground(ColorConstants.white);
 		btnFlipAxis.addSelectionListener(flipBtnSelectionListener);
 
-		Composite dataSetPlotterComposite = createDataSetPlotter(this);
-		dataSetPlotterComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		Composite mainComposite = formToolkit.createComposite(this);
+		mainComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		GridLayout gl = new GridLayout();
+		gl.marginWidth = 0;
+		gl.marginHeight = 0;
 
-		Composite thirdDimensionComposite = new Composite(this, SWT.None);
+		gl.verticalSpacing = 0;
+		gl.horizontalSpacing = 0;
+
+		mainComposite.setLayout(gl);
+
+		Composite plotComposite = formToolkit.createComposite(mainComposite);
+		//
+		plotComposite.setLayout(new FillLayout());
+
+		try {
+			plottingSystem = PlottingFactory.createPlottingSystem();
+			plottingSystem.createPlotPart(plotComposite, PLOT_NAME_TWO_D_PLOT, page.getSite().getActionBars(),
+					PlotType.XY_STACKED, null);
+			plottingSystem.addPositionListener(new IPositionListener() {
+
+				@Override
+				public void positionChanged(PositionEvent evt) {
+
+					int xPoint = (int) plottingSystem.getSelectedXAxis().getPositionValue(evt.getxPos());
+					int yPoint = (int) plottingSystem.getSelectedYAxis().getPositionValue(evt.getyPos());
+
+					lblXValue.setText(Integer.toString(xPoint));
+					lblYValue.setText(Integer.toString(yPoint));
+
+					if (!plottingSystem.getTraces().isEmpty()) {
+						ITrace trace = plottingSystem.getTraces().iterator().next();
+						AbstractDataset datasetFromTrace = trace.getData();
+						double intensityValue = datasetFromTrace.getDouble(new int[] { yPoint, xPoint });
+
+						lblIntensityValue.setText(Double.toString(intensityValue));
+
+					}
+				}
+			});
+
+			plottingSystem.addToolChangeListener(new IToolChangeListener() {
+
+				@Override
+				public void toolChanged(ToolChangeEvent evt) {
+					logger.warn("Tool changed, {}", evt.getNewPage().getToolId());
+				}
+			});
+
+			plottingSystem.addRegionListener(new IRegionListener() {
+
+				@Override
+				public void regionsRemoved(RegionEvent evt) {
+					logger.warn("Regions removed");
+					areaRegionRemoved(evt);
+				}
+
+				private void areaRegionRemoved(RegionEvent evt) {
+					if (REGION_AREA_SELECTION.equals(evt.getRegion().getName())) {
+						areaRegion = null;
+					}
+				}
+
+				@Override
+				public void regionRemoved(RegionEvent evt) {
+					areaRegionRemoved(evt);
+				}
+
+				@Override
+				public void regionCreated(RegionEvent evt) {
+					// logger.warn("Region created");
+				}
+
+				@Override
+				public void regionAdded(RegionEvent evt) {
+					// logger.warn("Region added");
+				}
+			});
+
+			plottingSystem.addTraceListener(new ITraceListener.Stub() {
+				@Override
+				public void traceAdded(TraceEvent evt) {
+					logger.warn("Trace Added : {}", evt.getSource());
+				}
+			});
+			disablePlottingSystemActions(plottingSystem);
+
+		} catch (RuntimeException ex) {
+			logger.error("There is a problem with datasetPlotter.setMode()");
+		} catch (Exception e) {
+			logger.error("Problem creating plotting system", e);
+		}
+
+		//
+		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		Composite infoComposite = formToolkit.createComposite(mainComposite);
+		infoComposite.setBackground(ColorConstants.white);
+		infoComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		GridLayout gl2 = new GridLayout();
+		gl2.marginWidth = 0;
+		gl2.marginHeight = 0;
+		gl2.verticalSpacing = 0;
+		gl2.horizontalSpacing = 0;
+
+		infoComposite.setLayout(gl2);
+
+		Composite positionComposite = formToolkit.createComposite(infoComposite);
+		positionComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		GridLayout gl4 = new GridLayout(7, true);
+		gl4.marginWidth = 0;
+		gl4.marginHeight = 0;
+		gl4.verticalSpacing = 0;
+		gl4.horizontalSpacing = 0;
+		positionComposite.setLayout(gl4);
+
+		formToolkit.createLabel(positionComposite, POSITION_lbl, SWT.LEFT).setLayoutData(
+				new GridData(GridData.FILL_HORIZONTAL));
+		formToolkit.createLabel(positionComposite, X_lbl, SWT.RIGHT).setLayoutData(
+				new GridData(GridData.FILL_HORIZONTAL));
+		lblXValue = formToolkit.createLabel(positionComposite, "", SWT.LEFT);
+		lblXValue.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		formToolkit.createLabel(positionComposite, Y_lbl, SWT.RIGHT).setLayoutData(
+				new GridData(GridData.FILL_HORIZONTAL));
+		lblYValue = formToolkit.createLabel(positionComposite, "", SWT.LEFT);
+		lblYValue.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		formToolkit.createLabel(positionComposite, INTENSITY_lbl, SWT.RIGHT).setLayoutData(
+				new GridData(GridData.FILL_HORIZONTAL));
+		lblIntensityValue = formToolkit.createLabel(positionComposite, "", SWT.LEFT);
+		lblIntensityValue.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Composite cmpAddnlButtons = formToolkit.createComposite(infoComposite);
+		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
+		cmpAddnlButtons.setLayoutData(layoutData);
+		GridLayout gl3 = new GridLayout(3, true);
+		gl3.marginWidth = 0;
+		gl3.marginHeight = 0;
+		gl3.verticalSpacing = 0;
+		gl3.horizontalSpacing = 0;
+		cmpAddnlButtons.setLayout(gl3);
+
+		btnHistogramAll = formToolkit.createButton(cmpAddnlButtons, HISTOGRAM_ALL_lbl, SWT.PUSH);
+		btnHistogramAll.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnHistogramAll.addSelectionListener(btnSelectionListener);
+
+		btnAreaSelection = formToolkit.createButton(cmpAddnlButtons, HISTOGRAM_lbl, SWT.TOGGLE);
+		btnAreaSelection.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnAreaSelection.addSelectionListener(btnSelectionListener);
+
+		btnPixelSelection = formToolkit.createButton(cmpAddnlButtons, PIXEL_lbl, SWT.TOGGLE);
+		btnPixelSelection.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnPixelSelection.addSelectionListener(btnSelectionListener);
+
+		Composite thirdDimensionComposite = formToolkit.createComposite(this);
 		thirdDimensionComposite.setBackground(ColorConstants.white);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		thirdDimensionComposite.setLayoutData(gd);
@@ -160,11 +341,183 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		thirdDimensionComposite.setLayout(layout);
 
 		thirdDimensionScaler = new Stepper(thirdDimensionComposite, SWT.None);
+		thirdDimensionScaler.setNotifyWhenDragged(true);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.heightHint = 50;
 
 		thirdDimensionScaler.setLayoutData(gd);
 		thirdDimensionScaler.addStepperSelectionListener(stepperSelectionListener);
+		createUpdatePlotJob();
+	}
+
+	private Update2DPlotJob updatePlotJob;
+
+	private void createUpdatePlotJob() {
+		if (updatePlotJob == null) {
+			updatePlotJob = new Update2DPlotJob(getDisplay());
+		}
+	}
+
+	private SelectionAdapter btnSelectionListener = new SelectionAdapter() {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			if (e.getSource().equals(btnAreaSelection)) {
+				if (btnAreaSelection.getSelection()) {
+					createAreaRegion();
+					if (btnPixelSelection.getSelection()) {
+						btnPixelSelection.setSelection(false);
+						removeCrossHairRegion();
+					}
+				} else {
+				}
+			} else if (e.getSource().equals(btnHistogramAll)) {
+				selectAllForHistogram();
+				btnAreaSelection.setSelection(false);
+			} else if (e.getSource().equals(btnPixelSelection)) {
+				if (btnPixelSelection.getSelection()) {
+					createCrossHairRegion();
+				} else {
+					removeCrossHairRegion();
+				}
+				if (btnAreaSelection.getSelection()) {
+					btnAreaSelection.setSelection(false);
+				}
+			}
+		}
+	};
+
+	private IRegion createStaticRegion(String nameStub, final ROIBase bounds, final Color snapShotColor,
+			final RegionType regionType) throws Exception {
+
+		final IRegion region = plottingSystem.createRegion(nameStub, regionType);
+		region.setRegionColor(snapShotColor);
+		plottingSystem.addRegion(region);
+		region.setMobile(false);
+		region.setUserRegion(false);
+		region.setROI(bounds);
+		return region;
+	}
+
+	private MouseListener xHairMouseListener = new MouseListener() {
+
+		@Override
+		public void mousePressed(org.eclipse.draw2d.MouseEvent me) {
+			try {
+				IRegion xStaticRegion = plottingSystem.getRegion(REGION_X_STATIC);
+				if (xStaticRegion != null && xStaticRegion.getROI() != null) {
+					plottingSystem.removeRegion(xStaticRegion);
+				}
+
+				xStaticRegion = createStaticRegion(REGION_X_STATIC, xHair.getROI(), ColorConstants.buttonDarkest,
+						xHair.getRegionType());
+			} catch (Exception e) {
+				logger.error("Cannot create x static region", e);
+			}
+			try {
+				IRegion yStaticRegion = plottingSystem.getRegion(REGION_Y_STATIC);
+				if (yStaticRegion != null && yStaticRegion.getROI() != null) {
+					plottingSystem.removeRegion(yStaticRegion);
+				}
+				yStaticRegion = createStaticRegion(REGION_Y_STATIC, yHair.getROI(), ColorConstants.buttonDarkest,
+						yHair.getRegionType());
+			} catch (Exception e) {
+				logger.error("Cannot create y static region", e);
+			}
+
+			try {
+				xPoint = (int) plottingSystem.getSelectedXAxis().getPositionValue(me.x);
+				yPoint = (int) plottingSystem.getSelectedYAxis().getPositionValue(me.y);
+
+				notifyPixelChanged();
+			} catch (Exception e) {
+				logger.error("Problem getting point in axis co-ordinates.", e);
+			}
+		}
+
+		@Override
+		public void mouseReleased(org.eclipse.draw2d.MouseEvent me) {
+			// do nothing
+		}
+
+		@Override
+		public void mouseDoubleClicked(org.eclipse.draw2d.MouseEvent me) {
+			// do nothing
+		}
+	};
+
+	private void createCrossHairRegion() {
+		if (xHair == null || plottingSystem.getRegion(REGION_X_HAIR) == null) {
+			try {
+				this.xHair = plottingSystem.createRegion(REGION_X_HAIR, IRegion.RegionType.XAXIS_LINE);
+				xHair.setVisible(false);
+				xHair.setTrackMouse(true);
+				xHair.setRegionColor(ColorConstants.red);
+				xHair.setUserRegion(false); // They cannot see preferences or change it!
+				plottingSystem.addRegion(xHair);
+				xHair.addMouseListener(xHairMouseListener);
+			} catch (Exception e) {
+				logger.error("TODO put description of error here", e);
+			} finally {
+			}
+		}
+		if (yHair == null || plottingSystem.getRegion(REGION_Y_HAIR) == null) {
+			try {
+				this.yHair = plottingSystem.createRegion(REGION_Y_HAIR, IRegion.RegionType.YAXIS_LINE);
+				yHair.setVisible(false);
+				yHair.setTrackMouse(true);
+				yHair.setRegionColor(ColorConstants.red);
+				yHair.setUserRegion(false); // They cannot see preferences or change it!
+				plottingSystem.addRegion(yHair);
+			} catch (Exception e) {
+				logger.error("TODO put description of error here", e);
+			} finally {
+			}
+		}
+	}
+
+	protected void removeCrossHairRegion() {
+		if (xHair != null) {
+			IRegion xRegion = plottingSystem.getRegion(REGION_X_HAIR);
+			if (((IFigure) xHair).getParent() != null) {
+				xHair.removeMouseListener(xHairMouseListener);
+			}
+			plottingSystem.removeRegion(xRegion);
+		}
+		if (yHair != null) {
+			IRegion yRegion = plottingSystem.getRegion(REGION_Y_HAIR);
+			plottingSystem.removeRegion(yRegion);
+		}
+	}
+
+	private void createAreaRegion() {
+		if (areaRegion == null || (areaRegion != null && areaRegion.getROI() == null)) {
+			try {
+				areaRegion = plottingSystem.createRegion(REGION_AREA_SELECTION, RegionType.BOX);
+				areaRegion.addROIListener(new IROIListener() {
+
+					@Override
+					public void roiSelected(ROIEvent evt) {
+						// logger.info("ROI selected");
+					}
+
+					@Override
+					public void roiDragged(ROIEvent evt) {
+						notifyAreaSelectedChanged();
+					}
+
+					@Override
+					public void roiChanged(ROIEvent evt) {
+						notifyAreaSelectedChanged();
+					}
+				});
+			} catch (Exception ex) {
+				logger.error("Problem creating area region", ex);
+			}
+
+		} else {
+			logger.warn("Area region, point x:{}", areaRegion.getROI().getPointX());
+			logger.warn("Area region, point y:{}", areaRegion.getROI().getPointY());
+		}
 	}
 
 	private SelectionListener rdDimensionSelectionListener = new SelectionAdapter() {
@@ -193,23 +546,31 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				}
 
 				if (changed) {
-					consumer.clearOverlays();
 					thirdDimensionScaler.setSteps(steps, data);
 					thirdDimensionScaler.setText(stepperLabel);
+					removeCrossHairRegion();
+					removeStaticCrossHairRegions();
+					removeAreaRegion();
+
 					fireUpdatePlot();
-					fireNotifyDimensionChanged(DimensionChanged.INDEX);
-					fireUpdateColourMapping();
-					cleanup();
+					notifyPixelChanged();
 				}
 
-			} catch (PlotException e1) {
+				if (plottingSystem != null) {
+					removeAreaRegion();
+					if (btnAreaSelection.getSelection()) {
+						btnAreaSelection.setSelection(false);
+					}
+				}
+
+			} catch (Exception e1) {
 				logger.error("Error updating plot", e1);
 			}
 		}
 
 	};
 
-	private void fireUpdatePlot() throws PlotException {
+	private void fireUpdatePlot() throws Exception {
 		thirdDimensionScaler.setSelection(0);
 		updatePlot();
 	}
@@ -220,7 +581,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		public void widgetSelected(SelectionEvent e) {
 			try {
 				fireUpdatePlot();
-			} catch (PlotException e1) {
+			} catch (Exception e1) {
 				logger.error("Problem flipping image {}", e1);
 			}
 		}
@@ -250,26 +611,24 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 
 	private AxisSelection getSelectedDimension() {
 		if (mapping3DData != null) {
-			return new AxisSelection(getSelectedDimensionLabel(getSelectedRdBtnVal()), getSelectedRdBtnVal(),
-					thirdDimensionScaler.getSelection());
+			return new AxisSelection(getSelectedDimensionLabel(getSelectedRdBtnVal()), getSelectedRdBtnVal());
 		}
 		return null;
 	}
 
-	protected void fireNotifyDimensionChanged(final DimensionChanged dimensionChangeAffected) {
+	protected void fireNotifyDimensionChanged() {
 		UIJob job = new UIJob(getDisplay(), NOTIFY_DIMENSION_CHANGED) {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				List<ISelection> selElements = new ArrayList<ISelection>();
-				TwoDSelection selection = new TwoDSelection(secondaryId,
-						MappingViewSelectionChangedEvent.DIMENSION_SELECTION, getSelectedDimension(),
-						btnFlipAxis.getSelection());
-				selection.getAxisDimensionSelection().setChangeAffected(dimensionChangeAffected);
-				selElements.add(selection);
-				selElements.add(getHistogramSelectionDataset());
-				StructuredSelection sel = new StructuredSelection(selElements);
-				notifyListeners(sel);
+				if (getSelectedDimension() != null) {
+					TwoDSelection selection = new TwoDSelection(secondaryId, getSelectedDimension(),
+							getPixelSelection(), btnFlipAxis.getSelection());
+					selElements.add(selection);
+					StructuredSelection sel = new StructuredSelection(selElements);
+					notifyListeners(sel);
+				}
 				return Status.OK_STATUS;
 			}
 		};
@@ -282,69 +641,23 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		public void stepperChanged(StepperChangedEvent e) {
 			try {
 				updatePlot();
-				fireNotifyDimensionChanged(DimensionChanged.VALUE);
-
-				fireUpdateColourMapping();
-			} catch (PlotException e1) {
+			} catch (Exception e1) {
 				logger.error("Problem flipping image {}", e1);
 			}
 		}
 	};
+	private AbstractDataset currentSlice;
 
 	@Override
 	public void dispose() {
 		if (!thirdDimensionScaler.isDisposed()) {
 			thirdDimensionScaler.removeStepperSelectionListener(stepperSelectionListener);
 		}
-		consumer.unregisterProvider();
-		if (dataSetPlotter != null && !dataSetPlotter.isDisposed()) {
-			dataSetPlotter.cleanUp();
-		}
-		cleanup();
-		dataSetPlotter.cleanUp();
-		consumer.removeConsumerListener(consumerListener);
 		super.dispose();
-
-		super.dispose();
-	}
-
-	protected void fireUpdateColourMapping() {
-		UIJob histogramUpdateJob = new UIJob(getDisplay(), UPDATE_COLOUR_MAPPING_lbl) {
-
-			@Override
-			public IStatus runInUIThread(IProgressMonitor monitor) {
-				HistogramView histogramView = getHistogramView();
-				if (histogramView != null) {
-					histogramView.setData(getHistogramDataUpdate());
-				}
-				return Status.OK_STATUS;
-			}
-		};
-
-		histogramUpdateJob.schedule();
-
-	}
-
-	private HistogramView getHistogramView() {
-		IViewReference[] viewReferences = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-				.getViewReferences();
-		for (IViewReference iViewReference : viewReferences) {
-			if (iViewReference.getId().equals(HistogramView.ID)) {
-				if (secondaryId == null && COMMON_VIEW.equals(iViewReference.getSecondaryId())) {
-					return (HistogramView) iViewReference.getView(false);
-				}
-
-				if (secondaryId != null && secondaryId.equals(iViewReference.getSecondaryId())) {
-					return (HistogramView) iViewReference.getView(false);
-				}
-			}
-
-		}
-		return null;
 	}
 
 	@Override
-	public void initialPlot() throws PlotException {
+	public void initialPlot() throws Exception {
 		if (mapping3DData == null && mapping2DData == null) {
 			throw new IllegalArgumentException("No data to plot");
 		}
@@ -358,9 +671,9 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			rdDimension3.setText(mapping3DData.getDimension3Label());
 			rdDimension3.setToolTipText(mapping3DData.getDimension3Label());
 
-			//initialise we first dimension set as the one into the page as 
-			//this matches the order in which data is normally written to the file
-			//the first dimension is normally the scan point
+			// initialise we first dimension set as the one into the page as
+			// this matches the order in which data is normally written to the file
+			// the first dimension is normally the scan point
 			rdDimension1.setSelection(true);
 			int steps = mapping3DData.getDataSet().getShape()[0];
 			thirdDimensionScaler.setSelection(0);
@@ -371,181 +684,214 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		updatePlot();
 	}
 
+	private class Update2DPlotJob extends Job {
+
+		private final Display jobDisplay;
+		private int scalerValue;
+		private boolean radio1;
+		private boolean radio2;
+		private boolean radio3;
+		private boolean isFlip;
+
+		public Update2DPlotJob(Display jobDisplay) {
+			super("Updating 2D Plot");
+			this.jobDisplay = jobDisplay;
+		}
+
+		public void setDimensionScaler(int scalerValue) {
+			this.scalerValue = scalerValue;
+		}
+
+		public void setRadioSelection(boolean radio1, boolean radio2, boolean radio3) {
+			this.radio1 = radio1;
+			this.radio2 = radio2;
+			this.radio3 = radio3;
+		}
+
+		public void setIsFlip(boolean isFlip) {
+			this.isFlip = isFlip;
+		}
+
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			if (mapping3DData == null && mapping2DData == null) {
+				throw new IllegalArgumentException("Mapping View Data not available");
+			}
+
+			currentSlice = null;
+
+			AxisValues xAxisValues = null;
+			AxisValues yAxisValues = null;
+			String xAxisLabel = null;
+			String yAxisLabel = null;
+
+			if (mapping3DData != null) {
+				ILazyDataset dataset = mapping3DData.getDataSet();
+				int[] shape = dataset.getShape();
+
+				if (radio1) {
+					currentSlice = (AbstractDataset) dataset.getSlice(new Slice(scalerValue, scalerValue + 1),
+							new Slice(null), new Slice(null));
+					currentSlice.setShape(shape[1], shape[2]);
+
+					xAxisLabel = mapping3DData.getDimension3Label();
+					yAxisLabel = mapping3DData.getDimension2Label();
+
+					if (mapping3DData.getDimension3Values() != null) {
+						xAxisValues = new AxisValues(mapping3DData.getDimension3Values());
+					}
+					if (mapping3DData.getDimension2Values() != null) {
+						yAxisValues = new AxisValues(mapping3DData.getDimension2Values());
+					}
+				}
+				if (radio2) {
+					currentSlice = (AbstractDataset) dataset.getSlice(new Slice(null), new Slice(scalerValue,
+							scalerValue + 1), new Slice(null));
+					currentSlice.setShape(shape[0], shape[2]);
+
+					xAxisLabel = mapping3DData.getDimension3Label();
+					yAxisLabel = mapping3DData.getDimension1Label();
+
+					if (mapping3DData.getDimension3Values() != null) {
+						xAxisValues = new AxisValues(mapping3DData.getDimension3Values());
+					}
+					if (mapping3DData.getDimension1Values() != null) {
+						yAxisValues = new AxisValues(mapping3DData.getDimension1Values());
+					}
+				}
+				if (radio3) {
+					currentSlice = (AbstractDataset) dataset.getSlice(new Slice(null), new Slice(null), new Slice(
+							scalerValue, scalerValue + 1));
+					currentSlice.setShape(shape[0], shape[1]);
+
+					xAxisLabel = mapping3DData.getDimension2Label();
+					yAxisLabel = mapping3DData.getDimension1Label();
+
+					if (mapping3DData.getDimension2Values() != null) {
+						xAxisValues = new AxisValues(mapping3DData.getDimension2Values());
+					}
+					if (mapping3DData.getDimension1Values() != null) {
+						yAxisValues = new AxisValues(mapping3DData.getDimension1Values());
+					}
+				}
+				if (isFlip) {
+					String tmp = yAxisLabel;
+					yAxisLabel = xAxisLabel;
+					xAxisLabel = tmp;
+
+					AxisValues tmpA = yAxisValues;
+					yAxisValues = xAxisValues;
+					xAxisValues = tmpA;
+
+					if (currentSlice != null) {
+						currentSlice = currentSlice.transpose();
+					}
+				}
+			} else if (mapping2DData != null) {
+				ILazyDataset dataset = mapping2DData.getDataSet();
+
+				xAxisLabel = mapping2DData.getDimension2Label();
+				yAxisLabel = mapping2DData.getDimension1Label();
+
+				if (mapping2DData.getDimension2Values() != null) {
+					xAxisValues = new AxisValues(mapping2DData.getDimension2Values());
+				}
+
+				if (mapping2DData.getDimension1Values() != null) {
+					yAxisValues = new AxisValues(mapping2DData.getDimension1Values());
+				}
+
+				currentSlice = (AbstractDataset) dataset.getSlice(new Slice(null), new Slice(null));
+			}
+
+			final String xLabel = xAxisLabel;
+			final String yLabel = yAxisLabel;
+			final List<AbstractDataset> axisList = new ArrayList<AbstractDataset>();
+			if (!jobDisplay.isDisposed()) {
+				jobDisplay.asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						if (currentSlice != null) {
+							plottingSystem.updatePlot2D(currentSlice, axisList, new NullProgressMonitor());
+						}
+						plottingSystem.getSelectedXAxis().setTitle(xLabel);
+						plottingSystem.getSelectedYAxis().setTitle(yLabel);
+					}
+				});
+			}
+			notifyAreaSelectedChanged();
+
+			return Status.OK_STATUS;
+		}
+	}
+
 	@Override
-	public void updatePlot() throws PlotException {
-		if (mapping3DData == null && mapping2DData == null) {
-			throw new IllegalArgumentException("Mapping View Data not available");
+	public void updatePlot() throws Exception {
+		updatePlotJob.cancel();
+		updatePlotJob.setDimensionScaler(thirdDimensionScaler.getSelection());
+		updatePlotJob.setIsFlip(btnFlipAxis.getSelection());
+		updatePlotJob.setRadioSelection(rdDimension1.getSelection(), rdDimension2.getSelection(),
+				rdDimension3.getSelection());
+		updatePlotJob.schedule(100);
+	}
+
+	private void removeStaticCrossHairRegions() {
+		IRegion xRegion = plottingSystem.getRegion(REGION_X_STATIC);
+
+		if (xRegion != null) {
+			plottingSystem.removeRegion(xRegion);
 		}
-		IDataset slice = null;
 
-		AxisValues xAxisValues = null;
-		AxisValues yAxisValues = null;
-		String xAxisLabel = null;
-		String yAxisLabel = null;
-		if (mapping3DData != null) {
-			ILazyDataset dataset = mapping3DData.getDataSet();
-			int[] shape = dataset.getShape();
-
-
-			int tdSel = thirdDimensionScaler.getSelection();
-			if (rdDimension1.getSelection()) {
-				slice = dataset.getSlice(new Slice(tdSel, tdSel + 1), new Slice(null), new Slice(null));
-				slice.setShape(shape[1], shape[2]);
-
-				xAxisLabel = mapping3DData.getDimension3Label();
-				yAxisLabel = mapping3DData.getDimension2Label();
-				
-				if (mapping3DData.getDimension3Values() != null) {
-					xAxisValues = new AxisValues(mapping3DData.getDimension3Values());
-				}
-				if (mapping3DData.getDimension2Values() != null) {
-					yAxisValues = new AxisValues(mapping3DData.getDimension2Values());
-				}
-			}
-			if (rdDimension2.getSelection()) {
-				slice = dataset.getSlice(new Slice(null), new Slice(tdSel, tdSel + 1), new Slice(null));
-				slice.setShape(shape[0], shape[2]);
-
-				xAxisLabel = mapping3DData.getDimension3Label();
-				yAxisLabel = mapping3DData.getDimension1Label();
-				
-				if (mapping3DData.getDimension3Values() != null) {
-					xAxisValues = new AxisValues(mapping3DData.getDimension3Values());
-				}
-				if (mapping3DData.getDimension1Values() != null) {
-					yAxisValues = new AxisValues(mapping3DData.getDimension1Values());
-				}
-			}
-			if (rdDimension3.getSelection()) {
-				slice = dataset.getSlice(new Slice(null), new Slice(null), new Slice(tdSel, tdSel + 1));
-				slice.setShape(shape[0], shape[1]);
-
-				xAxisLabel = mapping3DData.getDimension2Label();
-				yAxisLabel = mapping3DData.getDimension1Label();
-
-				if (mapping3DData.getDimension2Values() != null) {
-					xAxisValues = new AxisValues(mapping3DData.getDimension2Values());
-				}
-				if (mapping3DData.getDimension1Values() != null) {
-					yAxisValues = new AxisValues(mapping3DData.getDimension1Values());
-				}
-			}
-			if (btnFlipAxis.getSelection()) {
-				String tmp = yAxisLabel;
-				yAxisLabel = xAxisLabel;
-				xAxisLabel = tmp;
-
-				AxisValues tmpA = yAxisValues;
-				yAxisValues = xAxisValues;
-				xAxisValues = tmpA;
-				
-				if (slice != null) {
-					slice = ((AbstractDataset) slice).transpose();
-				}
-			}
-		} else if (mapping2DData != null) {
-			ILazyDataset dataset = mapping2DData.getDataSet();
-
-			xAxisLabel = mapping2DData.getDimension2Label();
-			yAxisLabel = mapping2DData.getDimension1Label();
-
-			if (mapping2DData.getDimension2Values() != null) {
-				xAxisValues = new AxisValues(mapping2DData.getDimension2Values());
-			}
-
-			if (mapping2DData.getDimension1Values() != null) {
-				yAxisValues = new AxisValues(mapping2DData.getDimension1Values());
-			}
-
-			slice = dataset.getSlice(new Slice(null), new Slice(null));
+		IRegion yRegion = plottingSystem.getRegion(REGION_Y_STATIC);
+		if (yRegion != null) {
+			plottingSystem.removeRegion(yRegion);
 		}
-		dataSetPlotter.setAxisModes(xAxisValues == null ? AxisMode.LINEAR:AxisMode.CUSTOM, 
-				yAxisValues == null ? AxisMode.LINEAR:AxisMode.CUSTOM, AxisMode.LINEAR);
-		if ( xAxisValues != null)
-			dataSetPlotter.setXAxisValues(xAxisValues,1);
-		if ( yAxisValues != null)
-			dataSetPlotter.setYAxisValues(yAxisValues);
-		if(yAxisLabel != null )
-			dataSetPlotter.setYAxisLabel(yAxisLabel);
-		if(xAxisLabel != null )
-			dataSetPlotter.setXAxisLabel(xAxisLabel);
-
-		dataSetPlotter.replaceAllPlots(Collections.singletonList(slice));
-		dataSetPlotter.refresh(false);
+		xPoint = 0;
+		yPoint = 0;
 	}
 
 	@Override
 	public ISelection getSelection() {
 		List<ISelection> selections = new ArrayList<ISelection>();
-		selections.add(new TwoDSelection(secondaryId, MappingViewSelectionChangedEvent.DIMENSION_SELECTION,
-				getSelectedDimension(), btnFlipAxis.getSelection()));
+		TwoDSelection twdSel = new TwoDSelection(secondaryId, getSelectedDimension(), getPixelSelection(),
+				btnFlipAxis.getSelection());
+		selections.add(twdSel);
 		selections.add(getHistogramSelectionDataset());
 		return new StructuredSelection(selections);
 	}
 
+	private Point[] getRectangleRegionRoi() {
+		ROIBase roi = areaRegion.getROI();
+		if (roi instanceof RectangularROI) {
+			RectangularROI rectRoi = (RectangularROI) roi;
+			double[] endPoint = rectRoi.getEndPoint();
+			int[] intEndPoint = normalize(new int[] { (int) endPoint[0], (int) endPoint[1] });
+			int[] normalisedEndPoint = normalize(intEndPoint);
+			int[] startPoint = rectRoi.getIntPoint();
+			int[] normalisedStartPoint = normalize(startPoint);
+
+			return new Point[] { new Point(normalisedStartPoint[0], normalisedStartPoint[1]),
+					new Point(normalisedEndPoint[0], normalisedEndPoint[1]) };
+		}
+		return null;
+	}
+
 	protected ISelection getHistogramSelectionDataset() {
-		Point[] rc = consumer.getRectangleCoordinates();
 		IDataset slice = null;
+		if (areaRegion != null) {
 
-		if (mapping3DData != null) {
-			int thirdDim = thirdDimensionScaler.getSelection();
+			Point[] rc = getRectangleRegionRoi();
 			if (rc != null) {
-				switch (getSelectedRdBtnVal()) {
-				case 1:
-					slice = mapping3DData.getDataSet().getSlice(new Slice(thirdDim, thirdDim + 1),
-							new Slice(rc[0].y, rc[1].y), new Slice(rc[0].x, rc[1].x));
-					slice.setShape(rc[1].y - rc[0].y, rc[1].x - rc[0].x);
-					break;
-				case 2:
-					slice = mapping3DData.getDataSet().getSlice(new Slice(rc[0].y, rc[1].y),
-							new Slice(thirdDim, thirdDim + 1), new Slice(rc[0].x, rc[1].x));
-					slice.setShape(rc[1].y - rc[0].y, rc[1].x - rc[0].x);
-					break;
-				case 3:
-					slice = mapping3DData.getDataSet().getSlice(new Slice(rc[0].y, rc[1].y),
-							new Slice(rc[0].x, rc[1].x), new Slice(thirdDim, thirdDim + 1));
-					slice.setShape(rc[1].y - rc[0].y, rc[1].x - rc[0].x);
-				}
-				if (slice != null) {
-					if (btnFlipAxis.getSelection()) {
-						slice = ((AbstractDataset) slice).transpose();
-					}
-				}
-				return new HistogramSelection(slice);
-			}
-
-			// if no rectangular is selected
-			int[] shape = mapping3DData.getDataSet().getShape();
-
-			switch (getSelectedRdBtnVal()) {
-			case 1:
-				slice = mapping3DData.getDataSet().getSlice(new Slice(thirdDim, thirdDim + 1), new Slice(null),
-						new Slice(null));
-				slice.setShape(shape[1], shape[2]);
-				break;
-			case 2:
-				slice = mapping3DData.getDataSet().getSlice(new Slice(null), new Slice(thirdDim, thirdDim + 1),
-						new Slice(null));
-				slice.setShape(shape[0], shape[2]);
-				break;
-			case 3:
-				slice = mapping3DData.getDataSet().getSlice(new Slice(null), new Slice(null),
-						new Slice(thirdDim, thirdDim + 1));
-				slice.setShape(shape[0], shape[1]);
-			}
-			if (slice != null) {
-				if (btnFlipAxis.getSelection()) {
-					slice = ((AbstractDataset) slice).transpose();
-				}
-			}
-		} else if (mapping2DData != null) {
-			if (rc != null) {
-				slice = mapping2DData.getDataSet().getSlice(new Slice(rc[0].y, rc[1].y), new Slice(rc[0].x, rc[1].x));
-				slice.setShape(rc[1].y - rc[0].y, rc[1].x - rc[0].x);
+				slice = currentSlice.getSlice(new Slice(rc[0].y, rc[1].y), new Slice(rc[0].x, rc[1].x));
 			} else {
-				slice = mapping2DData.getDataSet().getSlice(new Slice(null), new Slice(null));
+				slice = currentSlice;
 			}
-
+			if (btnFlipAxis.getSelection()) {
+				slice = ((AbstractDataset) slice).transpose();
+			}
+		} else {
+			slice = currentSlice;
 		}
 		return new HistogramSelection(slice);
 	}
@@ -557,25 +903,50 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			int pos1 = -1;
 			int pos2 = -1;
 			AxisSelection dim1 = oneDSel.getDimension1Selection();
-			if (dim1.getLabel().equals(dataSetPlotter.getXAxisLabel())) {
+			String xTitle = plottingSystem.getSelectedXAxis().getTitle();
+			String yTitle = plottingSystem.getSelectedYAxis().getTitle();
+			if (dim1.getLabel().equals(xTitle)) {
 				pos1 = dim1.getDimension();
-			} else if (dim1.getLabel().equals(dataSetPlotter.getYAxisLabel())) {
+			} else if (dim1.getLabel().equals(yTitle)) {
 				pos2 = dim1.getDimension();
 			}
 
 			AxisSelection dim2 = oneDSel.getDimension2Selection();
-			if (dim2.getLabel().equals(dataSetPlotter.getXAxisLabel())) {
+			if (dim2.getLabel().equals(xTitle)) {
 				pos1 = dim2.getDimension();
-			} else if (dim2.getLabel().equals(dataSetPlotter.getYAxisLabel())) {
+			} else if (dim2.getLabel().equals(yTitle)) {
 				pos2 = dim2.getDimension();
 			}
-			updateConsumer(pos1, pos2);
+			updateStaticRegion(pos1, pos2);
 		}
 	}
 
-	private void updateConsumer(int pos1, int pos2) {
-		consumer.clearCrosswire();
-		consumer.drawHighlighterCrossWire(pos1, pos2);
+	private void updateStaticRegion(int pos1, int pos2) {
+		IRegion xStaticRegion = plottingSystem.getRegion(REGION_X_STATIC);
+		if (xStaticRegion != null) {
+			xStaticRegion.setROI(new RectangularROI(pos1, 0, 1, 1, 0));// ;new int[] { pos1 }));
+		} else {
+			try {
+				createStaticRegion(REGION_X_STATIC, new RectangularROI(pos1, 0, 1, 1, 0), ColorConstants.black,
+						RegionType.XAXIS_LINE);
+			} catch (Exception e) {
+				logger.warn("Unable to create X static region for cross hair", e);
+			}
+		}
+
+		IRegion yStaticRegion = plottingSystem.getRegion(REGION_Y_STATIC);
+		if (yStaticRegion != null) {
+			yStaticRegion.setROI(new RectangularROI(0, pos2, 1, 1, 0));
+		} else {
+			try {
+				createStaticRegion(REGION_Y_STATIC, new RectangularROI(0, pos2, 1, 1, 0), ColorConstants.black,
+						RegionType.YAXIS_LINE);
+			} catch (Exception e) {
+				logger.warn("Unable to create Y static region for cross hair", e);
+			}
+		}
+		xPoint = pos1;
+		yPoint = pos2;
 	}
 
 	private void notifyAreaSelectedChanged() {
@@ -590,15 +961,13 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		job.schedule();
 	}
 
-	protected void notifyPixelChanged(final int[] endPosition) {
+	protected void notifyPixelChanged() {
 		UIJob job = new UIJob(getDisplay(), NOTIFY_PIXEL_CHANGED_job_lbl) {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				TwoDSelection selection = new TwoDSelection(secondaryId,
-						MappingViewSelectionChangedEvent.PIXEL_SELECTION, getSelectedDimension(),
+				TwoDSelection selection = new TwoDSelection(secondaryId, getSelectedDimension(), getPixelSelection(),
 						btnFlipAxis.getSelection());
-				selection.setPixelSelection(new ITwoDSelection.PixelSelection(endPosition));
 
 				notifyListeners(selection);
 				return Status.OK_STATUS;
@@ -608,18 +977,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 
 	}
 
-	protected void firePixelSelected(int[] pixel) {
-		consumer.clearCrosswire();
-		try {
-			consumer.drawHighlighterCrossWire(pixel[0], pixel[1]);
-		} catch (Exception ex) {
-			logger.error("Error while drawing box:{}", ex);
-		}
-		notifyPixelChanged(pixel);
-	}
-
 	public void setMappingViewData(IMappingView2dData mappingViewData) {
-		consumer.clearOverlays();
 		if (mappingViewData instanceof IMappingView3dData) {
 			mapping3DData = (IMappingView3dData) mappingViewData;
 			mapping2DData = null;
@@ -640,40 +998,11 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			}
 		}
 		fireMappingDataSet();
-		fireUpdateColourMapping();
 	}
 
 	private void fireMappingDataSet() {
-		StructuredSelection selection = new StructuredSelection(getHistogramSelectionDataset());
-		notifyListeners(selection);
-	}
-
-	protected Composite createDataSetPlotter(Composite parent) {
-		dataSetPlotter = new DataSetPlotter(PlottingMode.TWOD, parent, true);
-		/*
-		 * Problem with setMode() as below is that it throws an WARNING: Prevented recursive attempt to activate part ,
-		 * however, if the method is not called then a composite that is required for this view is not created. There
-		 * are some design issues in the DatasetPlotter which are in the process of being looked into - so leaving this
-		 * with the exception for now.
-		 */
-		try {
-			dataSetPlotter.setMode(PlottingMode.TWOD);
-		} catch (RuntimeException ex) {
-			logger.error("There is a problem with datasetPlotter.setMode()");
-		}
-		dataSetPlotter.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
-		consumer = new TwoDViewOverlayConsumer();
-		consumer.addConsumerListener(consumerListener);
-		dataSetPlotter.registerOverlay(consumer);
-		dataSetPlotter.setZoomEnabled(true);
-		dataSetPlotter.setZoomMode(true);
-		dataSetPlotter.registerUI(null);
-		return dataSetPlotter.getComposite();
-	}
-
-	@Override
-	public void cleanup() {
-		consumer.clearOverlays();
+		// StructuredSelection selection = new StructuredSelection(getHistogramSelectionDataset());
+		// notifyListeners(selection);
 	}
 
 	@Override
@@ -682,11 +1011,6 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			return mapping3DData;
 		}
 		return mapping2DData;
-	}
-
-	@Override
-	public DataSetPlotter getDataSetPlotter() {
-		return dataSetPlotter;
 	}
 
 	@Override
@@ -732,19 +1056,53 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 
 	@Override
 	public void applyHistogramUpdate(HistogramUpdate update) {
-		if (dataSetPlotter != null) {
-			dataSetPlotter.applyColourCast(update.getRedMapFunction(), update.getGreenMapFunction(),
-					update.getBlueMapFunction(), update.getAlphaMapFunction(), update.inverseRed(),
-					update.inverseGreen(), update.inverseBlue(), update.inverseAlpha(), update.getMinValue(),
-					update.getMaxValue());
-			dataSetPlotter.refresh(true);
+		if (plottingSystem != null) {
+			// FIXME - check apply colour cast
+			// plottingSystem.applyColourCast(update.getRedMapFunction(), update.getGreenMapFunction(),
+			// update.getBlueMapFunction(), update.getAlphaMapFunction(), update.inverseRed(),
+			// update.inverseGreen(), update.inverseBlue(), update.inverseAlpha(), update.getMinValue(),
+			// update.getMaxValue());
+			// plottingSystem.refresh(true);
 		}
 	}
 
 	@Override
 	public void selectAllForHistogram() {
-		consumer.clearAreaOverlay();
+		removeAreaRegion();
 		notifyAreaSelectedChanged();
+	}
+
+	private void removeAreaRegion() {
+		IRegion areaRegion = plottingSystem.getRegion(REGION_AREA_SELECTION);
+		if (areaRegion != null) {
+			plottingSystem.removeRegion(areaRegion);
+		}
+
+	}
+
+	private int[] normalize(int[] is) {
+		int maxX = currentSlice.getShape()[1] - 1;
+		if (is[0] > maxX)
+			is[0] = maxX;
+		if (is[0] < 0)
+			is[0] = 0;
+
+		int maxY = currentSlice.getShape()[0] - 1;
+		if (is[1] > maxY)
+			is[1] = maxY;
+		if (is[1] < 0)
+			is[1] = 0;
+		return is;
+	}
+
+	@Override
+	public boolean setFocus() {
+		logger.warn("focus set in 2 d plot composite");
+		return super.setFocus();
+	}
+
+	private PixelSelection getPixelSelection() {
+		return new ITwoDSelection.PixelSelection(new int[] { xPoint, yPoint });
 	}
 
 }
