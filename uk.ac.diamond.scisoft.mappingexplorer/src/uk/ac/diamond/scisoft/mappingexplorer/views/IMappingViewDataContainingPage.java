@@ -19,8 +19,6 @@ package uk.ac.diamond.scisoft.mappingexplorer.views;
 
 import org.eclipse.ui.part.IPageBookViewPage;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-
 /**
  * @author rsr31645
  * 
@@ -32,7 +30,5 @@ public interface IMappingViewDataContainingPage extends IPageBookViewPage {
 	IMappingViewData getMappingViewData();
 
 	String getOriginIdentifer();
-
-	DataSetPlotter getDataSetPlotter();
 
 }

@@ -17,7 +17,6 @@
  */
 package uk.ac.diamond.scisoft.mappingexplorer.views.twod;
 
-import org.dawnsci.plotting.jreality.impl.PlotException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
@@ -37,7 +36,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5Selection;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite.ViewPageCompositeListener;
 import uk.ac.diamond.scisoft.mappingexplorer.views.HDF5MappingViewData;
@@ -81,21 +79,12 @@ public class TwoDViewPage extends MappingPageBookViewPage implements IMappingVie
 
 		blankPageComposite = new BlankPageComposite(pgBook, SWT.None);
 
-		twoDDataSetPlotterComposite = new TwoDDataSetPlotterContainingPage(pgBook, SWT.None, getSecondaryViewId());
+		twoDDataSetPlotterComposite = new TwoDDataSetPlotterContainingPage(this, pgBook, SWT.None, getSecondaryViewId());
 
 		activePage = blankPageComposite;
 
 		pgBook.showPage(activePage);
-		String viewId = getOneDViewId();
 
-		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(viewId, oneDViewSelectionListener);
-	}
-
-	protected String getOneDViewId() {
-		if (getSecondaryViewId() != null) {
-			return OneDMappingView.ID + ":" + getSecondaryViewId();
-		}
-		return OneDMappingView.ID;
 	}
 
 	public void setMappingViewData(IMappingViewData data) {
@@ -104,27 +93,25 @@ public class TwoDViewPage extends MappingPageBookViewPage implements IMappingVie
 			IMappingView2dData dataIn3D = (IMappingView2dData) data;
 			if (!activePage.equals(twoDDataSetPlotterComposite)) {
 				twoDDataSetPlotterComposite.setMappingViewData(dataIn3D);
-				activePage.cleanup();
 				activePage.removeCompositeSelectionListener(pageSelectionListener);
 
 				twoDDataSetPlotterComposite.addCompositeSelectionListener(pageSelectionListener);
 				try {
 					twoDDataSetPlotterComposite.initialPlot();
-				} catch (PlotException e) {
+				} catch (Exception e) {
 					logger.error("Initial plotting error in 3D view page {}", e);
 				}
 			} else {
 				twoDDataSetPlotterComposite.setMappingViewData(dataIn3D);
 				try {
 					twoDDataSetPlotterComposite.initialPlot();
-				} catch (PlotException e) {
+				} catch (Exception e) {
 					logger.error("Initial plotting error in 3D view page {}", e);
 				}
 			}
 
 			activePage = twoDDataSetPlotterComposite;
 		} else {
-			activePage.cleanup();
 			activePage.removeCompositeSelectionListener(pageSelectionListener);
 			activePage = blankPageComposite;
 		}
@@ -216,22 +203,11 @@ public class TwoDViewPage extends MappingPageBookViewPage implements IMappingVie
 
 	@Override
 	public void dispose() {
-		getSite().getWorkbenchWindow().getSelectionService()
-				.removeSelectionListener(getOneDViewId(), oneDViewSelectionListener);
 		fireNotifySelectionChanged(StructuredSelection.EMPTY);
 		super.dispose();
 	}
 
-	private ISelectionListener oneDViewSelectionListener = new ISelectionListener() {
-
-		@Override
-		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			doSelectionChangedOnOneDView(part, selection);
-		}
-
-	};
-
-	private void doSelectionChangedOnOneDView(IWorkbenchPart part, ISelection selection) {
+	protected void doSelectionChangedOnOneDView(IWorkbenchPart part, ISelection selection) {
 		if (part == null && selection == null) {
 			// this will be the effect of using a INullSelectionListener
 			activePage.selectionChanged(null, null);
@@ -243,11 +219,6 @@ public class TwoDViewPage extends MappingPageBookViewPage implements IMappingVie
 				activePage.selectionChanged(part, selection);
 			}
 		}
-	}
-
-	@Override
-	public DataSetPlotter getDataSetPlotter() {
-		return activePage.getDataSetPlotter();
 	}
 
 	@Override

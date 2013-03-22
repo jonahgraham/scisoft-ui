@@ -20,13 +20,13 @@ package uk.ac.diamond.scisoft.mappingexplorer.views;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchPart;
 
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 
 /**
@@ -61,8 +61,6 @@ public abstract class BaseViewPageComposite extends Composite {
 	public abstract void selectionChanged(IWorkbenchPart part,
 			ISelection selection);
 
-	public abstract void cleanup();
-
 	public abstract void updatePlot() throws Exception;
 
 	public abstract void initialPlot() throws Exception;
@@ -75,8 +73,6 @@ public abstract class BaseViewPageComposite extends Composite {
 	}
 
 	public abstract IMappingViewData getMappingViewData();
-
-	public abstract DataSetPlotter getDataSetPlotter();
 
 	/**
 	 * To be overriden by those classes who'd like to interact with the
@@ -98,6 +94,19 @@ public abstract class BaseViewPageComposite extends Composite {
 
 	public void selectAllForHistogram() {
 		
+	}
+
+	protected void disablePlottingSystemActions(AbstractPlottingSystem plottingSystem) {
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.removeRegions");
+		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureConfigure Settings...");
+		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureShow Legend");
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.histo");
+		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configure");
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.addRegions");
+		
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.rescale");
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotIndex");
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotX");
 	}
 
 }
