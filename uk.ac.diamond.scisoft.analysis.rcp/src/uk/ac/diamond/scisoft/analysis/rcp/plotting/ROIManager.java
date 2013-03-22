@@ -132,7 +132,17 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	@Override
 	public void roiDragged(ROIEvent evt) {
-		// do nothing
+		// disable the ROI in the region of the plotting system when a drag event
+		// so that the region does not have its position reset
+		if (plottingSystem == null)
+			plottingSystem = PlottingFactory.getPlottingSystem(plotName);
+		if (plottingSystem == null)
+			return;
+		IRegion region = plottingSystem.getRegion(((IRegion) evt.getSource()).getName());
+		if (region == null)
+			return;
+		if (region.getROI() != null)
+			region.setROI(null);
 	}
 
 	@Override

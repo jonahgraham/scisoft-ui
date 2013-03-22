@@ -99,11 +99,11 @@ public class NavigatorUtils {
 					continue;
 				}
 				if (n.contains(scanCmdName)) {
-					scans.add(sd.toString(true));
+					scans.add(sd.getString(0));
 					if (scans.size() > titles.size() + 1)
 						titles.add(null); // bulk out list
 				} else if (n.contains(titleName)) {
-					titles.add(sd.toString(true));
+					titles.add(sd.getString(0));
 					if (titles.size() > scans.size() + 1)
 						scans.add(null);
 				}
