@@ -19,11 +19,13 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 import gda.observable.IObserver;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawb.common.ui.plot.axis.IAxis;
 import org.dawb.common.ui.plot.region.IRegion;
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
 import org.dawb.common.ui.util.EclipseUtils;
@@ -41,6 +43,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.plotserver.AxisOperation;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
@@ -697,6 +700,11 @@ public class PlotWindow extends AbstractPlotWindow {
 			else
 				updatePlotMode(bean, false);
 		}
+		
+		if (bean.containsKey(GuiParameters.AXIS_OPERATION)) {
+			AxisOperation operation = (AxisOperation) bean.get(GuiParameters.AXIS_OPERATION);
+            processAxisOperation(operation);
+		}
 
 		if (bean.containsKey(GuiParameters.TITLE) && mainPlotter != null 
 				&& mainPlotterComposite != null && !mainPlotterComposite.isDisposed()) {
@@ -725,6 +733,35 @@ public class PlotWindow extends AbstractPlotWindow {
 		if (bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST)) {
 			plotUI.processGUIUpdate(bean);
 		}
+	}
+
+	private void processAxisOperation(AxisOperation operation) {
+		
+        if (operation.getOperationType().equals(AxisOperation.CREATE)) {
+        	plottingSystem.createAxis(operation.getTitle(), operation.isYAxis(), operation.getSide());
+        	
+        } else if (operation.getOperationType().equals(AxisOperation.DELETE)) {
+        	final List<IAxis> axes = plottingSystem.getAxes();
+        	for (IAxis iAxis : axes) {
+				if (operation.getTitle().equals(iAxis.getTitle())) plottingSystem.removeAxis(iAxis);
+			}
+        	
+        } else if (operation.getOperationType().equals(AxisOperation.ACTIVEX)) {
+        	final List<IAxis> axes = plottingSystem.getAxes();
+        	for (IAxis iAxis : axes) {
+        		if (iAxis.isYAxis()) continue;
+				if (operation.getTitle().equals(iAxis.getTitle())) plottingSystem.setSelectedXAxis(iAxis);
+			}
+        	
+        } else if (operation.getOperationType().equals(AxisOperation.ACTIVEY)) {
+        	final List<IAxis> axes = plottingSystem.getAxes();
+        	for (IAxis iAxis : axes) {
+        		if (!iAxis.isYAxis()) continue;
+				if (operation.getTitle().equals(iAxis.getTitle())) plottingSystem.setSelectedYAxis(iAxis);
+			}
+       	
+        }
+		
 	}
 
 	public void notifyHistogramChange(HistogramDataUpdate histoUpdate) {
