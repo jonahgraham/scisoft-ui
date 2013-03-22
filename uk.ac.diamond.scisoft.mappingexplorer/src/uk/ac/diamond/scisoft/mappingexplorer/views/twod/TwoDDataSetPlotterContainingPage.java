@@ -252,6 +252,12 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				public void regionAdded(RegionEvent evt) {
 					// logger.warn("Region added");
 				}
+
+				@Override
+				public void regionCancelled(RegionEvent evt) {
+					// TODO Auto-generated method stub
+					
+				}
 			});
 
 			plottingSystem.addTraceListener(new ITraceListener.Stub() {

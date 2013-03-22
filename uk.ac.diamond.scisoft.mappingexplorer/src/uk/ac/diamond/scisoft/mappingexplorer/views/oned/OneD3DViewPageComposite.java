@@ -54,6 +54,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
+import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.mappingexplorer.MappingExplorerPlugin;
 import uk.ac.diamond.scisoft.mappingexplorer.views.AxisSelection;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite;
@@ -61,7 +62,6 @@ import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView3dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingViewData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.ITwoDSelection;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.ITwoDSelection.IPixelSelection;
-import uk.ac.gda.monitor.IMonitor;
 import uk.ac.gda.ui.components.IStepperSelectionListener;
 import uk.ac.gda.ui.components.Stepper;
 import uk.ac.gda.ui.components.StepperChangedEvent;
@@ -358,6 +358,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 			AbstractDataset slice = null;
 			int[] finalShape = null;
 			String xAxislabel = null;
+			DoubleDataset axisValues = null;
 			try {
 				if (dim1Selection) {
 					slice = (AbstractDataset) dataset.getSlice((IMonitor) null, new Slice(null), new Slice(stepper1Val,
