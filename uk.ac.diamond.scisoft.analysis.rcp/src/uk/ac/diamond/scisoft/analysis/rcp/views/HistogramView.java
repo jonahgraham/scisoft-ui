@@ -80,7 +80,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.GlobalColourMaps;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
-import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView.HistrogramUIUpdater;
 
 /**
  * View that shows a histogram of a DataSet object, it allows to navigate in 
