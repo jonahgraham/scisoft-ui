@@ -298,6 +298,13 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 					visitListCombo.setItems(items);
 					if (visitListCombo.getItemCount() >= 1)
 						visitListCombo.select(0);
+					
+					//modify default project name
+					if(visitListCombo.getItemCount() > 0){
+						String[] splits = visitListCombo.getText().split(" - ");
+						String projectNameContent = beamlineListCombo.getText() + "-" + splits[0];
+						lblDefaultProjectname.setText("DEF: " + projectNameContent);
+					}
 				}
 
 			}
