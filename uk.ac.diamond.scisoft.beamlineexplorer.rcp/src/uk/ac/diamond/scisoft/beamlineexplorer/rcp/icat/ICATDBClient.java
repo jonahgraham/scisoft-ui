@@ -21,7 +21,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Enumeration;
 import java.util.Properties;
-import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
@@ -84,44 +83,45 @@ public static Properties readConfigFile() {
 		logger.debug("Properties file loaded!");
 
 
-//		Enumeration<String> keys = bundle.getKeys();
-//
-//		while (keys.hasMoreElements()) {
-//			String prop = keys.nextElement();
-//			String val = bundle.getString(prop);
-//
-//			// check whether all required keys and (non null) values are present
-//			if ((prop != null) && (prop.equals("dbusername"))) {
-//				if ((val != null) && (val.length() > 0))
-//					dbusernameVerified = true;
-//			}
-//			if ((prop != null) && (prop.equals("dbpassword"))) {
-//				if ((val != null) && (val.length() > 0))
-//					dbpasswordVerified = true;
-//			}
-//			if ((prop != null) && (prop.equals("dburl"))) {
-//				if ((val != null) && (val.length() > 0))
-//					dburlVerified = true;
-//			}
-//			properties.setProperty(prop, val);
-//		}// end while
+		Enumeration<String> keys = bundle.getKeys();
+
+		while (keys.hasMoreElements()) {
+			String prop = keys.nextElement();
+			String val = bundle.getString(prop);
+
+			// check whether all required keys and (non null) values are present
+			if ((prop != null) && (prop.equals("dbusername"))) {
+				if ((val != null) && (val.length() > 0))
+					dbusernameVerified = true;
+			}
+			if ((prop != null) && (prop.equals("dbpassword"))) {
+				if ((val != null) && (val.length() > 0))
+					dbpasswordVerified = true;
+			}
+			if ((prop != null) && (prop.equals("dburl"))) {
+				if ((val != null) && (val.length() > 0))
+					dburlVerified = true;
+			}
+			properties.setProperty(prop, val);
+		}// end while
 			
 		
 		// in case one of the keys/values is missing
-//		if (!dbusernameVerified)
-//			throw new Exception(
-//					"Please check icatdb.properties file to ensure that dbusername key is supplied e.g. 'dbusername=icatuser123'");
-//		if (!dbpasswordVerified)
-//			throw new Exception(
-//					"Please check icatdb.properties file to ensure that dbpassword key is supplied e.g. 'dbpassword=fjGH89f=0'");
-//		if (!dburlVerified)
-//			throw new Exception(
-//					"Please check icatdb.properties file to ensure that dburl key is supplied e.g. 'dburl=dbhost:1254//db'");
+		if (!dbusernameVerified)
+			throw new Exception(
+					"Please check icatdb.properties file to ensure that dbusername key is supplied e.g. 'dbusername=icatuser123'");
+		if (!dbpasswordVerified)
+			throw new Exception(
+					"Please check icatdb.properties file to ensure that dbpassword key is supplied e.g. 'dbpassword=fjGH89f=0'");
+		if (!dburlVerified)
+			throw new Exception(
+					"Please check icatdb.properties file to ensure that dburl key is supplied e.g. 'dburl=dbhost:1254//db'");
 	} catch (Exception io) {
-//		io.printStackTrace();
+		logger.error("Error loading properties file: " + io.getMessage());
 	}// end try/catch
 
 	return properties;
 }
+
 }
 
