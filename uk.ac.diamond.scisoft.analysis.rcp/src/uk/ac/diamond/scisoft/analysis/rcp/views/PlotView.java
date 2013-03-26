@@ -17,7 +17,13 @@
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.tool.IToolPage;
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
@@ -99,6 +105,15 @@ public class PlotView extends AbstractPlotView {
 		// plotConsumer.addIObserver(this);
 		setDataBeanAvailable(plotViewName);
 		updateBeans();
+		
+		//catch any errors from addTool and ignore so view is always created cleanly
+		try {
+			addToolIfRequired();
+		} catch (Exception e) {
+			//do nothing here but log
+			logger.warn(e.getMessage());
+		}
+		
 	}
 
 	/**
@@ -194,6 +209,62 @@ public class PlotView extends AbstractPlotView {
 
 	public PlotWindow getPlotWindow() {
 		return this.plotWindow;
+	}
+	
+	private void addToolIfRequired() throws Exception {
+
+		IExtension[] extensions = getExtensions("uk.ac.diamond.scisoft.analysis.rcp.views.PlotViewWithTool");
+		
+		if (extensions == null) return;
+
+		for(int i=0; i<extensions.length; i++) {
+
+			IExtension extension = extensions[i];
+			IConfigurationElement[] configElements = extension.getConfigurationElements();	
+
+			for(int j=0; j<configElements.length; j++) {
+				IConfigurationElement config = configElements[j];
+				config.toString();
+
+				String view = config.getAttribute("view_id");
+				String tool = config.getAttribute("tool_id");
+				String id = getViewSite().getId();
+
+				if (id.equals(view)){
+
+					final IToolPageSystem system = (IToolPageSystem)getAdapter(IToolPageSystem.class);
+					
+					IToolPage toolpage = system.getToolPage(tool);
+					String toolViewId = "";
+					
+					switch (toolpage.getToolPageRole()) {
+					case ROLE_1D:
+						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.1D";
+						break;
+					case ROLE_2D:
+						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.2D";
+						break;
+					case ROLE_1D_AND_2D:
+						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.1D_2D";
+						break;
+					case ROLE_3D:
+						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.3D";
+						break;
+					}
+					
+					if (!toolViewId.isEmpty()) {
+						system.setToolVisible(tool, toolpage.getToolPageRole(), toolViewId);
+					}
+				}
+			}
+		}
+	}
+	
+	private IExtension[] getExtensions(String extensionPointId) {
+		IExtensionRegistry registry = Platform.getExtensionRegistry();
+		IExtensionPoint point = registry.getExtensionPoint(extensionPointId);
+		IExtension[] extensions = point.getExtensions();
+		return extensions;
 	}
 
 }

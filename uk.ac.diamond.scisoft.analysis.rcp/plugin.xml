@@ -7,4 +7,5 @@
    <extension-point id="ExplorerViewRegister" name="uk.ac.diamond.scisoft.analysis.rcp.view.ExplorerViewRegister" schema="schema/ExplorerViewRegister.exsd"/>
    <extension-point id="ExplorerViewDefault" name="uk.ac.diamond.scisoft.analysis.rcp.view.ExplorerViewDefault" schema="schema/ExplorerViewDefault.exsd"/>
    <extension-point id="diffractionpage" name="DiffractionPage" schema="schema/diffractionpage.exsd"/>
+   <extension-point id="uk.ac.diamond.scisoft.analysis.rcp.views.PlotViewWithTool" name="Plot View With Tool" schema="schema/uk.ac.diamond.scisoft.analysis.rcp.views.PlotViewWithTool.exsd"/>
 </plugin>

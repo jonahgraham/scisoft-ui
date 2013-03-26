@@ -17,21 +17,25 @@
  */
 package uk.ac.diamond.scisoft.mappingexplorer.views.oned;
 
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.INullSelectionListener;
+import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.IPageBookViewPage;
 
 import uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IDatasetPlotterContainingView;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView2dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView3dData;
-import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingViewDataContainingPage;
 import uk.ac.diamond.scisoft.mappingexplorer.views.MappingPageBookView;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.IMappingDataControllingView;
+import uk.ac.diamond.scisoft.mappingexplorer.views.twod.TwoDMappingView;
+import uk.ac.diamond.scisoft.mappingexplorer.views.twod.TwoDViewPage;
 
 /**
  * PageBook view for One D Mapping viewer. One D display of a dataset that contains at least 3 dimensions.
@@ -41,6 +45,34 @@ import uk.ac.diamond.scisoft.mappingexplorer.views.twod.IMappingDataControllingV
 public class OneDMappingView extends MappingPageBookView implements IDatasetPlotterContainingView {
 	private static final String PART_NAME = "OneD View - %1$s";
 	public static final String ID = "uk.ac.diamond.scisoft.mappingexplorer.onedimension";
+
+	protected String getTwoDViewId() {
+		String secondaryId = getViewSite().getSecondaryId();
+		if (secondaryId != null) {
+			return TwoDMappingView.ID + ":" + secondaryId;
+		}
+		return TwoDMappingView.ID;
+	}
+
+	private ISelectionListener twoDViewSelectionListener = new INullSelectionListener() {
+		@Override
+		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+			if (getCurrentPage() instanceof OneDViewPage) {
+				OneDViewPage oneDViewPage = (OneDViewPage) getCurrentPage();
+				oneDViewPage.doSelectionChangedOnTwoDView(part, selection);
+			}
+		}
+
+	};
+
+	@Override
+	public void createPartControl(org.eclipse.swt.widgets.Composite parent) {
+		super.createPartControl(parent);
+		String viewId = getTwoDViewId();
+
+		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(viewId, twoDViewSelectionListener);
+
+	}
 
 	@Override
 	protected OneDViewPage createPage(IWorkbenchPart part) {
@@ -70,9 +102,9 @@ public class OneDMappingView extends MappingPageBookView implements IDatasetPlot
 		// view, then get the selection from it and pass it to the view
 		// page.
 		// Also disable the control composite.
-		if (page != null) {
-			IViewReference[] viewReferences = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.getViewReferences();
+		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		if (page != null && activePage != null) {
+			IViewReference[] viewReferences = activePage.getViewReferences();
 
 			for (IViewReference viewRef : viewReferences) {
 				IViewPart viewpart = (IViewPart) viewRef.getPart(false);
@@ -142,13 +174,9 @@ public class OneDMappingView extends MappingPageBookView implements IDatasetPlot
 	}
 
 	@Override
-	public DataSetPlotter getDataSetPlotter() {
-		if (getCurrentPage() instanceof IMappingViewDataContainingPage) {
-			IMappingViewDataContainingPage mappingViewDataContainingPage = (IMappingViewDataContainingPage) getCurrentPage();
-			return mappingViewDataContainingPage.getDataSetPlotter();
-
-		}
-		return null;
-
+	public void dispose() {
+		getSite().getWorkbenchWindow().getSelectionService()
+				.removeSelectionListener(getTwoDViewId(), twoDViewSelectionListener);
 	}
+
 }

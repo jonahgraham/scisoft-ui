@@ -1,19 +1,17 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
- *
- * This file is part of GDA.
- *
- * GDA is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License version 3 as published by the Free
- * Software Foundation.
- *
- * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along
- * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright 2012 Diamond Light Source Ltd.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
@@ -45,13 +43,14 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorTy
 public class HDF5Utils {
 	private static final Logger logger = LoggerFactory.getLogger(HDF5Utils.class);
 
-	private static final String NXAXES = "axes";
-	private static final String NXAXIS = "axis";
-	private static final String NXLABEL = "label";
-	private static final String NXPRIMARY = "primary";
-	private static final String NXSIGNAL = "signal";
-	private static final String NXDATA = "NXdata";
-	private static final String NXNAME = "long_name";
+	private static final String NX_AXES = "axes";
+	private static final String NX_AXIS = "axis";
+	private static final String NX_LABEL = "label";
+	private static final String NX_PRIMARY = "primary";
+	private static final String NX_SIGNAL = "signal";
+	private static final String NX_DATA = "NXdata";
+	private static final String NX_NAME = "long_name";
+	private static final String NX_INDICES_SUFFIX = "_indices";
 	private static final String SDS = "SDS";
 
 	/**
@@ -81,18 +80,35 @@ public class HDF5Utils {
 				return null;
 
 			gNode = (HDF5Group) link.getSource(); // before hunting for axes
-		} else if (nxClass.equals(NXDATA)) {
+		} else if (nxClass.equals(NX_DATA)) {
 			assert node instanceof HDF5Group;
 			gNode = (HDF5Group) node;
-			// find data (signal=1) and check for axes attribute
-			for (HDF5NodeLink l : (HDF5Group) node) {
-				if (l.isDestinationADataset()) {
-					dNode = (HDF5Dataset) l.getDestination();
-					if (dNode.containsAttribute(NXSIGNAL) && dNode.isSupported()) {
-						link = l;
-						break; // only one signal per NXdata item
+			// check if group has signal attribute (is this official?)
+			if (gNode.containsAttribute(NX_SIGNAL)) {
+				HDF5Attribute a = gNode.getAttribute(NX_SIGNAL);
+				if (a.isString()) {
+					String n = a.getFirstElement();
+					if (gNode.containsDataset(n)) {
+						dNode = gNode.getDataset(n);						
+					} else {
+						logger.warn("Signal attribute in group points to a missing dataset called {}", n);
 					}
-					dNode = null;
+				} else {
+					logger.warn("Signal attribute in group is not a string");
+				}
+			}
+
+			if (dNode == null) {
+				// find data (@signal=1)
+				for (HDF5NodeLink l : gNode) {
+					if (l.isDestinationADataset()) {
+						dNode = (HDF5Dataset) l.getDestination();
+						if (dNode.containsAttribute(NX_SIGNAL) && dNode.isSupported()) {
+							link = l;
+							break; // only one signal per NXdata item
+						}
+						dNode = null;
+					}
 				}
 			}
 		}
@@ -105,10 +121,8 @@ public class HDF5Utils {
 			return null;
 		}
 
-		HDF5Attribute axesAttr = dNode.getAttribute(NXAXES);
-
-		// find possible long name
-		stringAttr = dNode.getAttribute(NXNAME);
+		// find possible @long_name
+		stringAttr = dNode.getAttribute(NX_NAME);
 		if (stringAttr != null && stringAttr.isString())
 			cData.setName(stringAttr.getFirstElement());
 
@@ -117,24 +131,22 @@ public class HDF5Utils {
 		
 		// Fix to http://jira.diamond.ac.uk/browse/DAWNSCI-333. We put the path in the meta
 		// data in order to put a title containing the file in the plot.
-		if (link.getFile()!=null && link.getFile().getFilename()!=null) {
-	
+		if (link.getFile() != null && link.getFile().getFilename() != null) {
 			final Metadata meta = new Metadata();
 			meta.setFilePath(link.getFile().getFilename());
 			cData.setMetadata(meta);
 			// TODO Maybe	dNode.getAttributeNameIterator()
-
 		}
 
 		// set up slices
 		int[] shape = cData.getShape();
 		int rank = shape.length;
 
-		// scan children for SDS as possible axes (could be referenced by axes)
+		// scan children for SDS as possible axes (could be referenced by @axes)
 		for (HDF5NodeLink l : gNode) {
 			if (l.isDestinationADataset()) {
 				HDF5Dataset d = (HDF5Dataset) l.getDestination();
-				if (!d.isSupported() || d.isString() || dNode == d || d.containsAttribute(NXSIGNAL))
+				if (!d.isSupported() || d.isString() || dNode == d || d.containsAttribute(NX_SIGNAL))
 					continue;
 
 				ILazyDataset a = d.getDataset();
@@ -149,54 +161,84 @@ public class HDF5Utils {
 					int[] ashape = a.getShape();
 
 					AxisChoice choice = new AxisChoice(a);
-					stringAttr = d.getAttribute(NXNAME);
+					stringAttr = d.getAttribute(NX_NAME);
 					if (stringAttr != null && stringAttr.isString())
 						choice.setLongName(stringAttr.getFirstElement());
 
-					HDF5Attribute attr = d.getAttribute(NXAXIS);
-					HDF5Attribute attr_label = d.getAttribute(NXLABEL);
-					int[] intAxis = null;
+					HDF5Attribute attr;
+					attr = d.getAttribute(NX_PRIMARY);
 					if (attr != null) {
 						if (attr.isString()) {
-							String[] str = attr.getFirstElement().split(",");
-							if (str.length == ashape.length) {
-								intAxis = new int[str.length];
-								for (int i = 0; i < str.length; i++) {
-									int j = Integer.parseInt(str[i]) - 1;
-									intAxis[i] = isOldGDA ? j : rank - 1 - j; // fix Fortran (column-major) dimension
-								}
-							}
+							Integer intPrimary = Integer.parseInt(attr.getFirstElement());
+							choice.setPrimary(intPrimary);
 						} else {
 							AbstractDataset attrd = attr.getValue();
-							if (attrd.getSize() == ashape.length) {
-								intAxis = new int[attrd.getSize()];
-								IndexIterator it = attrd.getIterator();
-								int i = 0;
-								while (it.hasNext()) {
-									int j = (int) attrd.getElementLongAbs(it.index) - 1;
-									intAxis[i++] = isOldGDA ? j : rank - 1 - j; // fix Fortran (column-major) dimension
-								}
-							}
+							choice.setPrimary(attrd.getInt(0));
 						}
+					}
 
-						if (intAxis == null) {
-							logger.warn("Axis attribute {} does not match rank", a.getName());
-						} else {
-							// check that axis attribute matches data dimensions
-							for (int i = 0; i < intAxis.length; i++) {
-								int al = ashape[i];
-								int il = intAxis[i];
-								if (il < 0 || il >= rank || al != shape[il]) {
-									intAxis = null;
-									logger.warn("Axis attribute {} does not match shape", a.getName());
-									break;
-								}
+					int[] intAxis = null;
+					HDF5Attribute attr_label = null;
+					String indAttr = l.getName() + NX_INDICES_SUFFIX;
+					if (gNode.containsAttribute(indAttr)) {
+						// deal with index mapping from @*_indices
+						attr = gNode.getAttribute(indAttr);
+						if (attr.isString()) {
+							String[] str = parseString(attr.getFirstElement());
+							intAxis = new int[str.length];
+							for (int i = 0; i < str.length; i++) {
+								intAxis[i] = Integer.parseInt(str[i]) - 1;
 							}
+							choice.setPrimary(1);
 						}
 					}
 
 					if (intAxis == null) {
-						// remedy bogus or missing axis attribute by simply pairing matching dimension
+						attr = d.getAttribute(NX_AXIS);
+						attr_label = d.getAttribute(NX_LABEL);
+						if (attr != null) {
+							if (attr.isString()) {
+								String[] str = attr.getFirstElement().split(",");
+								if (str.length == ashape.length) {
+									intAxis = new int[str.length];
+									for (int i = 0; i < str.length; i++) {
+										int j = Integer.parseInt(str[i]) - 1;
+										intAxis[i] = isOldGDA ? j : rank - 1 - j; // fix Fortran (column-major) dimension
+									}
+								}
+							} else {
+								AbstractDataset attrd = attr.getValue();
+								if (attrd.getSize() == ashape.length) {
+									intAxis = new int[attrd.getSize()];
+									IndexIterator it = attrd.getIterator();
+									int i = 0;
+									while (it.hasNext()) {
+										int j = (int) attrd.getElementLongAbs(it.index) - 1;
+										intAxis[i++] = isOldGDA ? j : rank - 1 - j; // fix Fortran (column-major) dimension
+									}
+								}
+							}
+
+							if (intAxis == null) {
+								logger.warn("Axis attribute {} does not match rank", a.getName());
+							} else {
+								// check that @axis matches data dimensions
+								for (int i = 0; i < intAxis.length; i++) {
+									int al = ashape[i];
+									int il = intAxis[i];
+									if (il < 0 || il >= rank || al != shape[il]) {
+										intAxis = null;
+										logger.warn("Axis attribute {} does not match shape", a.getName());
+										break;
+									}
+								}
+							}
+						}
+
+					}
+
+					if (intAxis == null) {
+						// remedy bogus or missing @axis by simply pairing matching dimension
 						// lengths to the signal dataset shape (this may be wrong as transposes in
 						// common dimension lengths can occur)
 						logger.warn("Creating index mapping from axis shape");
@@ -233,16 +275,6 @@ public class HDF5Utils {
 					} else
 						choice.setAxisNumber(intAxis[intAxis.length-1]);
 
-					attr = d.getAttribute(NXPRIMARY);
-					if (attr != null) {
-						if (attr.isString()) {
-							Integer intPrimary = Integer.parseInt(attr.getFirstElement());
-							choice.setPrimary(intPrimary);
-						} else {
-							AbstractDataset attrd = attr.getValue();
-							choice.setPrimary(attrd.getInt(0));
-						}
-					}
 					choices.add(choice);
 				} catch (Exception e) {
 					logger.warn("Axis attributes in {} are invalid - {}", a.getName(), e.getMessage());
@@ -252,25 +284,22 @@ public class HDF5Utils {
 		}
 
 		List<String> aNames = new ArrayList<String>();
-		if (axesAttr != null) { // check axes attribute for list axes
-			String axesStr = axesAttr.getFirstElement().trim();
-			if (axesStr.startsWith("[")) { // strip opening and closing brackets
-				axesStr = axesStr.substring(1, axesStr.length() - 1);
-			}
+		HDF5Attribute axesAttr = dNode.getAttribute(NX_AXES);
+		if (axesAttr == null) { // cope with @axes being in group
+			axesAttr = gNode.getAttribute(NX_AXES);
+			if (axesAttr != null)
+				logger.warn("Found @{} tag in group (not in '{}' dataset)", new Object[] {NX_AXES, gNode.findLinkedNodeName(dNode)});
+		}
 
+		if (axesAttr != null) { // check axes attribute for list axes
 			// check if axes referenced by data's @axes tag exists
-			String[] names = null;
-			names = axesStr.split("[:,]");
+			String[] names = parseString(axesAttr.getFirstElement());
 			for (String s : names) {
 				boolean flg = false;
 				for (AxisChoice c : choices) {
 					if (c.equals(s)) {
-						if (c.getRank() == 1) { // FIXME for N-D axes SDSes
-							// this needs a standard, e.g. axis SDS can span signal dataset dimensions
-							flg = true;
-							break;
-						}
-						logger.warn("Referenced axis {} in tree node {} is not 1D", s, node);
+						flg = true;
+						break;
 					}
 				}
 				if (flg) {
@@ -317,9 +346,18 @@ public class HDF5Utils {
 		return new HDF5Selection(itype, null, link.getFullName(), axes, cData);
 	}
 
-	private static final String NXENTRY = "NXentry";
-	private static final String NXPROGRAM = "program_name";
-	private static final String GDAVERSIONSTRING = "GDA ";
+	private static String[] parseString(String s) {
+		s = s.trim();
+		if (s.startsWith("[")) { // strip opening and closing brackets
+			s = s.substring(1, s.length() - 1);
+		}
+
+		return s.split("[:,]");
+	}
+
+	private static final String NX_ENTRY = "NXentry";
+	private static final String NX_PROGRAM = "program_name";
+	private static final String GDA_VERSION_STRING = "GDA ";
 //	private static final int GDAMAJOR = 8;
 //	private static final int GDAMINOR = 20;
 
@@ -334,12 +372,12 @@ public class HDF5Utils {
 			if (link.isDestinationAGroup()) {
 				HDF5Group g = (HDF5Group) link.getDestination();
 				HDF5Attribute stringAttr = g.getAttribute(HDF5File.NXCLASS);
-				if (stringAttr != null && stringAttr.isString() && NXENTRY.equals(stringAttr.getFirstElement())) {
-					if (g.containsDataset(NXPROGRAM)) {
-						HDF5Dataset d = g.getDataset(NXPROGRAM);
+				if (stringAttr != null && stringAttr.isString() && NX_ENTRY.equals(stringAttr.getFirstElement())) {
+					if (g.containsDataset(NX_PROGRAM)) {
+						HDF5Dataset d = g.getDataset(NX_PROGRAM);
 						if (d.isString()) {
 							String s = d.getString().trim();
-							return s.contains(GDAVERSIONSTRING); // as there's no current plans to change, just check for GDA 
+							return s.contains(GDA_VERSION_STRING); // as there's no current plans to change, just check for GDA 
 //							int i = s.indexOf(GDAVERSIONSTRING);
 //							if (i >= 0) {
 //								String v = s.substring(i+4, s.lastIndexOf("."));

@@ -275,11 +275,7 @@ public class TransferFunctionView extends HistogramView implements Overlay1DCons
 		if (theObserved instanceof CommandClient) {
 			@SuppressWarnings("unchecked") ArrayList<Integer> list = (ArrayList<Integer>)changeCode;
 			histograms.clear();
-			data = new LongDataset(list.size());
-			// Mark perhaps use new LongDataset(list.toArray(new Long[list.size]), list.size())
-		    // rather than loop, it should be faster I think - Matt
-			for (int i = 0; i < list.size(); i++)
-				data.set(list.get(i), i);
+			data = AbstractDataset.createFromList(list);
 			histograms.add(data);
 			cmbAlpha.select(3);
 			parent.getDisplay().asyncExec(new Runnable() {

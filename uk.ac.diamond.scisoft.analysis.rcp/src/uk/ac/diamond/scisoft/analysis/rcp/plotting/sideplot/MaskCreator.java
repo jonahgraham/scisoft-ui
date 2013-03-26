@@ -261,7 +261,6 @@ public class MaskCreator extends SidePlot implements Overlay2DConsumer {
 		if (maskDataSet == null || !maskDataSet.isCompatibleWith(mainDataSet)) {
 			maskDataSet = new BooleanDataset(mainDataSet.getShape());
 			maskDataSet.setName("mask");
-			maskDataSet.setExtendible(false);
 			maskDataSet.fill(true);
 		}
 		lastPoint = event.getImagePosition();
@@ -446,7 +445,6 @@ public class MaskCreator extends SidePlot implements Overlay2DConsumer {
 		if (maskDataSet == null || !maskDataSet.isCompatibleWith(mainDataSet)) {
 			maskDataSet = new BooleanDataset(mainDataSet.getShape());
 			maskDataSet.setName("mask");
-			maskDataSet.setExtendible(false);
 			maskDataSet.fill(true);
 		}
 		

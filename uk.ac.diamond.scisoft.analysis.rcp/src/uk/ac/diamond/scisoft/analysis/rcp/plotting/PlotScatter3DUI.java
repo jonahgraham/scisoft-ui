@@ -475,11 +475,11 @@ public class PlotScatter3DUI extends AbstractPlotUI {
 				} else {
 					IDataset data = datasets.get(0);
 					IDataset currentData = mainPlotter.getCurrentDataSet();
-					final int length = currentData.getSize();
 					final int addLength = data.getSize();
-					for (int i = 0; i < addLength; i++) {
-						currentData.set(data.getObject(i), i+length);
-					}
+					int n = currentData.getSize();
+					currentData.resize(n + addLength);
+					for (int i = 0; i < addLength; i++)
+						currentData.set(data.getObject(i), n++);
 					datasets.set(0, currentData);
 					try {
 						mainPlotter.replaceAllPlots(datasets);

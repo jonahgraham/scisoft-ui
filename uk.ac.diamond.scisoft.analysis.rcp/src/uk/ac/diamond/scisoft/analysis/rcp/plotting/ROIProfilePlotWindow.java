@@ -486,7 +486,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 
 			if (bean.containsKey(GuiParameters.PLOTOPERATION)) {
 				String opStr = (String) bean.get(GuiParameters.PLOTOPERATION);
-				if (opStr.equals("UPDATE")) {
+				if (opStr.equals(GuiParameters.PLOTOP_UPDATE)) {
 					setUpdatePlot(true);
 				}
 			}

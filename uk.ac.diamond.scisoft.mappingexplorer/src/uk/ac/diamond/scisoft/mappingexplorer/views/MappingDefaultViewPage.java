@@ -30,15 +30,17 @@ import org.eclipse.ui.part.IPageSite;
 
 /**
  * @author rsr31645
- * 
  */
 public class MappingDefaultViewPage implements IPageBookViewPage {
 
 	private static final String VIEW_UNAVAILABLE = "An view of this kind is not available.";
+	private IPageSite site;
+	private Composite rootControl;
+
 
 	@Override
 	public void setFocus() {
-
+		rootControl.setFocus();
 	}
 
 	@Override
@@ -48,7 +50,7 @@ public class MappingDefaultViewPage implements IPageBookViewPage {
 
 	@Override
 	public void dispose() {
-
+		//do nothing
 	}
 
 	@Override
@@ -63,15 +65,13 @@ public class MappingDefaultViewPage implements IPageBookViewPage {
 
 	@Override
 	public void init(IPageSite site) throws PartInitException {
-
+		this.site = site;
 	}
 
 	@Override
 	public IPageSite getSite() {
-		return null;
+		return this.site;
 	}
-
-	private Composite rootControl;
 
 	@Override
 	public Control getControl() {

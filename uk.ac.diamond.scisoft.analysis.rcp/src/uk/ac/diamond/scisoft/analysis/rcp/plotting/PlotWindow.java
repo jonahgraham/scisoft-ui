@@ -19,28 +19,36 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 import gda.observable.IObserver;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawb.common.ui.plot.axis.IAxis;
 import org.dawb.common.ui.plot.region.IRegion;
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
 import org.dawb.common.ui.util.EclipseUtils;
 import org.dawnsci.plotting.jreality.core.AxisMode;
+import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
+import org.dawnsci.plotting.jreality.tool.PlotActionEventListener;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.plotserver.AxisOperation;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
@@ -55,6 +63,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 /**
  * Actual PlotWindow that can be used inside a View- or EditorPart
  */
+@SuppressWarnings("deprecation")
 public class PlotWindow extends AbstractPlotWindow {
 	public static final String RPC_SERVICE_NAME = "PlotWindowManager";
 	public static final String RMI_SERVICE_NAME = "RMIPlotWindowManager";
@@ -67,7 +76,7 @@ public class PlotWindow extends AbstractPlotWindow {
 
 	private Composite plotSystemComposite;
 	private Composite mainPlotterComposite;
-
+	private Label txtPos;
 	/**
 	 * Obtain the IPlotWindowManager for the running Eclipse.
 	 * 
@@ -153,8 +162,29 @@ public class PlotWindow extends AbstractPlotWindow {
 	}
 
 	private void createDatasetPlotter(PlottingMode mode) {
-		parentComp.setLayout(new FillLayout());
-		mainPlotterComposite = new Composite(parentComp, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		parentComp.setLayout(layout);
+
+		txtPos = new Label(parentComp, SWT.LEFT);
+		{
+			GridData gridData = new GridData();
+			gridData.horizontalAlignment = SWT.FILL;
+			gridData.grabExcessHorizontalSpace = true;
+			txtPos.setLayoutData(gridData);
+		}
+		Composite plotArea = new Composite(parentComp, SWT.NONE);
+		plotArea.setLayout(new FillLayout());
+		{
+			GridData gridData = new GridData();
+			gridData.horizontalAlignment = SWT.FILL;
+			gridData.grabExcessHorizontalSpace = true;
+			gridData.grabExcessVerticalSpace = true;
+			gridData.verticalAlignment = SWT.FILL;
+			plotArea.setLayoutData(gridData);
+		}
+		
+		mainPlotterComposite = new Composite(plotArea, SWT.NONE);
 		mainPlotterComposite.setLayout(new FillLayout());
 		mainPlotter = new DataSetPlotter(mode, mainPlotterComposite, true);
 		mainPlotter.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
@@ -305,7 +335,20 @@ public class PlotWindow extends AbstractPlotWindow {
 	private void setup1D() {
 		mainPlotter.setMode(PlottingMode.ONED);
 		plotUI = new Plot1DUIComplete(this, getGuiManager(), bars, parentComp, getPage(), getName());
-		addCommonActions(mainPlotter);
+		((Plot1DUIComplete)plotUI).addPlotActionEventListener(new PlotActionEventListener(){
+
+			@Override
+			public void plotActionPerformed(final PlotActionEvent event) {
+				Display.getDefault().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						double x = event.getPosition()[0];
+						double y = event.getPosition()[1];
+						txtPos.setText(String.format("X:%.7g Y:%.7g", x, y));
+					}
+				});
+			}});		addCommonActions(mainPlotter);
 		bars.updateActionBars();
 		updateGuiBeanPlotMode(GuiPlotMode.ONED);
 	}
@@ -697,6 +740,11 @@ public class PlotWindow extends AbstractPlotWindow {
 			else
 				updatePlotMode(bean, false);
 		}
+		
+		if (bean.containsKey(GuiParameters.AXIS_OPERATION)) {
+			AxisOperation operation = (AxisOperation) bean.get(GuiParameters.AXIS_OPERATION);
+            processAxisOperation(operation);
+		}
 
 		if (bean.containsKey(GuiParameters.TITLE) && mainPlotter != null 
 				&& mainPlotterComposite != null && !mainPlotterComposite.isDisposed()) {
@@ -717,7 +765,7 @@ public class PlotWindow extends AbstractPlotWindow {
 
 		if (bean.containsKey(GuiParameters.PLOTOPERATION)) {
 			String opStr = (String) bean.get(GuiParameters.PLOTOPERATION);
-			if (opStr.equals("UPDATE")) {
+			if (opStr.equals(GuiParameters.PLOTOP_UPDATE)) {
 				setUpdatePlot(true);
 			}
 		}
@@ -725,6 +773,35 @@ public class PlotWindow extends AbstractPlotWindow {
 		if (bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST)) {
 			plotUI.processGUIUpdate(bean);
 		}
+	}
+
+	private void processAxisOperation(AxisOperation operation) {
+		
+        if (operation.getOperationType().equals(AxisOperation.CREATE)) {
+        	plottingSystem.createAxis(operation.getTitle(), operation.isYAxis(), operation.getSide());
+        	
+        } else if (operation.getOperationType().equals(AxisOperation.DELETE)) {
+        	final List<IAxis> axes = plottingSystem.getAxes();
+        	for (IAxis iAxis : axes) {
+				if (operation.getTitle().equals(iAxis.getTitle())) plottingSystem.removeAxis(iAxis);
+			}
+        	
+        } else if (operation.getOperationType().equals(AxisOperation.ACTIVEX)) {
+        	final List<IAxis> axes = plottingSystem.getAxes();
+        	for (IAxis iAxis : axes) {
+        		if (iAxis.isYAxis()) continue;
+				if (operation.getTitle().equals(iAxis.getTitle())) plottingSystem.setSelectedXAxis(iAxis);
+			}
+        	
+        } else if (operation.getOperationType().equals(AxisOperation.ACTIVEY)) {
+        	final List<IAxis> axes = plottingSystem.getAxes();
+        	for (IAxis iAxis : axes) {
+        		if (!iAxis.isYAxis()) continue;
+				if (operation.getTitle().equals(iAxis.getTitle())) plottingSystem.setSelectedYAxis(iAxis);
+			}
+       	
+        }
+		
 	}
 
 	public void notifyHistogramChange(HistogramDataUpdate histoUpdate) {
