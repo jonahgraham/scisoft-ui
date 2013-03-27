@@ -29,6 +29,7 @@ import org.dawb.common.ui.plot.tool.ToolPageFactory;
 import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ITrace;
+import org.dawb.common.ui.util.DisplayUtils;
 import org.dawb.common.ui.widgets.ROISumWidget;
 import org.dawb.common.ui.widgets.ROIWidget;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -329,10 +330,8 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 				//this can be caused by the same plot view shown on 2 difference perspectives.
 				throw new IllegalStateException("parentComp is already disposed");
 			}
-			if (parentComp.getDisplay().getThread() != Thread.currentThread())
-				updatePlotMode(dbPlot.getGuiPlotMode(), true);
-			else
-				updatePlotMode(dbPlot.getGuiPlotMode(), false);
+
+			internalUpdatePlotMode(dbPlot.getGuiPlotMode(), true);
 		}
 		// there may be some gui information in the databean, if so this also needs to be updated
 		if (dbPlot.getGuiParameters() != null) {
@@ -378,19 +377,34 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	 */
 	@Override
 	public void updatePlotMode(GuiPlotMode plotMode) {
-		if (plotMode.equals(GuiPlotMode.ONED) && getPreviousMode() != GuiPlotMode.ONED){ 
-			setupPlotting1D();
-			setPreviousMode(GuiPlotMode.ONED);
-		}  else if (plotMode.equals(GuiPlotMode.TWOD) && getPreviousMode() != GuiPlotMode.TWOD) {
-			setupPlotting2D();
-			setPreviousMode(GuiPlotMode.TWOD);
-		} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && getPreviousMode() != GuiPlotMode.SCATTER2D) {
-			setupScatterPlotting2D();
-			setPreviousMode(GuiPlotMode.SCATTER2D);
-		} else if (plotMode.equals(GuiPlotMode.EMPTY) && getPreviousMode() != GuiPlotMode.EMPTY) {
-			clearPlot();
-			setPreviousMode(GuiPlotMode.EMPTY);
-		}
+		internalUpdatePlotMode(plotMode, false);
+	}
+
+	private void internalUpdatePlotMode(final GuiPlotMode plotMode, boolean async) {
+		doBlock();
+		DisplayUtils.runInDisplayThread(async, parentComp, new Runnable() {
+			@Override
+			public void run() {
+				try {
+					GuiPlotMode oldMode = getPreviousMode();
+					if (plotMode == GuiPlotMode.ONED && oldMode != GuiPlotMode.ONED) {
+						setupPlotting1D();
+						setPreviousMode(GuiPlotMode.ONED);
+					} else if (plotMode == GuiPlotMode.TWOD && oldMode != GuiPlotMode.TWOD) {
+						setupPlotting2D();
+						setPreviousMode(GuiPlotMode.TWOD);
+					} else if (plotMode == GuiPlotMode.SCATTER2D && oldMode != GuiPlotMode.SCATTER2D) {
+						setupScatterPlotting2D();
+						setPreviousMode(GuiPlotMode.SCATTER2D);
+					} else if (plotMode == GuiPlotMode.EMPTY && oldMode != GuiPlotMode.EMPTY) {
+						clearPlot();
+						setPreviousMode(GuiPlotMode.EMPTY);
+					}
+				} finally {
+					undoBlock();
+				}
+			}
+		});
 	}
 
 	@Override
@@ -404,60 +418,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 
 	@Override
 	public void updatePlotModeAsync(GuiPlotMode plotMode) {
-
-		if (plotMode.equals(GuiPlotMode.ONED) && getPreviousMode() != GuiPlotMode.ONED){
-			doBlock();
-			parentComp.getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						setupPlotting1D();
-						setPreviousMode(GuiPlotMode.ONED);
-					} finally {
-						undoBlock();
-					}
-				}
-			});
-		} else if (plotMode.equals(GuiPlotMode.TWOD) && getPreviousMode() != GuiPlotMode.TWOD) {
-			doBlock();
-			parentComp.getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						setupPlotting2D();
-						setPreviousMode(GuiPlotMode.TWOD);
-					} finally {
-						undoBlock();
-					}
-				}
-			});
-		} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && getPreviousMode() != GuiPlotMode.SCATTER2D){
-			doBlock();
-			parentComp.getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						setupScatterPlotting2D();
-						setPreviousMode(GuiPlotMode.SCATTER2D);
-					} finally {
-						undoBlock();
-					}
-				}
-			});
-		}else if (plotMode.equals(GuiPlotMode.EMPTY) && getPreviousMode() != GuiPlotMode.EMPTY) {
-			doBlock();
-			parentComp.getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						clearPlot();
-						setPreviousMode(GuiPlotMode.EMPTY);
-					} finally {
-						undoBlock();
-					}
-				}
-			});
-		}
+		internalUpdatePlotMode(plotMode, true);
 	}
 
 	//not used

@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.imagegrid;
 
 import java.util.ArrayList;
 
+import org.dawb.common.ui.util.DisplayUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Slider;
@@ -95,8 +96,7 @@ public class ImagePlayBack implements Runnable {
 	private void sendOffLoadRequest(String filename) {
 		if (!hasOpenedView) {
 			waitTillfinished = true;
-			if (sldProgress.getDisplay().getThread() != Thread.currentThread()) {
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			DisplayUtils.runInDisplayThread(true, sldProgress, new Runnable() {
 					@Override
 					public void run() {
 						try {
@@ -110,17 +110,6 @@ public class ImagePlayBack implements Runnable {
 						waitTillfinished = false;
 					}
 				});
-			} else {
-				try {
-					IViewDescriptor[] views = PlatformUI.getWorkbench().getViewRegistry().getViews();
-					for (int i = 0; i < views.length; i++)
-						if (views[i].getLabel().equals(viewName))
-							page.showView(views[i].getId());
-				} catch (PartInitException e) {
-					e.printStackTrace();
-				}
-				waitTillfinished = false;
-			}
 			hasOpenedView = true;
 		}
 		while (waitTillfinished) {
@@ -236,15 +225,12 @@ public class ImagePlayBack implements Runnable {
 //			logger.debug("New file has been added "+newFile);
 			jobFiles.add(newFile);
 			allFiles.add(newFile);
-			if (sldProgress.getDisplay().getThread() != Thread.currentThread()) {
-				sldProgress.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						sldProgress.setMaximum(jobFiles.size());
-					}
-				});
-			} else
-				sldProgress.setMaximum(jobFiles.size());
+			DisplayUtils.runInDisplayThread(true, sldProgress, new Runnable() {
+				@Override
+				public void run() {
+					sldProgress.setMaximum(jobFiles.size());
+				}
+			});
 //			logger.debug("Add file, current playPos "+playPos+" total pos "+jobFiles.size());
 			notify();
 		}
