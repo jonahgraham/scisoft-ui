@@ -563,29 +563,29 @@ public class PlotWindow extends AbstractPlotWindow {
 			@Override
 			public void run() {
 				String title = operation.getTitle();
-		        if (operation.getOperationType().equals(AxisOperation.CREATE)) {
-		        	plottingSystem.createAxis(title, operation.isYAxis(), operation.getSide());
-		        	
-		        } else if (operation.getOperationType().equals(AxisOperation.DELETE)) {
-		        	final List<IAxis> axes = plottingSystem.getAxes();
-		        	for (IAxis iAxis : axes) {
+				if (operation.getOperationType().equals(AxisOperation.CREATE)) {
+					plottingSystem.createAxis(title, operation.isYAxis(), operation.getSide());
+
+				} else if (operation.getOperationType().equals(AxisOperation.DELETE)) {
+					final List<IAxis> axes = plottingSystem.getAxes();
+					for (IAxis iAxis : axes) {
 						if (title.equals(iAxis.getTitle()))
 							plottingSystem.removeAxis(iAxis);
 					}
-		        } else if (operation.getOperationType().equals(AxisOperation.ACTIVEX)) {
-		        	final List<IAxis> axes = plottingSystem.getAxes();
-		        	for (IAxis iAxis : axes) {
+				} else if (operation.getOperationType().equals(AxisOperation.ACTIVEX)) {
+					final List<IAxis> axes = plottingSystem.getAxes();
+					for (IAxis iAxis : axes) {
 						if (!iAxis.isYAxis() && title.equals(iAxis.getTitle()))
 							plottingSystem.setSelectedXAxis(iAxis);
 					}
-		        	
-		        } else if (operation.getOperationType().equals(AxisOperation.ACTIVEY)) {
-		        	final List<IAxis> axes = plottingSystem.getAxes();
-		        	for (IAxis iAxis : axes) {
+
+				} else if (operation.getOperationType().equals(AxisOperation.ACTIVEY)) {
+					final List<IAxis> axes = plottingSystem.getAxes();
+					for (IAxis iAxis : axes) {
 						if (iAxis.isYAxis() && title.equals(iAxis.getTitle()))
 							plottingSystem.setSelectedYAxis(iAxis);
 					}
-		        }
+				}
 			}
 		});
 	}

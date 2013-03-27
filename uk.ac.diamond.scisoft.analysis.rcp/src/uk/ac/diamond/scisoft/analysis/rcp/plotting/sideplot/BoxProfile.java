@@ -83,10 +83,11 @@ import uk.ac.diamond.scisoft.analysis.roi.handler.RectangularROIHandler;
 
 import com.swtdesigner.SWTResourceManager;
 
+@SuppressWarnings("deprecation")
 public class BoxProfile extends SidePlotProfile {
 
 	private static Logger logger = LoggerFactory.getLogger(BoxProfile.class);
-	
+
 	private DataSetPlotter majPlotter;
 	private DataSetPlotter minPlotter;
 
@@ -890,7 +891,7 @@ public class BoxProfile extends SidePlotProfile {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			final RectangularROI rroi = (RectangularROI) roi;
-            if (rroi!=null) {
+			if (rroi != null) {
 				rroi.setAngleDegrees(spang.getDouble());
 
 				if (!isBulkUpdate)
@@ -905,7 +906,7 @@ public class BoxProfile extends SidePlotProfile {
 						drawCurrentOverlay();
 					}
 				});
-            }
+			}
 		}
 	};
 
@@ -937,14 +938,13 @@ public class BoxProfile extends SidePlotProfile {
 
 	@Override
 	public void addToHistory() {
-		Plot1DAppearance plotApp = 
-			new Plot1DAppearance(PlotColorUtility.getDefaultColour(majPlotter.getColourTable().getLegendSize()),
-					             Plot1DStyles.SOLID, "History " + majPlotter.getNumHistory());
+		Plot1DAppearance plotApp = new Plot1DAppearance(PlotColorUtility.getDefaultColour(majPlotter.getColourTable().getLegendSize()),
+				Plot1DStyles.SOLID, "History " + majPlotter.getNumHistory());
 		majPlotter.getColourTable().addEntryOnLegend(plotApp);
 		majPlotter.pushGraphOntoHistory();
 
 		plotApp = new Plot1DAppearance(PlotColorUtility.getDefaultColour(minPlotter.getColourTable().getLegendSize()),
-					             Plot1DStyles.SOLID, "History " + minPlotter.getNumHistory());
+				Plot1DStyles.SOLID, "History " + minPlotter.getNumHistory());
 		minPlotter.getColourTable().addEntryOnLegend(plotApp);
 		minPlotter.pushGraphOntoHistory();
 	}
@@ -952,14 +952,14 @@ public class BoxProfile extends SidePlotProfile {
 	@Override
 	public void removeFromHistory() {
 		if (majPlotter.getNumHistory() > 0) {
-			majPlotter.getColourTable().deleteLegendEntry(majPlotter.getColourTable().getLegendSize()-1);					
-		    majPlotter.popGraphFromHistory();
-		    majPlotter.refresh(true);
+			majPlotter.getColourTable().deleteLegendEntry(majPlotter.getColourTable().getLegendSize()-1);
+			majPlotter.popGraphFromHistory();
+			majPlotter.refresh(true);
 		}
 		if (minPlotter.getNumHistory() > 0) {
-			minPlotter.getColourTable().deleteLegendEntry(minPlotter.getColourTable().getLegendSize()-1);					
-		    minPlotter.popGraphFromHistory();
-		    minPlotter.refresh(true);
+			minPlotter.getColourTable().deleteLegendEntry(minPlotter.getColourTable().getLegendSize()-1);
+			minPlotter.popGraphFromHistory();
+			minPlotter.refresh(true);
 		}
 	}
 
