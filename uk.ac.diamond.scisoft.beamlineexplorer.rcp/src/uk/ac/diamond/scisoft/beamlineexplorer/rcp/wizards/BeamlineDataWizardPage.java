@@ -64,6 +64,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
 	private static final String DEFAULT_BEAMLINE = "";
 	private static final String DELIMITER = " - ";
+	private static final String DEFAULT_PROJECT_NAME = "$Beamline-$VisitID";
 	private static final String DEFAULT_LINK_NAME = "beamlineData";
 	private String START_DATE;
 	private String END_DATE;
@@ -104,6 +105,20 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		this.initDirectory = prevDirectory != null ? prevDirectory : "";
 		setTitle("Beamline Data Project Wizard - creates a link to a beamline data files");
 		setDescription("Wizard to create a link to a set of beamline data files");
+
+		if(isWindows()){
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay()
+			.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					MessageDialog
+					.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+							"Error",
+							"Beamline projects cannot be created in Windows operating system. \nThey can be created on Diamond Light Source Linux OS only.");
+					
+				}
+			});//end show dialog
+		}
 	}
 
 	/**
@@ -151,10 +166,9 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 					projectNameContent = projectNameContent + "-" + splits[0];
 				}catch(NullPointerException ex){}
 				
-				try{
-					lblDefaultProjectname.setText("DEF: " + projectNameContent);
-				}catch(NullPointerException ex){}
-				
+				// update default project name
+				updateDefProjectName();
+							
 			}
 		});
 		GridData gd_beamlineListCombo = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -182,10 +196,8 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 					projectNameContent = projectNameContent + "-" + splits[0];
 				}catch(NullPointerException ex){}
 				
-				try{
-					//txtProjectname.setText(projectNameContent);
-					lblDefaultProjectname.setText(projectNameContent);
-				}catch(NullPointerException ex){}
+				// update default project name
+				updateDefProjectName();
 			}
 		});
 		beamlineListCombo.setItems(beamlineList);
@@ -228,13 +240,15 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 			// change beamline value when visit_id changes
 			@Override
 			public void modifyText(ModifyEvent e) {
+				System.out.println("visit name changed");
+
 				String beamline = "";
+				String visitItemText = getVisit();
+				String[] splits = visitItemText.split(DELIMITER);
+				String visitidText = splits[0].trim();
 				for (int counter = 0; counter < visitList.size(); counter++) {
 					VisitDetails currentVisit = visitList.get(counter);
-
-					String visitItemText = getVisit();
-					String[] splits = visitItemText.split(DELIMITER);
-					String visitidText = splits[0].trim();
+					
 					if (currentVisit.getVisit_id().equalsIgnoreCase(visitidText)) {
 						beamline = currentVisit.getInstrument();
 						break;
@@ -243,10 +257,14 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
 				int index = beamlineListCombo.indexOf(beamline);
 				beamlineListCombo.select(index);
+				
+				// update default project name
+				updateDefProjectName();
 								
 				dialogChanged();
 				
 			}
+
 		});
 
 		Button btnVisitList = new Button(composite, SWT.NONE);
@@ -353,7 +371,7 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
 		advancedOptionsExpander = new ExpandableComposite(composite, SWT.NONE);
 		GridData gd_advancedOptionsExpander = new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1);
-		gd_advancedOptionsExpander.widthHint = 400;
+		gd_advancedOptionsExpander.widthHint = 523;
 		advancedOptionsExpander.setLayoutData(gd_advancedOptionsExpander);
 		advancedOptionsExpander.setLayout(new GridLayout(1, false));
 		advancedOptionsExpander.setText("Advanced Options");
@@ -370,7 +388,10 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		gd_txtProjectname.widthHint = 174;
 		txtProjectname.setLayoutData(gd_txtProjectname);
 		lblDefaultProjectname = new Label(optionsComposite, SWT.NONE);
-		lblDefaultProjectname.setText("DEF: beamline-visit_id");
+		GridData gd_lblDefaultProjectname = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lblDefaultProjectname.widthHint = 140;
+		lblDefaultProjectname.setLayoutData(gd_lblDefaultProjectname);
+		lblDefaultProjectname.setText(DEFAULT_PROJECT_NAME);
 		
 		Label lblLinkname = new Label(optionsComposite, SWT.NONE);
 		lblLinkname.setText("Link Name:");
@@ -537,15 +558,30 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	}
 
 	public String getFedid() {
-		return txtFedidValue.getText();
+		try{
+			String text = txtFedidValue.getText();
+			return text.toLowerCase();
+		}catch(NullPointerException npe){}
+		
+		return "";		
 	}
 
 	public String getBeamline() {
-		return beamlineListCombo.getText().toLowerCase();
+		try{
+			String text = beamlineListCombo.getText();
+			return text.toLowerCase();
+		}catch(NullPointerException npe){}
+		
+		return "";
 	}
 
 	public String getVisit() {
-		return visitListCombo.getText().toLowerCase();
+		try{
+			String text = visitListCombo.getText();
+			return text.toLowerCase();
+		}catch(NullPointerException npe){}
+		
+		return "";
 	}
 
 	@Override
@@ -730,5 +766,43 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 		END_DATE = sdf.format(cal.getTime());
 		logger.debug("To date: " + END_DATE);
 	}
+
+	private void updateDefProjectName() {
+		
+		String visitText = getVisit(); 
+		if(!visitText.isEmpty()){
+			String beamline="";
+			/*
+			 * get beamline and visit id from selected text in visit combo -can make use of string split instead-
+			 */
+			for (int counter = 0; counter < visitList.size(); counter++) {
+				VisitDetails currentVisit = visitList.get(counter);
+
+				String[] splits = visitText.split(DELIMITER);
+				visitText = splits[0];
+
+				if (currentVisit.getVisit_id().equalsIgnoreCase(visitText)) {
+					beamline = currentVisit.getInstrument();
+					break;
+				}
+			}			
+			lblDefaultProjectname.setText("DEF: "+beamline + "-" + visitText);
+		}else{
+			try{
+				lblDefaultProjectname.setText(DEFAULT_PROJECT_NAME);
+			}catch(NullPointerException npe){logger.error("default project name label not yet ready");}
+		}
+		
+	}
+	
+	 public static String getOsName()
+	   {
+		 return System.getProperty("os.name");
+	   }
+	 
+	   public static boolean isWindows()
+	   {
+	      return getOsName().startsWith("Windows");
+	   }
 
 }
