@@ -558,33 +558,36 @@ public class PlotWindow extends AbstractPlotWindow {
 		}
 	}
 
-	private void processAxisOperation(AxisOperation operation) {
-		
-        if (operation.getOperationType().equals(AxisOperation.CREATE)) {
-        	plottingSystem.createAxis(operation.getTitle(), operation.isYAxis(), operation.getSide());
-        	
-        } else if (operation.getOperationType().equals(AxisOperation.DELETE)) {
-        	final List<IAxis> axes = plottingSystem.getAxes();
-        	for (IAxis iAxis : axes) {
-				if (operation.getTitle().equals(iAxis.getTitle())) plottingSystem.removeAxis(iAxis);
+	private void processAxisOperation(final AxisOperation operation) {
+		parentComp.getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				String title = operation.getTitle();
+		        if (operation.getOperationType().equals(AxisOperation.CREATE)) {
+		        	plottingSystem.createAxis(title, operation.isYAxis(), operation.getSide());
+		        	
+		        } else if (operation.getOperationType().equals(AxisOperation.DELETE)) {
+		        	final List<IAxis> axes = plottingSystem.getAxes();
+		        	for (IAxis iAxis : axes) {
+						if (title.equals(iAxis.getTitle()))
+							plottingSystem.removeAxis(iAxis);
+					}
+		        } else if (operation.getOperationType().equals(AxisOperation.ACTIVEX)) {
+		        	final List<IAxis> axes = plottingSystem.getAxes();
+		        	for (IAxis iAxis : axes) {
+						if (!iAxis.isYAxis() && title.equals(iAxis.getTitle()))
+							plottingSystem.setSelectedXAxis(iAxis);
+					}
+		        	
+		        } else if (operation.getOperationType().equals(AxisOperation.ACTIVEY)) {
+		        	final List<IAxis> axes = plottingSystem.getAxes();
+		        	for (IAxis iAxis : axes) {
+						if (iAxis.isYAxis() && title.equals(iAxis.getTitle()))
+							plottingSystem.setSelectedYAxis(iAxis);
+					}
+		        }
 			}
-        	
-        } else if (operation.getOperationType().equals(AxisOperation.ACTIVEX)) {
-        	final List<IAxis> axes = plottingSystem.getAxes();
-        	for (IAxis iAxis : axes) {
-        		if (iAxis.isYAxis()) continue;
-				if (operation.getTitle().equals(iAxis.getTitle())) plottingSystem.setSelectedXAxis(iAxis);
-			}
-        	
-        } else if (operation.getOperationType().equals(AxisOperation.ACTIVEY)) {
-        	final List<IAxis> axes = plottingSystem.getAxes();
-        	for (IAxis iAxis : axes) {
-        		if (!iAxis.isYAxis()) continue;
-				if (operation.getTitle().equals(iAxis.getTitle())) plottingSystem.setSelectedYAxis(iAxis);
-			}
-       	
-        }
-		
+		});
 	}
 
 	public void notifyHistogramChange(HistogramDataUpdate histoUpdate) {
