@@ -49,7 +49,6 @@ public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 	
 	
 	// Parameters for each test
-	private int size;
 	private IDataset sizes;
 	private IDataset data, xAxis, yAxis, zAxis, image, xCoords, yCoords, zCoords;
 	private IDataset[] xAxes, yAxes, images;
@@ -75,14 +74,13 @@ public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 	}
 
 	public AllPyPlotMethodsPluginTest() {
-		// create some data sets and other obkects to use, this test does not use
+		// create some data sets and other objects to use, this test does not use
 		// the contents of the data set, except they are flattened
 		// and unflattened. The type of the object is more important
 		xCoords = yCoords = zCoords = xAxis = yAxis = zAxis = AbstractDataset.arange(100, AbstractDataset.INT);
 		data = image = AbstractDataset.arange(100, AbstractDataset.INT).reshape(10, 10);
 		xAxes = yAxes = new IDataset[] { xAxis, AbstractDataset.arange(100, AbstractDataset.FLOAT) };
 		images = new IDataset[] { image, AbstractDataset.arange(100, AbstractDataset.FLOAT) };
-		size = 100;
 		sizes = AbstractDataset.arange(100, AbstractDataset.INT);
 		pathname = "/tmp/dir";
 		regex = "a.*b";
@@ -131,62 +129,52 @@ public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 
 	@Test
 	public void testPlotStringIDataset() throws Exception {
-		redirectPlotter.plot(plotName, yAxis);
+		redirectPlotter.plot(plotName, null, null, new IDataset[] {yAxis}, null, null);
 	}
 
 	@Test
 	public void testPlotStringIDatasetIDataset() throws Exception {
-		redirectPlotter.plot(plotName, xAxis, yAxis);
-	}
-
-	@Test
-	public void testPlotStringIDatasetIDatasetIDataset() throws Exception {
-		redirectPlotter.plot(plotName, xAxes[0], xAxes[1], yAxis);
+		redirectPlotter.plot(plotName, null, new IDataset[] {xAxis}, new IDataset[] {yAxis}, null, null);
 	}
 
 	@Test
 	public void testPlotStringIDatasetIDatasetArray() throws Exception {
-		redirectPlotter.plot(plotName, xAxis, yAxes);
+		redirectPlotter.plot(plotName, null, new IDataset[] {xAxis}, yAxes, null, null);
 	}
 
 	@Test
 	public void testPlotStringIDatasetArrayIDatasetArray() throws Exception {
-		redirectPlotter.plot(plotName, xAxes, yAxes);
+		redirectPlotter.plot(plotName, null, xAxes, yAxes, null, null);
 	}
 
 	@Test
 	public void testUpdatePlotStringIDataset() throws Exception {
-		redirectPlotter.updatePlot(plotName, xAxis);
+		redirectPlotter.updatePlot(plotName, null, null, new IDataset[] {yAxis}, null, null);
 	}
 
 	@Test
 	public void testUpdatePlotStringIDatasetIDataset() throws Exception {
-		redirectPlotter.updatePlot(plotName, xAxis, yAxis);
-	}
-
-	@Test
-	public void testUpdatePlotStringIDatasetIDatasetIDataset() throws Exception {
-		redirectPlotter.updatePlot(plotName, xAxes[0], xAxes[1], yAxis);
+		redirectPlotter.updatePlot(plotName, null, new IDataset[] {xAxis}, new IDataset[] {yAxis}, null, null);
 	}
 
 	@Test
 	public void testUpdatePlotStringIDatasetIDatasetArray() throws Exception {
-		redirectPlotter.updatePlot(plotName, xAxis, yAxes);
+		redirectPlotter.updatePlot(plotName, null, new IDataset[] {xAxis}, yAxes, null, null);
 	}
 
 	@Test
 	public void testUpdatePlotStringIDatasetArrayIDatasetArray() throws Exception {
-		redirectPlotter.updatePlot(plotName, xAxes, yAxes);
+		redirectPlotter.updatePlot(plotName, null, xAxes, yAxes, null, null);
 	}
 
 	@Test
 	public void testImagePlotStringIDataset() throws Exception {
-		redirectPlotter.imagePlot(plotName, image);
+		redirectPlotter.imagePlot(plotName, null, null, image);
 	}
 
 	@Test
 	public void testImagesPlotStringIDatasetArray() throws Exception {
-		redirectPlotter.imagesPlot(plotName, images);
+		redirectPlotter.imagesPlot(plotName, null, null, images);
 	}
 
 	@Test
@@ -200,11 +188,6 @@ public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 	}
 
 	@Test
-	public void testScatter2DPlotStringIDatasetIDatasetInt() throws Exception {
-		redirectPlotter.scatter2DPlot(plotName, xCoords, yCoords, size);
-	}
-
-	@Test
 	public void testScatter2DPlotStringIDatasetIDatasetIDataset() throws Exception {
 		redirectPlotter.scatter2DPlot(plotName, xCoords, yCoords, sizes);
 	}
@@ -215,23 +198,8 @@ public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 	}
 
 	@Test
-	public void testScatter2DPlotOverStringIDatasetIDatasetInt() throws Exception {
-		redirectPlotter.scatter2DPlotOver(plotName, xCoords, yCoords, size);
-	}
-
-	@Test
-	public void testScatter3DPlotStringIDatasetIDatasetIDatasetInt() throws Exception {
-		redirectPlotter.scatter3DPlot(plotName, xCoords, yCoords, zCoords, size);
-	}
-
-	@Test
 	public void testScatter3DPlotStringIDatasetIDatasetIDatasetIDataset() throws Exception {
 		redirectPlotter.scatter3DPlot(plotName, xCoords, yCoords, zCoords, sizes);
-	}
-
-	@Test
-	public void testScatter3DPlotOverStringIDatasetIDatasetIDatasetInt() throws Exception {
-		redirectPlotter.scatter3DPlotOver(plotName, xCoords, yCoords, zCoords, size);
 	}
 
 	@Test
@@ -241,13 +209,13 @@ public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 
 	@Test
 	public void testSurfacePlotStringIDataset() throws Exception {
-		redirectPlotter.surfacePlot(plotName, data);
+		redirectPlotter.surfacePlot(plotName, null, null, data);
 	}
 
 	@Test
 	public void testSurfacePlotStringIDatasetIDataset() throws Exception {
 		// XXX: xAxis is discarded in this call by plot.py#surface
-		redirectPlotter.surfacePlot(plotName, xAxis, data);
+		redirectPlotter.surfacePlot(plotName, xAxis, null, data);
 	}
 
 	@Test
@@ -257,17 +225,17 @@ public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 
 	@Test
 	public void testStackPlotStringIDatasetIDatasetArray() throws Exception {
-		redirectPlotter.stackPlot(plotName, xAxis, yAxes);
+		redirectPlotter.stackPlot(plotName, new IDataset[] {xAxis}, yAxes, null);
 	}
 
 	@Test
 	public void testStackPlotStringIDatasetIDatasetArrayIDataset() throws Exception {
-		redirectPlotter.stackPlot(plotName, xAxis, yAxes, zAxis);
+		redirectPlotter.stackPlot(plotName, new IDataset[] {xAxis}, yAxes, zAxis);
 	}
 
 	@Test
 	public void testStackPlotStringIDatasetArrayIDatasetArray() throws Exception {
-		redirectPlotter.stackPlot(plotName, xAxes, yAxes);
+		redirectPlotter.stackPlot(plotName, xAxes, yAxes, null);
 	}
 
 	@Test
@@ -281,26 +249,8 @@ public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 	}
 
 	@Test
-	public void testScanForImagesStringString() throws Exception {
-		redirectPlotter.scanForImages(viewName, pathname);
-		excludePlotServerCheck = true;
-	}
-
-	@Test
-	public void testScanForImagesStringStringInt() throws Exception {
-		redirectPlotter.scanForImages(viewName, pathname, order);
-		excludePlotServerCheck = true;
-	}
-
-	@Test
-	public void testScanForImagesStringStringIntStringArrayIntBoolean() throws Exception {
-		redirectPlotter.scanForImages(viewName, pathname, order, suffices, gridColumns, rowMajor);
-		excludePlotServerCheck = true;
-	}
-
-	@Test
 	public void testScanForImagesStringStringIntStringStringArrayIntBoolean() throws Exception {
-		redirectPlotter.scanForImages(viewName, pathname, order, regex, suffices, gridColumns, rowMajor);
+		redirectPlotter.scanForImages(viewName, pathname, order, regex, suffices, gridColumns, rowMajor, Integer.MAX_VALUE, 1);
 		excludePlotServerCheck = true;
 	}
 
