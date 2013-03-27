@@ -398,30 +398,11 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	abstract void processGUIUpdate(GuiBean bean);
 
 	/**
-	 * Update the Plot mode synchronously
-	 * @param plotMode
-	 */
-	abstract void updatePlotMode(GuiPlotMode plotMode);
-
-	/**
-	 * Update the Plot Mode Asynchronously
-	 * @param plotMode
-	 */
-	abstract void updatePlotModeAsync(GuiPlotMode plotMode);
-
-	/**
 	 * Update the Plot Mode
 	 * @param plotMode
 	 * @param async
 	 */
-	protected void updatePlotMode(GuiPlotMode plotMode, boolean async) {
-		if (plotMode != null) {
-			if (async)
-				updatePlotModeAsync(plotMode);
-			else
-				updatePlotMode(plotMode);
-		}
-	}
+	abstract void updatePlotMode(GuiPlotMode plotMode, boolean async);
 
 	/**
 	 * Update the Plot mode with a GuiBean
@@ -433,7 +414,8 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			if (bean.containsKey(GuiParameters.PLOTMODE)) { // bean does not necessarily have a plot mode (eg, it
 															// contains ROIs only)
 				GuiPlotMode plotMode = (GuiPlotMode) bean.get(GuiParameters.PLOTMODE);
-				updatePlotMode(plotMode, async);
+				if (plotMode != null)
+					updatePlotMode(plotMode, async);
 			}
 		}
 	}

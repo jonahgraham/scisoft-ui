@@ -331,7 +331,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 				throw new IllegalStateException("parentComp is already disposed");
 			}
 
-			internalUpdatePlotMode(dbPlot.getGuiPlotMode(), true);
+			updatePlotMode(dbPlot.getGuiPlotMode(), true);
 		}
 		// there may be some gui information in the databean, if so this also needs to be updated
 		if (dbPlot.getGuiParameters() != null) {
@@ -376,12 +376,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	 * @param plotMode
 	 */
 	@Override
-	public void updatePlotMode(GuiPlotMode plotMode) {
-		internalUpdatePlotMode(plotMode, false);
-	}
-
-	private void internalUpdatePlotMode(final GuiPlotMode plotMode, boolean async) {
-		doBlock();
+	public void updatePlotMode(final GuiPlotMode plotMode, boolean async) {
 		DisplayUtils.runInDisplayThread(async, parentComp, new Runnable() {
 			@Override
 			public void run() {
@@ -416,11 +411,6 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		}
 	}
 
-	@Override
-	public void updatePlotModeAsync(GuiPlotMode plotMode) {
-		internalUpdatePlotMode(plotMode, true);
-	}
-
 	//not used
 	public PlottingMode getPlottingSystemMode(){
 		final Collection<ITrace> traces = plottingSystem.getTraces();
@@ -438,11 +428,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		if(parentComp != null && !parentComp.isDisposed()){
 			setUpdatePlot(false);
 			if (bean.containsKey(GuiParameters.PLOTMODE)) {
-				
-				if (parentComp.getDisplay().getThread() != Thread.currentThread())
-					updatePlotMode(bean, true);
-				else
-					updatePlotMode(bean, false);
+				updatePlotMode(bean, true);
 			}
 
 			if (bean.containsKey(GuiParameters.PLOTOPERATION)) {

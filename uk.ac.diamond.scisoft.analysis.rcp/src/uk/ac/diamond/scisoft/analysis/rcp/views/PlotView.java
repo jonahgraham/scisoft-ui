@@ -183,7 +183,7 @@ public class PlotView extends AbstractPlotView {
 
 	@Override
 	public void updatePlotMode(GuiPlotMode mode) {
-		plotWindow.updatePlotMode(mode);
+		plotWindow.updatePlotMode(mode, true);
 	}
 
 	@Override

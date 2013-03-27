@@ -237,7 +237,7 @@ public class PlotWindow extends AbstractPlotWindow {
 				throw new IllegalStateException("parentComp is already disposed");
 			}
 
-			internalUpdatePlotMode(dbPlot.getGuiPlotMode(), true);
+			updatePlotMode(dbPlot.getGuiPlotMode(), true);
 		}
 		// there may be some gui information in the databean, if so this also needs to be updated
 		if (dbPlot.getGuiParameters() != null) {
@@ -433,24 +433,7 @@ public class PlotWindow extends AbstractPlotWindow {
 	 * @param plotMode
 	 */
 	@Override
-	public void updatePlotMode(GuiPlotMode plotMode) {
-		internalUpdatePlotMode(plotMode, false);
-	}
-
-	@Override
-	public void clearPlot() {
-		if (mainPlotter != null && !mainPlotter.isDisposed()) {
-			mainPlotter.emptyPlot();
-			mainPlotter.refresh(true);
-		}
-		if (plottingSystem != null) {
-			plottingSystem.clearRegions();
-			plottingSystem.reset();
-			plottingSystem.repaint();
-		}
-	}
-
-	private void internalUpdatePlotMode(final GuiPlotMode plotMode, boolean async) {
+	public void updatePlotMode(final GuiPlotMode plotMode, boolean async) {
 		doBlock();
 		DisplayUtils.runInDisplayThread(async, parentComp, new Runnable() {
 			@Override
@@ -522,18 +505,23 @@ public class PlotWindow extends AbstractPlotWindow {
 	}
 
 	@Override
-	public void updatePlotModeAsync(GuiPlotMode plotMode) {
-		internalUpdatePlotMode(plotMode, true);
+	public void clearPlot() {
+		if (mainPlotter != null && !mainPlotter.isDisposed()) {
+			mainPlotter.emptyPlot();
+			mainPlotter.refresh(true);
+		}
+		if (plottingSystem != null) {
+			plottingSystem.clearRegions();
+			plottingSystem.reset();
+			plottingSystem.repaint();
+		}
 	}
 
 	@Override
 	public void processGUIUpdate(GuiBean bean) {
 		setUpdatePlot(false);
 		if (bean.containsKey(GuiParameters.PLOTMODE)) {
-			if (parentComp.getDisplay().getThread() != Thread.currentThread())
-				updatePlotMode(bean, true);
-			else
-				updatePlotMode(bean, false);
+			updatePlotMode(bean, true);
 		}
 		
 		if (bean.containsKey(GuiParameters.AXIS_OPERATION)) {
