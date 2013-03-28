@@ -127,16 +127,20 @@ public class NavigatorUtils {
 
 		String[][] results = new String[2][s];
 		for (int i = 0; i < s; i++) {
-			String str = scans.get(i);
+			String str = titles.get(i);
 			if (str != null && str.length() > 100) { // restrict to 100 characters
 				str = str.substring(0,  100) + "...";
 			}
-			results[0][i] = str == null ? "" : "\nScanCmd" + (i+1) + ": " + str;
-			str = titles.get(i);
+			if(i==0)
+				results[0][i] = str == null ? "" : " * Title" + (i+1) + ": " + str;
+			else
+				results[0][i] = str == null ? "" : System.getProperty("line.separator")+"Title" + (i+1) + ": " + str;
+			str = scans.get(i);
 			if (str != null && str.length() > 100) { // restrict to 100 characters
 				str = str.substring(0,  100) + "...";
 			}
-			results[1][i] = str == null ? "" : "\nTitle" + (i+1) + ": " + str;
+			results[1][i] = str == null ? "" : System.getProperty("line.separator")+"ScanCmd" + (i+1) + ": " + str;
+			
 		}
 
 		return results;
