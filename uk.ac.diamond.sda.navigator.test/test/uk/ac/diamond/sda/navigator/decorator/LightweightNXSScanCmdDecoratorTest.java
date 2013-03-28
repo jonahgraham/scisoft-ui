@@ -36,8 +36,8 @@ public class LightweightNXSScanCmdDecoratorTest {
 	public void testGetHDF5TitleAndScanCmd(){
 		try {
 			String[][] listTitlesAndScanCmd = NavigatorUtils.getHDF5TitlesAndScanCmds(nxsFileName);
-			assertEquals("\nScanCmd1: scan DCMFPitch -0.12 0.12 0.0040 counter 1.0 BPM1IN", listTitlesAndScanCmd[0][0]);
-			assertEquals("", listTitlesAndScanCmd[1][0]);
+			assertEquals("\nScanCmd1: scan DCMFPitch -0.12 0.12 0.0040 counter 1.0 BPM1IN", listTitlesAndScanCmd[1][0]);
+			assertEquals("", listTitlesAndScanCmd[0][0]);
 		} catch (Exception e) {
 			logger.error("Could not load NXS Title/ScanCmd: ", e);
 		}
