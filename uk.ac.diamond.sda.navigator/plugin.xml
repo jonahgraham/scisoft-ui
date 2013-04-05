@@ -131,7 +131,7 @@
          name="HDF5 File Contents"
          contentProvider="uk.ac.diamond.sda.navigator.hdf5.HDF5ContentProvider"
          labelProvider="uk.ac.diamond.sda.navigator.hdf5.HDF5LabelProvider"
-         activeByDefault="true"
+         activeByDefault="false"
          icon="icons/prop_ps.gif"
          priority="normal" >
          <triggerPoints>
