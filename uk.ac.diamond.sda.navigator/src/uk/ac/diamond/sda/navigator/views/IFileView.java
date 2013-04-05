@@ -16,19 +16,15 @@
 
 package uk.ac.diamond.sda.navigator.views;
 
-import org.dawb.common.ui.util.EclipseUtils;
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import org.dawb.common.util.io.IFileSelector;
 
-public class OpenHandler extends AbstractHandler {
-
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
-        final IFileView fileView = (IFileView)EclipseUtils.getActivePage().getActivePart();
-        fileView.openSelectedFile();
-        return Boolean.TRUE;
-	}
-
+/**
+ * This class is the interface for FileView. 
+ * @see uk.ac.diamond.sda.navigator.views.FileView
+ */
+public interface IFileView extends IFileSelector {
+	public void collapseAll();
+	public void showPreferences();
+	public void refresh();
+	public void openSelectedFile();
 }

@@ -93,7 +93,7 @@ import uk.ac.gda.util.OSUtils;
  * It is lazy in loading the file tree.
  *
  */
-public class FileView extends ViewPart implements IFileSelector {
+public class FileView extends ViewPart implements IFileView {
 
 	public static final String ID = "uk.ac.diamond.sda.navigator.views.FileView";
 	
@@ -371,10 +371,12 @@ public class FileView extends ViewPart implements IFileSelector {
 
 	}
 	
+	@Override
 	public void collapseAll() {
 		this.tree.collapseAll();
 	}
 
+	@Override
 	public void showPreferences() {
 		PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(
 				getViewSite().getShell(), "uk.ac.diamond.scisoft.analysis.rcp.fileNavigatorPreferencePage", null, null);
@@ -388,6 +390,7 @@ public class FileView extends ViewPart implements IFileSelector {
 		tree.getTree().getColumn(col).setWidth(isVis?width:0);
 	}
 
+	@Override
 	public void refresh() {
 		final File     file     = getSelectedFile();
 		refresh(file);
@@ -553,8 +556,8 @@ public class FileView extends ViewPart implements IFileSelector {
 	}
 
 
-
-	protected void openSelectedFile() {
+	@Override
+	public void openSelectedFile() {
 		final File file = getSelectedFile();
 		if (file==null) return;
 		

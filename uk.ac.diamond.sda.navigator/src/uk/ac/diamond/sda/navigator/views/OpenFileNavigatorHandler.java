@@ -20,6 +20,7 @@ import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 
 public class OpenFileNavigatorHandler extends AbstractHandler {
@@ -30,10 +31,11 @@ public class OpenFileNavigatorHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
         try {
 			//final FileView parent   = (FileView)EclipseUtils.getActivePage().getActivePart();	
-			final FileView fileView = (FileView)EclipseUtils.getActivePage().showView(FileView.ID, FileView.ID+secondaryId, IWorkbenchPage.VIEW_CREATE);
+			final IViewPart view = EclipseUtils.getActivePage().showView(FileView.ID, FileView.ID+secondaryId, IWorkbenchPage.VIEW_CREATE);
+			final IFileView fileView = (IFileView)view;
 			secondaryId++;
 			//TODO fileView.setRoot(parent.getSelectedFile());
-			EclipseUtils.getActivePage().activate(fileView);
+			EclipseUtils.getActivePage().activate(view);
 	        return Boolean.TRUE;
         } catch (Exception ne) {
         	throw new ExecutionException("Cannot open file navigator part!", ne);

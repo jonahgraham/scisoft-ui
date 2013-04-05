@@ -34,7 +34,7 @@ public class ExplorerOSHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		
-		final FileView fileView = (FileView)EclipseUtils.getActivePage().getActivePart();
+		final IFileView fileView = (IFileView)EclipseUtils.getActivePage().getActivePart();
 		
 		File fileObject;
 		

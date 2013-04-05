@@ -36,3 +36,6 @@ Import-Package: gda.analysis.io,
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Diamond Light Source
+Export-Package: uk.ac.diamond.sda.navigator.actions,
+ uk.ac.diamond.sda.navigator.util,
+ uk.ac.diamond.sda.navigator.views
