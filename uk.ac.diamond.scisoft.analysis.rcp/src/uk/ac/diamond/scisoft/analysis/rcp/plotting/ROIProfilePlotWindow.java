@@ -23,6 +23,7 @@ import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.region.IRegion;
+import org.dawb.common.ui.plot.tool.AbstractToolPage;
 import org.dawb.common.ui.plot.tool.IProfileToolPage;
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
 import org.dawb.common.ui.plot.tool.ToolPageFactory;
@@ -30,7 +31,6 @@ import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ITrace;
 import org.dawb.common.ui.util.DisplayUtils;
-import org.dawb.common.ui.widgets.ROISumWidget;
 import org.dawb.common.ui.widgets.ROIWidget;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -45,6 +45,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewPart;
@@ -85,7 +86,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	private ROIWidget horizontalProfileROIWidget;
 	private AbstractPlottingSystem verticalProfilePlottingSystem;
 	private AbstractPlottingSystem horizontalProfilePlottingSystem;
-	private ROISumWidget roiSumWidget;
+	private AbstractToolPage roiSumProfile;
 	
 	/**
 	 * Obtain the IPlotWindowManager for the running Eclipse.
@@ -217,9 +218,21 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 					}
 				}
 			});
-			
-			roiSumWidget = new ROISumWidget(mainRegionComposite, plottingSystem);
-			
+
+			Group regionSumGroup = new Group(mainRegionComposite, SWT.NONE);
+			regionSumGroup.setText("Sum");
+			gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+			regionSumGroup.setLayout(new GridLayout(1, false));
+			regionSumGroup.setLayoutData(gridData);
+			roiSumProfile = (AbstractToolPage)ToolPageFactory.getToolPage("org.dawb.workbench.plotting.tools.regionSumTool");
+			roiSumProfile.setToolSystem(plottingSystem);
+			roiSumProfile.setPlottingSystem(plottingSystem);
+			roiSumProfile.setTitle(getName()+"_Region_Sum");
+			roiSumProfile.setPart((IViewPart)getGuiManager());
+			roiSumProfile.setToolId(String.valueOf(roiSumProfile.hashCode()));
+			roiSumProfile.createControl(regionSumGroup);
+			roiSumProfile.activate();
+
 			mainRegionInfoExpander.setClient(mainRegionComposite);
 			mainRegionInfoExpander.addExpansionListener(expansionAdapter);
 			mainRegionInfoExpander.setExpanded(true);
@@ -460,11 +473,9 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			sideProfile1.dispose();
 			sideProfile2.dispose();
 			myROIWidget.dispose();
-			roiSumWidget.dispose();
+			roiSumProfile.dispose();
 			verticalProfileROIWidget.dispose();
 			horizontalProfileROIWidget.dispose();
-			//xaxisMetadataVertical.dispose();
-			//xaxisMetadataHorizontal.dispose();
 		} catch (Exception ne) {
 			logger.debug("Cannot clean up plotter!", ne);
 		}
