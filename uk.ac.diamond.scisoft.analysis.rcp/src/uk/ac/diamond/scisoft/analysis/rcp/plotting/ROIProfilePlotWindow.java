@@ -395,16 +395,16 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			public void run() {
 				try {
 					GuiPlotMode oldMode = getPreviousMode();
-					if (plotMode == GuiPlotMode.ONED && oldMode != GuiPlotMode.ONED) {
+					if (plotMode.equals(GuiPlotMode.ONED) && !oldMode.equals(GuiPlotMode.ONED)) {
 						setupPlotting1D();
 						setPreviousMode(GuiPlotMode.ONED);
-					} else if (plotMode == GuiPlotMode.TWOD && oldMode != GuiPlotMode.TWOD) {
+					} else if (plotMode.equals(GuiPlotMode.TWOD) && !oldMode.equals(GuiPlotMode.TWOD)) {
 						setupPlotting2D();
 						setPreviousMode(GuiPlotMode.TWOD);
-					} else if (plotMode == GuiPlotMode.SCATTER2D && oldMode != GuiPlotMode.SCATTER2D) {
+					} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && !oldMode.equals(GuiPlotMode.SCATTER2D)) {
 						setupScatterPlotting2D();
 						setPreviousMode(GuiPlotMode.SCATTER2D);
-					} else if (plotMode == GuiPlotMode.EMPTY && oldMode != GuiPlotMode.EMPTY) {
+					} else if (plotMode.equals(GuiPlotMode.EMPTY) && !oldMode.equals(GuiPlotMode.EMPTY)) {
 						clearPlot();
 						setPreviousMode(GuiPlotMode.EMPTY);
 					}
