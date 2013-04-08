@@ -31,18 +31,13 @@ import org.dawb.common.ui.plot.tool.IToolPageSystem;
 import org.dawb.common.ui.util.DisplayUtils;
 import org.dawb.common.ui.util.EclipseUtils;
 import org.dawnsci.plotting.jreality.core.AxisMode;
-import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
-import org.dawnsci.plotting.jreality.tool.PlotActionEventListener;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -77,7 +72,7 @@ public class PlotWindow extends AbstractPlotWindow {
 
 	private Composite plotSystemComposite;
 	private Composite mainPlotterComposite;
-	private Label txtPos;
+
 	/**
 	 * Obtain the IPlotWindowManager for the running Eclipse.
 	 * 
@@ -163,29 +158,7 @@ public class PlotWindow extends AbstractPlotWindow {
 	}
 
 	private void createDatasetPlotter(PlottingMode mode) {
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 1;
-		parentComp.setLayout(layout);
-
-		txtPos = new Label(parentComp, SWT.LEFT);
-		{
-			GridData gridData = new GridData();
-			gridData.horizontalAlignment = SWT.FILL;
-			gridData.grabExcessHorizontalSpace = true;
-			txtPos.setLayoutData(gridData);
-		}
-		Composite plotArea = new Composite(parentComp, SWT.NONE);
-		plotArea.setLayout(new FillLayout());
-		{
-			GridData gridData = new GridData();
-			gridData.horizontalAlignment = SWT.FILL;
-			gridData.grabExcessHorizontalSpace = true;
-			gridData.grabExcessVerticalSpace = true;
-			gridData.verticalAlignment = SWT.FILL;
-			plotArea.setLayoutData(gridData);
-		}
-		
-		mainPlotterComposite = new Composite(plotArea, SWT.NONE);
+		mainPlotterComposite = new Composite(parentComp, SWT.NONE);
 		mainPlotterComposite.setLayout(new FillLayout());
 		mainPlotter = new DataSetPlotter(mode, mainPlotterComposite, true);
 		mainPlotter.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
@@ -196,10 +169,6 @@ public class PlotWindow extends AbstractPlotWindow {
 	}
 
 	private void createPlottingSystem() {
-//		GridLayout layout = new GridLayout();
-//		layout.numColumns = 1;
-//		parentComp.setLayout(layout);
-//		parentComp.setLayout(new FillLayout());
 		plotSystemComposite = new Composite(parentComp, SWT.NONE);
 		plotSystemComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		plotSystemComposite.setLayout(new FillLayout());
@@ -337,20 +306,7 @@ public class PlotWindow extends AbstractPlotWindow {
 	private void setup1D() {
 		mainPlotter.setMode(PlottingMode.ONED);
 		plotUI = new Plot1DUIComplete(this, getGuiManager(), bars, parentComp, getPage(), getName());
-		((Plot1DUIComplete)plotUI).addPlotActionEventListener(new PlotActionEventListener(){
-
-			@Override
-			public void plotActionPerformed(final PlotActionEvent event) {
-				Display.getDefault().asyncExec(new Runnable() {
-					
-					@Override
-					public void run() {
-						double x = event.getPosition()[0];
-						double y = event.getPosition()[1];
-						txtPos.setText(String.format("X:%.7g Y:%.7g", x, y));
-					}
-				});
-			}});		addCommonActions(mainPlotter);
+		addCommonActions(mainPlotter);
 		bars.updateActionBars();
 		updateGuiBeanPlotMode(GuiPlotMode.ONED);
 	}
