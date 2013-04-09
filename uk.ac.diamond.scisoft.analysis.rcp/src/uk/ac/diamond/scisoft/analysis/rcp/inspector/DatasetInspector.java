@@ -565,7 +565,7 @@ public class DatasetInspector extends Composite {
 			inspection = storedInspections.get(dSelection);
 			useClonedInspection = false;
 		} else if (dSelection.almostEquals(oldSelection)) {
-			inspection = inspection.clone(oldSelection);
+			inspection = inspection.clone(dSelection);
 			storedInspections.put(dSelection, inspection);
 			useClonedInspection = true;
 		} else {
@@ -574,7 +574,7 @@ public class DatasetInspector extends Composite {
 			for (Entry<DatasetSelection, Inspection> e: storedInspections.entrySet()) {
 				DatasetSelection stored = e.getKey();
 				if (dSelection.almostEquals(stored)) {
-					inspection = e.getValue().clone(stored);
+					inspection = e.getValue().clone(dSelection);
 					storedInspections.put(dSelection, inspection);
 					found = true;
 					break;
