@@ -23,13 +23,13 @@ import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
-import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
-import org.dawb.common.ui.plot.axis.IAxis;
-import org.dawb.common.ui.plot.region.IRegion;
-import org.dawb.common.ui.plot.tool.IToolPageSystem;
 import org.dawb.common.ui.util.DisplayUtils;
 import org.dawb.common.ui.util.EclipseUtils;
+import org.dawnsci.plotting.api.PlotType;
+import org.dawnsci.plotting.api.axis.IAxis;
+import org.dawnsci.plotting.api.region.IRegion;
+import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.dawnsci.plotting.jreality.core.AxisMode;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;

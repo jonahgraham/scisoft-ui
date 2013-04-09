@@ -16,7 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview;
 
-import org.dawb.common.ui.plot.IPlottingSystem;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.ui.IWorkbenchPage;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
