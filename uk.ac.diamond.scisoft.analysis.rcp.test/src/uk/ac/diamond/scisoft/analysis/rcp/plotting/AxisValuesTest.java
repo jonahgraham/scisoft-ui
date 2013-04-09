@@ -252,8 +252,19 @@ public class AxisValuesTest {
 		assertEquals(1, axis.nearestUpEntry(-4.5));
 		assertEquals(2, axis.nearestUpEntry(-3.2));
 		assertEquals(4, axis.nearestUpEntry(-1.2));
-		assertEquals(6, axis.nearestUpEntry(0.1));		
+		assertEquals(5, axis.nearestUpEntry(0));
+		assertEquals(6, axis.nearestUpEntry(0.1));
 		assertEquals(8, axis.nearestUpEntry(2.5));
+
+		axis = setupClass(4, -1, 10);
+		assertEquals(-1, axis.nearestUpEntry(-10.0));
+		assertEquals(-1, axis.nearestUpEntry(10.0));
+		assertEquals(9, axis.nearestUpEntry(-4.5));
+		assertEquals(8, axis.nearestUpEntry(-3.2));
+		assertEquals(6, axis.nearestUpEntry(-1.2));
+		assertEquals(5, axis.nearestUpEntry(0));
+		assertEquals(4, axis.nearestUpEntry(0.1));
+		assertEquals(2, axis.nearestUpEntry(2.5));
 	}
 
 	@Test
@@ -264,9 +275,19 @@ public class AxisValuesTest {
 		assertEquals(0, axis.nearestLowEntry(-4.5));
 		assertEquals(1, axis.nearestLowEntry(-3.2));
 		assertEquals(3, axis.nearestLowEntry(-1.2));
-		assertEquals(5, axis.nearestLowEntry(0.1));		
+		assertEquals(5, axis.nearestLowEntry(0.1));
+		assertEquals(5, axis.nearestLowEntry(0));
 		assertEquals(7, axis.nearestLowEntry(2.5));
-	}
+
+		axis = setupClass(4, -1, 10);
+		assertEquals(-1, axis.nearestLowEntry(-10.0));
+		assertEquals(-1, axis.nearestLowEntry(10.0));
+		assertEquals(8, axis.nearestLowEntry(-4.5));
+		assertEquals(7, axis.nearestLowEntry(-3.2));
+		assertEquals(5, axis.nearestLowEntry(-1.2));
+		assertEquals(3, axis.nearestLowEntry(0.1));
+		assertEquals(4, axis.nearestLowEntry(0));
+		assertEquals(1, axis.nearestLowEntry(2.5));}
 
 	@Test
 	public void testSubset() {
