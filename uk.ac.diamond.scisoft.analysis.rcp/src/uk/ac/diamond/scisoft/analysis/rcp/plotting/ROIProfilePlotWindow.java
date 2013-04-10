@@ -61,7 +61,6 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
-import uk.ac.diamond.scisoft.analysis.roi.ROIProfile.BoxLineType;
 
 /**
  * PlotWindow equivalent with two side plots which display boxline profiles of a Rectangular ROI on the main plot
@@ -149,7 +148,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			plottingSystem.repaint();
 			
 			sideProfile1 = (IProfileToolPage)ToolPageFactory.getToolPage("org.dawb.workbench.plotting.tools.boxLineProfileTool");
-			sideProfile1.setLineType(BoxLineType.HORIZONTAL_TYPE);
+			sideProfile1.setLineType(SWT.HORIZONTAL);
 			sideProfile1.setToolSystem(plottingSystem);
 			sideProfile1.setPlottingSystem(plottingSystem);
 			sideProfile1.setTitle(getName()+"_profile1");
@@ -159,7 +158,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			sideProfile1.activate();
 			
 			sideProfile2 = (IProfileToolPage)ToolPageFactory.getToolPage("org.dawb.workbench.plotting.tools.boxLineProfileTool");
-			sideProfile2.setLineType(BoxLineType.VERTICAL_TYPE);
+			sideProfile2.setLineType(SWT.VERTICAL);
 			sideProfile2.setToolSystem(plottingSystem);
 			sideProfile2.setPlottingSystem(plottingSystem);
 			sideProfile2.setTitle(getName()+"_profile2");
@@ -209,7 +208,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 				
 				@Override
 				public void selectionChanged(SelectionChangedEvent event) {
-					ROIBase newRoi = myROIWidget.getROI();
+					ROIBase newRoi = (ROIBase)myROIWidget.getROI();
 					String regionName = myROIWidget.getRegionName();
 					
 					IRegion region = plottingSystem.getRegion(regionName);
@@ -254,7 +253,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 				
 				@Override
 				public void selectionChanged(SelectionChangedEvent event) {
-					ROIBase newRoi = verticalProfileROIWidget.getROI();
+					ROIBase newRoi = (ROIBase)verticalProfileROIWidget.getROI();
 					String regionName = verticalProfileROIWidget.getRegionName();
 					
 					IRegion region = verticalProfilePlottingSystem.getRegion(regionName);
@@ -285,7 +284,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 				
 				@Override
 				public void selectionChanged(SelectionChangedEvent event) {
-					ROIBase newRoi = horizontalProfileROIWidget.getROI();
+					ROIBase newRoi = (ROIBase)horizontalProfileROIWidget.getROI();
 					String regionName = horizontalProfileROIWidget.getRegionName();
 					
 					IRegion region = horizontalProfilePlottingSystem.getRegion(regionName);

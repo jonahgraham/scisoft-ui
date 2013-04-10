@@ -97,7 +97,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 		if (region == null)
 			return;
 
-		ROIBase eroi = region.getROI();
+		ROIBase eroi = (ROIBase)region.getROI();
 		if (eroi != null && !eroi.equals(roi)) {
 			roi = eroi;
 			name = region.getName();
@@ -113,7 +113,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 			return;
 
 		region.addROIListener(this);
-		ROIBase eroi = region.getROI();
+		ROIBase eroi = (ROIBase)region.getROI();
 		if (eroi != null) {
 			updateGuiBean(eroi);
 		}
@@ -147,7 +147,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	@Override
 	public void roiChanged(ROIEvent evt) {
-		ROIBase eroi = evt.getROI();
+		ROIBase eroi = (ROIBase)evt.getROI();
 		if (eroi == null)
 			return;
 
@@ -264,7 +264,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 		if (regions == null) return;
 		regionMap.clear();
 		for (IRegion iRegion : regions) {
-			regionMap.put(iRegion.getName(), iRegion.getROI());
+			regionMap.put(iRegion.getName(), (ROIBase)iRegion.getROI());
 		}
 		Set<String> names = roiMap.keySet();
 		Object[] strNames = names.toArray();

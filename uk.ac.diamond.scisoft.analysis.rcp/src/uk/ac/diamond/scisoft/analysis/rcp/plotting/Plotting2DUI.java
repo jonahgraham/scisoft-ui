@@ -32,6 +32,7 @@ import org.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.dawnsci.plotting.api.region.RegionUtils;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
+import org.dawb.common.ui.plot.region.RegionService;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.ROIList;
 import uk.ac.diamond.scisoft.analysis.roi.ROIUtils;
@@ -294,7 +296,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 
 	private IRegion createRegion(ROIBase roib) {
 		try {
-			RegionType type = RegionType.getRegion(roib.getClass());
+			RegionType type = RegionService.getRegion(roib.getClass());
 			IRegion region = plottingSystem.createRegion(RegionUtils.getUniqueName(type.getName(), plottingSystem), type);
 			region.setROI(roib);
 			plottingSystem.addRegion(region);
@@ -308,7 +310,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 	private static List<IRegion> createRegionsList(Collection<IRegion> regions, Class<? extends ROIBase> roiClass) {
 		List<IRegion> list = new ArrayList<IRegion>();
 		for (IRegion r : regions) {
-			ROIBase rr = r.getROI();
+			IROI rr = r.getROI();
 			if (rr.getClass().equals(roiClass)) {
 				list.add(r);
 			}

@@ -859,7 +859,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			@Override
 			public void regionAdded(RegionEvent evt) {
 				if (evt.getRegion()!=null) {
-					ROIBase roi = evt.getRegion().getROI();
+					ROIBase roi = (ROIBase)evt.getRegion().getROI();
 					if(roi!=null && roi instanceof RectangularROI){
 						RectangularROI rroi = (RectangularROI) roi;
 						final int startX = (int)Math.round(rroi.getPointX());
@@ -880,7 +880,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 				IRegion region = evt.getRegion();
 				if (region!=null) {
 					region.addROIListener(DataWindowView.this);
-					ROIBase roi = region.getROI();
+					ROIBase roi = (ROIBase)region.getROI();
 					if(roi!=null && roi instanceof RectangularROI){
 						RectangularROI rroi = (RectangularROI) roi;
 						final int startX = (int)Math.round(rroi.getPointX());
@@ -907,7 +907,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 
 	@Override
 	public void roiChanged(ROIEvent evt) {
-		ROIBase roi = evt.getROI();
+		ROIBase roi = (ROIBase)evt.getROI();
 		if(roi!=null){
 			RectangularROI rroi = (RectangularROI) roi;
 			final int startX = (int)Math.round(rroi.getPointX());
