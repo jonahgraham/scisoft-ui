@@ -21,21 +21,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
-import org.dawb.common.ui.plot.axis.IPositionListener;
-import org.dawb.common.ui.plot.axis.PositionEvent;
-import org.dawb.common.ui.plot.region.IROIListener;
-import org.dawb.common.ui.plot.region.IRegion;
-import org.dawb.common.ui.plot.region.IRegion.RegionType;
-import org.dawb.common.ui.plot.region.IRegionListener;
-import org.dawb.common.ui.plot.region.ROIEvent;
-import org.dawb.common.ui.plot.region.RegionEvent;
-import org.dawb.common.ui.plot.tool.IToolChangeListener;
-import org.dawb.common.ui.plot.tool.ToolChangeEvent;
-import org.dawb.common.ui.plot.trace.ITrace;
-import org.dawb.common.ui.plot.trace.ITraceListener;
-import org.dawb.common.ui.plot.trace.TraceEvent;
+import org.dawnsci.plotting.api.PlotType;
+import org.dawnsci.plotting.api.axis.IPositionListener;
+import org.dawnsci.plotting.api.axis.PositionEvent;
+import org.dawnsci.plotting.api.region.IROIListener;
+import org.dawnsci.plotting.api.region.IRegion;
+import org.dawnsci.plotting.api.region.IRegion.RegionType;
+import org.dawnsci.plotting.api.region.IRegionListener;
+import org.dawnsci.plotting.api.region.MouseEvent;
+import org.dawnsci.plotting.api.region.MouseListener;
+import org.dawnsci.plotting.api.region.ROIEvent;
+import org.dawnsci.plotting.api.region.RegionEvent;
+import org.dawnsci.plotting.api.tool.IToolChangeListener;
+import org.dawnsci.plotting.api.tool.ToolChangeEvent;
+import org.dawnsci.plotting.api.trace.ITrace;
+import org.dawnsci.plotting.api.trace.ITraceListener;
+import org.dawnsci.plotting.api.trace.TraceEvent;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -43,7 +45,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.IFigure;
-import org.eclipse.draw2d.MouseListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
@@ -407,7 +408,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 	private MouseListener xHairMouseListener = new MouseListener() {
 
 		@Override
-		public void mousePressed(org.eclipse.draw2d.MouseEvent me) {
+		public void mousePressed(MouseEvent me) {
 			try {
 				IRegion xStaticRegion = plottingSystem.getRegion(REGION_X_STATIC);
 				if (xStaticRegion != null && xStaticRegion.getROI() != null) {
@@ -431,8 +432,8 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			}
 
 			try {
-				xPoint = (int) plottingSystem.getSelectedXAxis().getPositionValue(me.x);
-				yPoint = (int) plottingSystem.getSelectedYAxis().getPositionValue(me.y);
+				xPoint = (int) plottingSystem.getSelectedXAxis().getPositionValue(me.getX());
+				yPoint = (int) plottingSystem.getSelectedYAxis().getPositionValue(me.getY());
 
 				notifyPixelChanged();
 			} catch (Exception e) {
@@ -441,12 +442,12 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		}
 
 		@Override
-		public void mouseReleased(org.eclipse.draw2d.MouseEvent me) {
+		public void mouseReleased(MouseEvent me) {
 			// do nothing
 		}
 
 		@Override
-		public void mouseDoubleClicked(org.eclipse.draw2d.MouseEvent me) {
+		public void mouseDoubleClicked(MouseEvent me) {
 			// do nothing
 		}
 	};
