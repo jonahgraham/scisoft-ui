@@ -22,8 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.PlotType;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -162,7 +162,7 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 				StructuredSelection structSel = (StructuredSelection) selection;
 				Iterator iterator = structSel.iterator();
 				while (iterator.hasNext()) {
-					Object object = (Object) iterator.next();
+					Object object = iterator.next();
 					if (object instanceof HistogramSelection) {
 						histSelection = (HistogramSelection) object;
 						break;
@@ -279,9 +279,10 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 						String partName = null;
 						if (selection instanceof StructuredSelection) {
 							StructuredSelection structSel = (StructuredSelection) selection;
+							@SuppressWarnings("rawtypes")
 							Iterator iterator = structSel.iterator();
 							while (iterator.hasNext()) {
-								Object object = (Object) iterator.next();
+								Object object = iterator.next();
 								if (object instanceof HistogramSelection) {
 									histSelection = (HistogramSelection) object;
 									break;
