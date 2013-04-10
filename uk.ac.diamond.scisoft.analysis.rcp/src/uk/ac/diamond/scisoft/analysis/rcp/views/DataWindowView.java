@@ -555,7 +555,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				List<AbstractDataset> axes = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+				List<IDataset> axes = Collections.synchronizedList(new LinkedList<IDataset>());
 				AbstractDataset xAxisValues = AbstractDataset.createFromList(xValues.getValues());
 				AbstractDataset yAxisValues = AbstractDataset.createFromList(yValues.getValues());
 				axes.add(0, xAxisValues);

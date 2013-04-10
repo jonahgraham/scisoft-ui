@@ -45,6 +45,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.gda.common.rcp.util.GridUtils;
 
 /**
@@ -271,7 +272,7 @@ public class SashFormPlotComposite implements PlotView{
 	 */
 	public void plotData() {
 		plottingsystem.clear();
-		List<AbstractDataset> ys = new ArrayList<AbstractDataset>();
+		List<IDataset> ys = new ArrayList<IDataset>();
 		for (AbstractDataset ds : dataSets){
 			ys.add(ds);
 		}

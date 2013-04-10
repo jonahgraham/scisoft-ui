@@ -27,14 +27,15 @@ import java.util.List;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.util.ColorUtility;
 import org.dawnsci.plotting.api.trace.ILineTrace;
-import org.dawnsci.plotting.api.trace.ITrace;
 import org.dawnsci.plotting.api.trace.ILineTrace.TraceType;
+import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
@@ -98,7 +99,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 						plotColor = ColorUtility.getSwtColour(index);
 					}
 
-					List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+					List<IDataset> yDatasets = Collections.synchronizedList(new LinkedList<IDataset>());
 					AbstractDataset nx = dbPlot.getAxis(AxisMapBean.XAXIS);
 					int i = 0;
 					for (DataSetWithAxisInformation d : plotData) {
@@ -162,7 +163,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 						for (ITrace t : oldTraces) {
 							if (t instanceof ILineTrace) {
 								String oyn = t.getName();
-								AbstractDataset ox = ((ILineTrace) t).getXData();
+								AbstractDataset ox = (AbstractDataset)((ILineTrace) t).getXData();
 								String oxn = ox == null ? null : ox.getName();
 								for (DataSetWithAxisInformation d : plotData) {
 									String nyn = d.getData().getName();
@@ -184,7 +185,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 							if (t instanceof ILineTrace) {
 								boolean used = false;
 								String oyn = t.getName();
-								AbstractDataset x = ((ILineTrace) t).getXData();
+								AbstractDataset x = (AbstractDataset)((ILineTrace) t).getXData();
 								String oxn = x == null ? null : x.getName();
 								for (DataSetWithAxisInformation d : plotData) {
 									AbstractDataset ny = d.getData();
@@ -222,7 +223,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 						}
 						idx++;
 						
-						List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+						List<IDataset> yDatasets = Collections.synchronizedList(new LinkedList<IDataset>());
 						AbstractDataset nx = dbPlot.getAxis(AxisMapBean.XAXIS);
 						int i = 0;
 						for (DataSetWithAxisInformation d : plotData) {

@@ -28,8 +28,8 @@ import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawnsci.plotting.api.region.IRegion;
-import org.dawnsci.plotting.api.region.RegionUtils;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
+import org.dawnsci.plotting.api.region.RegionUtils;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.swt.widgets.Display;
@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
@@ -82,7 +83,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 
 					final AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
 					final AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
-					final List<AbstractDataset> axes = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+					final List<IDataset> axes = Collections.synchronizedList(new LinkedList<IDataset>());
 					
 					String xAxisName = "", yAxisName = "";
 					if(xAxisValues!=null){
@@ -111,7 +112,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 							final IImageTrace image = (IImageTrace) traces.iterator().next();
 							final int[] shape = image.getData() != null ? image.getData().getShape() : null;
 							
-							List<AbstractDataset> currentAxes = image.getAxes(); 
+							List<IDataset> currentAxes = image.getAxes(); 
 							String lastXAxisName = "", lastYAxisName = "";
 							if(currentAxes!=null && currentAxes.size()>0)
 								lastXAxisName = currentAxes.get(0).getName();
