@@ -25,6 +25,7 @@ import org.dawb.common.ui.util.DisplayUtils;
 import org.dawb.common.ui.widgets.ROIWidget;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.region.IRegion;
+import org.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.dawnsci.plotting.api.tool.AbstractToolPage;
 import org.dawnsci.plotting.api.tool.IProfileToolPage;
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
@@ -32,6 +33,10 @@ import org.dawnsci.plotting.api.tool.ToolPageFactory;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.ILineTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ActionContributionItem;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
@@ -60,6 +65,8 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.roi.PerimeterBoxROI;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 
 /**
@@ -68,6 +75,7 @@ import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	public static final String RPC_SERVICE_NAME = "PlotWindowManager";
 	public static final String RMI_SERVICE_NAME = "RMIPlotWindowManager";
+	private static final String REGION_NAME = "Perimeter Box";
 
 	static private Logger logger = LoggerFactory.getLogger(ROIProfilePlotWindow.class);
 
@@ -87,6 +95,13 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	private AbstractPlottingSystem horizontalProfilePlottingSystem;
 	private AbstractToolPage roiSumProfile;
 	
+	private Action plotEdge;
+	private Action plotAverage;
+
+	private ActionContributionItem plotEdgeACI;
+	private ActionContributionItem plotAverageACI;
+	private IRegion region;
+
 	/**
 	 * Obtain the IPlotWindowManager for the running Eclipse.
 	 * 
@@ -107,10 +122,9 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		super(parent, manager, notifyListener, bars, page, name);
 
 		if (plotMode == null)
-			plotMode = GuiPlotMode.ONED;
+			plotMode = GuiPlotMode.TWOD;
 
 		createMultiPlottingSystem();
-		
 		// Setting up
 		if (plotMode.equals(GuiPlotMode.ONED)) {
 			setupPlotting1D();
@@ -119,7 +133,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
 			setupScatterPlotting2D();
 		}
-
+		createPerimeterBoxRegion();
 		PlotWindowManager.getPrivateManager().registerPlotWindow(this);
 	}
 
@@ -149,6 +163,8 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			
 			sideProfile1 = (IProfileToolPage)ToolPageFactory.getToolPage("org.dawb.workbench.plotting.tools.boxLineProfileTool");
 			sideProfile1.setLineType(SWT.HORIZONTAL);
+			sideProfile1.setPlotEdgeProfile(true);
+			sideProfile1.setPlotAverageProfile(false);
 			sideProfile1.setToolSystem(plottingSystem);
 			sideProfile1.setPlottingSystem(plottingSystem);
 			sideProfile1.setTitle(getName()+"_profile1");
@@ -159,6 +175,8 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			
 			sideProfile2 = (IProfileToolPage)ToolPageFactory.getToolPage("org.dawb.workbench.plotting.tools.boxLineProfileTool");
 			sideProfile2.setLineType(SWT.VERTICAL);
+			sideProfile2.setPlotEdgeProfile(true);
+			sideProfile2.setPlotAverageProfile(false);
 			sideProfile2.setToolSystem(plottingSystem);
 			sideProfile2.setPlottingSystem(plottingSystem);
 			sideProfile2.setTitle(getName()+"_profile2");
@@ -321,6 +339,80 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		}
 	}
 
+	private void createPerimeterBoxRegion() {
+		try {
+			region = getPlottingSystem().createRegion(REGION_NAME, RegionType.PERIMETERBOX);
+			double width = plottingSystem.getAxes().get(0).getUpper()/2;
+			double height = plottingSystem.getAxes().get(1).getUpper()/2;
+			PerimeterBoxROI proi = new PerimeterBoxROI(0, 0, width, height, 0);
+			proi.setName(REGION_NAME);
+			region.setROI(proi);
+			plottingSystem.addRegion(region);
+		} catch (Exception e) {
+			logger.error("Cannot create region for perimeter PlotView!");
+		}
+	}
+
+	/**
+	 * Method to create the PlotView toggle actions to switch 
+	 * between perimeter and average profiles
+	 */
+	private void addToggleActions() {
+		if (plotAverageACI == null) {
+			plotAverage = new Action("Plot Average Box Profiles", IAction.AS_CHECK_BOX) {
+				@Override
+				public void run() {
+					if(isChecked()){
+						sideProfile1.setPlotAverageProfile(true);
+						sideProfile2.setPlotAverageProfile(true);
+					}
+					else{
+						sideProfile1.setPlotAverageProfile(false);
+						sideProfile2.setPlotAverageProfile(false);
+					}
+					sideProfile1.update(region);
+					sideProfile2.update(region);
+				}
+			};
+			plotAverage.setToolTipText("Toggle On/Off Average Profiles");
+			plotAverage.setText("Toggle On/Off Average Profiles");
+			plotAverage.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/average.png"));
+			plotAverageACI = new ActionContributionItem(plotAverage);
+		}
+
+		if(plotEdgeACI == null){
+			plotEdge = new Action("Plot Edge Box Profiles", IAction.AS_CHECK_BOX) {
+				@Override
+				public void run() {
+					if(isChecked()){
+						sideProfile1.setPlotEdgeProfile(true);
+						sideProfile2.setPlotEdgeProfile(true);
+					}
+					else{
+						sideProfile1.setPlotEdgeProfile(false);
+						sideProfile2.setPlotEdgeProfile(false);
+					}
+					sideProfile1.update(region);
+					sideProfile2.update(region);
+				}
+			};
+			plotEdge.setToolTipText("Toggle On/Off Perimeter Profiles");
+			plotEdge.setText("Toggle On/Off Perimeter Profiles");
+			plotEdge.setChecked(true);
+			plotEdge.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/edge-color-box.png"));
+			plotEdgeACI = new ActionContributionItem(plotEdge);
+		}
+
+		plottingSystem.getActionBars().getToolBarManager().add(new Separator());
+		plottingSystem.getActionBars().getToolBarManager().add(plotEdgeACI);
+		plottingSystem.getActionBars().getToolBarManager().add(plotAverageACI);
+		plottingSystem.getActionBars().getToolBarManager().add(new Separator());
+//		bars.getMenuManager().add(new Separator());
+//		bars.getMenuManager().add(plotEdgeACI);
+//		bars.getMenuManager().add(plotAverageACI);
+//		bars.getMenuManager().add(new Separator());
+	}
+
 	/**
 	 * @return plot UI
 	 */
@@ -371,6 +463,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	//Abstract plotting System
 	private void setupPlotting2D() {
 		plotUI = new Plotting2DUI(getRoiManager(), plottingSystem);
+		addToggleActions();
 		addScriptingAction();
 		addDuplicateAction();
 		updateGuiBeanPlotMode(GuiPlotMode.TWOD);
@@ -467,6 +560,10 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			plotUI.dispose();
 		}
 		try {
+			plottingSystem.getActionBars().getToolBarManager().remove(plotEdgeACI);
+			plottingSystem.getActionBars().getToolBarManager().remove(plotAverageACI);
+			bars.getMenuManager().remove(plotEdgeACI);
+			bars.getMenuManager().remove(plotAverageACI);
 			plottingSystem.removeRegionListener(getRoiManager());
 			plottingSystem.dispose();
 			sideProfile1.dispose();
