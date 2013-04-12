@@ -74,7 +74,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.diamond.scisoft.mappingexplorer.views.AxisSelection;
 import uk.ac.diamond.scisoft.mappingexplorer.views.BaseViewPageComposite;
@@ -208,7 +208,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 
 					if (!plottingSystem.getTraces().isEmpty()) {
 						ITrace trace = plottingSystem.getTraces().iterator().next();
-						AbstractDataset datasetFromTrace = trace.getData();
+						IDataset datasetFromTrace = trace.getData();
 						double intensityValue = datasetFromTrace.getDouble(new int[] { yPoint, xPoint });
 
 						lblIntensityValue.setText(Double.toString(intensityValue));
@@ -393,7 +393,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 		}
 	};
 
-	private IRegion createStaticRegion(String nameStub, final ROIBase bounds, final Color snapShotColor,
+	private IRegion createStaticRegion(String nameStub, final IROI bounds, final Color snapShotColor,
 			final RegionType regionType) throws Exception {
 
 		final IRegion region = plottingSystem.createRegion(nameStub, regionType);
@@ -813,7 +813,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 
 			final String xLabel = xAxisLabel;
 			final String yLabel = yAxisLabel;
-			final List<AbstractDataset> axisList = new ArrayList<AbstractDataset>();
+			final List<IDataset> axisList = new ArrayList<IDataset>();
 			if (!jobDisplay.isDisposed()) {
 				jobDisplay.asyncExec(new Runnable() {
 
@@ -869,7 +869,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 	}
 
 	private Point[] getRectangleRegionRoi() {
-		ROIBase roi = areaRegion.getROI();
+		IROI roi = areaRegion.getROI();
 		if (roi instanceof RectangularROI) {
 			RectangularROI rectRoi = (RectangularROI) roi;
 			double[] endPoint = rectRoi.getEndPoint();

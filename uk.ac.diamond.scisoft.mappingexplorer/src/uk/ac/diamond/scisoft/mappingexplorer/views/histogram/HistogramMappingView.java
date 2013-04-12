@@ -202,7 +202,7 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 						evaluatedDs.setName("HistogramDataSet");
 
 						
-						AbstractDataset slice = null;
+						IDataset slice = null;
 						if (evaluated.size() > 1) {
 							AbstractDataset xData = evaluated.get(1);
 							slice = xData.getSlice(new Slice(0, numBins, 1));

@@ -417,6 +417,8 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 				}
 			} catch (ScanFileHolderException ex) {
 				logger.error("Error loading data from file during update", ex);
+			} catch (Exception e) {
+				logger.error("Error getting slice of data", e);
 			}
 			return Status.OK_STATUS;
 		}
