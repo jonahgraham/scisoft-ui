@@ -75,7 +75,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveJobAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
 import uk.ac.diamond.scisoft.analysis.roi.handler.HandleStatus;
@@ -332,7 +332,7 @@ public class BoxProfile extends SidePlotProfile {
 	}
 
 	@Override
-	protected void updatePlot(ROIBase roib) {
+	protected void updatePlot(IROI roib) {
 		final RectangularROI rroi = (RectangularROI) roib;
 
 		getDataset();
@@ -488,7 +488,7 @@ public class BoxProfile extends SidePlotProfile {
 	 * Draw dragged out overlay for given region of interest
 	 * @param roib
 	 */
-	private void drawDraggedOverlay(ROIBase roib) {
+	private void drawDraggedOverlay(IROI roib) {
 		if (oProvider == null)
 			return;
 
@@ -759,7 +759,7 @@ public class BoxProfile extends SidePlotProfile {
 	@Override
 	public void imageDragged(IImagePositionEvent event) {
 		if (dragging) {
-			final ROIBase croi = roiHandler.interpretMouseDragging(cpt, event.getImagePosition());
+			final IROI croi = roiHandler.interpretMouseDragging(cpt, event.getImagePosition());
 
 			if (croi != null) {
 				drawDraggedOverlay(croi);
@@ -815,7 +815,7 @@ public class BoxProfile extends SidePlotProfile {
 	};
 
 	@Override
-	protected void updateAllSpinners(ROIBase roib) {
+	protected void updateAllSpinners(IROI roib) {
 		if (roib == null)
 			return;
 
@@ -922,7 +922,7 @@ public class BoxProfile extends SidePlotProfile {
 	}
 
 	@Override
-	public ROIData createNewROIData(ROIBase roi) {
+	public ROIData createNewROIData(IROI roi) {
 		return new RectangularROIData((RectangularROI) roi, data, mask);
 	}
 

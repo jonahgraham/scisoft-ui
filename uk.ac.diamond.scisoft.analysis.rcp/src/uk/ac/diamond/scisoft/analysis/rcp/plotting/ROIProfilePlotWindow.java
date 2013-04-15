@@ -66,8 +66,8 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.PerimeterBoxROI;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 
 /**
  * PlotWindow equivalent with two side plots which display boxline profiles of a Rectangular ROI on the main plot
@@ -226,7 +226,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 				
 				@Override
 				public void selectionChanged(SelectionChangedEvent event) {
-					ROIBase newRoi = (ROIBase)myROIWidget.getROI();
+					IROI newRoi = myROIWidget.getROI();
 					String regionName = myROIWidget.getRegionName();
 					
 					IRegion region = plottingSystem.getRegion(regionName);
@@ -271,7 +271,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 				
 				@Override
 				public void selectionChanged(SelectionChangedEvent event) {
-					ROIBase newRoi = (ROIBase)verticalProfileROIWidget.getROI();
+					IROI newRoi = verticalProfileROIWidget.getROI();
 					String regionName = verticalProfileROIWidget.getRegionName();
 					
 					IRegion region = verticalProfilePlottingSystem.getRegion(regionName);
@@ -302,7 +302,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 				
 				@Override
 				public void selectionChanged(SelectionChangedEvent event) {
-					ROIBase newRoi = (ROIBase)horizontalProfileROIWidget.getROI();
+					IROI newRoi = horizontalProfileROIWidget.getROI();
 					String regionName = horizontalProfileROIWidget.getRegionName();
 					
 					IRegion region = horizontalProfilePlottingSystem.getRegion(regionName);

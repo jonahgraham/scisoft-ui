@@ -31,9 +31,9 @@ import org.dawnsci.plotting.api.region.ROIEvent;
 import org.dawnsci.plotting.api.region.RegionEvent;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.ROIList;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
@@ -44,18 +44,18 @@ import uk.ac.diamond.scisoft.analysis.roi.SectorROIList;
  * Class to deal with interactions of regions and ROIs
  */
 public class ROIManager implements IROIListener, IRegionListener {
-	private Map<String, ROIBase> roiMap; // region name to ROI map
-	private Map<String, ROIBase> regionMap; // region name to ROI map
+	private Map<String, IROI> roiMap; // region name to ROI map
+	private Map<String, IROI> regionMap; // region name to ROI map
 	private String name;
-	private ROIBase roi;
+	private IROI roi;
 	private IGuiInfoManager server; // usually plot window
 	private String plotName;
 	private IPlottingSystem plottingSystem;
 
 	public ROIManager(IGuiInfoManager guiManager, String plotName) {
 		server = guiManager;
-		roiMap = new LinkedHashMap<String, ROIBase>();
-		regionMap = new LinkedHashMap<String, ROIBase>();
+		roiMap = new LinkedHashMap<String, IROI>();
+		regionMap = new LinkedHashMap<String, IROI>();
 
 		this.plotName = plotName;
 		this.plottingSystem = PlottingFactory.getPlottingSystem(plotName);
@@ -71,7 +71,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 	/**
 	 * @return name of ROI (can be null)
 	 */
-	public ROIBase getROI() {
+	public IROI getROI() {
 		return roi;
 	}
 
@@ -97,7 +97,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 		if (region == null)
 			return;
 
-		ROIBase eroi = (ROIBase)region.getROI();
+		IROI eroi = region.getROI();
 		if (eroi != null && !eroi.equals(roi)) {
 			roi = eroi;
 			name = region.getName();
@@ -113,7 +113,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 			return;
 
 		region.addROIListener(this);
-		ROIBase eroi = (ROIBase)region.getROI();
+		IROI eroi = region.getROI();
 		if (eroi != null) {
 			updateGuiBean(eroi);
 		}
@@ -147,7 +147,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	@Override
 	public void roiChanged(ROIEvent evt) {
-		ROIBase eroi = (ROIBase)evt.getROI();
+		IROI eroi = evt.getROI();
 		if (eroi == null)
 			return;
 
@@ -164,8 +164,8 @@ public class ROIManager implements IROIListener, IRegionListener {
 		roiChanged(evt);
 	}
 
-	private void updateGuiBean(ROIBase roib) {
-		ROIBase tmpRoi = roib;
+	private void updateGuiBean(IROI roib) {
+		IROI tmpRoi = roib;
 		updateRoiMap();
 
 		server.removeGUIInfo(GuiParameters.ROIDATA);
@@ -173,7 +173,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 		if (roib == null) { // get first element if possible
 			@SuppressWarnings("unchecked")
-			ROIList<? extends ROIBase> list = (ROIList<? extends ROIBase>) server.getGUIInfo().get(GuiParameters.ROIDATALIST);
+			ROIList<? extends IROI> list = (ROIList<? extends IROI>) server.getGUIInfo().get(GuiParameters.ROIDATALIST);
 
 			if (list != null && list.size() > 0) {
 				roib = list.get(0);
@@ -187,13 +187,13 @@ public class ROIManager implements IROIListener, IRegionListener {
 		server.removeGUIInfo(GuiParameters.ROIDATALIST);
 		Serializable list = createNewROIList(roib);
 		if (list != null)
-			server.putGUIInfo(GuiParameters.ROIDATALIST, list);
+			server.putGUIInfo(GuiParameters.ROIDATALIST, (Serializable) roiMap);
 
 		//if the region has been removed, roib will be null
 		//we get the first roi from the roilist and put it in roidata
 		if(tmpRoi == null){
 			@SuppressWarnings("unchecked")
-			ROIList<? extends ROIBase> roilist = (ROIList<? extends ROIBase>) server.getGUIInfo().get(GuiParameters.ROIDATALIST);
+			ROIList<? extends IROI> roilist = (ROIList<? extends IROI>) server.getGUIInfo().get(GuiParameters.ROIDATALIST);
 
 			if (list != null && roilist.size() > 0) {
 				tmpRoi = roilist.get(0);
@@ -206,7 +206,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 		}
 	}
 
-	public ROIList<? extends ROIBase> createNewROIList(ROIBase roib) {
+	public ROIList<? extends IROI> createNewROIList(IROI roib) {
 		if (roib instanceof LinearROI)
 			return createNewLROIList();
 		else if (roib instanceof RectangularROI)
@@ -218,7 +218,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	public LinearROIList createNewLROIList() {
 		LinearROIList list = new LinearROIList();
-		for (ROIBase r : roiMap.values()) {
+		for (IROI r : roiMap.values()) {
 			if (r instanceof LinearROI) {
 				list.add((LinearROI) r);
 			}
@@ -230,7 +230,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	public RectangularROIList createNewRROIList() {
 		RectangularROIList list = new RectangularROIList();
-		for (ROIBase r : roiMap.values()) {
+		for (IROI r : roiMap.values()) {
 			if (r instanceof RectangularROI) {
 				list.add((RectangularROI) r);
 			}
@@ -242,7 +242,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	public SectorROIList createNewSROIList() {
 		SectorROIList list = new SectorROIList();
-		for (ROIBase r : roiMap.values()) {
+		for (IROI r : roiMap.values()) {
 			if (r instanceof SectorROI) {
 				list.add((SectorROI) r);
 			}
@@ -264,7 +264,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 		if (regions == null) return;
 		regionMap.clear();
 		for (IRegion iRegion : regions) {
-			regionMap.put(iRegion.getName(), (ROIBase)iRegion.getROI());
+			regionMap.put(iRegion.getName(), iRegion.getROI());
 		}
 		Set<String> names = roiMap.keySet();
 		Object[] strNames = names.toArray();

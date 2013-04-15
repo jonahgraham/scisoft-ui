@@ -31,12 +31,12 @@ import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.IRegion;
+import org.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.dawnsci.plotting.api.region.IRegionListener;
 import org.dawnsci.plotting.api.region.ROIEvent;
 import org.dawnsci.plotting.api.region.RegionEvent;
-import org.dawnsci.plotting.api.region.IRegion.RegionType;
-import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
+import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.IPaletteListener;
 import org.dawnsci.plotting.api.trace.IPaletteTrace;
@@ -79,7 +79,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.DataWindowOverlay;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 
 /**
@@ -859,7 +859,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			@Override
 			public void regionAdded(RegionEvent evt) {
 				if (evt.getRegion()!=null) {
-					ROIBase roi = (ROIBase)evt.getRegion().getROI();
+					IROI roi = evt.getRegion().getROI();
 					if(roi!=null && roi instanceof RectangularROI){
 						RectangularROI rroi = (RectangularROI) roi;
 						final int startX = (int)Math.round(rroi.getPointX());
@@ -880,7 +880,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 				IRegion region = evt.getRegion();
 				if (region!=null) {
 					region.addROIListener(DataWindowView.this);
-					ROIBase roi = (ROIBase)region.getROI();
+					IROI roi = region.getROI();
 					if(roi!=null && roi instanceof RectangularROI){
 						RectangularROI rroi = (RectangularROI) roi;
 						final int startX = (int)Math.round(rroi.getPointX());
@@ -907,7 +907,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 
 	@Override
 	public void roiChanged(ROIEvent evt) {
-		ROIBase roi = (ROIBase)evt.getROI();
+		IROI roi = evt.getROI();
 		if(roi!=null){
 			RectangularROI rroi = (RectangularROI) roi;
 			final int startX = (int)Math.round(rroi.getPointX());

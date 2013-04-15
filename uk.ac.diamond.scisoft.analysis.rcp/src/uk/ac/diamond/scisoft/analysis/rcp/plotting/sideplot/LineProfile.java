@@ -71,9 +71,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.handler.HandleStatus;
 import uk.ac.diamond.scisoft.analysis.roi.handler.LinearROIHandler;
 
@@ -272,7 +272,7 @@ public class LineProfile extends SidePlotProfile {
 	}
 
 	@Override
-	protected void updatePlot(ROIBase roib) {
+	protected void updatePlot(IROI roib) {
 		final LinearROI lroi = (LinearROI) roib;
 
 		updateDataList();
@@ -398,7 +398,7 @@ public class LineProfile extends SidePlotProfile {
 	 * Draw dragged out overlay for given region of interest
 	 * @param roib
 	 */
-	private void drawDraggedOverlay(ROIBase roib) {
+	private void drawDraggedOverlay(IROI roib) {
 		if (oProvider == null)
 			return;
 
@@ -658,7 +658,7 @@ public class LineProfile extends SidePlotProfile {
 	@Override
 	public void imageDragged(IImagePositionEvent event) {
 		if (dragging) {
-			final ROIBase croi = roiHandler.interpretMouseDragging(cpt, event.getImagePosition());
+			final IROI croi = roiHandler.interpretMouseDragging(cpt, event.getImagePosition());
 
 			if (croi != null) {
 				drawDraggedOverlay(croi);
@@ -713,7 +713,7 @@ public class LineProfile extends SidePlotProfile {
 	};
 
 	@Override
-	protected void updateAllSpinners(ROIBase roib) {
+	protected void updateAllSpinners(IROI roib) {
 		final LinearROI lroi = (LinearROI) roib;
 		if (lroi == null)
 			return;
@@ -828,7 +828,7 @@ public class LineProfile extends SidePlotProfile {
 	}
 
 	@Override
-	public ROIData createNewROIData(ROIBase roi) {
+	public ROIData createNewROIData(IROI roi) {
 		return new LinearROIData((LinearROI) roi, data, lineStep);
 	}
 

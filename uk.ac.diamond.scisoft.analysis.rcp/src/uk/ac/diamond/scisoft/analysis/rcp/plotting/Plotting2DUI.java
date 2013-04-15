@@ -45,7 +45,6 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.roi.IROI;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.ROIList;
 import uk.ac.diamond.scisoft.analysis.roi.ROIUtils;
 
@@ -168,12 +167,12 @@ public class Plotting2DUI extends AbstractPlotUI {
 	@Override
 	public void processGUIUpdate(GuiBean guiBean) {
 
-		final ROIBase roi = (ROIBase)guiBean.get(GuiParameters.ROIDATA);
+		final IROI roi = (IROI)guiBean.get(GuiParameters.ROIDATA);
 
 		logger.debug("There is a guiBean update:"+ guiBean.toString());
 
 		final String cname = manager.getName();
-		final ROIBase croi = manager.getROI();
+		final IROI croi = manager.getROI();
 		final Collection<IRegion> regions = plottingSystem.getRegions();
 		@SuppressWarnings("rawtypes")
 		ROIList list = (ROIList) guiBean.get(GuiParameters.ROIDATALIST);
@@ -244,7 +243,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 			}
 		}
 
-		final ROIBase roib = roi != null ? roi : (croi != null ? croi : null);
+		final IROI roib = roi != null ? roi : (croi != null ? croi : null);
 		if (roib != null) {
 			if (list == null || list.size() == 0) {
 				// prune regions of given type
@@ -260,12 +259,12 @@ public class Plotting2DUI extends AbstractPlotUI {
 					});
 				}
 			} else {
-				ROIBase froi = (ROIBase) list.get(0);
+				IROI froi = (IROI) list.get(0);
 				if (roib.getClass().equals(froi.getClass())) {
 					final List<IRegion> rList = createRegionsList(regions, roib.getClass());
 					final int nr = rList.size();
 					if (nr > 0) {
-						final ROIList<? extends ROIBase> flist = list;
+						final ROIList<? extends IROI> flist = list;
 						Display.getDefault().asyncExec(new Runnable() {
 							@Override
 							public void run() {
@@ -294,7 +293,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 		}
 	}
 
-	private IRegion createRegion(ROIBase roib) {
+	private IRegion createRegion(IROI roib) {
 		try {
 			RegionType type = RegionService.getRegion(roib.getClass());
 			IRegion region = plottingSystem.createRegion(RegionUtils.getUniqueName(type.getName(), plottingSystem), type);
@@ -307,7 +306,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 		return null;
 	}
 
-	private static List<IRegion> createRegionsList(Collection<IRegion> regions, Class<? extends ROIBase> roiClass) {
+	private static List<IRegion> createRegionsList(Collection<IRegion> regions, Class<? extends IROI> roiClass) {
 		List<IRegion> list = new ArrayList<IRegion>();
 		for (IRegion r : regions) {
 			IROI rr = r.getROI();

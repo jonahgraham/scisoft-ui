@@ -58,7 +58,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.scisoft.analysis.roi.GridPreferences;
 import uk.ac.diamond.scisoft.analysis.roi.GridROI;
 import uk.ac.diamond.scisoft.analysis.roi.GridROIList;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.handler.GridROIHandler;
 import uk.ac.diamond.scisoft.analysis.roi.handler.HandleStatus;
 
@@ -358,7 +358,7 @@ public class GridProfile extends SidePlotProfile {
 	}
 
 	@Override
-	protected void updatePlot(ROIBase roib) {
+	protected void updatePlot(IROI roib) {
 		final GridROI groi = (GridROI) roib;
 		getDataset();
 
@@ -387,7 +387,7 @@ public class GridProfile extends SidePlotProfile {
 	 * Draw dragged out overlay for given region of interest
 	 * @param roib
 	 */
-	private void drawDraggedOverlay(ROIBase roib) {
+	private void drawDraggedOverlay(IROI roib) {
 		if (oProvider == null) {
 			return;
 		}
@@ -869,7 +869,7 @@ public class GridProfile extends SidePlotProfile {
 	@Override
 	public void imageDragged(IImagePositionEvent event) {
 		if (dragging) {
-			final ROIBase croi = roiHandler.interpretMouseDragging(cpt, event.getImagePosition());
+			final IROI croi = roiHandler.interpretMouseDragging(cpt, event.getImagePosition());
 
 			if (croi != null) {
 				drawDraggedOverlay(croi);
@@ -942,7 +942,7 @@ public class GridProfile extends SidePlotProfile {
 	};
 
 	@Override
-	protected void updateAllSpinners(ROIBase roib) {
+	protected void updateAllSpinners(IROI roib) {
 		if (roib == null) {
 			return;
 		}
@@ -1070,7 +1070,7 @@ public class GridProfile extends SidePlotProfile {
 	}
 
 	@Override
-	public ROIData createNewROIData(ROIBase roi) {
+	public ROIData createNewROIData(IROI roi) {
 		return new GridROIData((GridROI) roi, data);
 	}
 

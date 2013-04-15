@@ -86,7 +86,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveJobAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
 import uk.ac.diamond.scisoft.analysis.roi.SectorROIList;
 import uk.ac.diamond.scisoft.analysis.roi.handler.HandleStatus;
@@ -475,7 +475,7 @@ public class SectorProfile extends SidePlotProfile {
 	}
 	
 	@Override
-	protected void updatePlot(ROIBase roib) {
+	protected void updatePlot(IROI roib) {
 		final SectorROI sroi = (SectorROI) roib;
 		setRadioButtons(sroi);
 		getDataset();
@@ -705,7 +705,7 @@ public class SectorProfile extends SidePlotProfile {
 	 * 
 	 * @param roib
 	 */
-	private void drawDraggedOverlay(ROIBase roib) {
+	private void drawDraggedOverlay(IROI roib) {
 		if (oProvider == null)
 			return;
 
@@ -1110,7 +1110,7 @@ public class SectorProfile extends SidePlotProfile {
 	@Override
 	public void imageDragged(IImagePositionEvent event) {
 		if (dragging) {
-			final ROIBase croi = roiHandler.interpretMouseDragging(cpt, event.getImagePosition());
+			final IROI croi = roiHandler.interpretMouseDragging(cpt, event.getImagePosition());
 
 			if (croi != null) {
 				drawDraggedOverlay(croi);
@@ -1323,7 +1323,7 @@ public class SectorProfile extends SidePlotProfile {
 	};
 
 	@Override
-	protected void updateAllSpinners(final ROIBase roib) {
+	protected void updateAllSpinners(final IROI roib) {
 		if (roib == null)
 			return;
 
@@ -1429,7 +1429,7 @@ public class SectorProfile extends SidePlotProfile {
 	}
 
 	@Override
-	public ROIData createNewROIData(ROIBase roi) {
+	public ROIData createNewROIData(IROI roi) {
 		return new SectorROIData((SectorROI) roi, data, mask);
 	}
 

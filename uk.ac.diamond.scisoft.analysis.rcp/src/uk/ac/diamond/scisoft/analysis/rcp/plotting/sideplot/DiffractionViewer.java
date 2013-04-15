@@ -62,8 +62,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.ROIList;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.diamond.scisoft.analysis.roi.handler.HandleStatus;
@@ -281,12 +281,12 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 	}
 
 	@Override
-	public ROIList<? extends ROIBase> createROIList() {
+	public ROIList<? extends IROI> createROIList() {
 		return null;
 	}
 
 	@Override
-	public ROIData createNewROIData(ROIBase roi) {
+	public ROIData createNewROIData(IROI roi) {
 		return null;
 	}
 
@@ -395,7 +395,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 	}
 
 	@Override
-	protected void updatePlot(ROIBase roi) {
+	protected void updatePlot(IROI roi) {
 		// this will pass a dataset to the gui that will peakfit and plot the lineraROI
 		if (roi != null)
 			diffSpotFit.processROI(data, (LinearROI) roi);
@@ -552,7 +552,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 				}
 			} else {
 				if (isLine) {
-					final ROIBase croi = roiHandler.interpretMouseDragging(cpt, ((ImagePositionEvent) event).getImagePosition());
+					final IROI croi = roiHandler.interpretMouseDragging(cpt, ((ImagePositionEvent) event).getImagePosition());
 					if (croi != null) {
 						drawDraggedOverlay(croi);
 						if (System.currentTimeMillis() >= nextTime) {
@@ -648,7 +648,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 	 * 
 	 * @param roib
 	 */
-	private void drawDraggedOverlay(ROIBase roib) {
+	private void drawDraggedOverlay(IROI roib) {
 		// draws the line
 		if (oProvider == null)
 			return;
@@ -868,7 +868,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 	}
 
 	@Override
-	protected void updateAllSpinners(ROIBase roi) {
+	protected void updateAllSpinners(IROI roi) {
 
 	}
 

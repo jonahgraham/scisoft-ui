@@ -59,8 +59,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROITableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveQueue;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.MaskingBean;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.ROIList;
 import uk.ac.diamond.scisoft.analysis.roi.handler.ROIHandler;
 
@@ -78,10 +78,10 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	protected double subFactor; // linear reduction factor of down-sampled image
 	private static final int DMAXDIM = 500; // maximum length of a side in image for down-sampled image
 
-	protected ROIBase roi = null;
+	protected IROI roi = null;
 	protected ROIData roiData = null;
 	protected ROIDataList roiDataList = null;
-	protected Class<? extends ROIBase> roiClass = null;
+	protected Class<? extends IROI> roiClass = null;
 	protected Class<?> roiListClass = null;
 
 	protected Overlay2DProvider oProvider;
@@ -289,7 +289,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	 * Update plot(s) with given region of interest
 	 * @param roi
 	 */
-	abstract protected void updatePlot(ROIBase roi);
+	abstract protected void updatePlot(IROI roi);
 
 	/**
 	 * Draw current overlay for given region of interest
@@ -305,7 +305,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	 * Update all spinners with regions of interest
 	 * @param roi
 	 */
-	abstract protected void updateAllSpinners(final ROIBase roi);
+	abstract protected void updateAllSpinners(final IROI roi);
 
 	/**
 	 * Update data list from ROI list
@@ -486,7 +486,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 		}
 	};
 
-	protected void sendCurrentROI(ROIBase roib) {
+	protected void sendCurrentROI(IROI roib) {
 		if (roib == null) {
 			removeCurrentROI();
 			return;
@@ -496,7 +496,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 			guiUpdateManager.putGUIInfo(GuiParameters.ROIDATA, roib.copy());
 	}
 
-	protected void sendROIs(@SuppressWarnings("unused") Class<? extends ROIBase> clazz) {
+	protected void sendROIs(@SuppressWarnings("unused") Class<? extends IROI> clazz) {
 		removeROIs();
 		if (roiDataList.size() == 0) {
 			return;
@@ -521,13 +521,13 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	 * @param roi
 	 * @return ROI data
 	 */
-	public abstract ROIData createNewROIData(ROIBase roi);
+	public abstract ROIData createNewROIData(IROI roi);
 
 	/**
 	 * Create a list of ROIs
 	 * @return list of ROIs
 	 */
-	public abstract ROIList<? extends ROIBase> createROIList();
+	public abstract ROIList<? extends IROI> createROIList();
 
 	/**
 	 * Update GUI based on information from bean
@@ -579,7 +579,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 				}
 			} else if (obj.getClass().equals(roiClass)) {
 				hideCurrent();
-				roi = (ROIBase) obj;
+				roi = (IROI) obj;
 				roiHandler.setROI(roi);
 				getControl().getDisplay().asyncExec(new Runnable() {
 					@Override
@@ -629,14 +629,14 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 
 				update |= ROILIST;
 			} else if (obj.getClass().equals(roiListClass)) {
-				ArrayList<? extends ROIBase> list = (ArrayList<? extends ROIBase>) obj;
+				ArrayList<? extends IROI> list = (ArrayList<? extends IROI>) obj;
 
 				// remove IDs first (primitives and data)
 				getDataset();
 				removeIDs(roisIDs);
 				roisIDs.clear();
 				roiDataList.clear();
-				for (ROIBase roib : list) {
+				for (IROI roib : list) {
 
 					roiDataList.add(createNewROIData(roib));
 					roisIDs.add(-1);
