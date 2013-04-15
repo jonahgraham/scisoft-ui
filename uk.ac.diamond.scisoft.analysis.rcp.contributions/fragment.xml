@@ -74,6 +74,15 @@
             restorable="true">
       </view>
       <view
+            allowMultiple="true"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.ROIProfilePlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.perimeterProfilePlotView"
+            name="Perimeter Profile Plot"
+            restorable="true">
+      </view>
+      <view
             name="Side Plot"
             icon="icons/chart_line.png"
             category="uk.ac.diamond.scisoft.analysis.rcp"
