@@ -42,6 +42,7 @@ public class Activator extends AbstractUIPlugin {
 	/**
 	 * Setup the logging facilities
 	 */
+	@SuppressWarnings("unused")
 	transient private static final Logger logger = LoggerFactory.getLogger(Activator.class);
 
 	// The plug-in ID

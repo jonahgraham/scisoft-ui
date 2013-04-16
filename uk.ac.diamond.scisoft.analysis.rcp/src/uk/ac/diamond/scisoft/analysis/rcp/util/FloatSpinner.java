@@ -325,6 +325,7 @@ public class FloatSpinner extends Composite {
 		});
 	}
 	
+	@Override
 	public void addKeyListener(KeyListener listener) {
 		super.addKeyListener(listener);
         spinner.addKeyListener(listener);

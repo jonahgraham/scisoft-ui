@@ -781,6 +781,7 @@ class PlotTab extends ATab {
 					averagedData = tmpSlice;
 				sliceIdx++;
 			}
+			if(averagedData == null) return null;
 			slicedData = averagedData.idivide(sliceIdx);
 		} else {
 			slicedData = sliceData(monitor, slices);

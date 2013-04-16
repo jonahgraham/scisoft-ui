@@ -927,6 +927,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			return editor;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		protected Object getValue(Object element) {
 			if (element instanceof SelectedObject) {
@@ -1006,6 +1007,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	/**
 	 * Loop over all expressions and assign to every variable a set of SelectionObjects associated with it
 	 */
+	@SuppressWarnings("unchecked")
 	private void updateVariableMappings() {
 		List<SelectedFile> selFiles = (List<SelectedFile>) viewer.getInput();
 		Set<String> varNames = new HashSet<String>();
@@ -1574,6 +1576,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			mv = i;
 		}
 
+		@SuppressWarnings("unused")
 		public void setMetaValue(String key) {
 			if (m == null) {
 				hasMV = false;
@@ -1616,7 +1619,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			asl = axisSelectionList;
 		}
 
-		public ILazyDataset getAxis(String key) {
+		public ILazyDataset getAxis(@SuppressWarnings("unused") String key) {
 			return null;
 		}
 
@@ -1624,6 +1627,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			return asl;
 		}
 
+		@SuppressWarnings("unused")
 		public boolean hasAxisSelections() {
 			return asl != null;
 		}
@@ -1764,6 +1768,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			return (String) f;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public boolean hasData() {
 			Set<String> vars = symbolTable.keySet();
@@ -1791,6 +1796,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			return true;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public boolean isDataOK() {
 			Iterator<String> itr = symbolTable.keySet().iterator();
@@ -1818,6 +1824,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			return canUseData;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public ILazyDataset getAxis(String key) {
 			Iterator<String> itr = symbolTable.keySet().iterator();
@@ -1873,6 +1880,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				return hasData();
 			}
 			
+			@SuppressWarnings("unchecked")
 			@Override
 			public AbstractDataset getDataset(IMonitor mon, int[] shape, int[] start, int[] stop, int[] step)
 					throws ScanFileHolderException {
@@ -1996,6 +2004,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		}
 		
+		@SuppressWarnings("unchecked")
 		@Override
 		public List<ILazyDataset> getData() {
 			// Generate all combinations of datasets assigned to variables
@@ -2037,6 +2046,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			return d;
 		}
 
+		@SuppressWarnings("unchecked")
 		private int[] getShape() {
 			int [] tmpShape = null;
 			Iterator<String> itr = symbolTable.keySet().iterator();

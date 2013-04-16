@@ -35,7 +35,6 @@ import org.eclipse.ui.PartInitException;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.LongDataset;
 import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.AbstractMapFunction;
 import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.UserCustomFunction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.GlobalColourMaps;
