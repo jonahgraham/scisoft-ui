@@ -400,56 +400,60 @@ public class PlotWindow extends AbstractPlotWindow {
 				try {
 					if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM) {
 						PlottingMode oldMode = mainPlotter.getMode();
-						if (plotMode.equals(GuiPlotMode.ONED) && oldMode != PlottingMode.ONED) {
-							cleanUpFromOldMode(true);
-							setup1D();
-						} else if (plotMode.equals(GuiPlotMode.ONED_THREED) && oldMode != PlottingMode.ONED_THREED) {
-							cleanUpFromOldMode(true);
-							setupMulti1DPlot();
-						} else if (plotMode.equals(GuiPlotMode.TWOD) && oldMode != PlottingMode.TWOD) {
-							cleanUpFromOldMode(true);
-							setup2D();
-						} else if (plotMode.equals(GuiPlotMode.SURF2D) && oldMode != PlottingMode.SURF2D) {
-							cleanUpFromOldMode(true);
-							setup2DSurface();
-						} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && oldMode != PlottingMode.SCATTER2D) {
-							cleanUpFromOldMode(true);
-							setupScatter2DPlot();
-						} else if (plotMode.equals(GuiPlotMode.SCATTER3D) && oldMode != PlottingMode.SCATTER3D) {
-							cleanUpFromOldMode(true);
-							setupScatter3DPlot();
-						} else if (plotMode.equals(GuiPlotMode.MULTI2D) && oldMode != PlottingMode.MULTI2D) {
-							cleanUpFromOldMode(true);
-							setupMulti2D();
-						} else if (plotMode.equals(GuiPlotMode.EMPTY) && oldMode != PlottingMode.EMPTY) {
-							clearPlot();
+						if(oldMode == null || !plotMode.equals(oldMode)){
+							if (plotMode.equals(GuiPlotMode.ONED)) {
+								cleanUpFromOldMode(true);
+								setup1D();
+							} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
+								cleanUpFromOldMode(true);
+								setupMulti1DPlot();
+							} else if (plotMode.equals(GuiPlotMode.TWOD)) {
+								cleanUpFromOldMode(true);
+								setup2D();
+							} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
+								cleanUpFromOldMode(true);
+								setup2DSurface();
+							} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
+								cleanUpFromOldMode(true);
+								setupScatter2DPlot();
+							} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
+								cleanUpFromOldMode(true);
+								setupScatter3DPlot();
+							} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
+								cleanUpFromOldMode(true);
+								setupMulti2D();
+							} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
+								clearPlot();
+							}
 						}
 					}
 					if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
 						GuiPlotMode oldMode = getPreviousMode();
 						if (plotMode != GuiPlotMode.EMPTY) {
-							cleanUp(plotMode);
-							if (plotMode.equals(GuiPlotMode.ONED) && oldMode != GuiPlotMode.ONED) {
-								setupPlotting1D();
-								setPreviousMode(GuiPlotMode.ONED);
-							} else if (plotMode.equals(GuiPlotMode.TWOD) && oldMode != GuiPlotMode.TWOD) {
-								setupPlotting2D();
-								setPreviousMode(GuiPlotMode.TWOD);
-							} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && oldMode != GuiPlotMode.SCATTER2D) {
-								setupScatterPlotting2D();
-								setPreviousMode(GuiPlotMode.SCATTER2D);
-							} else if (plotMode.equals(GuiPlotMode.ONED_THREED) && oldMode != GuiPlotMode.ONED_THREED) {
-								setupMulti1DPlot();
-								setPreviousMode(GuiPlotMode.ONED_THREED);
-							} else if (plotMode.equals(GuiPlotMode.SURF2D) && oldMode != GuiPlotMode.SURF2D) {
-								setup2DSurface();
-								setPreviousMode(GuiPlotMode.SURF2D);
-							} else if (plotMode.equals(GuiPlotMode.SCATTER3D) && oldMode != GuiPlotMode.SCATTER3D) {
-								setupScatter3DPlot();
-								setPreviousMode(GuiPlotMode.SCATTER3D);
-							} else if (plotMode.equals(GuiPlotMode.MULTI2D) && oldMode != GuiPlotMode.MULTI2D) {
-								setupMulti2D();
-								setPreviousMode(GuiPlotMode.MULTI2D);
+							if(oldMode == null || !plotMode.equals(oldMode)){
+								cleanUp(plotMode);
+								if (plotMode.equals(GuiPlotMode.ONED)) {
+									setupPlotting1D();
+									setPreviousMode(GuiPlotMode.ONED);
+								} else if (plotMode.equals(GuiPlotMode.TWOD)) {
+									setupPlotting2D();
+									setPreviousMode(GuiPlotMode.TWOD);
+								} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
+									setupScatterPlotting2D();
+									setPreviousMode(GuiPlotMode.SCATTER2D);
+								} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
+									setupMulti1DPlot();
+									setPreviousMode(GuiPlotMode.ONED_THREED);
+								} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
+									setup2DSurface();
+									setPreviousMode(GuiPlotMode.SURF2D);
+								} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
+									setupScatter3DPlot();
+									setPreviousMode(GuiPlotMode.SCATTER3D);
+								} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
+									setupMulti2D();
+									setPreviousMode(GuiPlotMode.MULTI2D);
+								}
 							}
 						} else if (oldMode!=null && oldMode != GuiPlotMode.EMPTY) {
 							clearPlot();
