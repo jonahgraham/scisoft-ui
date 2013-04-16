@@ -187,7 +187,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 		server.removeGUIInfo(GuiParameters.ROIDATALIST);
 		Serializable list = createNewROIList(roib);
 		if (list != null)
-			server.putGUIInfo(GuiParameters.ROIDATALIST, (Serializable) roiMap);
+			server.putGUIInfo(GuiParameters.ROIDATALIST, list);
 
 		//if the region has been removed, roib will be null
 		//we get the first roi from the roilist and put it in roidata
