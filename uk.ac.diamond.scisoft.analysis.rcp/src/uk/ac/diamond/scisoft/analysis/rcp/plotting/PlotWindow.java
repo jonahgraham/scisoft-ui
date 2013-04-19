@@ -317,7 +317,7 @@ public class PlotWindow extends AbstractPlotWindow {
 		updateGuiBeanPlotMode(GuiPlotMode.ONED);
 	}
 
-	// Datasetplotter
+	// Dataset plotter
 	private void setup2D() {
 		mainPlotter.setMode(PlottingMode.TWOD);
 		plotUI = new Plot2DUI(this, mainPlotter, getGuiManager(), parentComp, getPage(), bars, getName());
@@ -397,8 +397,8 @@ public class PlotWindow extends AbstractPlotWindow {
 			public void run() {
 				try {
 					if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM) {
-						PlottingMode oldMode = mainPlotter.getMode();
-						if(oldMode == null || !plotMode.equals(oldMode)){
+						GuiPlotMode oldMode = getPreviousMode();
+						if (oldMode == null || !plotMode.equals(oldMode)) {
 							if (plotMode.equals(GuiPlotMode.ONED)) {
 								cleanUpFromOldMode(true);
 								setup1D();
@@ -423,6 +423,7 @@ public class PlotWindow extends AbstractPlotWindow {
 							} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
 								clearPlot();
 							}
+							setPreviousMode(plotMode);
 						}
 					}
 					if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
@@ -432,26 +433,20 @@ public class PlotWindow extends AbstractPlotWindow {
 								cleanUp(plotMode);
 								if (plotMode.equals(GuiPlotMode.ONED)) {
 									setupPlotting1D();
-									setPreviousMode(GuiPlotMode.ONED);
 								} else if (plotMode.equals(GuiPlotMode.TWOD)) {
 									setupPlotting2D();
-									setPreviousMode(GuiPlotMode.TWOD);
 								} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
 									setupScatterPlotting2D();
-									setPreviousMode(GuiPlotMode.SCATTER2D);
 								} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
 									setupMulti1DPlot();
-									setPreviousMode(GuiPlotMode.ONED_THREED);
 								} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
 									setup2DSurface();
-									setPreviousMode(GuiPlotMode.SURF2D);
 								} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
 									setupScatter3DPlot();
-									setPreviousMode(GuiPlotMode.SCATTER3D);
 								} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
 									setupMulti2D();
-									setPreviousMode(GuiPlotMode.MULTI2D);
 								}
+								setPreviousMode(plotMode);
 							}
 						} else if (oldMode!=null && oldMode != GuiPlotMode.EMPTY) {
 							clearPlot();
