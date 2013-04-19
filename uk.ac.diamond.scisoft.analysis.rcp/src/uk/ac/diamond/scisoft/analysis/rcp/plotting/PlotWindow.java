@@ -241,7 +241,8 @@ public class PlotWindow extends AbstractPlotWindow {
 	 * @param mode
 	 */
 	private void cleanUp(GuiPlotMode mode) {
-		if (mode.equals(GuiPlotMode.ONED) || mode.equals(GuiPlotMode.TWOD) || mode.equals(GuiPlotMode.SCATTER2D)) {
+		if (mode.equals(GuiPlotMode.ONED) || mode.equals(GuiPlotMode.TWOD) || mode.equals(GuiPlotMode.SCATTER2D)
+				|| mode.equals(GuiPlotMode.SURF2D)) {
 			cleanUpDatasetPlotter();
 			if (plottingSystem == null || plottingSystem.isDisposed())
 				createPlottingSystem();
@@ -249,11 +250,6 @@ public class PlotWindow extends AbstractPlotWindow {
 			cleanUpPlottingSystem();
 			if (mainPlotter == null || mainPlotter.isDisposed())
 				createDatasetPlotter(PlottingMode.ONED_THREED);
-			cleanUpFromOldMode(true);
-		} else if (mode.equals(GuiPlotMode.SURF2D)) {
-			cleanUpPlottingSystem();
-			if (mainPlotter == null || mainPlotter.isDisposed())
-				createDatasetPlotter(PlottingMode.SURF2D);
 			cleanUpFromOldMode(true);
 		} else if (mode.equals(GuiPlotMode.SCATTER3D)) {
 			cleanUpPlottingSystem();
@@ -313,6 +309,7 @@ public class PlotWindow extends AbstractPlotWindow {
 
 	// Abstract plotting System
 	private void setupPlotting1D() {
+		plottingSystem.setPlotType(PlotType.XY);
 		plotUI = new Plotting1DUI(plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
@@ -331,6 +328,7 @@ public class PlotWindow extends AbstractPlotWindow {
 
 	// Abstract plotting System
 	private void setupPlotting2D() {
+		plottingSystem.setPlotType(PlotType.IMAGE);
 		plotUI = new Plotting2DUI(getRoiManager(), plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
@@ -347,11 +345,11 @@ public class PlotWindow extends AbstractPlotWindow {
 	}
 
 	private void setup2DSurface() {
-		mainPlotter.useWindow(true);
-		mainPlotter.setMode(PlottingMode.SURF2D);
-		plotUI = new PlotSurf3DUI(this, mainPlotter, parentComp, getPage(), bars, getName());
-		addCommonActions(mainPlotter);
-		bars.updateActionBars();
+		plottingSystem.setPlotType(PlotType.SURFACE);
+		plotUI = new Plotting2DUI(getRoiManager(), plottingSystem);
+		addScriptingAction();
+		addDuplicateAction();
+		addClearAction();
 		updateGuiBeanPlotMode(GuiPlotMode.SURF2D);
 	}
 

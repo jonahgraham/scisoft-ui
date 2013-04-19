@@ -28,11 +28,14 @@ import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.region.RegionService;
+import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.dawnsci.plotting.api.region.RegionUtils;
+import org.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
+import org.dawnsci.plotting.jreality.SurfaceTrace;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +72,14 @@ public class Plotting2DUI extends AbstractPlotUI {
 	public Plotting2DUI(ROIManager roiManager, final AbstractPlottingSystem plotter) {
 		manager = roiManager;
 		plottingSystem = plotter;
+		if (plottingSystem.getPlotType().equals(PlotType.SURFACE)){
+			try {
+				plottingSystem.setToolVisible("org.dawb.workbench.plotting.tools.windowTool", ToolPageRole.ROLE_3D, 
+						"org.dawb.workbench.plotting.views.toolPageView.3D");
+			} catch (Exception e1) {
+				logger.error("Cannot open window tool!", e1);
+			}
+		}
 	}
 
 	@Override
@@ -108,12 +119,18 @@ public class Plotting2DUI extends AbstractPlotUI {
 						final Collection<ITrace> traces = plottingSystem.getTraces();
 						final List<ITrace> traceList =new ArrayList<ITrace>(traces);
 						if (traces != null && traces.size() > 0 
-								&& traceList.size()>0
-								&& traceList.get(0) instanceof IImageTrace) {
-							final IImageTrace image = (IImageTrace) traces.iterator().next();
-							final int[] shape = image.getData() != null ? image.getData().getShape() : null;
-							
-							List<IDataset> currentAxes = image.getAxes(); 
+								&& traceList.size()>0) {
+							List<IDataset> currentAxes = null;
+							int[] shape = null; 
+							if(traceList.get(0) instanceof IImageTrace){
+								final IImageTrace image = (IImageTrace) traces.iterator().next();
+								shape = image.getData() != null ? image.getData().getShape() : null;
+								currentAxes = image.getAxes();
+							} else if(traceList.get(0) instanceof SurfaceTrace){
+								final SurfaceTrace surface = (SurfaceTrace) traces.iterator().next();
+								shape = surface.getData() != null ? surface.getData().getShape() : null;
+								currentAxes = surface.getAxes();
+							}
 							String lastXAxisName = "", lastYAxisName = "";
 							if(currentAxes!=null && currentAxes.size()>0)
 								lastXAxisName = currentAxes.get(0).getName();
