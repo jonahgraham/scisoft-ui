@@ -18,7 +18,9 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,21 +34,14 @@ import org.dawnsci.plotting.api.region.RegionEvent;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.roi.IROI;
-import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
-import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
 import uk.ac.diamond.scisoft.analysis.roi.ROIList;
-import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
-import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
-import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
-import uk.ac.diamond.scisoft.analysis.roi.SectorROIList;
+import uk.ac.diamond.scisoft.analysis.roi.ROIUtils;
 
 /**
  * Class to deal with interactions of regions and ROIs
  */
 public class ROIManager implements IROIListener, IRegionListener {
 	private Map<String, IROI> roiMap; // region name to ROI map
-	private Map<String, IROI> regionMap; // region name to ROI map
-	private String name;
 	private IROI roi;
 	private IGuiInfoManager server; // usually plot window
 	private String plotName;
@@ -55,17 +50,9 @@ public class ROIManager implements IROIListener, IRegionListener {
 	public ROIManager(IGuiInfoManager guiManager, String plotName) {
 		server = guiManager;
 		roiMap = new LinkedHashMap<String, IROI>();
-		regionMap = new LinkedHashMap<String, IROI>();
 
 		this.plotName = plotName;
 		this.plottingSystem = PlottingFactory.getPlottingSystem(plotName);
-	}
-
-	/**
-	 * @return name of current region (can be null)
-	 */
-	public String getName() {
-		return name;
 	}
 
 	/**
@@ -83,9 +70,8 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 		region.removeROIListener(this);
 		String rName = region.getName();
-		if (rName.equals(name)) { // delete current ROI
+		if (roi != null && rName.equals(roi.getName())) { // delete current ROI
 			roi = null;
-			name = null;
 		}
 		roiMap.remove(rName);
 		updateGuiBean(roi);
@@ -100,8 +86,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 		IROI eroi = region.getROI();
 		if (eroi != null && !eroi.equals(roi)) {
 			roi = eroi;
-			name = region.getName();
-			roiMap.put(name, roi);
+			roiMap.put(roi.getName(), roi);
 		}
 		updateGuiBean(roi);
 	}
@@ -118,14 +103,14 @@ public class ROIManager implements IROIListener, IRegionListener {
 			updateGuiBean(eroi);
 		}
 	}
+
 	@Override
 	public void regionCancelled(RegionEvent evt) {
-		
 	}
+
 	@Override
 	public void regionsRemoved(RegionEvent evt) {
 		roi = null;
-		name = null;
 		roiMap.clear();
 		updateGuiBean(null);
 	}
@@ -151,10 +136,9 @@ public class ROIManager implements IROIListener, IRegionListener {
 		if (eroi == null)
 			return;
 
-		name = evt.getSource().toString();
 		roi = eroi;
 
-		roiMap.put(name, eroi);
+		roiMap.put(eroi.getName(), eroi);
 		updateGuiBean(roi);
 	}
 
@@ -166,7 +150,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	private void updateGuiBean(IROI roib) {
 		IROI tmpRoi = roib;
-		updateRoiMap();
+		updateROIMap();
 
 		server.removeGUIInfo(GuiParameters.ROIDATA);
 		server.putGUIInfo(GuiParameters.ROIDATA, roib);
@@ -206,71 +190,37 @@ public class ROIManager implements IROIListener, IRegionListener {
 		}
 	}
 
-	public ROIList<? extends IROI> createNewROIList(IROI roib) {
-		if (roib instanceof LinearROI)
-			return createNewLROIList();
-		else if (roib instanceof RectangularROI)
-			return createNewRROIList();
-		else if (roib instanceof SectorROI)
-			return createNewSROIList();
-		return null;
-	}
+	public ROIList<?> createNewROIList(IROI roib) {
+		ROIList<? extends IROI> list = ROIUtils.createNewROIList(roib);
+		if (list == null)
+			return null;
 
-	public LinearROIList createNewLROIList() {
-		LinearROIList list = new LinearROIList();
+		Class<? extends IROI> clazz = roib.getClass();
 		for (IROI r : roiMap.values()) {
-			if (r instanceof LinearROI) {
-				list.add((LinearROI) r);
+			if (r.getClass().equals(clazz)) {
+				list.add(r);
 			}
 		}
-		if (list.size() == 0)
-			return null;
-		return list;
-	}
-
-	public RectangularROIList createNewRROIList() {
-		RectangularROIList list = new RectangularROIList();
-		for (IROI r : roiMap.values()) {
-			if (r instanceof RectangularROI) {
-				list.add((RectangularROI) r);
-			}
-		}
-		if (list.size() == 0)
-			return null;
-		return list;
-	}
-
-	public SectorROIList createNewSROIList() {
-		SectorROIList list = new SectorROIList();
-		for (IROI r : roiMap.values()) {
-			if (r instanceof SectorROI) {
-				list.add((SectorROI) r);
-			}
-		}
-		if (list.size() == 0)
-			return null;
 		return list;
 	}
 
 	/**
 	 * Method to update roiMap when region name is changed through the UI
 	 * This is done by comparing the list of regions in the plottingSystem
-	 * and the regions in RoiMap
+	 * and the regions in roiMap
 	 */
-	private void updateRoiMap(){
+	private void updateROIMap() {
 		if(plottingSystem == null) plottingSystem = PlottingFactory.getPlottingSystem(plotName);
 		if(plottingSystem == null) return;
 		Collection<IRegion> regions = plottingSystem.getRegions();
 		if (regions == null) return;
-		regionMap.clear();
+		Set<String> regNames = new HashSet<String>();
 		for (IRegion iRegion : regions) {
-			regionMap.put(iRegion.getName(), iRegion.getROI());
+			regNames.add(iRegion.getName());
 		}
-		Set<String> names = roiMap.keySet();
-		Object[] strNames = names.toArray();
-		for (int i = 0; i < strNames.length; i++) {
-			if(!regionMap.containsKey(strNames[i]))
-				roiMap.remove(strNames[i]);
+		for (String n : new LinkedHashSet<String>(roiMap.keySet())) {
+			if (!regNames.contains(n))
+				roiMap.remove(n);
 		}
 	}
 }
