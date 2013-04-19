@@ -677,6 +677,7 @@ public class BoxProfile extends SidePlotProfile {
 			roi = new RectangularROI();
 			roi.setPlot(true);
 			roiHandler.setROI(roi);
+			setROIName(roi);
 		}
 
 		int id = event.getPrimitiveID();

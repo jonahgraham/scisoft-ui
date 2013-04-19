@@ -82,6 +82,7 @@ import com.swtdesigner.SWTResourceManager;
 /**
  * Composite to show line profiles of main plotter
  */
+@SuppressWarnings("deprecation")
 public class LineProfile extends SidePlotProfile {
 	private static Logger logger = LoggerFactory.getLogger(LineProfile.class);
 
@@ -588,6 +589,7 @@ public class LineProfile extends SidePlotProfile {
 			roi = new LinearROI();
 			roi.setPlot(true);
 			roiHandler.setROI(roi);
+			setROIName(roi);
 		}
 
 		int id = event.getPrimitiveID();

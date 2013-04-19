@@ -20,6 +20,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dawb.common.ui.plot.region.RegionService;
 import org.dawb.common.ui.plot.roi.data.IRowData;
 import org.dawb.common.ui.plot.roi.data.ROIData;
 import org.dawnsci.plotting.jreality.overlay.Overlay2DConsumer;
@@ -35,6 +36,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
@@ -357,6 +359,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 					break;
 				case ROITableViewer.ROITABLEMENU_COPY:
 					roi = cRData.getROI().copy();
+					setROIName(roi);
 					roiHandler.setROI(roi);
 					sendCurrentROI(roi);
 
@@ -544,6 +547,8 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 
 		logger.debug("Bean: {}", bean);
 
+		Display display = getControl().getDisplay();
+
 		// logic is for each GUI parameter
 		//     if null and parameter exists
 		//         if not onSwitch
@@ -564,7 +569,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 						roi = null;
 						roiHandler.setROI(roi);
 
-						getControl().getDisplay().asyncExec(new Runnable() {
+						display.asyncExec(new Runnable() {
 							@Override
 							public void run() {
 								hideCurrent();
@@ -581,7 +586,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 				hideCurrent();
 				roi = (IROI) obj;
 				roiHandler.setROI(roi);
-				getControl().getDisplay().asyncExec(new Runnable() {
+				display.asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						updatePlot();
@@ -614,7 +619,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 					roiDataList.clear();
 
 					// update display and tree view
-					getControl().getDisplay().asyncExec(new Runnable() {
+					display.asyncExec(new Runnable() {
 						@Override
 						public void run() {
 							updatePlot();
@@ -643,7 +648,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 				}
 
 				// update display and tree view
-				getControl().getDisplay().asyncExec(new Runnable() {
+				display.asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						updatePlot();
@@ -809,5 +814,38 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 		removefromHistory.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/basket_remove.png"));
 		manager.add(addtoHistory);
 		manager.add(removefromHistory);	
+	}
+
+	/**
+	 * Set name of ROI according to its type and make it unique
+	 * @param roi
+	 */
+	protected void setROIName(IROI roi) {
+		setROIName(null, roi);
+	}
+
+	/**
+	 * Set name of ROI according to its type and make it unique
+	 * @param prefix string to add to front of name
+	 * @param roi
+	 */
+	protected void setROIName(String prefix, IROI roi) {
+		String stub = RegionService.forROI(roi).getName();
+		if (prefix != null)
+			stub = prefix + stub;
+
+		List<String> names = new ArrayList<String>();
+		for (ROIData r : roiDataList) {
+			names.add(r.getROI().getName());
+		}
+
+		int i = 1;
+		String name;
+		do {
+			name = stub + " " + i++;
+			if (i > 1000)
+				break;
+		} while (names.contains(name));
+		roi.setName(name);
 	}
 }

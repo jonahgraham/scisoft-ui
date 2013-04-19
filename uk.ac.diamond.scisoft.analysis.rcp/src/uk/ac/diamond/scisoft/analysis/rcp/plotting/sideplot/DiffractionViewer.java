@@ -72,6 +72,7 @@ import uk.ac.diamond.scisoft.analysis.roi.handler.RectangularROIHandler;
 import de.jreality.ui.viewerapp.SelectionEvent;
 import de.jreality.ui.viewerapp.SelectionListener;
 
+@SuppressWarnings("deprecation")
 public class DiffractionViewer extends SidePlotProfile implements SelectionListener {
 	private static Logger logger = LoggerFactory.getLogger(DiffractionViewer.class);
 	public static String ID = "uk.ac.diamond.scisoft.analysis.rcp.DiffractionViewer";
@@ -440,6 +441,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 			roi = new LinearROI();
 			roi.setPlot(true);
 			roiHandler.setROI(roi);
+			setROIName("Diffraction ", roi);
 			// roiHandler = new LinearROIHandler((LinearROI) roi);
 		}
 

@@ -94,6 +94,7 @@ import uk.ac.diamond.scisoft.analysis.roi.handler.SectorROIHandler;
 
 import com.swtdesigner.SWTResourceManager;
 
+@SuppressWarnings("deprecation")
 public class SectorProfile extends SidePlotProfile {
 
 	private static Logger logger = LoggerFactory.getLogger(SectorProfile.class);
@@ -1024,6 +1025,7 @@ public class SectorProfile extends SidePlotProfile {
 			roi = new SectorROI();
 			roi.setPlot(true);
 			roiHandler.setROI(roi);
+			setROIName(roi);
 		}
 
 		int id = event.getPrimitiveID();

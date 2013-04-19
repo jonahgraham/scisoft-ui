@@ -800,6 +800,7 @@ public class GridProfile extends SidePlotProfile {
 		if (roi == null) {
 			roi = new GridROI(gridPrefs);
 			roiHandler.setROI(roi);
+			setROIName(roi);
 		}
 
 		int id = event.getPrimitiveID();
