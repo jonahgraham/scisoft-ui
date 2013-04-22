@@ -34,8 +34,8 @@ import org.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.dawnsci.plotting.api.region.RegionUtils;
 import org.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
 import org.dawnsci.plotting.api.trace.IImageTrace;
+import org.dawnsci.plotting.api.trace.ISurfaceTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
-import org.dawnsci.plotting.jreality.SurfaceTrace;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,8 +126,8 @@ public class Plotting2DUI extends AbstractPlotUI {
 								final IImageTrace image = (IImageTrace) traces.iterator().next();
 								shape = image.getData() != null ? image.getData().getShape() : null;
 								currentAxes = image.getAxes();
-							} else if(traceList.get(0) instanceof SurfaceTrace){
-								final SurfaceTrace surface = (SurfaceTrace) traces.iterator().next();
+							} else if(traceList.get(0) instanceof ISurfaceTrace){
+								final ISurfaceTrace surface = (ISurfaceTrace) traces.iterator().next();
 								shape = surface.getData() != null ? surface.getData().getShape() : null;
 								currentAxes = surface.getAxes();
 							}
