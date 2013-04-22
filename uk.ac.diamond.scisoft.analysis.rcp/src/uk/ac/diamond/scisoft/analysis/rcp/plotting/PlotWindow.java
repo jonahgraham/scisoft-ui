@@ -19,7 +19,9 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 import gda.observable.IObserver;
 
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
@@ -479,7 +481,7 @@ public class PlotWindow extends AbstractPlotWindow {
 		if (bean.containsKey(GuiParameters.PLOTMODE)) {
 			updatePlotMode(bean, true);
 		}
-		
+
 		if (bean.containsKey(GuiParameters.AXIS_OPERATION)) {
 			AxisOperation operation = (AxisOperation) bean.get(GuiParameters.AXIS_OPERATION);
             processAxisOperation(operation);
@@ -514,33 +516,82 @@ public class PlotWindow extends AbstractPlotWindow {
 		}
 	}
 
+	// this map is needed as axes from the plotting system get their titles changed
+	private Map<String, IAxis> axes = new LinkedHashMap<String, IAxis>();
 	private void processAxisOperation(final AxisOperation operation) {
+		doBlock();
 		parentComp.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				String title = operation.getTitle();
-				if (operation.getOperationType().equals(AxisOperation.CREATE)) {
-					plottingSystem.createAxis(title, operation.isYAxis(), operation.getSide());
+				try {
+					final List<IAxis> pAxes = plottingSystem.getAxes();
+					if (axes.size() != 0 && axes.size() != pAxes.size()) {
+						logger.warn("Axes are out of synch!");
+						axes.clear();
+					}
+					if (axes.size() == 0) {
+						for (IAxis i : pAxes) {
+							String t = i.getTitle();
+							if (i.isPrimaryAxis()) {
+								if (t == null || t.length() == 0) {
+									t = i.isYAxis() ? "Y-Axis" : "X-Axis";
+								}
+							}
+							axes.put(t, i);
+						}
+					}
 
-				} else if (operation.getOperationType().equals(AxisOperation.DELETE)) {
-					final List<IAxis> axes = plottingSystem.getAxes();
-					for (IAxis iAxis : axes) {
-						if (title.equals(iAxis.getTitle()))
-							plottingSystem.removeAxis(iAxis);
+					String title = operation.getTitle();
+					String type = operation.getOperationType();
+					IAxis a = axes.get(title);
+					if (type.equals(AxisOperation.CREATE)) {
+						boolean isYAxis = operation.isYAxis();
+						if (a != null) {
+							if (isYAxis == a.isYAxis()) {
+								logger.warn("Axis already exists");
+								return;
+							}
+							logger.debug("Axis is opposite orientation already exists");
+						}
+						a = plottingSystem.createAxis(title, isYAxis, operation.getSide());
+						axes.put(title, a);
+						return;
+					} else if (type.equals(AxisOperation.DELETE)) {
+						if (a != null) {
+							plottingSystem.removeAxis(a);
+							axes.remove(title);
+							return;
+						}
+						logger.warn("Could not find axis of given name");
+					} else if (type.equals(AxisOperation.ACTIVEX)) {
+						if (a != null && !a.isYAxis()) {
+							plottingSystem.setSelectedXAxis(a);
+							return;
+						}
+						// default to first x axis
+						for (IAxis i: axes.values()) {
+							if (!i.isYAxis()) {
+								plottingSystem.setSelectedXAxis(i);
+								return;
+							}
+						}
+						logger.warn("Could not select axis of given name");
+					} else if (type.equals(AxisOperation.ACTIVEY)) {
+						if (a != null && a.isYAxis()) {
+							plottingSystem.setSelectedYAxis(a);
+							return;
+						}
+						// default to first y axis
+						for (IAxis i: axes.values()) {
+							if (i.isYAxis()) {
+								plottingSystem.setSelectedYAxis(i);
+								return;
+							}
+						}
+						logger.warn("Could not select axis of given name");
 					}
-				} else if (operation.getOperationType().equals(AxisOperation.ACTIVEX)) {
-					final List<IAxis> axes = plottingSystem.getAxes();
-					for (IAxis iAxis : axes) {
-						if (!iAxis.isYAxis() && title.equals(iAxis.getTitle()))
-							plottingSystem.setSelectedXAxis(iAxis);
-					}
-
-				} else if (operation.getOperationType().equals(AxisOperation.ACTIVEY)) {
-					final List<IAxis> axes = plottingSystem.getAxes();
-					for (IAxis iAxis : axes) {
-						if (iAxis.isYAxis() && title.equals(iAxis.getTitle()))
-							plottingSystem.setSelectedYAxis(iAxis);
-					}
+				} finally {
+					undoBlock();
 				}
 			}
 		});
