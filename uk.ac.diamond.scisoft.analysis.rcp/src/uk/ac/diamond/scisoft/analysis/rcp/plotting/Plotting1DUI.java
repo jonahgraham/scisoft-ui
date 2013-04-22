@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.util.ColorUtility;
+import org.dawnsci.plotting.api.axis.IAxis;
 import org.dawnsci.plotting.api.trace.ILineTrace;
 import org.dawnsci.plotting.api.trace.ILineTrace.TraceType;
 import org.dawnsci.plotting.api.trace.ITrace;
@@ -89,7 +90,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 				String plotOperation = gb == null ? null : (String) gb.get(GuiParameters.PLOTOPERATION);
 
 				// If in ADD plot operation mode
-				if(plotOperation != null && plotOperation.equals(GuiParameters.PLOTOP_ADD)){
+				if (plotOperation != null && plotOperation.equals(GuiParameters.PLOTOP_ADD)) {
 					// increment the color
 					int index = plottingSystem.getTraces().size();
 					if(idx > ColorUtility.getSize()) idx = 0;
@@ -106,8 +107,8 @@ public class Plotting1DUI extends AbstractPlotUI {
 						AbstractDataset ny = d.getData();
 						String nyn = ny.getName();
 						// set a name to the data if none
-						if(nyn == null || nyn.equals("")){
-							ny.setName("Plot "+index);
+						if (nyn == null || nyn.equals("")) {
+							ny.setName("Plot " + index);
 						}
 						yDatasets.add(ny);
 						if (!hasTitle) {
@@ -121,9 +122,13 @@ public class Plotting1DUI extends AbstractPlotUI {
 						}
 						i++;
 					}
-					plottingSystem.getSelectedYAxis().setTitle("");
 
-					if (!hasTitle) {
+					// Only blank primary axis title
+					IAxis yAxis = plottingSystem.getSelectedYAxis();
+					if (yAxis.isPrimaryAxis())
+						yAxis.setTitle("");
+
+					if (!hasTitle) { // TODO fix plot title by including previous plots
 						if (title == null) {
 							title = "";
 						} else if (!title.equals("")) {
