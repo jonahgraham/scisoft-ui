@@ -119,7 +119,10 @@ public class PlotWindow extends AbstractPlotWindow {
 			else
 				setupPlotting2D();
 		} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
-			setup2DSurface();
+			if(getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+				setup2DSurfaceOldPlotting();
+			else
+				setup2DSurfaceNewPlotting();
 		} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
 			if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
 				setupScatter2DPlot();
@@ -346,12 +349,20 @@ public class PlotWindow extends AbstractPlotWindow {
 		updateGuiBeanPlotMode(GuiPlotMode.MULTI2D);
 	}
 
-	private void setup2DSurface() {
+	private void setup2DSurfaceNewPlotting() {
 		plottingSystem.setPlotType(PlotType.SURFACE);
 		plotUI = new Plotting2DUI(getRoiManager(), plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
 		addClearAction();
+		updateGuiBeanPlotMode(GuiPlotMode.SURF2D);
+	}
+
+	private void setup2DSurfaceOldPlotting() {
+		mainPlotter.setMode(PlottingMode.SURF2D);
+		plotUI = new PlotSurf3DUI(this, mainPlotter, parentComp, getPage(), bars, getName());
+		addCommonActions(mainPlotter);
+		bars.updateActionBars();
 		updateGuiBeanPlotMode(GuiPlotMode.SURF2D);
 	}
 
@@ -412,7 +423,7 @@ public class PlotWindow extends AbstractPlotWindow {
 								setup2D();
 							} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
 								cleanUpFromOldMode(true);
-								setup2DSurface();
+								setup2DSurfaceOldPlotting();
 							} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
 								cleanUpFromOldMode(true);
 								setupScatter2DPlot();
@@ -442,7 +453,7 @@ public class PlotWindow extends AbstractPlotWindow {
 								} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
 									setupMulti1DPlot();
 								} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
-									setup2DSurface();
+									setup2DSurfaceNewPlotting();
 								} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
 									setupScatter3DPlot();
 								} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
