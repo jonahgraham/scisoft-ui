@@ -76,7 +76,7 @@ public class PlotWindow extends AbstractPlotWindow {
 
 	private Composite plotSystemComposite;
 	private Composite mainPlotterComposite;
-	private Label txtPos;
+
 	/**
 	 * Obtain the IPlotWindowManager for the running Eclipse.
 	 * 
@@ -162,29 +162,7 @@ public class PlotWindow extends AbstractPlotWindow {
 	}
 
 	private void createDatasetPlotter(PlottingMode mode) {
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 1;
-		parentComp.setLayout(layout);
-
-		txtPos = new Label(parentComp, SWT.LEFT);
-		{
-			GridData gridData = new GridData();
-			gridData.horizontalAlignment = SWT.FILL;
-			gridData.grabExcessHorizontalSpace = true;
-			txtPos.setLayoutData(gridData);
-		}
-		Composite plotArea = new Composite(parentComp, SWT.NONE);
-		plotArea.setLayout(new FillLayout());
-		{
-			GridData gridData = new GridData();
-			gridData.horizontalAlignment = SWT.FILL;
-			gridData.grabExcessHorizontalSpace = true;
-			gridData.grabExcessVerticalSpace = true;
-			gridData.verticalAlignment = SWT.FILL;
-			plotArea.setLayoutData(gridData);
-		}
-		
-		mainPlotterComposite = new Composite(plotArea, SWT.NONE);
+		mainPlotterComposite = new Composite(parentComp, SWT.NONE);
 		mainPlotterComposite.setLayout(new FillLayout());
 		mainPlotter = new DataSetPlotter(mode, mainPlotterComposite, true);
 		mainPlotter.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
@@ -335,20 +313,7 @@ public class PlotWindow extends AbstractPlotWindow {
 	private void setup1D() {
 		mainPlotter.setMode(PlottingMode.ONED);
 		plotUI = new Plot1DUIComplete(this, getGuiManager(), bars, parentComp, getPage(), getName());
-		((Plot1DUIComplete)plotUI).addPlotActionEventListener(new PlotActionEventListener(){
-
-			@Override
-			public void plotActionPerformed(final PlotActionEvent event) {
-				Display.getDefault().asyncExec(new Runnable() {
-					
-					@Override
-					public void run() {
-						double x = event.getPosition()[0];
-						double y = event.getPosition()[1];
-						txtPos.setText(String.format("X:%.7g Y:%.7g", x, y));
-					}
-				});
-			}});		addCommonActions(mainPlotter);
+		addCommonActions(mainPlotter);
 		bars.updateActionBars();
 		updateGuiBeanPlotMode(GuiPlotMode.ONED);
 	}
