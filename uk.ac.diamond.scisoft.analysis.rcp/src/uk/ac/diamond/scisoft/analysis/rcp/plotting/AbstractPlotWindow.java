@@ -209,6 +209,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 * Method to add the DataSetPlotter actions
 	 * @param mainPlotter
 	 */
+	@SuppressWarnings("deprecation")
 	protected void addCommonActions(final DataSetPlotter mainPlotter) {
 
 		if (saveGraphAction == null) {

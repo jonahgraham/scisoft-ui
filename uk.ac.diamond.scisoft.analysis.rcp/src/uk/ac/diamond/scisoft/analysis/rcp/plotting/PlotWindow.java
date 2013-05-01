@@ -409,62 +409,52 @@ public class PlotWindow extends AbstractPlotWindow {
 			@Override
 			public void run() {
 				try {
-					if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM) {
-						GuiPlotMode oldMode = getPreviousMode();
-						if (oldMode == null || !plotMode.equals(oldMode)) {
+					int choice = getDefaultPlottingSystemChoice();
+					GuiPlotMode oldMode = getPreviousMode();
+					if (oldMode == null || !plotMode.equals(oldMode)) {
+						switch (choice) {
+						case PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM:
+							cleanUpFromOldMode(true);
 							if (plotMode.equals(GuiPlotMode.ONED)) {
-								cleanUpFromOldMode(true);
 								setup1D();
 							} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
-								cleanUpFromOldMode(true);
 								setupMulti1DPlot();
 							} else if (plotMode.equals(GuiPlotMode.TWOD)) {
-								cleanUpFromOldMode(true);
 								setup2D();
 							} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
-								cleanUpFromOldMode(true);
 								setup2DSurfaceOldPlotting();
 							} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
-								cleanUpFromOldMode(true);
 								setupScatter2DPlot();
 							} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
-								cleanUpFromOldMode(true);
 								setupScatter3DPlot();
 							} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
-								cleanUpFromOldMode(true);
 								setupMulti2D();
 							} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
 								clearPlot();
 							}
-							setPreviousMode(plotMode);
-						}
-					}
-					if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
-						GuiPlotMode oldMode = getPreviousMode();
-						if (plotMode != GuiPlotMode.EMPTY) {
-							if(oldMode == null || !plotMode.equals(oldMode)){
-								cleanUp(plotMode);
-								if (plotMode.equals(GuiPlotMode.ONED)) {
-									setupPlotting1D();
-								} else if (plotMode.equals(GuiPlotMode.TWOD)) {
-									setupPlotting2D();
-								} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
-									setupScatterPlotting2D();
-								} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
-									setupMulti1DPlot();
-								} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
-									setup2DSurfaceNewPlotting();
-								} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
-									setupScatter3DPlot();
-								} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
-									setupMulti2D();
-								}
-								setPreviousMode(plotMode);
+							break;
+						case PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM:
+							cleanUp(plotMode);
+							if (plotMode.equals(GuiPlotMode.ONED)) {
+								setupPlotting1D();
+							} else if (plotMode.equals(GuiPlotMode.TWOD)) {
+								setupPlotting2D();
+							} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
+								setupScatterPlotting2D();
+							} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
+								setupMulti1DPlot();
+							} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
+								setup2DSurfaceNewPlotting();
+							} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
+								setupScatter3DPlot();
+							} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
+								setupMulti2D();
+							} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
+								clearPlot();
 							}
-						} else if (oldMode!=null && oldMode != GuiPlotMode.EMPTY) {
-							clearPlot();
-							setPreviousMode(GuiPlotMode.EMPTY);
+							break;
 						}
+						setPreviousMode(plotMode);
 					}
 				} finally {
 					undoBlock();
