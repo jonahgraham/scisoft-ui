@@ -30,7 +30,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.dawb.common.ui.parts.IPlottingPart;
+import org.dawnsci.plotting.api.IPlottingContainer;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +55,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
  * (different from uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView)
  */
 public abstract class AbstractPlotView extends ViewPart implements IObserver, IObservable, IGuiInfoManager, IUpdateNotificationListener,
-		ISidePlotPart, IPlottingPart {
+		ISidePlotPart, IPlottingContainer {
 
 	// Adding in some logging to help with getting this running
 	private static final Logger logger = LoggerFactory.getLogger(AbstractPlotView.class);
