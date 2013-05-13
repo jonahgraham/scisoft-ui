@@ -229,7 +229,7 @@ class PlotTab extends ATab {
 
 	@Override
 	public Composite createTabComposite(Composite parent) {
-		ScrolledComposite sComposite = new ScrolledComposite(parent, SWT.VERTICAL | SWT.HORIZONTAL);
+		ScrolledComposite sComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		Composite holder = new Composite(sComposite, SWT.NONE);
 		holder.setLayout(new GridLayout(2, false));
 
