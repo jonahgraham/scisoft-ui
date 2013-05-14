@@ -18,9 +18,13 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.datareduction;
 
 import gda.analysis.io.ScanFileHolderException;
 
-import java.util.ArrayList;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
+import org.dawb.common.services.IPersistenceService;
+import org.dawb.common.services.IPersistentFile;
+import org.dawb.common.services.ServiceManager;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.util.DisplayUtils;
 import org.dawnsci.plotting.api.trace.IImageTrace;
@@ -41,7 +45,6 @@ import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.datareduction.DataReductionSelectionType.DATA_TYPE;
 
 public class DataReductionFilePlotter {
 	private final static Logger logger = LoggerFactory.getLogger(DataReductionFilePlotter.class);
@@ -56,8 +59,6 @@ public class DataReductionFilePlotter {
 	 *             the extension of the file
 	 * @param dataPath
 	 *             if a NXS file, the data path, otherwise can be null
-	 * @param axesPaths
-	 *             if a NXS file, the axes paths ([0] = x , [1] = y), otherwise can be null
 	 * @param aspectRatio
 	 *             keep the aspect ratio
 	 * @param intensityScale
@@ -67,101 +68,130 @@ public class DataReductionFilePlotter {
 								String fileName, 
 								String fileExtension, 
 								final String dataPath, 
-								String[] axesPaths,
 								final boolean aspectRatio, 
 								final boolean intensityScale,
-								DATA_TYPE type){
-		if(fileExtension != null && fileExtension.equals("nxs") && type.equals(DATA_TYPE.DATA)){
-//			if (ARPESFileDescriptor.isArpesFile(filename)) {
+								boolean isMask){
+		if(isMask){
+			if(fileExtension != null && fileExtension.equals("nxs")){
+				int shape[] = null;
 				try {
 					DataHolder data = LoaderFactory.getData(fileName);
-					Map<String, ILazyDataset> map = data.getMap();
-					ILazyDataset value = map.get(dataPath).squeeze();
-
-					ILazyDataset xAxis = axesPaths != null && axesPaths.length == 2 ? map.get(axesPaths[0]) : null;
-					ILazyDataset yAxis = axesPaths != null && axesPaths.length == 2 ? map.get(axesPaths[1]) : null;
-					plottingSystem.clear();
-					if(value.getShape().length == 2) {
-						AbstractDataset image = DatasetUtils.convertToAbstractDataset(value.getSlice(new Slice(null)));
-						ArrayList<IDataset> axes = new ArrayList<IDataset>(2);
-						if(xAxis != null && yAxis != null){
-							axes.add(DatasetUtils.convertToAbstractDataset(xAxis.getSlice(new Slice(null))));
-							axes.add(DatasetUtils.convertToAbstractDataset(yAxis.getSlice(new Slice(null))));
-							axes.get(0).setName("");
-							axes.get(1).setName("");
-						}
-						
-						IImageTrace imageTrace = plottingSystem.createImageTrace(plottingSystem.getPlotName());
-
-						if(axes.isEmpty())
-							imageTrace.setData(image, null, true);
-						else
-							imageTrace.setData(image, axes, true);
-						plottingSystem.addTrace(imageTrace);
-						plottingSystem.repaint(true);
-						plottingSystem.setKeepAspect(aspectRatio);
-						plottingSystem.setShowIntensity(intensityScale);
-					} else {
-						logger.warn("Dataset not the right shape for showing in the preview");
-					}
-					
+					ILazyDataset maskData = data.getLazyDataset(dataPath);
+					shape = maskData.getShape();
 				} catch (Exception e) {
-					logger.error("Something went wrong when creating a overview plot",e);
+					// TODO Auto-generated catch block
+					logger.error("TODO put description of error here", e);
 				}
-//			}
-		} else if(fileExtension != null && (fileExtension.equals("tif")||fileExtension.equals("tiff"))){
-			final TIFFImageLoader tiffLoader = new TIFFImageLoader(fileName);
-			Job tiffJob = new Job("Loading tiff image") {
 				
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					IMonitor mon = new ProgressMonitorWrapper(monitor);
-					try {
-						DataHolder data = tiffLoader.loadFile(mon);
+				IPersistenceService persist = null;
+				IPersistentFile fileReader = null;
+				Map<String, IDataset> masksRead = null;
+				try {
+					persist = (IPersistenceService)ServiceManager.getService(IPersistenceService.class);
+					fileReader = persist.getPersistentFile(fileName);
+					masksRead = fileReader.getMasks(null);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					logger.error("TODO put description of error here", e1);
+				} finally{
+					if(fileReader != null)
+						fileReader.close();
+				}
+				if(masksRead == null) return;
 
+				final Set<Entry<String, IDataset>> masks = masksRead.entrySet();
+				final AbstractDataset emptyData = AbstractDataset.ones(shape, AbstractDataset.INT8);
+				plottingSystem.clear();
+				final IImageTrace imageTrace = plottingSystem.createImageTrace(plottingSystem.getPlotName());
+				imageTrace.setData(emptyData, null, true);
+				plottingSystem.addTrace(imageTrace);
+				plottingSystem.getAxes().get(0).setTitle("");
+				plottingSystem.getAxes().get(1).setTitle("");
+				plottingSystem.repaint(true);
+				for (Entry<String, IDataset> entry : masks) {
+					imageTrace.setMask(entry.getValue());
+				}
+				plottingSystem.setKeepAspect(aspectRatio);
+				plottingSystem.setShowIntensity(intensityScale);
+			}
+		} else {
+			if(fileExtension != null && fileExtension.equals("nxs")){
+//				if (ARPESFileDescriptor.isArpesFile(filename)) {
+					try {
+						DataHolder data = LoaderFactory.getData(fileName);
 						Map<String, ILazyDataset> map = data.getMap();
-						String name = data.getName(0);
-						ILazyDataset tmpvalue = map.get(name);
-						ILazyDataset value = tmpvalue.squeeze();
+						ILazyDataset value = map.get(dataPath) != null ? map.get(dataPath).squeeze() : null;
+						if (value ==  null) return;
 						plottingSystem.clear();
 						if(value.getShape().length == 2) {
-							final AbstractDataset image = DatasetUtils.convertToAbstractDataset(value.getSlice(new Slice(null)));
-							final IImageTrace imageTrace = plottingSystem.createImageTrace(plottingSystem.getPlotName());
-
-							DisplayUtils.runInDisplayThread(true, plottingSystem.getPlotComposite(), new Runnable() {
-								@Override
-								public void run() {
-									imageTrace.setData(image, null, true);
-									plottingSystem.addTrace(imageTrace);
-									plottingSystem.repaint(true);
-									plottingSystem.setKeepAspect(aspectRatio);
-									plottingSystem.setShowIntensity(intensityScale);
-								}
-							});
+							AbstractDataset image = DatasetUtils.convertToAbstractDataset(value.getSlice(new Slice(null)));
 							
+							IImageTrace imageTrace = plottingSystem.createImageTrace(plottingSystem.getPlotName());
+
+							imageTrace.setData(image, null, true);
+							
+							plottingSystem.addTrace(imageTrace);
+							plottingSystem.repaint(true);
+							plottingSystem.setKeepAspect(aspectRatio);
+							plottingSystem.setShowIntensity(intensityScale);
 						} else {
 							logger.warn("Dataset not the right shape for showing in the preview");
+						}
+						
+					} catch (Exception e) {
+						logger.error("Something went wrong when creating a overview plot",e);
+					}
+//				}
+			} else if(fileExtension != null && (fileExtension.equals("tif")||fileExtension.equals("tiff"))){
+				final TIFFImageLoader tiffLoader = new TIFFImageLoader(fileName);
+				Job tiffJob = new Job("Loading tiff image") {
+					
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						IMonitor mon = new ProgressMonitorWrapper(monitor);
+						try {
+							DataHolder data = tiffLoader.loadFile(mon);
+
+							Map<String, ILazyDataset> map = data.getMap();
+							String name = data.getName(0);
+							ILazyDataset tmpvalue = map.get(name);
+							ILazyDataset value = tmpvalue.squeeze();
+							plottingSystem.clear();
+							if(value.getShape().length == 2) {
+								final AbstractDataset image = DatasetUtils.convertToAbstractDataset(value.getSlice(new Slice(null)));
+								final IImageTrace imageTrace = plottingSystem.createImageTrace(plottingSystem.getPlotName());
+
+								DisplayUtils.runInDisplayThread(true, plottingSystem.getPlotComposite(), new Runnable() {
+									@Override
+									public void run() {
+										imageTrace.setData(image, null, true);
+										plottingSystem.addTrace(imageTrace);
+										plottingSystem.repaint(true);
+										plottingSystem.setKeepAspect(aspectRatio);
+										plottingSystem.setShowIntensity(intensityScale);
+									}
+								});
+								
+							} else {
+								logger.warn("Dataset not the right shape for showing in the preview");
+								return Status.CANCEL_STATUS;
+							}
+						} catch (ScanFileHolderException e) {
+							logger.error("Error loading Tiff image:", e);
 							return Status.CANCEL_STATUS;
 						}
-					} catch (ScanFileHolderException e) {
-						logger.error("Error loading Tiff image:", e);
-						return Status.CANCEL_STATUS;
+
+						return Status.OK_STATUS;
 					}
-
-					return Status.OK_STATUS;
-				}
-			};
-			tiffJob.schedule();
-		} else if(fileExtension != null && fileExtension.equals("cbf")){
-			
-		} else if(fileExtension != null && fileExtension.equals("img")){
-			
-		} 
-		// if a mask
-		else if(fileExtension != null && fileExtension.equals("nxs") && type.equals(DATA_TYPE.MASK)){
-			
+				};
+				tiffJob.schedule();
+			} else if(fileExtension != null && fileExtension.equals("cbf")){
+				
+			} else if(fileExtension != null && fileExtension.equals("img")){
+				
+			}
 		}
-
+		
 	}
-	
+
 }
