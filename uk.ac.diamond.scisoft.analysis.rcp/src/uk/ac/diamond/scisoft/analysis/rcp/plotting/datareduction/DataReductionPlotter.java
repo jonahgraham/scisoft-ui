@@ -113,6 +113,7 @@ public class DataReductionPlotter {
 						plottingSystem.setTitle(tmpTitle);
 						plottingSystem.getAxes().get(0).setTitle("");
 						plottingSystem.getAxes().get(1).setTitle("");
+						plottingSystem.setKeepAspect(true);
 						plottingSystem.setShowIntensity(intensityScale);
 					} 
 					else {
