@@ -30,103 +30,98 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
-import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
-import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
 
 public class DataReductionPlotter {
 	private final static Logger logger = LoggerFactory.getLogger(DataReductionPlotter.class);
 
 	/**
-	 * Method that plots data on a plottingSystem given an IStructured Selection
+	 * Method that plots data to a LightWeight PlottingSystem
 	 * @param plottingSystem
-	 * @param selection
+	 *             the LightWeight plotting system
+	 * @param data
+	 *             the data to plot
 	 */
-	public static void plotData(final AbstractPlottingSystem plottingSystem, 
-			IStructuredSelection selection){
+	public static void plotData(final AbstractPlottingSystem plottingSystem,
+								final IDataset data){
+		Job plotJob = new Job("Plotting data") {
+			
+			@Override
+			protected IStatus run(final IProgressMonitor monitor) {
+				try {
+
+					plottingSystem.clear();
+					String tmpTitle = plottingSystem.getPlotName();
+					if(data == null) return Status.CANCEL_STATUS;
+					plottingSystem.updatePlot2D(data, null, monitor);
+					plottingSystem.setTitle(tmpTitle);
+					plottingSystem.getAxes().get(0).setTitle("");
+					plottingSystem.getAxes().get(1).setTitle("");
+					plottingSystem.setKeepAspect(true);
+					plottingSystem.setShowIntensity(false);
+				} catch (Exception e) {
+					logger.error("Error plotting data", e);
+					return Status.CANCEL_STATUS;
+				}
+					return Status.OK_STATUS;
+			}
+		};
+		plotJob.schedule();
+	}
+
+	/**
+	 * Method that loads data given an IStructuredSelection
+	 * @param selection
+	 * @return IDataset
+	 */
+	public static IDataset loadData(IStructuredSelection selection){
 		Object item = selection.getFirstElement();
 		if (item instanceof IFile) {
 			String filename = ((IFile) item).getRawLocation().toOSString();
-				plotData(plottingSystem, filename,
-						"/entry1/instrument/analyser/data",
-						false);
+			return loadData(filename,
+						"/entry1/instrument/analyser/data");
 		}
 		// if the selection is an hdf5 tree item
 		else if (item instanceof HDF5NodeLink) {
 			HDF5NodeLink link = (HDF5NodeLink)item;
 
 			String filename = link.getFile().getFilename();
-				plotData(plottingSystem, filename,
-						link.getFullName(),
-						false);
+			return loadData(filename,
+						link.getFullName());
 		}
+		return null;
 	}
-	
+
 	/**
-	 * Method that loads data given a file and plots that data using the LightWeight PlottingSystem
-	 * @param plottingSystem
-	 *             the LightWeight plotting system
+	 * Method that loads data given a filename and a data path
 	 * @param fileName
 	 *             the name of the data
 	 * @param dataPath
 	 *             if a NXS file, the data path, otherwise can be null
-	 * @param intensityScale
-	 *             display the intensity scale side bar.
+	 * @return the data loaded as an AbstractDataset, null if none or not found
 	 */
-	public static void plotData(final AbstractPlottingSystem plottingSystem, 
-								String fileName, 
-								final String dataPath, 
-								final boolean intensityScale){
-		loadAndDisplayImage(plottingSystem, fileName, dataPath, "Loading image", intensityScale);
-	}
+	public static AbstractDataset loadData(final String fileName, final String dataPath){
+		try {
+			DataHolder data = LoaderFactory.getData(fileName, null);
 
-	private static void loadAndDisplayImage(final AbstractPlottingSystem plottingSystem,
-								final String fileName,
-								final String dataPath,
-								final String loadingName,
-								final boolean intensityScale){
-		Job loaderJob = new Job(loadingName) {
-			
-			@Override
-			protected IStatus run(final IProgressMonitor monitor) {
-				IMonitor mon = new ProgressMonitorWrapper(monitor);
-				try {
-					DataHolder data = LoaderFactory.getData(fileName, mon);
+			Map<String, ILazyDataset> map = data.getMap();
+			ILazyDataset tmpvalue = map.get(dataPath);
+			if(tmpvalue == null) tmpvalue = map.get(data.getName(0));
 
-					if(monitor.isCanceled()) return Status.CANCEL_STATUS;
-
-					Map<String, ILazyDataset> map = data.getMap();
-					ILazyDataset tmpvalue = map.get(dataPath);
-					if(tmpvalue == null) tmpvalue = map.get(data.getName(0));
-					if(tmpvalue == null) return Status.CANCEL_STATUS;
-
-					ILazyDataset value = tmpvalue.squeeze();
-					plottingSystem.clear();
-					if(value.getShape().length == 2) {
-						final AbstractDataset image = DatasetUtils.convertToAbstractDataset(value.getSlice(new Slice(null)));
-						String tmpTitle = plottingSystem.getPlotName();
-						plottingSystem.updatePlot2D(image, null, monitor);
-						plottingSystem.setTitle(tmpTitle);
-						plottingSystem.getAxes().get(0).setTitle("");
-						plottingSystem.getAxes().get(1).setTitle("");
-						plottingSystem.setKeepAspect(true);
-						plottingSystem.setShowIntensity(intensityScale);
-					} 
-					else {
-						logger.warn("Dataset not the right shape for showing in the preview");
-						return Status.CANCEL_STATUS;
-					}
-				} catch (Exception e) {
-					logger.error("Error "+loadingName, e);
-					return Status.CANCEL_STATUS;
-				}
-					return Status.OK_STATUS;
+			ILazyDataset value = tmpvalue.squeeze();
+			if(value.getShape().length == 2) {
+				return DatasetUtils.convertToAbstractDataset(value.getSlice(new Slice(null)));
 			}
-		};
-		loaderJob.schedule();
+			logger.warn("Dataset not the right shape for showing in the preview");
+			return null;
+		} catch (Exception e) {
+			logger.error("Error loading data", e);
+			return null;
+		}
 	}
 }
