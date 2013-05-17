@@ -1,7 +1,7 @@
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE entity PUBLIC "-//UC Berkeley//DTD MoML 1//EN"
     "http://ptolemy.eecs.berkeley.edu/xml/dtd/MoML_1.dtd">
-<entity name="newModel" class="ptolemy.actor.TypedCompositeActor" source="/scratch/workspace/DAWN_git/scisoft-ui.git/uk.ac.diamond.scisoft.analysis.rcp/workflows/2D_DataReductionV2.moml">
+<entity name="newModel" class="ptolemy.actor.TypedCompositeActor">
     <property name="_createdBy" class="ptolemy.kernel.attributes.VersionAttribute" value="7.0.1">
     </property>
     <property name="_workbenchVersion" class="ptolemy.kernel.attributes.VersionAttribute" value="null">
@@ -17,7 +17,7 @@
         </property>
         <property name="_break_point" class="ptolemy.data.expr.Parameter" value="false">
         </property>
-        <property name="User Fields" class="org.dawb.passerelle.actors.ui.config.FieldParameter" value="PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGphdmEgdmVyc2lvbj0iMS43LjBfMTciIGNsYXNzPSJqYXZhLmJlYW5zLlhNTERlY29kZXIiPgogPG9iamVjdCBjbGFzcz0ib3JnLmRhd2IucGFzc2VyZWxsZS5hY3RvcnMudWkuY29uZmlnLkZpZWxkQ29udGFpbmVyIj4KICA8dm9pZCBwcm9wZXJ0eT0iZmllbGRzIj4KICAgPHZvaWQgbWV0aG9kPSJhZGQiPgogICAgPG9iamVjdCBjbGFzcz0ib3JnLmRhd2IucGFzc2VyZWxsZS5hY3RvcnMudWkuY29uZmlnLkZpZWxkQmVhbiI+CiAgICAgPHZvaWQgcHJvcGVydHk9ImRlZmF1bHRWYWx1ZSI+CiAgICAgIDxzdHJpbmc+Tm9uZTwvc3RyaW5nPgogICAgIDwvdm9pZD4KICAgICA8dm9pZCBwcm9wZXJ0eT0iZm9sZGVyIj4KICAgICAgPGJvb2xlYW4+ZmFsc2U8L2Jvb2xlYW4+CiAgICAgPC92b2lkPgogICAgIDx2b2lkIHByb3BlcnR5PSJ1aUNsYXNzIj4KICAgICAgPHN0cmluZz51ay5hYy5nZGEucmljaGJlYW5zLmNvbXBvbmVudHMuZmlsZS5GaWxlQm94PC9zdHJpbmc+CiAgICAgPC92b2lkPgogICAgIDx2b2lkIHByb3BlcnR5PSJ1aUxhYmVsIj4KICAgICAgPHN0cmluZz5zZWxlY3Qgb3IgZHJhZyBpbWFnZSB0byByZWR1Y2UvY29ycmVjdD88L3N0cmluZz4KICAgICA8L3ZvaWQ+CiAgICAgPHZvaWQgcHJvcGVydHk9InZhcmlhYmxlTmFtZSI+CiAgICAgIDxzdHJpbmc+QUZpbGVuYW1lPC9zdHJpbmc+CiAgICAgPC92b2lkPgogICAgPC9vYmplY3Q+CiAgIDwvdm9pZD4KICAgPHZvaWQgbWV0aG9kPSJhZGQiPgogICAgPG9iamVjdCBjbGFzcz0ib3JnLmRhd2IucGFzc2VyZWxsZS5hY3RvcnMudWkuY29uZmlnLkZpZWxkQmVhbiI+CiAgICAgPHZvaWQgcHJvcGVydHk9ImRlZmF1bHRWYWx1ZSI+CiAgICAgIDxzdHJpbmc+Tm9uZTwvc3RyaW5nPgogICAgIDwvdm9pZD4KICAgICA8dm9pZCBwcm9wZXJ0eT0iZm9sZGVyIj4KICAgICAgPGJvb2xlYW4+ZmFsc2U8L2Jvb2xlYW4+CiAgICAgPC92b2lkPgogICAgIDx2b2lkIHByb3BlcnR5PSJ1aUNsYXNzIj4KICAgICAgPHN0cmluZz51ay5hYy5nZGEucmljaGJlYW5zLmNvbXBvbmVudHMuZmlsZS5GaWxlQm94PC9zdHJpbmc+CiAgICAgPC92b2lkPgogICAgIDx2b2lkIHByb3BlcnR5PSJ1aUxhYmVsIj4KICAgICAgPHN0cmluZz5zZWxlY3Qgb3IgZHJhZyBpbWFnZSB0byBmb3IgZGV0ZWN0b3IgcmVzcG9uc2U/PC9zdHJpbmc+CiAgICAgPC92b2lkPgogICAgIDx2b2lkIHByb3BlcnR5PSJ2YXJpYWJsZU5hbWUiPgogICAgICA8c3RyaW5nPkRldGVjdG9yX1Jlc3BvbnNlX2ZpbGU8L3N0cmluZz4KICAgICA8L3ZvaWQ+CiAgICA8L29iamVjdD4KICAgPC92b2lkPgogICA8dm9pZCBtZXRob2Q9ImFkZCI+CiAgICA8b2JqZWN0IGNsYXNzPSJvcmcuZGF3Yi5wYXNzZXJlbGxlLmFjdG9ycy51aS5jb25maWcuRmllbGRCZWFuIj4KICAgICA8dm9pZCBwcm9wZXJ0eT0iZGVmYXVsdFZhbHVlIj4KICAgICAgPHN0cmluZz5Ob25lPC9zdHJpbmc+CiAgICAgPC92b2lkPgogICAgIDx2b2lkIHByb3BlcnR5PSJmb2xkZXIiPgogICAgICA8Ym9vbGVhbj5mYWxzZTwvYm9vbGVhbj4KICAgICA8L3ZvaWQ+CiAgICAgPHZvaWQgcHJvcGVydHk9InVpQ2xhc3MiPgogICAgICA8c3RyaW5nPnVrLmFjLmdkYS5yaWNoYmVhbnMuY29tcG9uZW50cy5maWxlLkZpbGVCb3g8L3N0cmluZz4KICAgICA8L3ZvaWQ+CiAgICAgPHZvaWQgcHJvcGVydHk9InVpTGFiZWwiPgogICAgICA8c3RyaW5nPnNlbGVjdCBvciBkcmFnIGNhbGlicmF0aW9uIGZpbGU/PC9zdHJpbmc+CiAgICAgPC92b2lkPgogICAgIDx2b2lkIHByb3BlcnR5PSJ2YXJpYWJsZU5hbWUiPgogICAgICA8c3RyaW5nPkNhbGlicmF0aW9uX2ZpbGU8L3N0cmluZz4KICAgICA8L3ZvaWQ+CiAgICA8L29iamVjdD4KICAgPC92b2lkPgogICA8dm9pZCBtZXRob2Q9ImFkZCI+CiAgICA8b2JqZWN0IGNsYXNzPSJvcmcuZGF3Yi5wYXNzZXJlbGxlLmFjdG9ycy51aS5jb25maWcuRmllbGRCZWFuIj4KICAgICA8dm9pZCBwcm9wZXJ0eT0iZGVmYXVsdFZhbHVlIj4KICAgICAgPHN0cmluZz5Ob25lPC9zdHJpbmc+CiAgICAgPC92b2lkPgogICAgIDx2b2lkIHByb3BlcnR5PSJmb2xkZXIiPgogICAgICA8Ym9vbGVhbj5mYWxzZTwvYm9vbGVhbj4KICAgICA8L3ZvaWQ+CiAgICAgPHZvaWQgcHJvcGVydHk9InVpQ2xhc3MiPgogICAgICA8c3RyaW5nPnVrLmFjLmdkYS5yaWNoYmVhbnMuY29tcG9uZW50cy5maWxlLkZpbGVCb3g8L3N0cmluZz4KICAgICA8L3ZvaWQ+CiAgICAgPHZvaWQgcHJvcGVydHk9InVpTGFiZWwiPgogICAgICA8c3RyaW5nPnNlbGVjdCBvciBkcmFnIGJhY2tncm91bmQgc3VidHJhY3QgZmlsZT88L3N0cmluZz4KICAgICA8L3ZvaWQ+CiAgICAgPHZvaWQgcHJvcGVydHk9InZhcmlhYmxlTmFtZSI+CiAgICAgIDxzdHJpbmc+QmFja2dyb3VuZF9maWxlPC9zdHJpbmc+CiAgICAgPC92b2lkPgogICAgPC9vYmplY3Q+CiAgIDwvdm9pZD4KICAgPHZvaWQgbWV0aG9kPSJhZGQiPgogICAgPG9iamVjdCBjbGFzcz0ib3JnLmRhd2IucGFzc2VyZWxsZS5hY3RvcnMudWkuY29uZmlnLkZpZWxkQmVhbiI+CiAgICAgPHZvaWQgcHJvcGVydHk9ImRlZmF1bHRWYWx1ZSI+CiAgICAgIDxzdHJpbmc+Tm9uZTwvc3RyaW5nPgogICAgIDwvdm9pZD4KICAgICA8dm9pZCBwcm9wZXJ0eT0iZXh0ZW5zaW9ucyI+CiAgICAgIDxzdHJpbmc+Ki5ueHM8L3N0cmluZz4KICAgICA8L3ZvaWQ+CiAgICAgPHZvaWQgcHJvcGVydHk9ImZvbGRlciI+CiAgICAgIDxib29sZWFuPmZhbHNlPC9ib29sZWFuPgogICAgIDwvdm9pZD4KICAgICA8dm9pZCBwcm9wZXJ0eT0idWlDbGFzcyI+CiAgICAgIDxzdHJpbmc+dWsuYWMuZ2RhLnJpY2hiZWFucy5jb21wb25lbnRzLmZpbGUuRmlsZUJveDwvc3RyaW5nPgogICAgIDwvdm9pZD4KICAgICA8dm9pZCBwcm9wZXJ0eT0idWlMYWJlbCI+CiAgICAgIDxzdHJpbmc+c2VsZWN0IG9yIGRyYWcgbWFzayBmaWxlPzwvc3RyaW5nPgogICAgIDwvdm9pZD4KICAgICA8dm9pZCBwcm9wZXJ0eT0idmFyaWFibGVOYW1lIj4KICAgICAgPHN0cmluZz5NYXNrX2ZpbGU8L3N0cmluZz4KICAgICA8L3ZvaWQ+CiAgICA8L29iamVjdD4KICAgPC92b2lkPgogICA8dm9pZCBtZXRob2Q9ImFkZCI+CiAgICA8b2JqZWN0IGNsYXNzPSJvcmcuZGF3Yi5wYXNzZXJlbGxlLmFjdG9ycy51aS5jb25maWcuRmllbGRCZWFuIj4KICAgICA8dm9pZCBwcm9wZXJ0eT0iZGVmYXVsdFZhbHVlIj4KICAgICAgPHN0cmluZz4xPC9zdHJpbmc+CiAgICAgPC92b2lkPgogICAgIDx2b2lkIHByb3BlcnR5PSJ1aUNsYXNzIj4KICAgICAgPHN0cmluZz51ay5hYy5nZGEucmljaGJlYW5zLmNvbXBvbmVudHMuc2NhbGVib3guU3RhbmRhcmRCb3g8L3N0cmluZz4KICAgICA8L3ZvaWQ+CiAgICAgPHZvaWQgcHJvcGVydHk9InVpTGFiZWwiPgogICAgICA8c3RyaW5nPldoYXQgaXMgeW91ciBub3JtYWxpc2F0aW9uIGZhY3Rvcj88L3N0cmluZz4KICAgICA8L3ZvaWQ+CiAgICAgPHZvaWQgcHJvcGVydHk9InZhcmlhYmxlTmFtZSI+CiAgICAgIDxzdHJpbmc+Tm9ybWFsaXNhdGlvbjwvc3RyaW5nPgogICAgIDwvdm9pZD4KICAgIDwvb2JqZWN0PgogICA8L3ZvaWQ+CiAgIDx2b2lkIG1ldGhvZD0iYWRkIj4KICAgIDxvYmplY3QgY2xhc3M9Im9yZy5kYXdiLnBhc3NlcmVsbGUuYWN0b3JzLnVpLmNvbmZpZy5GaWVsZEJlYW4iPgogICAgIDx2b2lkIHByb3BlcnR5PSJkZWZhdWx0VmFsdWUiPgogICAgICA8c3RyaW5nPjA8L3N0cmluZz4KICAgICA8L3ZvaWQ+CiAgICAgPHZvaWQgcHJvcGVydHk9InVpQ2xhc3MiPgogICAgICA8c3RyaW5nPnVrLmFjLmdkYS5yaWNoYmVhbnMuY29tcG9uZW50cy5zY2FsZWJveC5TdGFuZGFyZEJveDwvc3RyaW5nPgogICAgIDwvdm9pZD4KICAgICA8dm9pZCBwcm9wZXJ0eT0idmFyaWFibGVOYW1lIj4KICAgICAgPHN0cmluZz5JbnZhcmlhbnQ8L3N0cmluZz4KICAgICA8L3ZvaWQ+CiAgICA8L29iamVjdD4KICAgPC92b2lkPgogIDwvdm9pZD4KIDwvb2JqZWN0Pgo8L2phdmE+Cg==">
+        <property name="User Fields" class="org.dawb.passerelle.actors.ui.config.FieldParameter" value="PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4gCjxqYXZhIHZlcnNpb249IjEuNi4wXzQxIiBjbGFzcz0iamF2YS5iZWFucy5YTUxEZWNvZGVyIj4gCiA8b2JqZWN0IGNsYXNzPSJvcmcuZGF3Yi5wYXNzZXJlbGxlLmFjdG9ycy51aS5jb25maWcuRmllbGRDb250YWluZXIiPiAKICA8dm9pZCBwcm9wZXJ0eT0iZmllbGRzIj4gCiAgIDx2b2lkIG1ldGhvZD0iYWRkIj4gCiAgICA8b2JqZWN0IGNsYXNzPSJvcmcuZGF3Yi5wYXNzZXJlbGxlLmFjdG9ycy51aS5jb25maWcuRmllbGRCZWFuIj4gCiAgICAgPHZvaWQgcHJvcGVydHk9ImRlZmF1bHRWYWx1ZSI+IAogICAgICA8c3RyaW5nPi9zY3JhdGNoL3dvcmtzcGFjZS9ydW50aW1lLXVrLmFjLmRpYW1vbmQuZGF3bi5wcm9kdWN0L2RhdGEvZXhhbXBsZXMvcmVmLXNjcmVlbnRlc3QtY3J5c3RhbDFfMV8wMDEubWNjZDwvc3RyaW5nPiAKICAgICA8L3ZvaWQ+IAogICAgIDx2b2lkIHByb3BlcnR5PSJmb2xkZXIiPiAKICAgICAgPGJvb2xlYW4+ZmFsc2U8L2Jvb2xlYW4+IAogICAgIDwvdm9pZD4gCiAgICAgPHZvaWQgcHJvcGVydHk9InVpQ2xhc3MiPiAKICAgICAgPHN0cmluZz51ay5hYy5nZGEucmljaGJlYW5zLmNvbXBvbmVudHMuZmlsZS5GaWxlQm94PC9zdHJpbmc+IAogICAgIDwvdm9pZD4gCiAgICAgPHZvaWQgcHJvcGVydHk9InVpTGFiZWwiPiAKICAgICAgPHN0cmluZz5zZWxlY3Qgb3IgZHJhZyBpbWFnZSB0byByZWR1Y2UvY29ycmVjdD88L3N0cmluZz4gCiAgICAgPC92b2lkPiAKICAgICA8dm9pZCBwcm9wZXJ0eT0idmFyaWFibGVOYW1lIj4gCiAgICAgIDxzdHJpbmc+QUZpbGVuYW1lPC9zdHJpbmc+IAogICAgIDwvdm9pZD4gCiAgICA8L29iamVjdD4gCiAgIDwvdm9pZD4gCiAgIDx2b2lkIG1ldGhvZD0iYWRkIj4gCiAgICA8b2JqZWN0IGNsYXNzPSJvcmcuZGF3Yi5wYXNzZXJlbGxlLmFjdG9ycy51aS5jb25maWcuRmllbGRCZWFuIj4gCiAgICAgPHZvaWQgcHJvcGVydHk9ImRlZmF1bHRWYWx1ZSI+IAogICAgICA8c3RyaW5nPk5vbmU8L3N0cmluZz4gCiAgICAgPC92b2lkPiAKICAgICA8dm9pZCBwcm9wZXJ0eT0iZm9sZGVyIj4gCiAgICAgIDxib29sZWFuPmZhbHNlPC9ib29sZWFuPiAKICAgICA8L3ZvaWQ+IAogICAgIDx2b2lkIHByb3BlcnR5PSJ1aUNsYXNzIj4gCiAgICAgIDxzdHJpbmc+dWsuYWMuZ2RhLnJpY2hiZWFucy5jb21wb25lbnRzLmZpbGUuRmlsZUJveDwvc3RyaW5nPiAKICAgICA8L3ZvaWQ+IAogICAgIDx2b2lkIHByb3BlcnR5PSJ1aUxhYmVsIj4gCiAgICAgIDxzdHJpbmc+c2VsZWN0IG9yIGRyYWcgaW1hZ2UgdG8gZm9yIGRldGVjdG9yIHJlc3BvbnNlPzwvc3RyaW5nPiAKICAgICA8L3ZvaWQ+IAogICAgIDx2b2lkIHByb3BlcnR5PSJ2YXJpYWJsZU5hbWUiPiAKICAgICAgPHN0cmluZz5EZXRlY3Rvcl9SZXNwb25zZV9maWxlPC9zdHJpbmc+IAogICAgIDwvdm9pZD4gCiAgICA8L29iamVjdD4gCiAgIDwvdm9pZD4gCiAgIDx2b2lkIG1ldGhvZD0iYWRkIj4gCiAgICA8b2JqZWN0IGNsYXNzPSJvcmcuZGF3Yi5wYXNzZXJlbGxlLmFjdG9ycy51aS5jb25maWcuRmllbGRCZWFuIj4gCiAgICAgPHZvaWQgcHJvcGVydHk9ImRlZmF1bHRWYWx1ZSI+IAogICAgICA8c3RyaW5nPi9zY3JhdGNoL3dvcmtzcGFjZS9ydW50aW1lLXVrLmFjLmRpYW1vbmQuZGF3bi5wcm9kdWN0L2RhdGEvZXhhbXBsZXMvcmVmLXNjcmVlbnRlc3QtY3J5c3RhbDFfMV8wMDEubWNjZDwvc3RyaW5nPiAKICAgICA8L3ZvaWQ+IAogICAgIDx2b2lkIHByb3BlcnR5PSJmb2xkZXIiPiAKICAgICAgPGJvb2xlYW4+ZmFsc2U8L2Jvb2xlYW4+IAogICAgIDwvdm9pZD4gCiAgICAgPHZvaWQgcHJvcGVydHk9InVpQ2xhc3MiPiAKICAgICAgPHN0cmluZz51ay5hYy5nZGEucmljaGJlYW5zLmNvbXBvbmVudHMuZmlsZS5GaWxlQm94PC9zdHJpbmc+IAogICAgIDwvdm9pZD4gCiAgICAgPHZvaWQgcHJvcGVydHk9InVpTGFiZWwiPiAKICAgICAgPHN0cmluZz5zZWxlY3Qgb3IgZHJhZyBjYWxpYnJhdGlvbiBmaWxlPzwvc3RyaW5nPiAKICAgICA8L3ZvaWQ+IAogICAgIDx2b2lkIHByb3BlcnR5PSJ2YXJpYWJsZU5hbWUiPiAKICAgICAgPHN0cmluZz5DYWxpYnJhdGlvbl9maWxlPC9zdHJpbmc+IAogICAgIDwvdm9pZD4gCiAgICA8L29iamVjdD4gCiAgIDwvdm9pZD4gCiAgIDx2b2lkIG1ldGhvZD0iYWRkIj4gCiAgICA8b2JqZWN0IGNsYXNzPSJvcmcuZGF3Yi5wYXNzZXJlbGxlLmFjdG9ycy51aS5jb25maWcuRmllbGRCZWFuIj4gCiAgICAgPHZvaWQgcHJvcGVydHk9ImRlZmF1bHRWYWx1ZSI+IAogICAgICA8c3RyaW5nPi9zY3JhdGNoL3dvcmtzcGFjZS9ydW50aW1lLXVrLmFjLmRpYW1vbmQuZGF3bi5wcm9kdWN0L2RhdGEvZXhhbXBsZXMvcmVmLXNjcmVlbnRlc3QtY3J5c3RhbDFfMV8wMDEubWNjZDwvc3RyaW5nPiAKICAgICA8L3ZvaWQ+IAogICAgIDx2b2lkIHByb3BlcnR5PSJmb2xkZXIiPiAKICAgICAgPGJvb2xlYW4+ZmFsc2U8L2Jvb2xlYW4+IAogICAgIDwvdm9pZD4gCiAgICAgPHZvaWQgcHJvcGVydHk9InVpQ2xhc3MiPiAKICAgICAgPHN0cmluZz51ay5hYy5nZGEucmljaGJlYW5zLmNvbXBvbmVudHMuZmlsZS5GaWxlQm94PC9zdHJpbmc+IAogICAgIDwvdm9pZD4gCiAgICAgPHZvaWQgcHJvcGVydHk9InVpTGFiZWwiPiAKICAgICAgPHN0cmluZz5zZWxlY3Qgb3IgZHJhZyBiYWNrZ3JvdW5kIHN1YnRyYWN0IGZpbGU/PC9zdHJpbmc+IAogICAgIDwvdm9pZD4gCiAgICAgPHZvaWQgcHJvcGVydHk9InZhcmlhYmxlTmFtZSI+IAogICAgICA8c3RyaW5nPkJhY2tncm91bmRfZmlsZTwvc3RyaW5nPiAKICAgICA8L3ZvaWQ+IAogICAgPC9vYmplY3Q+IAogICA8L3ZvaWQ+IAogICA8dm9pZCBtZXRob2Q9ImFkZCI+IAogICAgPG9iamVjdCBjbGFzcz0ib3JnLmRhd2IucGFzc2VyZWxsZS5hY3RvcnMudWkuY29uZmlnLkZpZWxkQmVhbiI+IAogICAgIDx2b2lkIHByb3BlcnR5PSJkZWZhdWx0VmFsdWUiPiAKICAgICAgPHN0cmluZz4vc2NyYXRjaC93b3Jrc3BhY2UvcnVudGltZS11ay5hYy5kaWFtb25kLmRhd24ucHJvZHVjdC9kYXRhL2V4YW1wbGVzL3JlZi1zY3JlZW50ZXN0LWNyeXN0YWwxXzFfMDAxLm1jY2Q8L3N0cmluZz4gCiAgICAgPC92b2lkPiAKICAgICA8dm9pZCBwcm9wZXJ0eT0iZXh0ZW5zaW9ucyI+IAogICAgICA8c3RyaW5nPioubnhzPC9zdHJpbmc+IAogICAgIDwvdm9pZD4gCiAgICAgPHZvaWQgcHJvcGVydHk9ImZvbGRlciI+IAogICAgICA8Ym9vbGVhbj5mYWxzZTwvYm9vbGVhbj4gCiAgICAgPC92b2lkPiAKICAgICA8dm9pZCBwcm9wZXJ0eT0idWlDbGFzcyI+IAogICAgICA8c3RyaW5nPnVrLmFjLmdkYS5yaWNoYmVhbnMuY29tcG9uZW50cy5maWxlLkZpbGVCb3g8L3N0cmluZz4gCiAgICAgPC92b2lkPiAKICAgICA8dm9pZCBwcm9wZXJ0eT0idWlMYWJlbCI+IAogICAgICA8c3RyaW5nPnNlbGVjdCBvciBkcmFnIG1hc2sgZmlsZT88L3N0cmluZz4gCiAgICAgPC92b2lkPiAKICAgICA8dm9pZCBwcm9wZXJ0eT0idmFyaWFibGVOYW1lIj4gCiAgICAgIDxzdHJpbmc+TWFza19maWxlPC9zdHJpbmc+IAogICAgIDwvdm9pZD4gCiAgICA8L29iamVjdD4gCiAgIDwvdm9pZD4gCiAgIDx2b2lkIG1ldGhvZD0iYWRkIj4gCiAgICA8b2JqZWN0IGNsYXNzPSJvcmcuZGF3Yi5wYXNzZXJlbGxlLmFjdG9ycy51aS5jb25maWcuRmllbGRCZWFuIj4gCiAgICAgPHZvaWQgcHJvcGVydHk9ImRlZmF1bHRWYWx1ZSI+IAogICAgICA8c3RyaW5nPjE8L3N0cmluZz4gCiAgICAgPC92b2lkPiAKICAgICA8dm9pZCBwcm9wZXJ0eT0idWlDbGFzcyI+IAogICAgICA8c3RyaW5nPnVrLmFjLmdkYS5yaWNoYmVhbnMuY29tcG9uZW50cy5zY2FsZWJveC5TdGFuZGFyZEJveDwvc3RyaW5nPiAKICAgICA8L3ZvaWQ+IAogICAgIDx2b2lkIHByb3BlcnR5PSJ1aUxhYmVsIj4gCiAgICAgIDxzdHJpbmc+V2hhdCBpcyB5b3VyIG5vcm1hbGlzYXRpb24gZmFjdG9yPzwvc3RyaW5nPiAKICAgICA8L3ZvaWQ+IAogICAgIDx2b2lkIHByb3BlcnR5PSJ2YXJpYWJsZU5hbWUiPiAKICAgICAgPHN0cmluZz5Ob3JtYWxpc2F0aW9uPC9zdHJpbmc+IAogICAgIDwvdm9pZD4gCiAgICA8L29iamVjdD4gCiAgIDwvdm9pZD4gCiAgIDx2b2lkIG1ldGhvZD0iYWRkIj4gCiAgICA8b2JqZWN0IGNsYXNzPSJvcmcuZGF3Yi5wYXNzZXJlbGxlLmFjdG9ycy51aS5jb25maWcuRmllbGRCZWFuIj4gCiAgICAgPHZvaWQgcHJvcGVydHk9ImRlZmF1bHRWYWx1ZSI+IAogICAgICA8c3RyaW5nPjA8L3N0cmluZz4gCiAgICAgPC92b2lkPiAKICAgICA8dm9pZCBwcm9wZXJ0eT0idWlDbGFzcyI+IAogICAgICA8c3RyaW5nPnVrLmFjLmdkYS5yaWNoYmVhbnMuY29tcG9uZW50cy5zY2FsZWJveC5TdGFuZGFyZEJveDwvc3RyaW5nPiAKICAgICA8L3ZvaWQ+IAogICAgIDx2b2lkIHByb3BlcnR5PSJ2YXJpYWJsZU5hbWUiPiAKICAgICAgPHN0cmluZz5JbnZhcmlhbnQ8L3N0cmluZz4gCiAgICAgPC92b2lkPiAKICAgIDwvb2JqZWN0PiAKICAgPC92b2lkPiAKICA8L3ZvaWQ+IAogPC9vYmplY3Q+IAo8L2phdmE+IAo=">
         </property>
         <property name="User Input Type" class="org.dawb.passerelle.actors.ui.UserInputSource$1" value="Edit with dialog (non-blocking)">
         </property>
@@ -85,7 +85,7 @@
         </property>
         <property name="File Filter" class="com.isencia.passerelle.util.ptolemy.RegularExpressionParameter" value="">
         </property>
-        <property name="Path" class="com.isencia.passerelle.util.ptolemy.ResourceParameter" value="/dls/sci-scratch/ExampleData/NeXus/ARPESTest/A-20120114-008.nxs">
+        <property name="Path" class="com.isencia.passerelle.util.ptolemy.ResourceParameter" value="${Detector_Response_file}">
         </property>
         <property name="Data Sets" class="com.isencia.passerelle.util.ptolemy.StringChoiceParameter" value="/entry1/analyser/data">
         </property>
@@ -115,7 +115,7 @@
         </property>
         <property name="File Filter" class="com.isencia.passerelle.util.ptolemy.RegularExpressionParameter" value="">
         </property>
-        <property name="Path" class="com.isencia.passerelle.util.ptolemy.ResourceParameter" value="/dls/sci-scratch/ExampleData/NeXus/ARPESTest/A-20120113-012.nxs">
+        <property name="Path" class="com.isencia.passerelle.util.ptolemy.ResourceParameter" value="${AFilename}">
         </property>
         <property name="Data Sets" class="com.isencia.passerelle.util.ptolemy.StringChoiceParameter" value="/entry1/analyser/data">
         </property>
@@ -183,7 +183,7 @@
         </property>
         <property name="File Filter" class="com.isencia.passerelle.util.ptolemy.RegularExpressionParameter" value="">
         </property>
-        <property name="Path" class="com.isencia.passerelle.util.ptolemy.ResourceParameter" value="${Detector_Response_file}">
+        <property name="Path" class="com.isencia.passerelle.util.ptolemy.ResourceParameter" value="${Background_file}">
         </property>
         <property name="Data Sets" class="com.isencia.passerelle.util.ptolemy.StringChoiceParameter" value="">
         </property>
@@ -251,7 +251,7 @@
         </property>
         <property name="File Filter" class="com.isencia.passerelle.util.ptolemy.RegularExpressionParameter" value="">
         </property>
-        <property name="Path" class="com.isencia.passerelle.util.ptolemy.ResourceParameter" value="${Detector_Response_file}">
+        <property name="Path" class="com.isencia.passerelle.util.ptolemy.ResourceParameter" value="${Mask_file}">
         </property>
         <property name="Data Sets" class="com.isencia.passerelle.util.ptolemy.StringChoiceParameter" value="">
         </property>
@@ -375,11 +375,9 @@
         </property>
     </entity>
     <entity name="Region" class="org.dawb.passerelle.actors.roi.ROISource">
-<display name="Region"/>        <property name="Receiver Q Capacity (-1)" class="ptolemy.data.expr.Parameter" value="-1">
+        <property name="Receiver Q Capacity (-1)" class="ptolemy.data.expr.Parameter" value="-1">
         </property>
         <property name="Receiver Q warning size (-1)" class="ptolemy.data.expr.Parameter" value="-1">
-        </property>
-        <property name="_icon" class="com.isencia.passerelle.actor.gui.EditorIcon">
         </property>
         <property name="_break_point" class="ptolemy.data.expr.Parameter" value="false">
         </property>
@@ -389,38 +387,6 @@
         </property>
         <property name="_location" class="ptolemy.kernel.util.Location" value="{687.0, 653.0}">
         </property>
-        <port name="requestFinish" class="com.isencia.passerelle.core.ControlPort">
-            <property name="input"/>
-            <property name="multiport"/>
-            <property name="control" class="ptolemy.kernel.util.StringAttribute">
-            </property>
-        </port>
-        <port name="error" class="com.isencia.passerelle.core.ErrorPort">
-            <property name="output"/>
-            <property name="multiport"/>
-            <property name="error" class="ptolemy.kernel.util.StringAttribute">
-            </property>
-        </port>
-        <port name="hasFired" class="com.isencia.passerelle.core.ControlPort">
-            <property name="output"/>
-            <property name="multiport"/>
-            <property name="control" class="ptolemy.kernel.util.StringAttribute">
-            </property>
-        </port>
-        <port name="hasFinished" class="com.isencia.passerelle.core.ControlPort">
-            <property name="output"/>
-            <property name="multiport"/>
-            <property name="control" class="ptolemy.kernel.util.StringAttribute">
-            </property>
-        </port>
-        <port name="output" class="com.isencia.passerelle.core.Port">
-            <property name="output"/>
-            <property name="multiport"/>
-        </port>
-        <port name="trigger" class="com.isencia.passerelle.core.Port">
-            <property name="input"/>
-            <property name="multiport"/>
-        </port>
     </entity>
     <relation name="_R_2" class="ptolemy.actor.TypedIORelation">
         <property name="width" class="ptolemy.data.expr.Parameter" value="1">

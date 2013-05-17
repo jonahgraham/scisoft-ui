@@ -120,6 +120,25 @@ public class DataReductionPlotter {
 	}
 
 	/**
+	 * Method that gives the full file path of the IStructuredSelection
+	 * @param selection
+	 * @return String
+	 */
+	public static String getFullFilePath(IStructuredSelection selection){
+		Object item = selection.getFirstElement();
+		if (item instanceof IFile) {
+			return ((IFile) item).getRawLocation().toOSString();
+		}
+		// if the selection is an hdf5 tree item
+		else if (item instanceof HDF5NodeLink) {
+			HDF5NodeLink link = (HDF5NodeLink)item;
+			String fullName = link.getFile().getFilename();
+			return fullName;
+		}
+		return null;
+	}
+
+	/**
 	 * Method that loads data given a filename and a data path
 	 * @param fileName
 	 *             the name of the data
