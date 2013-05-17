@@ -156,6 +156,14 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView"
             name="Text">
       </view>
+      <view
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.HyperView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView"
+            name="Hyper3D"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.help.contexts">

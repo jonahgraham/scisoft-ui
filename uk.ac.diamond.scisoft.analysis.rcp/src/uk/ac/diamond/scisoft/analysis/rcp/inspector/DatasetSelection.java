@@ -84,6 +84,10 @@ public class DatasetSelection implements IStructuredSelection {
 		 */
 		VOLUME,
 		/**
+		 * View 3D dataset slices
+		 */
+		HYPER,
+		/**
 		 * Clear plot
 		 */
 		EMPTY;
