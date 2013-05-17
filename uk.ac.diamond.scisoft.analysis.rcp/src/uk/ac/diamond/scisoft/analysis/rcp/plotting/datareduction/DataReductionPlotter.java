@@ -48,6 +48,7 @@ public class DataReductionPlotter {
 	 *             the data to plot
 	 */
 	public static void plotData(final AbstractPlottingSystem plottingSystem,
+								final String plotTitle,
 								final IDataset data){
 		Job plotJob = new Job("Plotting data") {
 			
@@ -56,10 +57,9 @@ public class DataReductionPlotter {
 				try {
 
 					plottingSystem.clear();
-					String tmpTitle = plottingSystem.getPlotName();
 					if(data == null) return Status.CANCEL_STATUS;
 					plottingSystem.updatePlot2D(data, null, monitor);
-					plottingSystem.setTitle(tmpTitle);
+					plottingSystem.setTitle(plotTitle);
 					plottingSystem.getAxes().get(0).setTitle("");
 					plottingSystem.getAxes().get(1).setTitle("");
 					plottingSystem.setKeepAspect(true);
