@@ -41,6 +41,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -56,6 +57,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.ROISliceUtils;
@@ -77,7 +79,8 @@ public class HyperView extends ViewPart {
 	private IROIListener roiListenerRight;
 	private HyperJob leftJob;
 	private HyperSideJob rightJob;
-	private Action reselect;
+	private IAction reselect;
+	private IAction baseline;
 	private int traceDim;
 	
 	
@@ -170,7 +173,9 @@ public class HyperView extends ViewPart {
 					createNewRegion();
 				}
 			};
-
+			
+			reselect.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/ProfileBox2.png"));
+			
 			actionBarWrapper.getToolBarManager().add(new Separator("uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView.newProfileGroup"));
 			actionBarWrapper.getToolBarManager().insertAfter("uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView.newProfileGroup", reselect);
 			actionBarWrapper.getToolBarManager().add(new Separator("uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView.newProfileGroupAfter"));
@@ -179,9 +184,9 @@ public class HyperView extends ViewPart {
 			displayPlotComp.setLayout(new FillLayout());
 			displayPlotComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			mainSystem.createPlotPart(displayPlotComp, 
-													 "User display", 
+													 "HyperImage", 
 													 actionBarWrapper, 
-													 PlotType.XY, 
+													 PlotType.IMAGE, 
 													 null);
 			
 			mainSystem.repaint();
@@ -195,8 +200,20 @@ public class HyperView extends ViewPart {
 			Composite sidePlotComp  = new Composite(sideComp, SWT.BORDER);
 			sidePlotComp.setLayout(new FillLayout());
 			sidePlotComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			
+			baseline = new Action("Linear baseline", SWT.TOGGLE) {
+				@Override
+				public void run() {
+					//createNewRegion();
+				}
+			};
+			baseline.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/LinearBase.png"));
+			actionBarWrapper1.getToolBarManager().add(new Separator("uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView.newBaselineGroup"));
+			actionBarWrapper1.getToolBarManager().insertAfter("uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView.newBaselineGroup", baseline);
+			actionBarWrapper1.getToolBarManager().add(new Separator("uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView.newBaselineGroup"));
+			
 			sideSystem.createPlotPart(sidePlotComp, 
-													 "User display", 
+													 "HyperTrace", 
 													 actionBarWrapper1, 
 													 PlotType.XY, 
 													 null);
@@ -285,13 +302,13 @@ public class HyperView extends ViewPart {
 			
 			@Override
 			public void roiDragged(ROIEvent evt) {
-				updateRight((IRegion)evt.getSource(), evt.getROI(), false);
+				updateRight((IRegion)evt.getSource(), evt.getROI());
 				
 			}
 			
 			@Override
 			public void roiChanged(ROIEvent evt) {
-				updateRight((IRegion)evt.getSource(), evt.getROI(), false);
+				updateRight((IRegion)evt.getSource(), evt.getROI());
 			}
 		};
 	}
@@ -307,24 +324,24 @@ public class HyperView extends ViewPart {
 			
 			@Override
 			public void roiDragged(ROIEvent evt) {
-				updateLeft((IRegion)evt.getSource(), evt.getROI(), false);
+				updateLeft(evt.getROI());
 				
 			}
 			
 			@Override
 			public void roiChanged(ROIEvent evt) {
-				updateLeft((IRegion)evt.getSource(), evt.getROI(), false);
+				updateLeft(evt.getROI());
 				
 			}
 		};
 	}
 	
-	protected synchronized void updateRight(IRegion r, IROI rb, boolean isDrag) {
+	protected synchronized void updateRight(IRegion r, IROI rb) {
 		
 		leftJob.profile(r, rb);
 	}
 	
-	protected synchronized void updateLeft(IRegion r, IROI rb, boolean isDrag) {
+	protected synchronized void updateLeft(IROI rb) {
 
 		rightJob.profile(rb);
 	}
@@ -431,11 +448,12 @@ public class HyperView extends ViewPart {
 				if (currentROI instanceof RectangularROI) {
 					
 					final AbstractDataset image = ((AbstractDataset)ROISliceUtils.getAxisDatasetTrapzSum(daxes.get(traceDim).getValues().getSlice(),lazy, (RectangularROI)currentROI, traceDim));
-//					final IDataset datasetBasline = ROISliceUtils.getTrapiziumArea(daxes.get(traceDim).getValues().getSlice(),lazy, (RectangularROI)currentROI, traceDim);
-//					System.out.println("imageVal\t" + image.getDouble(35,37));
-//					System.out.println("baselineVal\t" + datasetBasline.getDouble(35,37));
 					
-					//image.isubtract(datasetBasline);
+					if (baseline.isChecked()) {
+						final IDataset datasetBasline = ROISliceUtils.getTrapiziumArea(daxes.get(traceDim).getValues().getSlice(),lazy, (RectangularROI)currentROI, traceDim);
+						image.isubtract(datasetBasline);
+					}
+					
 					image.setName("image");
 					Display.getDefault().syncExec(new Runnable() {
 						@Override
