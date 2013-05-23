@@ -22,6 +22,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 
+import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HyperView;
@@ -37,6 +38,8 @@ public class HyperTab extends PlotTab {
 	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
 		if (dataset == null)
 			return;
+		
+		if (dataset.getRank() != 3) return;
 
 //		Slice[] slices = new Slice[sliceProperties.size()];
 //		boolean[] average = new boolean[sliceProperties.size()];
@@ -63,17 +66,14 @@ public class HyperTab extends PlotTab {
 
 		switch (itype) {
 		case HYPER:
-//			if (isRankBad(reorderedData, 2))
-//				return;
-
 			composite.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					HyperView tableView = getHyperView();
 					if (tableView == null)
 						return;
+					
 					List<AxisChoice> axisChoices = getChosenAxes();
-					int axisNumber = axisChoices.get(0).getAxisNumber();
 					//TODO find dataset dim from paxes
 					PlotAxis pa = paxes.get(0).getValue();
 					
@@ -111,11 +111,23 @@ public class HyperTab extends PlotTab {
 
 		// check if Dataset Table View is open
 		try {
-			view = (HyperView) site.getPage().showView(HyperView.ID, null, IWorkbenchPage.VIEW_CREATE);
+			view = (HyperView) site.getPage().showView(HyperView.ID, null, IWorkbenchPage.VIEW_VISIBLE);
 		} catch (PartInitException e) {
 			logger.error("All over now! Cannot find hyper view: {} ", e);
 		}
 		return view;
+	}
+	
+	@Override
+	public boolean checkCompatible(ILazyDataset data) {
+		boolean isCompatible = false;
+		int rank = data.getRank();
+		if (rank == 3)
+			isCompatible = true;
+
+		if (composite != null)
+			composite.setEnabled(isCompatible);
+		return isCompatible;
 	}
 
 }

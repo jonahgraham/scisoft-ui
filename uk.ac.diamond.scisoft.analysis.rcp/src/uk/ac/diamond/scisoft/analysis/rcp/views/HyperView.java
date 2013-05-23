@@ -134,6 +134,8 @@ public class HyperView extends ViewPart {
 			region.setUserRegion(false);
 			region.addROIListener(this.roiListenerLeft);
 			
+			updateRight(region, rroi);
+			
 			IRegion regionSide = sideSystem.createRegion("testRegion2", RegionType.XAXIS);
 			
 			sideSystem.addRegion(regionSide);
@@ -145,6 +147,7 @@ public class HyperView extends ViewPart {
 			regionSide.setROI(broi);
 			regionSide.setUserRegion(false);
 			regionSide.addROIListener(this.roiListenerRight);
+			updateLeft(broi);
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -412,7 +415,7 @@ public class HyperView extends ViewPart {
 
 							for (ITrace trace : traceOut) {
 								trace.setUserObject(currentRegion);
-							};					
+							}					
 						}
 					});
 				}
