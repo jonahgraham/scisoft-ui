@@ -412,9 +412,12 @@ public class HyperView extends ViewPart {
 						@Override
 						public void run() {
 							List<ITrace> traceOut = sideSystem.createPlot1D(daxes.get(traceDim).getValues().getSlice(),Arrays.asList(new IDataset[] {dataset1}), null);
-
+							
 							for (ITrace trace : traceOut) {
 								trace.setUserObject(currentRegion);
+								if (trace instanceof ILineTrace){
+									currentRegion.setRegionColor(((ILineTrace)trace).getTraceColor());
+								}
 							}					
 						}
 					});
