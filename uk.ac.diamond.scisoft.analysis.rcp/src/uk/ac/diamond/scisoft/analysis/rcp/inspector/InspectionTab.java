@@ -1065,6 +1065,7 @@ class PlotTab extends ATab {
 		case POINTS1D:
 		case POINTS2D:
 		case POINTS3D:
+		case HYPER:
 			break;
 		}
 	}
@@ -1335,6 +1336,7 @@ class DataTab extends PlotTab {
 		case POINTS3D:
 		case SURFACE:
 		case VOLUME:
+		case HYPER:
 			break;
 		}
 	}
@@ -1700,6 +1702,7 @@ class ScatterTab extends PlotTab {
 		case MULTIIMAGES:
 		case SURFACE:
 		case VOLUME:
+		case HYPER:
 			break;
 		}
 	}
