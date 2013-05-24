@@ -147,7 +147,7 @@
            id="uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple"
            name="Plot"
            restorable="true">
-      </view>     
+      </view>
       <view
             allowMultiple="false"
             category="uk.ac.diamond.scisoft.analysis.rcp"

@@ -385,7 +385,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 								if (ds != null) {
 									ds = ds.clone();
 									ds.setName(new File(fileName).getName() + AbstractFileLoader.FILEPATH_DATASET_SEPARATOR + ds.getName());
-									DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, getAxes(ds), ds);
+									DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, fileName, getAxes(ds), ds);
 									setSelection(datasetSelection);
 								}
 							}
@@ -402,7 +402,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		
 		d = d.clone();
 		d.setName(new File(fileName).getName() + AbstractFileLoader.FILEPATH_DATASET_SEPARATOR + d.getName());
-		DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, getAxes(d), d);
+		DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, fileName, getAxes(d), d);
 		setSelection(datasetSelection);
 	}
 

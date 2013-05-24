@@ -116,6 +116,7 @@ public class DatasetSelection implements IStructuredSelection {
 	final private List<AxisSelection> axes;
 	final private ILazyDataset[] datasets;
 	private InspectorType view;
+	final protected String filePath;
 
 	/**
 	 * Null constructor to not show any plot or view
@@ -124,25 +125,27 @@ public class DatasetSelection implements IStructuredSelection {
 		axes = new ArrayList<AxisSelection>();
 		datasets = new ILazyDataset[0];
 		view = InspectorType.EMPTY;
+		filePath = null;
 	}
 
 	/**
 	 * Show a line plot
+	 * @param path
 	 * @param axes (can be null)
 	 * @param dataset
 	 */
-	public DatasetSelection(List<AxisSelection> axes, ILazyDataset... dataset) {
-		this.axes = axes;
-		this.datasets = dataset;
-		view = InspectorType.LINE;
+	public DatasetSelection(String path, List<AxisSelection> axes, ILazyDataset... dataset) {
+		this(InspectorType.LINE, path, axes, dataset);
 	}
 
 	/**
 	 * @param type inspector used
+	 * @param path
 	 * @param axes
 	 * @param dataset
 	 */
-	public DatasetSelection(InspectorType type, List<AxisSelection> axes, ILazyDataset... dataset) {
+	public DatasetSelection(InspectorType type, String path, List<AxisSelection> axes, ILazyDataset... dataset) {
+		filePath = path;
 		this.axes = axes;
 		this.datasets = dataset;
 		this.view = type;
@@ -260,6 +263,13 @@ public class DatasetSelection implements IStructuredSelection {
 			hash = hash * 31 + axes.get(i).hashCode();
 		}
 		return hash;
+	}
+
+	/**
+	 * @return full file path
+	 */
+	public String getFileName() {
+		return filePath;
 	}
 
 	/**

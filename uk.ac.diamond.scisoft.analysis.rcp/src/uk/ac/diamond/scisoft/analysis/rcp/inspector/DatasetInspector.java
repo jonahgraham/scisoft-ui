@@ -587,7 +587,7 @@ public class DatasetInspector extends Composite {
 
 		if (inspection == null) {
 			int[] shape;
-			if(cData instanceof AggregateDataset){
+			if (cData instanceof AggregateDataset) {
 				shape = cData.getShape();
 			} else {
 				shape = cData.squeeze(true).getShape();
