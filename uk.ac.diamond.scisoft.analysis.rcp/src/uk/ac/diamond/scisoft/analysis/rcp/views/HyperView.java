@@ -25,6 +25,7 @@ import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
 import org.dawb.common.ui.util.GridUtils;
 import org.dawb.common.ui.widgets.ActionBarWrapper;
+import org.dawb.common.ui.widgets.EmptyActionBars;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.IRegion;
@@ -41,7 +42,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -51,6 +55,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.ViewPart;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
@@ -82,6 +87,7 @@ public class HyperView extends ViewPart {
 	private IAction reselect;
 	private IAction baseline;
 	private int traceDim;
+	private IRegion windowRegion;
 	
 	
 	@Override
@@ -113,16 +119,9 @@ public class HyperView extends ViewPart {
 		for (IRegion region : sideSystem.getRegions()) {
 			sideSystem.removeRegion(region);
 		}
-		//TODO this slice shouldnt be shown, other ROI job should update
-		Slice[] slices = new Slice[]{null,null,null};
-		slices[traceDim] = new Slice(0,1,1);
-		
-		AbstractDataset dataset = (AbstractDataset)lazy.getSlice(slices);
-		dataset = dataset.squeeze();
-		dataset.setName("image");
-		mainSystem.createPlot2D(dataset,null, null);
-		
-		int[] imageSize = dataset.getShape();
+
+		int[] axPos = getImageAxis();
+		int[] imageSize = new int[]{lazy.getShape()[axPos[1]],lazy.getShape()[axPos[0]]};
 		
 		try {
 			IRegion region = mainSystem.createRegion("testRegion", RegionType.BOX);
@@ -136,17 +135,17 @@ public class HyperView extends ViewPart {
 			
 			updateRight(region, rroi);
 			
-			IRegion regionSide = sideSystem.createRegion("testRegion2", RegionType.XAXIS);
+			windowRegion = sideSystem.createRegion("testRegion2", RegionType.XAXIS);
 			
-			sideSystem.addRegion(regionSide);
+			sideSystem.addRegion(windowRegion);
 			
 			double min = daxes.get(traceDim).getValues().getSlice().min().doubleValue();
 			double max = daxes.get(traceDim).getValues().getSlice().max().doubleValue();
 			
 			XAxisBoxROI broi = new XAxisBoxROI(min,0,(max-min)/10, 0, 0);
-			regionSide.setROI(broi);
-			regionSide.setUserRegion(false);
-			regionSide.addROIListener(this.roiListenerRight);
+			windowRegion.setROI(broi);
+			windowRegion.setUserRegion(false);
+			windowRegion.addROIListener(this.roiListenerRight);
 			updateLeft(broi);
 			
 		} catch (Exception e) {
@@ -168,12 +167,20 @@ public class HyperView extends ViewPart {
 			Composite displayComp = new Composite(sashForm, SWT.NONE);
 			displayComp.setLayout(new GridLayout(1, false));
 			GridUtils.removeMargins(displayComp);
+
 			ActionBarWrapper actionBarWrapper = ActionBarWrapper.createActionBars(displayComp, null);
-			
+
 			reselect = new Action("Create new profile", SWT.TOGGLE) {
 				@Override
 				public void run() {
-					createNewRegion();
+					if (reselect.isChecked()) {
+						createNewRegion();
+					} else {
+						IContributionItem item = mainSystem.getActionBars().getToolBarManager().find("org.csstudio.swt.xygraph.undo.ZoomType.NONE");
+						if (item != null && item instanceof ActionContributionItem) {
+							((ActionContributionItem)item).getAction().run();
+						}
+					}
 				}
 			};
 			
@@ -207,7 +214,8 @@ public class HyperView extends ViewPart {
 			baseline = new Action("Linear baseline", SWT.TOGGLE) {
 				@Override
 				public void run() {
-					//createNewRegion();
+					IROI roi = windowRegion.getROI();
+					updateLeft(roi);
 				}
 			};
 			baseline.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/LinearBase.png"));
@@ -339,6 +347,21 @@ public class HyperView extends ViewPart {
 		};
 	}
 	
+	private int[] getImageAxis() {
+		int[] allDims = new int[]{2,1,0};
+		int[] dims = new int[2];
+		
+		int i =0;
+		for(int j : allDims) {
+			if (j != traceDim) {
+				dims[i] = j;
+				i++;
+			}
+		}
+		
+		return dims;
+	}
+	
 	protected synchronized void updateRight(IRegion r, IROI rb) {
 		
 		leftJob.profile(r, rb);
@@ -374,17 +397,8 @@ public class HyperView extends ViewPart {
 
 			try {
 				if (currentROI instanceof RectangularROI) {
+					int[] dims = getImageAxis();
 					
-					int[] allDims = new int[]{2,1,0};
-					int[] dims = new int[2];
-					
-					int i =0;
-					for(int j : allDims) {
-						if (j != traceDim) {
-							dims[i] = j;
-							i++;
-						}
-					}
 					//TODO check the dims used in the mean are sensible
 					Collection<ITrace> traces = sideSystem.getTraces();
 					for (ITrace trace : traces) {
