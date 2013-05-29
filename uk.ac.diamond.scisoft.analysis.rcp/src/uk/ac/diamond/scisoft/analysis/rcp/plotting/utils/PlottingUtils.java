@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting.datareduction;
+package uk.ac.diamond.scisoft.analysis.rcp.plotting.utils;
 
 import java.util.Map;
 
@@ -37,8 +37,8 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
-public class DataReductionPlotter {
-	private final static Logger logger = LoggerFactory.getLogger(DataReductionPlotter.class);
+public class PlottingUtils {
+	private final static Logger logger = LoggerFactory.getLogger(PlottingUtils.class);
 
 	/**
 	 * Method that plots data to a LightWeight PlottingSystem
