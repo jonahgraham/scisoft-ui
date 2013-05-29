@@ -18,7 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.utils;
 
 import java.util.Map;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -47,7 +47,7 @@ public class PlottingUtils {
 	 * @param data
 	 *             the data to plot
 	 */
-	public static void plotData(final AbstractPlottingSystem plottingSystem,
+	public static void plotData(final IPlottingSystem plottingSystem,
 								final String plotTitle,
 								final IDataset data){
 		Job plotJob = new Job("Plotting data") {
