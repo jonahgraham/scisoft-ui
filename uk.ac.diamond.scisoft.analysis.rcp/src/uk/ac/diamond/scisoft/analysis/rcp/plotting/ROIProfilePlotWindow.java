@@ -19,7 +19,6 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 import java.util.Collection;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.util.DisplayUtils;
 import org.dawb.common.ui.widgets.ROIWidget;
@@ -30,6 +29,7 @@ import org.dawnsci.plotting.api.tool.AbstractToolPage;
 import org.dawnsci.plotting.api.tool.IProfileToolPage;
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.dawnsci.plotting.api.tool.ToolPageFactory;
+import org.dawnsci.plotting.api.trace.ColorOption;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.ILineTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
