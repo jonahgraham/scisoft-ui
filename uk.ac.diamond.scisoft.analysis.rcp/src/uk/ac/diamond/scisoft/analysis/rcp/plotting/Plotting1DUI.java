@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.util.ColorUtility;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.axis.IAxis;
 import org.dawnsci.plotting.api.trace.ILineTrace;
 import org.dawnsci.plotting.api.trace.ILineTrace.TraceType;
@@ -53,7 +53,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 	private static final Logger logger = LoggerFactory.getLogger(Plotting1DUI.class);
 	private static final int LEGEND_LIMIT = 5; // maximum number of lines for legend otherwise it is not shown
 
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
 
 	/**
@@ -69,7 +69,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 	 * Constructor of a plotting 1D 
 	 * @param plottingSystem plotting system
 	 */
-	public Plotting1DUI(AbstractPlottingSystem plottingSystem) {
+	public Plotting1DUI(IPlottingSystem plottingSystem) {
 		this.plottingSystem = plottingSystem;
 		idx = 0;
 	}

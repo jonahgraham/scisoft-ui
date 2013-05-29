@@ -20,11 +20,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.util.GridUtils;
 import org.dawb.common.ui.widgets.ActionBarWrapper;
-import org.dawb.common.ui.widgets.EmptyActionBars;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.IRegion;
@@ -45,7 +44,6 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -55,13 +53,11 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.ViewPart;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.roi.IROI;
@@ -75,8 +71,8 @@ import uk.ac.diamond.scisoft.analysis.roi.XAxisBoxROI;
 public class HyperView extends ViewPart {
 	
 	public static final String ID = "uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView";
-	private AbstractPlottingSystem mainSystem;
-	private AbstractPlottingSystem sideSystem;
+	private IPlottingSystem mainSystem;
+	private IPlottingSystem sideSystem;
 	private ILazyDataset lazy;
 	private List<AxisChoice> daxes;
 	private IRegionListener regionListenerLeft;
@@ -157,7 +153,7 @@ public class HyperView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		mainSystem.setFocus();
+//		mainSystem.setFocus();
 	}
 	
 	private void createPlottingSystems(SashForm sashForm) {

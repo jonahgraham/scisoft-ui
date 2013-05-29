@@ -26,13 +26,14 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.region.RegionService;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.dawnsci.plotting.api.region.RegionUtils;
 import org.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
+import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.ISurfaceTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
@@ -58,7 +59,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 
 	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.Plotting2DUI";
 
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
 	private ROIManager manager;
 
@@ -69,13 +70,15 @@ public class Plotting2DUI extends AbstractPlotUI {
 	 * @param roiManager
 	 * @param plotter
 	 */
-	public Plotting2DUI(ROIManager roiManager, final AbstractPlottingSystem plotter) {
+	public Plotting2DUI(ROIManager roiManager, final IPlottingSystem plotter) {
 		manager = roiManager;
 		plottingSystem = plotter;
 		if (plottingSystem.getPlotType().equals(PlotType.SURFACE)){
 			try {
-				plottingSystem.setToolVisible("org.dawb.workbench.plotting.tools.windowTool", ToolPageRole.ROLE_3D, 
-						"org.dawb.workbench.plotting.views.toolPageView.3D");
+				((IToolPageSystem)plottingSystem.getAdapter(IToolPageSystem.class))
+					.setToolVisible("org.dawb.workbench.plotting.tools.windowTool", 
+									ToolPageRole.ROLE_3D, 
+									"org.dawb.workbench.plotting.views.toolPageView.3D");
 			} catch (Exception e1) {
 				logger.error("Cannot open window tool!", e1);
 			}

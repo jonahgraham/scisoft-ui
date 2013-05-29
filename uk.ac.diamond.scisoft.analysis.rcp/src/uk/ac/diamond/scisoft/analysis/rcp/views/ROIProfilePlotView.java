@@ -16,7 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -178,7 +178,7 @@ public class ROIProfilePlotView extends AbstractPlotView {
 	}
 
 	@Override
-	public AbstractPlottingSystem getPlottingSystem() {
+	public IPlottingSystem getPlottingSystem() {
 		return plotWindow.getPlottingSystem();
 	}
 
