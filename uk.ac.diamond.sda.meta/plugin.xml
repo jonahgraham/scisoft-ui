@@ -6,7 +6,7 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            name="Metadata"
+            name="Data Analysis - Metadata"
             id="uk.ac.diamond.sda.meta.category">
       </category>
       <view

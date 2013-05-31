@@ -40,11 +40,11 @@
       </category>
        <view
              allowMultiple="false"
-             category="uk.ac.diamond.scisoft.beamlineexplorer.rcp"
+             category="uk.ac.diamond.scisoft.analysis.rcp.access.category"
              class="org.eclipse.ui.navigator.CommonNavigator"
-             icon="icons/synchrotron-8x8.jpg"
+             icon="icons/synchrotron-16x16.jpg"
              id="uk.ac.diamond.scisoft.beamlineexplorer.view"
-             name="Non-Recursive View">
+             name="Non-Recursive View (Beamline Data Projects)">
        </view>
       
    </extension>

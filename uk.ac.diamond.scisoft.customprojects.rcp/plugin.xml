@@ -40,11 +40,11 @@
       </category>
        <view
              allowMultiple="false"
-             category="uk.ac.diamond.scisoft.customprojects.rcp"
+             category="uk.ac.diamond.scisoft.analysis.rcp.access.category"
              class="org.eclipse.ui.navigator.CommonNavigator"
              icon="icons/BinaryTree.png"
              id="uk.ac.diamond.scisoft.customprojects.view"
-             name="Non-Recursive View">
+             name="Non-Recursive View (Custom Project)">
        </view>
       
    </extension>

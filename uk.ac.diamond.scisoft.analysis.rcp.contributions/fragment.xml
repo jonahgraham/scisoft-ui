@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            name="Data Acquisition - Analysis"
+            name="Data Analysis"
             id="uk.ac.diamond.scisoft.analysis.rcp">
       </category>
       <view
@@ -164,6 +164,10 @@
             name="Hyper3D"
             restorable="true">
       </view>
+      <category
+            id="uk.ac.diamond.scisoft.analysis.rcp.access.category"
+            name="Data Access">
+      </category>
    </extension>
    <extension
          point="org.eclipse.help.contexts">
