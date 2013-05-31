@@ -20,7 +20,7 @@ import java.util.Collection;
 
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.util.DisplayUtils;
-import org.dawb.common.ui.widgets.ROIWidget;
+import org.dawnsci.common.widgets.gda.roi.ROIWidget;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.region.IRegion;
