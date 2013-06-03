@@ -1137,6 +1137,11 @@ class PlotTab extends ATab {
 		int[] ignoreAxes = ArrayUtils.toPrimitive(ignoreAxesList.toArray(new Integer[0]));
 		PositionIterator it = new PositionIterator(shape, start.clone(), stop.clone(), step, ignoreAxes);
 		int[] pos = it.getPos();
+		
+		int dimGridX = gridDimNumber.get(0);
+		int dimGridY = gridDimNumber.get(1);
+		int gridX0 = start[dimGridX];
+		int gridY0 = start[dimGridY]; 
 
 		try {
 			setInspectionRunning();
@@ -1171,8 +1176,11 @@ class PlotTab extends ATab {
 						stopInspection();
 						return;
 					}
-
-					SDAPlotter.plotImageToGrid(explorerName, reorderedData, true);
+					
+					int gridX =  pos[dimGridX] - gridX0;
+					int gridY =  pos[dimGridY] - gridY0;
+					SDAPlotter.plotImageToGrid(explorerName, reorderedData, gridX, gridY, true);
+					
 					if (!memoryOK)
 						logger.warn("... memory reduction successful");
 					memoryOK = true;
