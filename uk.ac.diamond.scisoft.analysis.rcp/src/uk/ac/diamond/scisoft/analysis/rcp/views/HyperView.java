@@ -16,6 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -53,11 +55,15 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.part.ViewPart;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import uk.ac.diamond.scisoft.analysis.io.ASCIIDataWithHeadingSaver;
+import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.roi.IROI;
@@ -84,7 +90,7 @@ public class HyperView extends ViewPart {
 	private IAction baseline;
 	private int traceDim;
 	private IRegion windowRegion;
-	
+	private Composite mainComposite;
 	
 	@Override
 	public void createPartControl(Composite parent) {
@@ -150,21 +156,64 @@ public class HyperView extends ViewPart {
 		}
 
 	}
+	
+private void saveLineTracesAsAscii(String filename) {
+		
+		Collection<ITrace> traces = sideSystem.getTraces(ILineTrace.class);
+		
+		boolean firstTrace = true;
+		List<IDataset> datasets = new ArrayList<IDataset>();
+		List<String> headings = new ArrayList<String>();
+		IDataset data;
+		
+		int i = 0;
+		
+		for (ITrace trace : traces ) {
+			
+			if (firstTrace) {
+				data = ((ILineTrace)trace).getXData();
+				data.setShape(data.getShape()[0],1);
+				datasets.add(data);
+				headings.add("x");
+				firstTrace = false;
+			}
+			
+			data = ((ILineTrace)trace).getData();
+			data.setShape(data.getShape()[0],1);
+			datasets.add(data);
+			headings.add("dataset_" + i);
+			i++;
+		}
+		
+		AbstractDataset allTraces = DatasetUtils.concatenate(datasets.toArray(new IDataset[datasets.size()]), 1);
+		
+		ASCIIDataWithHeadingSaver saver = new ASCIIDataWithHeadingSaver(filename);
+		DataHolder dh = new DataHolder();
+		dh.addDataset("AllTraces", allTraces);
+		saver.setHeader("#Traces extracted from Hyperview");
+		saver.setHeadings(headings);
+		
+		try {
+			saver.saveFile(dh);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public void setFocus() {
-//		mainSystem.setFocus();
+		mainComposite.setFocus();
 	}
 	
 	private void createPlottingSystems(SashForm sashForm) {
 		try {
 			mainSystem = PlottingFactory.createPlottingSystem();
 			mainSystem.setColorOption(ColorOption.NONE);
-			Composite displayComp = new Composite(sashForm, SWT.NONE);
-			displayComp.setLayout(new GridLayout(1, false));
-			GridUtils.removeMargins(displayComp);
+			mainComposite = new Composite(sashForm, SWT.NONE);
+			mainComposite.setLayout(new GridLayout(1, false));
+			GridUtils.removeMargins(mainComposite);
 
-			ActionBarWrapper actionBarWrapper = ActionBarWrapper.createActionBars(displayComp, null);
+			ActionBarWrapper actionBarWrapper = ActionBarWrapper.createActionBars(mainComposite, null);
 
 			reselect = new Action("Create new profile", SWT.TOGGLE) {
 				@Override
@@ -183,10 +232,10 @@ public class HyperView extends ViewPart {
 			reselect.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/ProfileBox2.png"));
 			
 			actionBarWrapper.getToolBarManager().add(new Separator("uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView.newProfileGroup"));
-			actionBarWrapper.getToolBarManager().insertAfter("uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView.newProfileGroup", reselect);
+			actionBarWrapper.getToolBarManager().add(reselect);
 			actionBarWrapper.getToolBarManager().add(new Separator("uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView.newProfileGroupAfter"));
 			
-			Composite displayPlotComp  = new Composite(displayComp, SWT.BORDER);
+			Composite displayPlotComp  = new Composite(mainComposite, SWT.BORDER);
 			displayPlotComp.setLayout(new FillLayout());
 			displayPlotComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			mainSystem.createPlotPart(displayPlotComp, 
@@ -214,9 +263,36 @@ public class HyperView extends ViewPart {
 					updateLeft(roi);
 				}
 			};
+			
+			IAction export = new Action("Export...") {
+				@Override
+				public void run() {
+					FileDialog fd = new FileDialog(HyperView.this.getSite().getShell(),SWT.SAVE);
+					fd.setFileName("export.dat");
+					final String path = fd.open();
+					
+					if (path == null) return;
+					
+					File file = new File(path);
+					//TODO throw error
+					if (file.exists()) return;
+					
+					Job exportJob = new Job("Export") {
+						
+						@Override
+						protected IStatus run(IProgressMonitor monitor) {
+							saveLineTracesAsAscii(path);
+							return Status.OK_STATUS;
+						}
+					};
+					exportJob.schedule();
+				}
+			};
+			
 			baseline.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/LinearBase.png"));
 			actionBarWrapper1.getToolBarManager().add(new Separator("uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView.newBaselineGroup"));
-			actionBarWrapper1.getToolBarManager().insertAfter("uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView.newBaselineGroup", baseline);
+			actionBarWrapper1.getToolBarManager().add(baseline);
+			actionBarWrapper1.getToolBarManager().add(export);
 			actionBarWrapper1.getToolBarManager().add(new Separator("uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView.newBaselineGroup"));
 			
 			sideSystem.createPlotPart(sidePlotComp, 
