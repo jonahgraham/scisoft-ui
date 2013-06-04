@@ -1104,14 +1104,15 @@ class PlotTab extends ATab {
 		int ns = slices.length;
 		// dimensions for iterating over (order.length == slices.length)
 		int ids = ns > 3 ? 2 : 1;
-		int smax = ns - ids;
 
 		final List<Integer> gridDimNumber = new ArrayList<Integer>();
 		final int[] gridShape = new int[ids];
-		for (int i = smax; i < order.length; i++) {
-			int o = order[i];
+		for (int i = 0; i < ids; i++) {
+			// After dimension reordering, first two dimensions should be an image size
+			// followed by grid dimensions
+			int o = order[i + 2];
 			gridDimNumber.add(o);
-			gridShape[i-smax] = slices[o].getNumSteps();
+			gridShape[i] = slices[o].getNumSteps();
 		}
 
 		try {
@@ -1130,8 +1131,17 @@ class PlotTab extends ATab {
 		int[] stop = new int[rank];
 		int[] step = new int[rank];
 		Slice.convertFromSlice(slices, shape, start, stop, step);
-		PositionIterator it = new PositionIterator(shape, start.clone(), stop.clone(), step, Arrays.copyOf(order, smax));
+		
+		List<Integer> ignoreAxesList = new ArrayList<Integer>(Arrays.asList(ArrayUtils.toObject(order)));
+		ignoreAxesList.removeAll(gridDimNumber);
+		int[] ignoreAxes = ArrayUtils.toPrimitive(ignoreAxesList.toArray(new Integer[0]));
+		PositionIterator it = new PositionIterator(shape, start.clone(), stop.clone(), step, ignoreAxes);
 		int[] pos = it.getPos();
+		
+		int dimGridX = gridDimNumber.get(0);
+		int gridX0 = start[dimGridX];
+		int dimGridY = (ids == 1) ? -1 : gridDimNumber.get(1);
+		int gridY0 = (ids == 1) ? -1 : start[dimGridY]; 
 
 		try {
 			setInspectionRunning();
@@ -1166,8 +1176,15 @@ class PlotTab extends ATab {
 						stopInspection();
 						return;
 					}
-
-					SDAPlotter.plotImageToGrid(explorerName, reorderedData, true);
+					
+					if (ids == 1) {
+						SDAPlotter.plotImageToGrid(explorerName, reorderedData, true);
+					} else {
+						int gridX =  pos[dimGridX] - gridX0;
+						int gridY =  pos[dimGridY] - gridY0;
+						SDAPlotter.plotImageToGrid(explorerName, reorderedData, gridX, gridY, true);
+					}
+					
 					if (!memoryOK)
 						logger.warn("... memory reduction successful");
 					memoryOK = true;
