@@ -38,7 +38,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewPart;
@@ -175,7 +174,6 @@ public class PlotWindow extends AbstractPlotWindow {
 
 	private void createPlottingSystem() {
 		plotSystemComposite = new Composite(parentComp, SWT.NONE);
-		plotSystemComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		plotSystemComposite.setLayout(new FillLayout());
 
 		try {
