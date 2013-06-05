@@ -490,7 +490,7 @@ private void saveLineTracesAsAscii(String filename) {
 							return Status.OK_STATUS;
 						}
 					}
-					final IDataset dataset1 = ((AbstractDataset)ROISliceUtils.getDataset(lazy, (RectangularROI)currentROI, dims)).mean(0).mean(0);
+					final IDataset dataset1 = ((AbstractDataset)ROISliceUtils.getDataset(lazy, (RectangularROI)currentROI, dims)).mean(dims[0]).mean(dims[1]);
 					String name = TraceUtils.getUniqueTrace("trace", sideSystem, (String[])null);
 					dataset1.setName(name);
 					
