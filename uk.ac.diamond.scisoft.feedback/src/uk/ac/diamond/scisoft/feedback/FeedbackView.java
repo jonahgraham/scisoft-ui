@@ -36,7 +36,10 @@ import org.dawb.common.util.eclipse.BundleUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -44,8 +47,6 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -98,6 +99,7 @@ public class FeedbackView extends ViewPart {
 	public void createPartControl(Composite parent) {
 
 		parent.setLayout(new GridLayout(1, false));
+		makeActions();
 		{
 			Label lblEmailAddress = new Label(parent, SWT.NONE);
 			lblEmailAddress.setText("Your email address for Feedback");
@@ -135,17 +137,15 @@ public class FeedbackView extends ViewPart {
 			messageText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		}
 		{
-			Button btnSendFeedback = new Button(parent, SWT.NONE);
-			btnSendFeedback.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseUp(MouseEvent e) {
-					feedbackAction.run();
-				}
-			});
-			btnSendFeedback.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+			ActionContributionItem aci = new ActionContributionItem(feedbackAction);
+			aci = new ActionContributionItem(aci.getAction());
+			aci.fill(parent);
+			Button btnSendFeedback = (Button) aci.getWidget();
 			btnSendFeedback.setText("Send Feedback");
+			btnSendFeedback.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+
 		}
-		makeActions();
+		
 		hookContextMenu();
 		contributeToActionBars();
 	}
@@ -186,13 +186,13 @@ public class FeedbackView extends ViewPart {
 		feedbackAction = new Action() {
 			@Override
 			public void run() {
-
 				UIJob feedbackJob = new UIJob("Sending feedback to DAWN developers") {
 
 					@Override
 					public IStatus runInUIThread(IProgressMonitor monitor) {
 
 						try {
+							
 							@SuppressWarnings("unused")
 							String mailserver = "localhost";
 							String fromvalue = emailAddress.getText();
@@ -261,7 +261,6 @@ public class FeedbackView extends ViewPart {
 						} catch (Exception e) {
 							logger.error("Feedback email not sent", e);
 							Display.getDefault().asyncExec(new Runnable() {
-
 								@Override
 								public void run() {
 									MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
@@ -270,13 +269,61 @@ public class FeedbackView extends ViewPart {
 							});
 							return Status.CANCEL_STATUS;
 						}
-
 						return Status.OK_STATUS;
 					}
 
 				};
+				feedbackJob.addJobChangeListener(new IJobChangeListener() {
+					@Override
+					public void sleeping(IJobChangeEvent event) {
+						// TODO Auto-generated method stub
+					}
+					
+					@Override
+					public void scheduled(IJobChangeEvent event) {
+						// TODO Auto-generated method stub
+					}
+					
+					@Override
+					public void running(IJobChangeEvent event) {
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								feedbackAction.setEnabled(false);
+							}
+						});
+					}
+					
+					@Override
+					public void done(IJobChangeEvent event) {
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								feedbackAction.setEnabled(true);
+								subjectText.setText("");
+								messageText.setText("");
+							}
+						});
+					}
+					
+					@Override
+					public void awake(IJobChangeEvent event) {
+						// TODO Auto-generated method stub
+					}
+					
+					@Override
+					public void aboutToRun(IJobChangeEvent event) {
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								feedbackAction.setEnabled(false);
+							}
+						});
+					}
+				});
 				feedbackJob.setUser(true);
-				feedbackJob.schedule();				
+				feedbackJob.schedule();
+				
 			}
 		};
 		feedbackAction.setText("Send Feedback");
@@ -341,9 +388,7 @@ public class FeedbackView extends ViewPart {
 
 			// Send the message
 			Transport.send( message );
-
 			Display.getDefault().asyncExec(new Runnable() {
-
 				@Override
 				public void run() {
 					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
@@ -351,11 +396,9 @@ public class FeedbackView extends ViewPart {
 				}
 			});
 			
-			
 		} catch (Exception e) {
 			logger.error("Feedback email not sent", e);
 			Display.getDefault().asyncExec(new Runnable() {
-
 				@Override
 				public void run() {
 					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
