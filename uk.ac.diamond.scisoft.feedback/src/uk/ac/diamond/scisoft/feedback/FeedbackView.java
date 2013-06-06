@@ -18,6 +18,8 @@ package uk.ac.diamond.scisoft.feedback;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -53,9 +55,11 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
@@ -246,30 +250,13 @@ public class FeedbackView extends ViewPart {
 							}
 							// Test that the message is correctly formatted (not empty) and Test the email format
 							if(!messageText.getText().equals("") && emailAddress.getText().contains("@")){
-								FeedbackRequest.doRequest(from, mailTo, System.getProperty("user.name", "Unknown User"), subject, messageBody.toString(), logpath);
+								 return FeedbackRequest.doRequest(from, mailTo, System.getProperty("user.name", "Unknown User"), subject, messageBody.toString(), logpath);
 							}
-							else{
-								Display.getDefault().asyncExec(new Runnable() {
-									@Override
-									public void run() {
-										MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-												"Feedback format problem", "Please type in your email and/or the message body before sending the feedback.");
-									}
-								});
-								return Status.CANCEL_STATUS;
-							}
-						} catch (Exception e) {
+							return new Status(IStatus.WARNING, "Format Problem", "Please type in your email and/or the message body before sending the feedback.");
+						}catch (Exception e) {
 							logger.error("Feedback email not sent", e);
-							Display.getDefault().asyncExec(new Runnable() {
-								@Override
-								public void run() {
-									MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-											"Feedback not sent!", "Error creating the message body. Please go to www.dawnsci.org and register your problem there. (Accessible form the welcome page)");
-								}
-							});
-							return Status.CANCEL_STATUS;
+							return new Status(IStatus.WARNING, "Feedback not sent!", "Please check that you have an Internet connection. If the feedback is still not working, click on OK to submit your feedback using the online feedback form available at http://dawnsci-feedback.appspot.com/");
 						}
-						return Status.OK_STATUS;
 					}
 
 				};
@@ -296,12 +283,43 @@ public class FeedbackView extends ViewPart {
 					
 					@Override
 					public void done(final IJobChangeEvent event) {
+						final String message = event.getResult().getMessage();
 						Display.getDefault().asyncExec(new Runnable() {
 							@Override
 							public void run() {
 								if(event.getResult().isOK()){
-									subjectText.setText("");
 									messageText.setText("");
+									Display.getDefault().asyncExec(new Runnable() {
+										@Override
+										public void run() {
+											MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+													"Feedback successfully sent", message);
+										}
+									});
+								}
+								else{
+									MessageBox messageDialog = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+											SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+									messageDialog.setText("Feedback not sent!");
+									
+									messageDialog.setMessage(message);
+									int result = messageDialog.open();
+									if (result == SWT.CANCEL) {}
+									
+									if (message.startsWith("Please check") && result == SWT.OK){
+										Display.getDefault().asyncExec(new Runnable() {
+											@Override
+											public void run() {
+												try {
+													PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(FeedbackRequest.SERVLET_URL));
+												} catch (PartInitException e) {
+													logger.error("Error opening browser:", e);
+												} catch (MalformedURLException e) {
+													logger.error("Error - Malformed URL:", e);
+												}
+											}
+										});
+									}
 								}
 								feedbackAction.setEnabled(true);
 							}
