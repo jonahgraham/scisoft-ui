@@ -295,13 +295,15 @@ public class FeedbackView extends ViewPart {
 					}
 					
 					@Override
-					public void done(IJobChangeEvent event) {
+					public void done(final IJobChangeEvent event) {
 						Display.getDefault().asyncExec(new Runnable() {
 							@Override
 							public void run() {
+								if(event.getResult().isOK()){
+									subjectText.setText("");
+									messageText.setText("");
+								}
 								feedbackAction.setEnabled(true);
-								subjectText.setText("");
-								messageText.setText("");
 							}
 						});
 					}
