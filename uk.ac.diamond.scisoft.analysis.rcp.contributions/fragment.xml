@@ -116,7 +116,7 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.views.RemoteVolVizView">
       </view>
       <view
-            name="ImageExplorer View"
+            name="Image Explorer"
             icon="icons/map_magnify.png"
             category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView"

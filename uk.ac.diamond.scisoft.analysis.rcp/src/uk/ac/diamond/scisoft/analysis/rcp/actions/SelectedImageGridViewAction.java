@@ -127,14 +127,14 @@ public class SelectedImageGridViewAction extends AbstractHandler implements IObj
 					}
 					
 					try {
-						SDAPlotter.setupNewImageGrid("ImageExplorer View", files.size());
+						SDAPlotter.setupNewImageGrid("Image Explorer", files.size());
 					} catch (Exception e1) {
 						logger.debug("Problem with SDAPlotter.setupNewImageGrid",e1);
 						return Status.CANCEL_STATUS;
 					}
 					for (String path : files) {						
 						try {
-							SDAPlotter.plotImageToGrid("ImageExplorer View", path);
+							SDAPlotter.plotImageToGrid("Image Explorer", path);
 						} catch (Exception e) {
 							logger.debug("Problem with SDAPlotter.plotImageToGrid()",e);
 							return Status.CANCEL_STATUS;

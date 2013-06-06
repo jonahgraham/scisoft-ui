@@ -79,7 +79,7 @@ public class ImageGridViewPathSetterAction extends AbstractHandler implements IO
 							IFolder folder = (IFolder)selObjects[0];
 							String path = folder.getLocation().toString();
 							
-							SDAPlotter.scanForImages("ImageExplorer View", path);
+							SDAPlotter.scanForImages("Image Explorer", path);
 						} catch (Exception e) {
 							logger.debug("Problem with SDAPlotter.setupNewImageGrid",e);
 							return Status.CANCEL_STATUS;
