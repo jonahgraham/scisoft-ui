@@ -390,20 +390,20 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 * or if it is to change
 	 * @param dbPlot
 	 */
-	abstract void processPlotUpdate(final DataBean dbPlot);
+	abstract public void processPlotUpdate(final DataBean dbPlot);
 
 	/**
 	 * Update the GuiBean
 	 * @param bean
 	 */
-	abstract void processGUIUpdate(GuiBean bean);
+	abstract public void processGUIUpdate(GuiBean bean);
 
 	/**
 	 * Update the Plot Mode
 	 * @param plotMode
 	 * @param async
 	 */
-	abstract void updatePlotMode(GuiPlotMode plotMode, boolean async);
+	abstract public void updatePlotMode(GuiPlotMode plotMode, boolean async);
 
 	/**
 	 * Update the Plot mode with a GuiBean
@@ -424,7 +424,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	/**
 	 * Clear the Plot Window and its components
 	 */
-	abstract void clearPlot();
+	abstract public void clearPlot();
 
 	/**
 	 * Needed to correctly create the guibean the first time a plot is set, otherwise the guibean will be null
@@ -469,7 +469,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	/**
 	 * Required if you want to make tools work with Abstract Plotting System.
 	 */
-	abstract Object getAdapter(Class<?> clazz);
+	abstract public Object getAdapter(Class<?> clazz);
 }
 
 class SimpleLock {
