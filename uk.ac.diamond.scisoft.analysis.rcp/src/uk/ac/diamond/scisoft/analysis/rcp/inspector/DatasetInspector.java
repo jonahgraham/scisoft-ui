@@ -394,6 +394,8 @@ public class DatasetInspector extends Composite {
 					"1D data", new String[] { "row" }));
 			inspectionTabs.put(InspectorType.DATA2D, new DataTab(site, InspectorType.DATA2D,
 					"2D data", new String[] { "column", "row" }));
+			inspectionTabs.put(InspectorType.HYPER, new HyperTab(site, InspectorType.HYPER,
+					"Hyper3D", new String[] { "trace-coord" }));
 
 			for (InspectorType t : InspectorType.values()) {
 				final InspectionTab tab = inspectionTabs.get(t);
@@ -585,7 +587,7 @@ public class DatasetInspector extends Composite {
 
 		if (inspection == null) {
 			int[] shape;
-			if(cData instanceof AggregateDataset){
+			if (cData instanceof AggregateDataset) {
 				shape = cData.getShape();
 			} else {
 				shape = cData.squeeze(true).getShape();

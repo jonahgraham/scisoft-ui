@@ -87,7 +87,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 
 	public static final Object FOLDER_UPDATE_MARKER = new Object();
 
-	private String plotViewName = "ImageExplorer View";
+	private String plotViewName = "Image Explorer";
 	private PlotServer plotServer = null;
 	private Canvas canvas;
 	private Group compHUD = null;

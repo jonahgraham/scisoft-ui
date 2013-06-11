@@ -18,8 +18,8 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.actions;
 
 import java.io.File;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.util.EclipseUtils;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.jreality.print.PlotExportUtil;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -67,7 +67,7 @@ public class PlotSaveGraphAction extends AbstractHandler {
 				if (plotMode.equals(GuiPlotMode.ONED) 
 						||(plotMode.equals(GuiPlotMode.TWOD))
 						||(plotMode.equals(GuiPlotMode.SCATTER2D))) {
-					AbstractPlottingSystem plottingSystem = pv.getPlottingSystem();
+					IPlottingSystem plottingSystem = pv.getPlottingSystem();
 					plottingSystem.savePlotting(filename);
 				} 
 				// plot modes with DatasetPlotter

@@ -18,6 +18,8 @@ package uk.ac.diamond.scisoft.feedback;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -36,7 +38,10 @@ import org.dawb.common.util.eclipse.BundleUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -44,17 +49,17 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
@@ -98,6 +103,7 @@ public class FeedbackView extends ViewPart {
 	public void createPartControl(Composite parent) {
 
 		parent.setLayout(new GridLayout(1, false));
+		makeActions();
 		{
 			Label lblEmailAddress = new Label(parent, SWT.NONE);
 			lblEmailAddress.setText("Your email address for Feedback");
@@ -135,17 +141,15 @@ public class FeedbackView extends ViewPart {
 			messageText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		}
 		{
-			Button btnSendFeedback = new Button(parent, SWT.NONE);
-			btnSendFeedback.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseUp(MouseEvent e) {
-					feedbackAction.run();
-				}
-			});
-			btnSendFeedback.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+			ActionContributionItem aci = new ActionContributionItem(feedbackAction);
+			aci = new ActionContributionItem(aci.getAction());
+			aci.fill(parent);
+			Button btnSendFeedback = (Button) aci.getWidget();
 			btnSendFeedback.setText("Send Feedback");
+			btnSendFeedback.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+
 		}
-		makeActions();
+		
 		hookContextMenu();
 		contributeToActionBars();
 	}
@@ -186,13 +190,13 @@ public class FeedbackView extends ViewPart {
 		feedbackAction = new Action() {
 			@Override
 			public void run() {
-
 				UIJob feedbackJob = new UIJob("Sending feedback to DAWN developers") {
 
 					@Override
 					public IStatus runInUIThread(IProgressMonitor monitor) {
 
 						try {
+							
 							@SuppressWarnings("unused")
 							String mailserver = "localhost";
 							String fromvalue = emailAddress.getText();
@@ -246,37 +250,100 @@ public class FeedbackView extends ViewPart {
 							}
 							// Test that the message is correctly formatted (not empty) and Test the email format
 							if(!messageText.getText().equals("") && emailAddress.getText().contains("@")){
-								FeedbackRequest.doRequest(from, mailTo, System.getProperty("user.name", "Unknown User"), subject, messageBody.toString(), logpath);
+								 return FeedbackRequest.doRequest(from, mailTo, System.getProperty("user.name", "Unknown User"), subject, messageBody.toString(), logpath);
 							}
-							else{
-								Display.getDefault().asyncExec(new Runnable() {
-									@Override
-									public void run() {
-										MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-												"Feedback format problem", "Please type in your email and/or the message body before sending the feedback.");
-									}
-								});
-								return Status.CANCEL_STATUS;
-							}
-						} catch (Exception e) {
+							return new Status(IStatus.WARNING, "Format Problem", "Please type in your email and/or the message body before sending the feedback.");
+						}catch (Exception e) {
 							logger.error("Feedback email not sent", e);
-							Display.getDefault().asyncExec(new Runnable() {
-
-								@Override
-								public void run() {
-									MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-											"Feedback not sent!", "Error creating the message body. Please go to www.dawnsci.org and register your problem there. (Accessible form the welcome page)");
-								}
-							});
-							return Status.CANCEL_STATUS;
+							return new Status(IStatus.WARNING, "Feedback not sent!", "Please check that you have an Internet connection. If the feedback is still not working, click on OK to submit your feedback using the online feedback form available at http://dawnsci-feedback.appspot.com/");
 						}
-
-						return Status.OK_STATUS;
 					}
 
 				};
+				feedbackJob.addJobChangeListener(new IJobChangeListener() {
+					@Override
+					public void sleeping(IJobChangeEvent event) {
+						// TODO Auto-generated method stub
+					}
+					
+					@Override
+					public void scheduled(IJobChangeEvent event) {
+						// TODO Auto-generated method stub
+					}
+					
+					@Override
+					public void running(IJobChangeEvent event) {
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								feedbackAction.setEnabled(false);
+							}
+						});
+					}
+					
+					@Override
+					public void done(final IJobChangeEvent event) {
+						final String message = event.getResult().getMessage();
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								if(event.getResult().isOK()){
+									messageText.setText("");
+									Display.getDefault().asyncExec(new Runnable() {
+										@Override
+										public void run() {
+											MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+													"Feedback successfully sent", message);
+										}
+									});
+								}
+								else{
+									MessageBox messageDialog = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+											SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+									messageDialog.setText("Feedback not sent!");
+									
+									messageDialog.setMessage(message);
+									int result = messageDialog.open();
+									if (result == SWT.CANCEL) {}
+									
+									if (message.startsWith("Please check") && result == SWT.OK){
+										Display.getDefault().asyncExec(new Runnable() {
+											@Override
+											public void run() {
+												try {
+													PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(FeedbackRequest.SERVLET_URL));
+												} catch (PartInitException e) {
+													logger.error("Error opening browser:", e);
+												} catch (MalformedURLException e) {
+													logger.error("Error - Malformed URL:", e);
+												}
+											}
+										});
+									}
+								}
+								feedbackAction.setEnabled(true);
+							}
+						});
+					}
+					
+					@Override
+					public void awake(IJobChangeEvent event) {
+						// TODO Auto-generated method stub
+					}
+					
+					@Override
+					public void aboutToRun(IJobChangeEvent event) {
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								feedbackAction.setEnabled(false);
+							}
+						});
+					}
+				});
 				feedbackJob.setUser(true);
-				feedbackJob.schedule();				
+				feedbackJob.schedule();
+				
 			}
 		};
 		feedbackAction.setText("Send Feedback");
@@ -341,9 +408,7 @@ public class FeedbackView extends ViewPart {
 
 			// Send the message
 			Transport.send( message );
-
 			Display.getDefault().asyncExec(new Runnable() {
-
 				@Override
 				public void run() {
 					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
@@ -351,11 +416,9 @@ public class FeedbackView extends ViewPart {
 				}
 			});
 			
-			
 		} catch (Exception e) {
 			logger.error("Feedback email not sent", e);
 			Display.getDefault().asyncExec(new Runnable() {
-
 				@Override
 				public void run() {
 					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),

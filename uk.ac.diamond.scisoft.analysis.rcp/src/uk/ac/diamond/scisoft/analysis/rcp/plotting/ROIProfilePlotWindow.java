@@ -18,11 +18,10 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import java.util.Collection;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.util.DisplayUtils;
-import org.dawb.common.ui.widgets.ROIWidget;
+import org.dawnsci.common.widgets.gda.roi.ROIWidget;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
@@ -30,6 +29,7 @@ import org.dawnsci.plotting.api.tool.AbstractToolPage;
 import org.dawnsci.plotting.api.tool.IProfileToolPage;
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.dawnsci.plotting.api.tool.ToolPageFactory;
+import org.dawnsci.plotting.api.trace.ColorOption;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.ILineTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
@@ -79,7 +79,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 
 	static private Logger logger = LoggerFactory.getLogger(ROIProfilePlotWindow.class);
 
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 	private IProfileToolPage sideProfile1;
 	private IProfileToolPage sideProfile2;
 
@@ -91,8 +91,8 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	private ROIWidget myROIWidget;
 	private ROIWidget verticalProfileROIWidget;
 	private ROIWidget horizontalProfileROIWidget;
-	private AbstractPlottingSystem verticalProfilePlottingSystem;
-	private AbstractPlottingSystem horizontalProfilePlottingSystem;
+	private IPlottingSystem verticalProfilePlottingSystem;
+	private IPlottingSystem horizontalProfilePlottingSystem;
 	private AbstractToolPage roiSumProfile;
 	
 	private Action plotEdge;
@@ -160,12 +160,13 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			
 			plottingSystem.createPlotPart(sashForm2, getName(), bars, PlotType.XY, (IViewPart)getGuiManager());
 			plottingSystem.repaint();
-			
+
+			IToolPageSystem tps = (IToolPageSystem)plottingSystem.getAdapter(IToolPageSystem.class);
 			sideProfile1 = (IProfileToolPage)ToolPageFactory.getToolPage("org.dawb.workbench.plotting.tools.boxLineProfileTool");
 			sideProfile1.setLineType(SWT.HORIZONTAL);
 			sideProfile1.setPlotEdgeProfile(true);
 			sideProfile1.setPlotAverageProfile(false);
-			sideProfile1.setToolSystem(plottingSystem);
+			sideProfile1.setToolSystem(tps);
 			sideProfile1.setPlottingSystem(plottingSystem);
 			sideProfile1.setTitle(getName()+"_profile1");
 			sideProfile1.setPart((IViewPart)getGuiManager());
@@ -177,7 +178,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			sideProfile2.setLineType(SWT.VERTICAL);
 			sideProfile2.setPlotEdgeProfile(true);
 			sideProfile2.setPlotAverageProfile(false);
-			sideProfile2.setToolSystem(plottingSystem);
+			sideProfile2.setToolSystem(tps);
 			sideProfile2.setPlottingSystem(plottingSystem);
 			sideProfile2.setTitle(getName()+"_profile2");
 			sideProfile2.setPart((IViewPart)getGuiManager());
@@ -185,8 +186,8 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			sideProfile2.createControl(sashForm3);
 			sideProfile2.activate();
 
-			verticalProfilePlottingSystem = (AbstractPlottingSystem)sideProfile2.getToolPlottingSystem();
-			horizontalProfilePlottingSystem = (AbstractPlottingSystem)sideProfile1.getToolPlottingSystem();
+			verticalProfilePlottingSystem = sideProfile2.getToolPlottingSystem();
+			horizontalProfilePlottingSystem = sideProfile1.getToolPlottingSystem();
 
 			//start metadata
 			final ScrolledComposite scrollComposite = new ScrolledComposite(sashForm3, SWT.H_SCROLL | SWT.V_SCROLL);
@@ -242,7 +243,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			regionSumGroup.setLayout(new GridLayout(1, false));
 			regionSumGroup.setLayoutData(gridData);
 			roiSumProfile = (AbstractToolPage)ToolPageFactory.getToolPage("org.dawb.workbench.plotting.tools.regionSumTool");
-			roiSumProfile.setToolSystem(plottingSystem);
+			roiSumProfile.setToolSystem(tps);
 			roiSumProfile.setPlottingSystem(plottingSystem);
 			roiSumProfile.setTitle(getName()+"_Region_Sum");
 			roiSumProfile.setPart((IViewPart)getGuiManager());
@@ -312,9 +313,6 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 				}
 			});
 
-//			xaxisMetadataHorizontal = new RROITableInfo(horizontalProfileComposite, "Horizontal Profile", 
-//					(AbstractPlottingSystem)sideProfile1.getToolPlottingSystem(), true);
-//			
 			horizontalRegionInfoExpander.setClient(horizontalProfileComposite);
 			horizontalRegionInfoExpander.addExpansionListener(expansionAdapter);
 			horizontalRegionInfoExpander.setExpanded(false);
@@ -549,7 +547,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		}
 	}
 
-	public AbstractPlottingSystem getPlottingSystem() {
+	public IPlottingSystem getPlottingSystem() {
 		return plottingSystem;
 	}
 

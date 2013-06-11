@@ -17,8 +17,6 @@
 package uk.ac.diamond.scisoft.feedback;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -28,12 +26,8 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +39,8 @@ public class FeedbackRequest {
 
 	private static Logger logger = LoggerFactory.getLogger(FeedbackRequest.class);
 	//this is the URL of the GAE servlet
-	private static final String SERVLET_URL = "http://dawnsci-feedback.appspot.com/";
-	private static final String SERVLET_NAME = "dawnfeedback";
+	public static final String SERVLET_URL = "http://dawnsci-feedback.appspot.com/";
+	public static final String SERVLET_NAME = "dawnfeedback";
 	//proxy
 	private static String host;
 	private static int port;
@@ -61,8 +55,8 @@ public class FeedbackRequest {
 	 * @param messageBody
 	 * @param file
 	 */
-	public static void doRequest(String email, String to, String name, String subject, String messageBody, File file) {
-
+	public static IStatus doRequest(String email, String to, String name, String subject, String messageBody, File file) throws Exception{
+		Status status = null;
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 
 		FeedbackProxy.init();
@@ -92,75 +86,19 @@ public class FeedbackRequest {
 			final String reasonPhrase = response.getStatusLine().getReasonPhrase();
 			int statusCode = response.getStatusLine().getStatusCode();
 			if(statusCode==200){
-				logger.debug("Feedback Sent");
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-								"Feedback successfully sent", "Thank you for your contribution");
-					}
-				});
+				logger.debug("Status code 200");
+				status = new Status(IStatus.OK, "Feedback successfully sent", "Thank you for your contribution");
 			} else {
 				logger.debug("Feedback email not sent - HTTP response: "+ reasonPhrase);
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						MessageBox messageDialog = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
-								SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
-						messageDialog.setText("Feedback not sent!");
-						messageDialog.setMessage("The response from the server is the following:\n"+reasonPhrase+"\nClick on OK to submit your feedback using the online feedback form available at http://dawnsci-feedback.appspot.com/");
-						int result = messageDialog.open();
-						if (result == SWT.CANCEL) {}
-						if(result == SWT.OK){
-							Display.getDefault().asyncExec(new Runnable() {
-								@Override
-								public void run() {
-									try {
-										PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(SERVLET_URL));
-									} catch (PartInitException e) {
-										logger.error("Error opening browser:", e);
-									} catch (MalformedURLException e) {
-										logger.error("Error - Malformed URL:", e);
-									}
-								}
-							});
-						}
-					}
-				});
+				status = new Status(IStatus.WARNING, "Feedback not sent", "The response from the server is the following:\n"+reasonPhrase+"\nClick on OK to submit your feedback using the online feedback form available at http://dawnsci-feedback.appspot.com/");
 			}
 			logger.debug("HTTP Response: " + response.getStatusLine());
-		} catch (Exception e) {
-			logger.error("Feedback email not sent", e);
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					MessageBox messageDialog = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
-							SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
-					messageDialog.setText("Feedback not sent!");
-					messageDialog.setMessage("Please check that you have an Internet connection. If the feedback is still not working, click on OK to submit your feedback using the online feedback form available at http://dawnsci-feedback.appspot.com/");
-					int result = messageDialog.open();
-					if (result == SWT.CANCEL) {}
-					if(result == SWT.OK){
-						Display.getDefault().asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								try {
-									PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(SERVLET_URL));
-								} catch (PartInitException e) {
-									logger.error("Error opening browser:", e);
-								} catch (MalformedURLException e) {
-									logger.error("Error - Malformed URL:", e);
-								}
-							}
-						});
-					}
-				}
-			});
 		} finally {
 			// When HttpClient instance is no longer needed,
 			// shut down the connection manager to ensure
 			// immediate deallocation of all system resources
 			httpclient.getConnectionManager().shutdown();
 		}
+		return status;
 	}
 }

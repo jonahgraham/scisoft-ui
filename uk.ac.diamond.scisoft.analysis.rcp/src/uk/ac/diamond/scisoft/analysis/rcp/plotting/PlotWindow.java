@@ -23,22 +23,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.util.DisplayUtils;
 import org.dawb.common.ui.util.EclipseUtils;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.axis.IAxis;
 import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
+import org.dawnsci.plotting.api.trace.ColorOption;
 import org.dawnsci.plotting.jreality.core.AxisMode;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewPart;
@@ -70,7 +69,7 @@ public class PlotWindow extends AbstractPlotWindow {
 
 	private DataSetPlotter mainPlotter;
 
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 
 	private Composite plotSystemComposite;
 	private Composite mainPlotterComposite;
@@ -175,7 +174,6 @@ public class PlotWindow extends AbstractPlotWindow {
 
 	private void createPlottingSystem() {
 		plotSystemComposite = new Composite(parentComp, SWT.NONE);
-		plotSystemComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		plotSystemComposite.setLayout(new FillLayout());
 
 		try {
@@ -627,7 +625,7 @@ public class PlotWindow extends AbstractPlotWindow {
 		return mainPlotter;
 	}
 
-	public AbstractPlottingSystem getPlottingSystem() {
+	public IPlottingSystem getPlottingSystem() {
 		return plottingSystem;
 	}
 

@@ -17,8 +17,8 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.actions;
 
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.util.EclipseUtils;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -66,7 +66,7 @@ public class PlotCopyGraphAction extends AbstractHandler {
 				if (plotMode.equals(GuiPlotMode.ONED) 
 						||(plotMode.equals(GuiPlotMode.TWOD))
 						||(plotMode.equals(GuiPlotMode.SCATTER2D))) {
-					AbstractPlottingSystem plottingSystem = pv.getPlottingSystem();
+					IPlottingSystem plottingSystem = pv.getPlottingSystem();
 					plottingSystem.copyPlotting();
 				} else {
 					DataSetPlotter plotter = pv.getMainPlotter();

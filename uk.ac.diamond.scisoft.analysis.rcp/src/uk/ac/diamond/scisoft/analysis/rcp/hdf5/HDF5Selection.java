@@ -25,13 +25,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
 
 public class HDF5Selection extends DatasetSelection {
-	
-	private String fileName;
 	private String node;
 
 	public HDF5Selection(InspectorType type, String filename, String node, List<AxisSelection> axes, ILazyDataset... dataset) {
-		super(type, axes, dataset);
-		fileName = filename;
+		super(type, filename, axes, dataset);
 		this.node = node;
 	}
 
@@ -39,9 +36,9 @@ public class HDF5Selection extends DatasetSelection {
 	public boolean equals(Object other) {
 		if (super.equals(other) && other instanceof HDF5Selection) {
 			HDF5Selection that = (HDF5Selection) other;
-			if (fileName == null && that.fileName == null)
+			if (filePath == null && that.filePath == null)
 				return node.equals(that.node);
-			if (fileName != null && fileName.equals(that.fileName))
+			if (filePath != null && filePath.equals(that.filePath))
 				return node.equals(that.node);
 		}
 		return false;
@@ -57,14 +54,6 @@ public class HDF5Selection extends DatasetSelection {
 	@Override
 	public String toString() {
 		return node + " = " + super.toString();
-	}
-
-	public String getFileName() {
-		return fileName;
-	}
-
-	public void setFileName(final String filename) {
-		fileName = filename;
 	}
 
 	public String getNode() {

@@ -5,6 +5,7 @@
    <extension
          point="org.eclipse.ui.views">
       <view
+            category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView"
             icon="icons/qstatMonitorIcon.gif"
             id="uk.ac.diamond.qstatmonitor.views.QStatMonitorView"

@@ -304,7 +304,7 @@ public class TextDataExplorer extends AbstractExplorer implements ISelectionProv
 		ILazyDataset d = getActiveData();
 		if (d == null) return;
 		d.setMetadata(data.getMetadata());
-		DatasetSelection datasetSelection = new DatasetSelection(getAxes(d), d);
+		DatasetSelection datasetSelection = new DatasetSelection(fileName, getAxes(d), d);
 		if (d.getRank() > 1) {
 			datasetSelection.setType(InspectorType.IMAGE);
 		}

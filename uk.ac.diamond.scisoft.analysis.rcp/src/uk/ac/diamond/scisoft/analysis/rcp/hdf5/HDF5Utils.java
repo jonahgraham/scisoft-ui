@@ -343,7 +343,7 @@ public class HDF5Utils {
 
 		InspectorType itype = cData.getRank() == 1 ? InspectorType.LINE : InspectorType.IMAGE;
 
-		return new HDF5Selection(itype, null, link.getFullName(), axes, cData);
+		return new HDF5Selection(itype, link.getFile().getFilename(), link.getFullName(), axes, cData);
 	}
 
 	private static String[] parseString(String s) {

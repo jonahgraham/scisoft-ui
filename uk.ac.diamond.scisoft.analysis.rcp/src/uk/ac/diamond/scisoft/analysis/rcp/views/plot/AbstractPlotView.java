@@ -12,8 +12,8 @@ package uk.ac.diamond.scisoft.analysis.rcp.views.plot;
 import java.util.Collection;
 import java.util.Map;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.jreality.core.AxisMode;
 import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
@@ -41,7 +41,7 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 	protected StackLayout stack;
 	protected Composite stackComposite;
 	protected Label lblNoDataMessage;
-	protected AbstractPlottingSystem system;
+	protected IPlottingSystem system;
 
 	protected abstract String getYAxisName();
 
@@ -100,7 +100,7 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 	 * 
 	 * @param system2
 	 */
-	public void configurePlot(@SuppressWarnings("unused") final AbstractPlottingSystem system2) {
+	public void configurePlot(@SuppressWarnings("unused") final IPlottingSystem system2) {
 		// Does nothing
 	}
 
@@ -157,7 +157,7 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 
 	@Override
 	public void setFocus() {
-		system.setFocus();
+//		system.setFocus();
 	}
 
 	@Override
@@ -168,7 +168,7 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 		super.dispose();
 	}
 
-	public AbstractPlottingSystem getPlottingSystem() {
+	public IPlottingSystem getPlottingSystem() {
 		return system;
 	}
 }

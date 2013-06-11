@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting.datareduction;
+package uk.ac.diamond.scisoft.analysis.rcp.plotting.utils;
 
 import java.util.Map;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -37,8 +37,8 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
-public class DataReductionPlotter {
-	private final static Logger logger = LoggerFactory.getLogger(DataReductionPlotter.class);
+public class PlottingUtils {
+	private final static Logger logger = LoggerFactory.getLogger(PlottingUtils.class);
 
 	/**
 	 * Method that plots data to a LightWeight PlottingSystem
@@ -47,7 +47,8 @@ public class DataReductionPlotter {
 	 * @param data
 	 *             the data to plot
 	 */
-	public static void plotData(final AbstractPlottingSystem plottingSystem,
+	public static void plotData(final IPlottingSystem plottingSystem,
+								final String plotTitle,
 								final IDataset data){
 		Job plotJob = new Job("Plotting data") {
 			
@@ -56,10 +57,9 @@ public class DataReductionPlotter {
 				try {
 
 					plottingSystem.clear();
-					String tmpTitle = plottingSystem.getPlotName();
 					if(data == null) return Status.CANCEL_STATUS;
 					plottingSystem.updatePlot2D(data, null, monitor);
-					plottingSystem.setTitle(tmpTitle);
+					plottingSystem.setTitle(plotTitle);
 					plottingSystem.getAxes().get(0).setTitle("");
 					plottingSystem.getAxes().get(1).setTitle("");
 					plottingSystem.setKeepAspect(true);
@@ -114,6 +114,25 @@ public class DataReductionPlotter {
 			int index = fullName.lastIndexOf(System.getProperty("file.separator"));
 			if (index != -1)
 				return fullName.substring(index+1);
+			return fullName;
+		}
+		return null;
+	}
+
+	/**
+	 * Method that gives the full file path of the IStructuredSelection
+	 * @param selection
+	 * @return String
+	 */
+	public static String getFullFilePath(IStructuredSelection selection){
+		Object item = selection.getFirstElement();
+		if (item instanceof IFile) {
+			return ((IFile) item).getRawLocation().toOSString();
+		}
+		// if the selection is an hdf5 tree item
+		else if (item instanceof HDF5NodeLink) {
+			HDF5NodeLink link = (HDF5NodeLink)item;
+			String fullName = link.getFile().getFilename();
 			return fullName;
 		}
 		return null;

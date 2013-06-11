@@ -1207,7 +1207,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				break;
 			}
 
-			setSelection(createSelection(itype, extend, dataList, metaList, axesList));
+			setSelection(createSelection(itype, extend, dataList, metaList, axesList, firstFileName));
 		}
 
 		viewer.refresh();
@@ -1352,9 +1352,10 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	 * @param datasets
 	 * @param metavalues
 	 * @param axisSelectionLists
+	 * @param path 
 	 * @return data selection
 	 */
-	public static DatasetSelection createSelection(InspectorType itype, List<ILazyDataset> datasets, List<ILazyDataset> metavalues, List<List<AxisSelection>> axisSelectionLists) {
+	public static DatasetSelection createSelection(InspectorType itype, List<ILazyDataset> datasets, List<ILazyDataset> metavalues, List<List<AxisSelection>> axisSelectionLists, String path) {
 		boolean extend = true;
 		for (ILazyDataset m : metavalues) { // if all metadata is multi-valued then do not extend aggregate shape
 			if (m.getSize() > 1) {
@@ -1362,7 +1363,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				break;
 			}
 		}
-		return createSelection(itype, extend, datasets, metavalues, axisSelectionLists);
+		return createSelection(itype, extend, datasets, metavalues, axisSelectionLists, path);
 	}
 
 	/**
@@ -1372,9 +1373,10 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	 * @param datasets
 	 * @param metavalues
 	 * @param axisSelectionLists
+	 * @param path 
 	 * @return data selection
 	 */
-	public static DatasetSelection createSelection(InspectorType itype, boolean extend, List<ILazyDataset> datasets, List<ILazyDataset> metavalues, List<List<AxisSelection>> axisSelectionLists) {
+	public static DatasetSelection createSelection(InspectorType itype, boolean extend, List<ILazyDataset> datasets, List<ILazyDataset> metavalues, List<List<AxisSelection>> axisSelectionLists, String path) {
 		AggregateDataset allData = new AggregateDataset(extend, datasets.toArray(new ILazyDataset[0]));
 		ILazyDataset[] mvs = metavalues.toArray(new ILazyDataset[0]);
 		ILazyDataset mv = mvs[0];
@@ -1469,7 +1471,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			}
 		}
 
-		return new DatasetSelection(itype, newAxes, allData);
+		return new DatasetSelection(itype, path, newAxes, allData);
 	}
 
 	private List<ISelectionChangedListener> listeners = new ArrayList<ISelectionChangedListener>();

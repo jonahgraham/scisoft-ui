@@ -6,8 +6,8 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            name="Polling Jobs"
-            id="uk.ac.diamond.sda.polling">
+            id="uk.ac.diamond.sda.polling"
+            name="Data Analysis - Polling Jobs">
       </category>
       <view
             name="Polling View"

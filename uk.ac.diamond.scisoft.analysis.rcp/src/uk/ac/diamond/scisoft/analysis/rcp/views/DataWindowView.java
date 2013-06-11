@@ -25,9 +25,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.IRegion;
@@ -37,6 +36,7 @@ import org.dawnsci.plotting.api.region.ROIEvent;
 import org.dawnsci.plotting.api.region.RegionEvent;
 import org.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
+import org.dawnsci.plotting.api.trace.ColorOption;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.IPaletteListener;
 import org.dawnsci.plotting.api.trace.IPaletteTrace;
@@ -113,7 +113,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 	private CCombo ccXsampling;
 	private CCombo ccYsampling;
 	
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 	private Logger logger = LoggerFactory.getLogger(DataWindowView.class);
 	private Composite plotComp;
 	private int xSize = 0;
@@ -603,7 +603,9 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 				IRegion newRegion = plottingSystem.createRegion("Surface slice", RegionType.BOX);
 				newRegion.setROI(rroi);
 				plottingSystem.addRegion(newRegion);
-				plottingSystem.setToolVisible("org.dawnsci.rcp.histogram.histogram_tool_page",
+				IToolPageSystem tps = (IToolPageSystem)plottingSystem.getAdapter(IToolPageSystem.class);
+				if(tps != null)
+					tps.setToolVisible("org.dawnsci.rcp.histogram.histogram_tool_page",
 						ToolPageRole.ROLE_2D, "org.dawb.workbench.plotting.views.toolPageView.2D");
 			}
 		} catch (Exception e) {

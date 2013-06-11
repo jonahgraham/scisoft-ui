@@ -16,7 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.tool.IToolPage;
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
@@ -206,7 +205,7 @@ public class PlotView extends AbstractPlotView {
 	}
 
 	@Override
-	public AbstractPlottingSystem getPlottingSystem() {
+	public IPlottingSystem getPlottingSystem() {
 		return plotWindow.getPlottingSystem();
 	}
 

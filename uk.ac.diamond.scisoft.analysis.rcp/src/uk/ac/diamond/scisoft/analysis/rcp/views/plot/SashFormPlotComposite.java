@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.widgets.ActionBarWrapper;
 import org.dawnsci.plotting.api.IPlottingSystem;
@@ -63,7 +62,7 @@ public class SashFormPlotComposite implements PlotView{
 	protected final IWorkbenchPart part;
 	protected final ScrolledComposite leftScroll, rightScroll;
 	protected final Composite left, right;
-	protected AbstractPlottingSystem plottingsystem;
+	protected IPlottingSystem plottingsystem;
 	protected final SashForm sashForm;
 	protected AbstractDataset[] dataSets;
 	protected String xAxisLabel, yAxisLabel;

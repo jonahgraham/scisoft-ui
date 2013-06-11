@@ -43,6 +43,7 @@ import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.PydevConsoleInterpreter;
 import org.python.pydev.debug.newconsole.env.IProcessFactory;
 import org.python.pydev.debug.newconsole.env.IProcessFactory.PydevConsoleLaunchInfo;
+import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
 import org.python.pydev.dltk.console.ui.internal.ScriptConsoleViewer;
@@ -92,10 +93,16 @@ public class InjectPyDevConsoleHandler extends AbstractHandler {
 			}
 
 			if (console == null) {
-				new PydevConsoleFactory().createConsole(getConsole(), createPythonCommands(true, event));
+				PydevConsoleFactory pcf = new PydevConsoleFactory();
+				PydevConsoleInterpreter pci = getConsole();
+				if(pci == null) return null;
+				pcf.createConsole(pci, createPythonCommands(true, event));
 			} else {
 				sendCommands(event, console);
 			}
+		} catch (UserCanceledException e) {
+			logger.error("Operation canceled", e);
+			throw new ExecutionException("Operation canceled", e);
 		} catch (Exception e) {
 			logger.error("Cannot open console", e);
 			throw new ExecutionException("Cannot open console", e);
@@ -148,7 +155,12 @@ public class InjectPyDevConsoleHandler extends AbstractHandler {
 		IProcessFactory iprocessFactory = new IProcessFactory();
 
 		// Shows GUI - NOTE Change here to always link into Jython without showing dialog.
-		PydevConsoleLaunchInfo createInteractiveLaunch = iprocessFactory.createInteractiveLaunch();
+		PydevConsoleLaunchInfo createInteractiveLaunch = null;
+		try {
+			createInteractiveLaunch = iprocessFactory.createInteractiveLaunch();
+		} catch (UserCanceledException e) {
+			throw new Exception("Interpreter creation canceled", e);
+		}
 
 		if (createInteractiveLaunch == null) {
 			return null;

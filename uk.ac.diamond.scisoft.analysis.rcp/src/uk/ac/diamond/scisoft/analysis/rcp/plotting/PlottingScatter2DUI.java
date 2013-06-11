@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.trace.ILineTrace;
 import org.dawnsci.plotting.api.trace.ILineTrace.PointStyle;
 import org.dawnsci.plotting.api.trace.ILineTrace.TraceType;
@@ -42,14 +42,14 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 public class PlottingScatter2DUI extends AbstractPlotUI {
 
 	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingScatter2DUI";
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 	private Logger logger = LoggerFactory.getLogger(PlottingScatter2DUI.class);
 //	private String currentDataName;
 //	private String dataName;
 //	private String currentXAxisName;
 //	private String xAxisName;
 
-	public PlottingScatter2DUI(AbstractPlottingSystem plotter) {
+	public PlottingScatter2DUI(IPlottingSystem plotter) {
 		this.plottingSystem = plotter;
 	}
 

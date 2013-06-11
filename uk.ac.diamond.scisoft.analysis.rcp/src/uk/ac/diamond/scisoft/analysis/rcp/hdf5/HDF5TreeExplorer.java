@@ -141,7 +141,6 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		}
 
 		// provide selection
-		s.setFileName(filename);
 		if (type != null)
 			s.setType(type);
 		setSelection(s);

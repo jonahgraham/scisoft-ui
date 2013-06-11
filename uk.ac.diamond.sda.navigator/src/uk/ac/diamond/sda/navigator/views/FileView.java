@@ -519,7 +519,7 @@ public class FileView extends ViewPart implements IFileView {
 		
 		final CheckableActionGroup grp = new CheckableActionGroup();
 		
-		final Action dirsTop = new Action("Sort alpha numeric, directories at top.", IAction.AS_CHECK_BOX) {
+		final Action dirsTop = new Action("Sort alphanumeric, directories at top.", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
 				final File selection = getSelectedFile();
@@ -534,7 +534,7 @@ public class FileView extends ViewPart implements IFileView {
 		toolMan.add(dirsTop);
 		
 		
-		final Action alpha = new Action("Alpha numeric sort for everything.", IAction.AS_CHECK_BOX) {
+		final Action alpha = new Action("Alphanumeric sort for everything.", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
 				final File selection = getSelectedFile();

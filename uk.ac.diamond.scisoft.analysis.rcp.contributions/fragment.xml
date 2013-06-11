@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            name="Data Acquisition - Analysis"
+            name="Data Analysis"
             id="uk.ac.diamond.scisoft.analysis.rcp">
       </category>
       <view
@@ -116,7 +116,7 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.views.RemoteVolVizView">
       </view>
       <view
-            name="ImageExplorer View"
+            name="Image Explorer"
             icon="icons/map_magnify.png"
             category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView"
@@ -147,7 +147,7 @@
            id="uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple"
            name="Plot"
            restorable="true">
-      </view>     
+      </view>
       <view
             allowMultiple="false"
             category="uk.ac.diamond.scisoft.analysis.rcp"
@@ -156,6 +156,18 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView"
             name="Text">
       </view>
+      <view
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.HyperView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView"
+            name="Hyper3D"
+            restorable="true">
+      </view>
+      <category
+            id="uk.ac.diamond.scisoft.analysis.rcp.access.category"
+            name="Data Access">
+      </category>
    </extension>
    <extension
          point="org.eclipse.help.contexts">
@@ -488,7 +500,8 @@
                   name="uk.ac.diamond.scisoft.analysis.command.sourceView"
                   value="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView">
             </parameter>
-         </command>         
+         </command>   
+         <!--      
          <command
                commandId="uk.ac.diamond.scisoft.analysis.rcp.MontorDirectoryAction"
                icon="icons/folder_explore.png"
@@ -499,7 +512,8 @@
                    name="uk.ac.diamond.scisoft.analysis.command.sourceView"
                    value="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView">
              </parameter>
-         </command>         
+         </command>    
+         -->     
          <command
                commandId="uk.ac.diamond.scisoft.analysis.rcp.DemoGridViewSelectionAction"
                icon="icons/monitor.png"
