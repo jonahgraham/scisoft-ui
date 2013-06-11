@@ -76,7 +76,8 @@ public static Properties readConfigFile() {
 	try {
 	
 		properties = new Properties();
-		properties.load(new FileInputStream("/dls_sw/apps/apache-tomcat-7.0.30/icatproperties/icatdb.properties"));
+		// this file resides in Diamond internal file system so the values are not visible in github
+		properties.load(new FileInputStream("/dls_sw/apps/synchlink/apache-tomcat-7.0.30/icatproperties/icatdb.properties"));
 		logger.debug("Properties file loaded!");	
 		
 		Enumeration<Object> keys = properties.keys();
