@@ -35,6 +35,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 public class PlottingUtils {
@@ -147,16 +148,19 @@ public class PlottingUtils {
 	 * @return the data loaded as an AbstractDataset, null if none or not found
 	 */
 	public static AbstractDataset loadData(final String fileName, final String dataPath){
+		AbstractDataset dataset = null;
 		try {
 			DataHolder data = LoaderFactory.getData(fileName, null);
-
+			IMetaData md = data.getMetadata();
 			Map<String, ILazyDataset> map = data.getMap();
 			ILazyDataset tmpvalue = map.get(dataPath);
 			if(tmpvalue == null) tmpvalue = map.get(data.getName(0));
 
 			ILazyDataset value = tmpvalue.squeeze();
 			if(value.getShape().length == 2) {
-				return DatasetUtils.convertToAbstractDataset(value.getSlice(new Slice(null)));
+				dataset = DatasetUtils.convertToAbstractDataset(value.getSlice(new Slice(null)));
+				dataset.setMetadata(md);
+				return dataset;
 			}
 			logger.warn("Dataset not the right shape for showing in the preview");
 			return null;
