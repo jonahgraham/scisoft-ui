@@ -16,8 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
-import java.util.Collection;
-
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.util.DisplayUtils;
 import org.dawnsci.common.widgets.gda.roi.ROIWidget;
@@ -30,9 +28,6 @@ import org.dawnsci.plotting.api.tool.IProfileToolPage;
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.dawnsci.plotting.api.tool.ToolPageFactory;
 import org.dawnsci.plotting.api.trace.ColorOption;
-import org.dawnsci.plotting.api.trace.IImageTrace;
-import org.dawnsci.plotting.api.trace.ILineTrace;
-import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
@@ -46,7 +41,6 @@ import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -61,7 +55,6 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
@@ -73,17 +66,14 @@ import uk.ac.diamond.scisoft.analysis.roi.PerimeterBoxROI;
  * PlotWindow equivalent with two side plots which display boxline profiles of a Rectangular ROI on the main plot
  */
 public class ROIProfilePlotWindow extends AbstractPlotWindow {
-	public static final String RPC_SERVICE_NAME = "PlotWindowManager";
-	public static final String RMI_SERVICE_NAME = "RMIPlotWindowManager";
-	private static final String REGION_NAME = "Perimeter Box";
 
 	static private Logger logger = LoggerFactory.getLogger(ROIProfilePlotWindow.class);
 
-	private IPlottingSystem plottingSystem;
+	private static final String REGION_NAME = "Perimeter Box";
+
 	private IProfileToolPage sideProfile1;
 	private IProfileToolPage sideProfile2;
 
-	private Composite plotSystemComposite;
 	private SashForm sashForm;
 	private SashForm sashForm2;
 	private SashForm sashForm3;
@@ -119,32 +109,23 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 
 	public ROIProfilePlotWindow(final Composite parent, GuiPlotMode plotMode, IGuiInfoManager manager,
 			IUpdateNotificationListener notifyListener, IActionBars bars, IWorkbenchPage page, String name) {
-		super(parent, manager, notifyListener, bars, page, name);
-
-		if (plotMode == null)
-			plotMode = GuiPlotMode.TWOD;
-
-		createMultiPlottingSystem();
-		// Setting up
-		if (plotMode.equals(GuiPlotMode.ONED)) {
-			setupPlotting1D();
-		} else if (plotMode.equals(GuiPlotMode.TWOD)) {
-			setupPlotting2D();
-		} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
-			setupScatterPlotting2D();
-		}
+		super(parent, plotMode, manager, notifyListener, bars, page, name);
 		createPerimeterBoxRegion();
 		PlotWindowManager.getPrivateManager().registerPlotWindow(this);
+	}
+
+	@Override
+	public GuiPlotMode getPlotMode(){
+		return GuiPlotMode.TWOD;
 	}
 
 	/**
 	 * Create a plotting system layout with a main plotting system and two side plot profiles
 	 */
-	private void createMultiPlottingSystem(){
-		parentComp.setLayout(new FillLayout());
-		plotSystemComposite = new Composite(parentComp, SWT.NONE);
-		plotSystemComposite.setLayout(new GridLayout(1, true));
-		sashForm = new SashForm(plotSystemComposite, SWT.HORIZONTAL);
+	@Override
+	public void createPlottingSystem(Composite composite){
+		
+		sashForm = new SashForm(composite, SWT.HORIZONTAL);
 		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		sashForm.setBackground(new Color(parentComp.getDisplay(), 192, 192, 192));
 		
@@ -411,55 +392,16 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 //		bars.getMenuManager().add(new Separator());
 	}
 
-	/**
-	 * @return plot UI
-	 */
-	public IPlotUI getPlotUI() {
-		return plotUI;
-	}
-
-	/**
-	 * Process a plot with data packed in bean - remember to update plot mode first if you do not know the current mode
-	 * or if it is to change
-	 * 
-	 * @param dbPlot
-	 */
 	@Override
-	public void processPlotUpdate(final DataBean dbPlot) {
-		// check to see what type of plot this is and set the plotMode to the correct one
-		if (dbPlot.getGuiPlotMode() != null) {
-			if(parentComp.isDisposed()){
-				//this can be caused by the same plot view shown on 2 difference perspectives.
-				throw new IllegalStateException("parentComp is already disposed");
-			}
-
-			updatePlotMode(dbPlot.getGuiPlotMode(), true);
-		}
-		// there may be some gui information in the databean, if so this also needs to be updated
-		if (dbPlot.getGuiParameters() != null) {
-			processGUIUpdate(dbPlot.getGuiParameters());
-		}
-
-		try {
-			doBlock();
-			// Now plot the data as standard
-			plotUI.processPlotUpdate(dbPlot, isUpdatePlot());
-			setDataBean(dbPlot);
-		} finally {
-			undoBlock();
-		}
-	}
-
-	//Abstract plotting System
-	private void setupPlotting1D() {
+	protected void setupPlotting1D() {
 		plotUI = new Plotting1DUI(plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
 		updateGuiBeanPlotMode(GuiPlotMode.ONED);
 	}
 
-	//Abstract plotting System
-	private void setupPlotting2D() {
+	@Override
+	protected void setupPlotting2D() {
 		plotUI = new Plotting2DUI(getRoiManager(), plottingSystem);
 		addToggleActions();
 		addScriptingAction();
@@ -467,17 +409,14 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		updateGuiBeanPlotMode(GuiPlotMode.TWOD);
 	}
 
-	//Abstract plotting System
-	private void setupScatterPlotting2D() {
+	@Override
+	protected void setupScatterPlotting2D() {
 		plotUI = new PlottingScatter2DUI(plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
 		updateGuiBeanPlotMode(GuiPlotMode.SCATTER2D);
 	}
 
-	/**
-	 * @param plotMode
-	 */
 	@Override
 	public void updatePlotMode(final GuiPlotMode plotMode, boolean async) {
 		DisplayUtils.runInDisplayThread(async, parentComp, new Runnable() {
@@ -514,17 +453,6 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		}
 	}
 
-	//not used
-	public PlottingMode getPlottingSystemMode(){
-		final Collection<ITrace> traces = plottingSystem.getTraces();
-		if (traces==null) return PlottingMode.EMPTY;
-		for (ITrace iTrace : traces) {
-			if (iTrace instanceof ILineTrace) return PlottingMode.ONED;
-			if (iTrace instanceof IImageTrace) return PlottingMode.TWOD;
-		}
-		return PlottingMode.EMPTY;
-	}
-
 	@Override
 	public void processGUIUpdate(GuiBean bean) {
 
@@ -547,10 +475,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		}
 	}
 
-	public IPlottingSystem getPlottingSystem() {
-		return plottingSystem;
-	}
-
+	@Override
 	public void dispose() {
 		PlotWindowManager.getPrivateManager().unregisterPlotWindow(this);
 		if (plotUI != null) {
@@ -576,22 +501,5 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		deleteIObservers();
 		plotUI = null;
 		System.gc();
-	}
-
-	@Override
-	public void update(Object source, Object arg) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/**
-	 * Required if you want to make tools work with Abstract Plotting System.
-	 */
-	@Override
-	public Object getAdapter(final Class<?> clazz) {
-		if (clazz == IToolPageSystem.class) {
-			return plottingSystem;
-		}
-		return null;
 	}
 }

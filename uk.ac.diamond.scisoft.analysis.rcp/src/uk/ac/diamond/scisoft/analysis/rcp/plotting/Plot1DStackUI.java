@@ -69,7 +69,7 @@ public class Plot1DStackUI extends AbstractPlotUI {
 	private Action tooglePerspectiveAction;
 	private Action resetView;
 	private Action boundingBox;
-	private PlotWindow plotWindow;
+	private AbstractPlotWindow plotWindow;
 	private boolean setInitialPersp = false;
 	//private SliderAction expansionAction;
 	
@@ -80,7 +80,7 @@ public class Plot1DStackUI extends AbstractPlotUI {
 	 * @param plotter
 	 * @param parent
 	 */
-	public Plot1DStackUI(final PlotWindow window,
+	public Plot1DStackUI(final AbstractPlotWindow window,
 						 IActionBars bars, 
 						 final DataSetPlotter plotter,
 						 Composite parent, IWorkbenchPage page) {

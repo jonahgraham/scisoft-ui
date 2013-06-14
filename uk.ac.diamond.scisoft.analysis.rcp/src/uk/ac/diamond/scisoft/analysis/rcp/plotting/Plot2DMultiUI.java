@@ -68,7 +68,7 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 
 	private DataSetPlotter mainPlotter;
 	private Composite compParent;
-	private PlotWindow plotWindow;
+	private AbstractPlotWindow plotWindow;
 	private IWorkbenchPage page;
 	private String plotViewID;
 //	private IGuiInfoManager manager;
@@ -109,7 +109,7 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 	 * @param page 
 	 * @param id 
 	 */
-	public Plot2DMultiUI(PlotWindow window, 
+	public Plot2DMultiUI(AbstractPlotWindow window, 
 					     final DataSetPlotter plotter,
 					     @SuppressWarnings("unused") final IGuiInfoManager manager,
 					      Composite parent, IWorkbenchPage page, 

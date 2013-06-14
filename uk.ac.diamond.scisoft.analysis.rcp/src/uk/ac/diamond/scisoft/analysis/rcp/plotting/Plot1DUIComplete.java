@@ -68,7 +68,7 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 	private AxisValues xAxis;
 	private IWorkbenchPage page;
 	private String plotViewID;
-	private PlotWindow plotWindow;
+	private AbstractPlotWindow plotWindow;
 	private List<Action> switchToTabs;
 	private IGuiInfoManager manager;
 	
@@ -81,7 +81,7 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 	 * @param viewName name of the view associated to this UI
 	 */
 	
-	public Plot1DUIComplete(final PlotWindow window, 
+	public Plot1DUIComplete(final AbstractPlotWindow window, 
 							final IGuiInfoManager manager,
 							IActionBars bars, 
 					        Composite parent, IWorkbenchPage page,

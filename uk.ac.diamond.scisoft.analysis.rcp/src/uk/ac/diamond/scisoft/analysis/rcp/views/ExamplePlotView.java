@@ -22,29 +22,32 @@ import org.eclipse.ui.IWorkbenchPage;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.ExamplePlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.ROIProfilePlotWindow;
 
 /**
- * PlotView equivalent to implement a ROIProfilePlotWindow
+ * Plot View Example<br>
+ * To create a custom PlotView, a PlotWindow needs to be instantiated. <br>
+ * This PlotView class instantiates {@code ExamplePlotWindow}<br>
+ * The view needs to be added as an extension point as any other view.
  */
-public class ROIProfilePlotView extends AbstractPlotView {
+public class ExamplePlotView extends AbstractPlotView {
 
 	/**
 	 * The extension point ID for 3rd party contribution
 	 */
-	public static final String ID = "uk.ac.diamond.scisoft.analysis.rcp.roiProfilePlotView";
+	public static final String ID = "uk.ac.diamond.scisoft.analysis.rcp.plotViewExample";
 	/**
 	 * The specific point ID for the plot view that can be opened multiple times
 	 */
-	public static final String PLOT_VIEW_MULTIPLE_ID = "uk.ac.diamond.scisoft.analysis.rcp.roiProfilePlotViewMultiple";
+	public static final String PLOT_VIEW_MULTIPLE_ID = "uk.ac.diamond.scisoft.analysis.rcp.plotViewMultipleExample";
 
 	/**
 	 * Default Constructor of the plot view
 	 */
 
-	public ROIProfilePlotView() {
+	public ExamplePlotView() {
 		super();
 	}
 
@@ -54,7 +57,7 @@ public class ROIProfilePlotView extends AbstractPlotView {
 	 * 
 	 * @param id
 	 */
-	public ROIProfilePlotView(String id) {
+	public ExamplePlotView(String id) {
 		super(id);
 	}
 
@@ -66,6 +69,7 @@ public class ROIProfilePlotView extends AbstractPlotView {
 												IActionBars bars, 
 												IWorkbenchPage page, 
 												String name) {
-		return new ROIProfilePlotWindow(parent, plotMode, manager, notifyListener, bars, page, name);
+		return new ExamplePlotWindow(parent, plotMode, manager, notifyListener, bars, page, name);
 	}
+
 }

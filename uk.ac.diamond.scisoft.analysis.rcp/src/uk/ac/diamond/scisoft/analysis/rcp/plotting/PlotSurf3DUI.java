@@ -73,7 +73,7 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 	private AxisValues xAxis = null;
 	private AxisValues yAxis = null;
 	private AxisValues zAxis = null;
-	private PlotWindow plotWindow = null;
+	private AbstractPlotWindow plotWindow = null;
 	private DataSetPlotter mainPlotter;
 	private Composite parent;
 	private HistogramView histogramView;
@@ -116,7 +116,7 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 	 * @param page 
 	 * @param id 
 	 */
-	public PlotSurf3DUI(PlotWindow window,
+	public PlotSurf3DUI(AbstractPlotWindow window,
 			 final DataSetPlotter plotter,
 			 Composite parent, 
 			 IWorkbenchPage page, 

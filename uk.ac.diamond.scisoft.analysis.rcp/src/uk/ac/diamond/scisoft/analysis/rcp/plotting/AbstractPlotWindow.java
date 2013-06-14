@@ -22,15 +22,27 @@ import gda.observable.IObserver;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.dawb.common.ui.util.DisplayUtils;
+import org.dawb.common.ui.util.EclipseUtils;
+import org.dawnsci.plotting.api.IPlottingSystem;
+import org.dawnsci.plotting.api.PlotType;
+import org.dawnsci.plotting.api.axis.IAxis;
+import org.dawnsci.plotting.api.region.IRegion;
+import org.dawnsci.plotting.api.tool.IToolPageSystem;
+import org.dawnsci.plotting.jreality.core.AxisMode;
 import org.dawnsci.plotting.jreality.print.PlotExportUtil;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IActionBars;
@@ -41,23 +53,40 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.plotserver.AxisOperation;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
+import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ClearPlottingSystemAction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DuplicatePlotAction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
+import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
+import uk.ac.diamond.scisoft.analysis.rcp.views.ExamplePlotView;
+import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 
 /**
  * Abstract Class used to implement PlotWindows that implement IObserver, IObservable
  */
+@SuppressWarnings("deprecation")
 public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObservable{
+
 	static private Logger logger = LoggerFactory.getLogger(AbstractPlotWindow.class);
 
+	public static final String RPC_SERVICE_NAME = "PlotWindowManager";
+	public static final String RMI_SERVICE_NAME = "RMIPlotWindowManager";
+
+	protected IPlottingSystem plottingSystem;
+	protected DataSetPlotter mainPlotter;
+
 	protected Composite parentComp;
+	protected Composite plotSystemComposite;
+	protected Composite mainPlotterComposite;
 	private IWorkbenchPage page = null;
 	protected IActionBars bars;
 	private String name;
@@ -99,7 +128,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
 
 	/**
-	 * COnstructor
+	 * Constructor
 	 * @param parent
 	 * @param manager
 	 * @param notifyListener
@@ -107,7 +136,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 * @param page
 	 * @param name
 	 */
-	public AbstractPlotWindow(final Composite parent, IGuiInfoManager manager,
+	public AbstractPlotWindow(final Composite parent, GuiPlotMode plotMode, IGuiInfoManager manager,
 			IUpdateNotificationListener notifyListener, IActionBars bars, 
 			IWorkbenchPage page, String name) {
 		this.parentComp = parent;
@@ -117,8 +146,172 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		this.page = page;
 		this.name = name;
 		setRoiManager(new ROIManager(manager, name));
+
+		plotMode = getPlotMode();
+
+		if (plotMode == null)
+			plotMode = GuiPlotMode.ONED;
+
+		// this needs to be started in 1D as later mode changes will not work as plot UIs are not setup
+		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+			createDatasetPlotter(PlottingMode.ONED);
+
+		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
+			plotSystemComposite = new Composite(parentComp, SWT.NONE);
+			plotSystemComposite.setLayout(new FillLayout());
+			createPlottingSystem(plotSystemComposite);
+			cleanUpDatasetPlotter();
+		}
+		// Setting up
+		if (plotMode.equals(GuiPlotMode.ONED)) {
+			if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+				setup1D();
+			else
+				setupPlotting1D();
+		} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
+			setupMulti1DPlot();
+		} else if (plotMode.equals(GuiPlotMode.TWOD)) {
+			if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+				setup2D();
+			else
+				setupPlotting2D();
+		} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
+			if(getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+				setup2DSurfaceOldPlotting();
+			else
+				setup2DSurfaceNewPlotting();
+		} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
+			if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+				setupScatter2DPlot();
+			else
+				setupScatterPlotting2D();
+		} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
+			setupScatter3DPlot();
+		} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
+			setupMulti2D();
+		}
 	}
 
+	/**
+	 * Create the IPlottingSystem and other controls if necessary<br>
+	 * The IPlottingSystem should be created the following way:<br>
+	 * {@code 	plottingSystem = PlottingFactory.createPlottingSystem();}<br>
+	 * {@code	plottingSystem.setColorOption(ColorOption.NONE);}<br>
+	 * {@code	plottingSystem.createPlotPart(parent, getName(), bars, PlotType.XY, (IViewPart) getGuiManager());}<br>
+	 * {@code	plottingSystem.repaint();}<br>
+	 * {@code	plottingSystem.addRegionListener(getRoiManager());}<br>
+	 * <br>
+	 * (see {@link ExamplePlotView} for more info.)
+	 * @param composite
+	 */
+	public abstract void createPlottingSystem(Composite composite);
+
+	/**
+	 * Set the default plot mode
+	 * @return plotmode
+	 */
+	public abstract GuiPlotMode getPlotMode();
+
+	/**
+	 * Create a DatasetPlotter (used for old plotting)
+	 * @param mode
+	 */
+	protected void createDatasetPlotter(PlottingMode mode) {
+		mainPlotterComposite = new Composite(parentComp, SWT.NONE);
+		mainPlotterComposite.setLayout(new FillLayout());
+		mainPlotter = new DataSetPlotter(mode, mainPlotterComposite, true);
+		mainPlotter.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
+		mainPlotter.setXAxisLabel("X-Axis");
+		mainPlotter.setYAxisLabel("Y-Axis");
+		mainPlotter.setZAxisLabel("Z-Axis");
+	}
+
+	/**
+	 * @return plot UI
+	 */
+	public IPlotUI getPlotUI() {
+		return plotUI;
+	}
+
+	/**
+	 * Used for old plotting
+	 * @param leaveSidePlotOpen
+	 */
+	protected void cleanUpFromOldMode(final boolean leaveSidePlotOpen) {
+		setUpdatePlot(false);
+		mainPlotter.unregisterUI(plotUI);
+		if (plotUI != null) {
+			plotUI.deleteIObservers();
+			plotUI.deactivate(leaveSidePlotOpen);
+			removePreviousActions();
+		}
+	}
+
+	/**
+	 * Cleaning up the plot view according to the current plot mode
+	 * 
+	 * @param mode
+	 */
+	protected void cleanUp(GuiPlotMode mode) {
+		if (mode.equals(GuiPlotMode.ONED) || mode.equals(GuiPlotMode.TWOD) || mode.equals(GuiPlotMode.SCATTER2D)
+				|| mode.equals(GuiPlotMode.SURF2D)) {
+			cleanUpDatasetPlotter();
+			if (plottingSystem == null || plottingSystem.isDisposed()){
+				plotSystemComposite = new Composite(parentComp, SWT.NONE);
+				plotSystemComposite.setLayout(new FillLayout());
+				createPlottingSystem(plotSystemComposite);
+			}
+		} else if (mode.equals(GuiPlotMode.ONED_THREED)) {
+			cleanUpPlottingSystem();
+			if (mainPlotter == null || mainPlotter.isDisposed())
+				createDatasetPlotter(PlottingMode.ONED_THREED);
+			cleanUpFromOldMode(true);
+		} else if (mode.equals(GuiPlotMode.SCATTER3D)) {
+			cleanUpPlottingSystem();
+			if (mainPlotter == null || mainPlotter.isDisposed())
+				createDatasetPlotter(PlottingMode.SCATTER3D);
+			cleanUpFromOldMode(true);
+		} else if (mode.equals(GuiPlotMode.MULTI2D)) {
+			cleanUpPlottingSystem();
+			if (mainPlotter == null || mainPlotter.isDisposed())
+				createDatasetPlotter(PlottingMode.MULTI2D);
+			cleanUpFromOldMode(true);
+		}
+		parentComp.layout();
+	}
+
+	/**
+	 * Cleaning of the DatasetPlotter and its composite before the setting up of a Plotting System
+	 */
+	protected void cleanUpDatasetPlotter() {
+		if (mainPlotter != null && !mainPlotter.isDisposed()) {
+			bars.getToolBarManager().removeAll();
+			bars.getMenuManager().removeAll();
+			mainPlotter.cleanUp();
+			mainPlotterComposite.dispose();
+
+			if(getPreviousMode()==GuiPlotMode.SURF2D){
+				EclipseUtils.closeView(DataWindowView.ID);
+			}
+		}
+	}
+
+	/**
+	 * Cleaning of the plotting system and its composite before the setting up of a datasetPlotter
+	 */
+	protected void cleanUpPlottingSystem() {
+		if (!plottingSystem.isDisposed()) {
+			bars.getToolBarManager().removeAll();
+			bars.getMenuManager().removeAll();
+			for (Iterator<IRegion> iterator = plottingSystem.getRegions().iterator(); iterator.hasNext();) {
+				IRegion region = iterator.next();
+				plottingSystem.removeRegion(region);
+			}
+			plottingSystem.removeRegionListener(getRoiManager());
+			plottingSystem.dispose();
+			plotSystemComposite.dispose();
+		}
+	}
 	/**
 	 * Return current page.
 	 * @return current page
@@ -209,7 +402,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 * Method to add the DataSetPlotter actions
 	 * @param mainPlotter
 	 */
-	@SuppressWarnings("deprecation")
 	protected void addCommonActions(final DataSetPlotter mainPlotter) {
 
 		if (saveGraphAction == null) {
@@ -321,7 +513,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 * for DatasetPlotter and LightWeightPlottingSystem
 	 */
 	protected void addScriptingAction(){
-		
 		if (openPyDevConsoleCCI == null) {
 			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
 					.getActiveWorkbenchWindow(), null, InjectPyDevConsoleHandler.COMMAND_ID,
@@ -390,20 +581,219 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 * or if it is to change
 	 * @param dbPlot
 	 */
-	abstract public void processPlotUpdate(final DataBean dbPlot);
+	public void processPlotUpdate(DataBean dbPlot) {
+		// check to see what type of plot this is and set the plotMode to the correct one
+		if (dbPlot.getGuiPlotMode() != null) {
+			if (parentComp.isDisposed()) {
+				// this can be caused by the same plot view shown on 2 difference perspectives.
+				throw new IllegalStateException("parentComp is already disposed");
+			}
+
+			updatePlotMode(dbPlot.getGuiPlotMode(), true);
+		}
+		// there may be some gui information in the databean, if so this also needs to be updated
+		if (dbPlot.getGuiParameters() != null) {
+			processGUIUpdate(dbPlot.getGuiParameters());
+		}
+		try {
+			doBlock();
+			// Now plot the data as standard
+			plotUI.processPlotUpdate(dbPlot, isUpdatePlot());
+			setDataBean(dbPlot);
+		} finally {
+			undoBlock();
+		}
+	}
 
 	/**
 	 * Update the GuiBean
 	 * @param bean
 	 */
-	abstract public void processGUIUpdate(GuiBean bean);
+	public void processGUIUpdate(GuiBean bean) {
+		setUpdatePlot(false);
+		if (bean.containsKey(GuiParameters.PLOTMODE)) {
+			updatePlotMode(bean, true);
+		}
+
+		if (bean.containsKey(GuiParameters.AXIS_OPERATION)) {
+			AxisOperation operation = (AxisOperation) bean.get(GuiParameters.AXIS_OPERATION);
+			processAxisOperation(operation);
+		}
+
+		if (bean.containsKey(GuiParameters.TITLE) && mainPlotter != null && !mainPlotter.isDisposed()
+				&& mainPlotterComposite != null && !mainPlotterComposite.isDisposed()) {
+			final String titleStr = (String) bean.get(GuiParameters.TITLE);
+			parentComp.getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					doBlock();
+					try {
+						mainPlotter.setTitle(titleStr);
+					} finally {
+						undoBlock();
+					}
+					mainPlotter.refresh(true);
+				}
+			});
+		}
+
+		if (bean.containsKey(GuiParameters.PLOTOPERATION)) {
+			String opStr = (String) bean.get(GuiParameters.PLOTOPERATION);
+			if (opStr.equals(GuiParameters.PLOTOP_UPDATE)) {
+				setUpdatePlot(true);
+			}
+		}
+
+		if (bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST)) {
+			plotUI.processGUIUpdate(bean);
+		}
+	}
+
+	// this map is needed as axes from the plotting system get their titles changed
+	private Map<String, IAxis> axes = new LinkedHashMap<String, IAxis>();
+
+	private void processAxisOperation(final AxisOperation operation) {
+		doBlock();
+		parentComp.getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					final List<IAxis> pAxes = plottingSystem.getAxes();
+					if (axes.size() != 0 && axes.size() != pAxes.size()) {
+						logger.warn("Axes are out of synch!");
+						axes.clear();
+					}
+					if (axes.size() == 0) {
+						for (IAxis i : pAxes) {
+							String t = i.getTitle();
+							if (i.isPrimaryAxis()) {
+								if (t == null || t.length() == 0) {
+									t = i.isYAxis() ? "Y-Axis" : "X-Axis";
+								}
+							}
+							axes.put(t, i);
+						}
+					}
+					String title = operation.getTitle();
+					String type = operation.getOperationType();
+					IAxis a = axes.get(title);
+					if (type.equals(AxisOperation.CREATE)) {
+						boolean isYAxis = operation.isYAxis();
+						if (a != null) {
+							if (isYAxis == a.isYAxis()) {
+								logger.warn("Axis already exists");
+								return;
+							}
+							logger.debug("Axis is opposite orientation already exists");
+						}
+						a = plottingSystem.createAxis(title, isYAxis, operation.getSide());
+						axes.put(title, a);
+						return;
+					} else if (type.equals(AxisOperation.DELETE)) {
+						if (a != null) {
+							plottingSystem.removeAxis(a);
+							axes.remove(title);
+							return;
+						}
+						logger.warn("Could not find axis of given name");
+					} else if (type.equals(AxisOperation.ACTIVEX)) {
+						if (a != null && !a.isYAxis()) {
+							plottingSystem.setSelectedXAxis(a);
+							return;
+						}
+						// default to first x axis
+						for (IAxis i : axes.values()) {
+							if (!i.isYAxis()) {
+								plottingSystem.setSelectedXAxis(i);
+								return;
+							}
+						}
+						logger.warn("Could not select axis of given name");
+					} else if (type.equals(AxisOperation.ACTIVEY)) {
+						if (a != null && a.isYAxis()) {
+							plottingSystem.setSelectedYAxis(a);
+							return;
+						}
+						// default to first y axis
+						for (IAxis i : axes.values()) {
+							if (i.isYAxis()) {
+								plottingSystem.setSelectedYAxis(i);
+								return;
+							}
+						}
+						logger.warn("Could not select axis of given name");
+					}
+				} finally {
+					undoBlock();
+				}
+			}
+		});
+	}
 
 	/**
 	 * Update the Plot Mode
 	 * @param plotMode
 	 * @param async
 	 */
-	abstract public void updatePlotMode(GuiPlotMode plotMode, boolean async);
+	public void updatePlotMode(final GuiPlotMode plotMode, boolean async) {
+		doBlock();
+		DisplayUtils.runInDisplayThread(async, parentComp, new Runnable() {
+			@Override
+			public void run() {
+				try {
+					int choice = getDefaultPlottingSystemChoice();
+					GuiPlotMode oldMode = getPreviousMode();
+					if (oldMode == null || !plotMode.equals(oldMode)) {
+						switch (choice) {
+						case PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM:
+							cleanUpFromOldMode(true);
+							if (plotMode.equals(GuiPlotMode.ONED)) {
+								setup1D();
+							} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
+								setupMulti1DPlot();
+							} else if (plotMode.equals(GuiPlotMode.TWOD)) {
+								setup2D();
+							} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
+								setup2DSurfaceOldPlotting();
+							} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
+								setupScatter2DPlot();
+							} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
+								setupScatter3DPlot();
+							} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
+								setupMulti2D();
+							} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
+								clearPlot();
+							}
+							break;
+						case PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM:
+							cleanUp(plotMode);
+							if (plotMode.equals(GuiPlotMode.ONED)) {
+								setupPlotting1D();
+							} else if (plotMode.equals(GuiPlotMode.TWOD)) {
+								setupPlotting2D();
+							} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
+								setupScatterPlotting2D();
+							} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
+								setupMulti1DPlot();
+							} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
+								setup2DSurfaceNewPlotting();
+							} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
+								setupScatter3DPlot();
+							} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
+								setupMulti2D();
+							} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
+								clearPlot();
+							}
+							break;
+						}
+						setPreviousMode(plotMode);
+					}
+				} finally {
+					undoBlock();
+				}
+			}
+		});
+	}
 
 	/**
 	 * Update the Plot mode with a GuiBean
@@ -424,7 +814,17 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	/**
 	 * Clear the Plot Window and its components
 	 */
-	abstract public void clearPlot();
+	public void clearPlot() {
+		if (mainPlotter != null && !mainPlotter.isDisposed()) {
+			mainPlotter.emptyPlot();
+			mainPlotter.refresh(true);
+		}
+		if (plottingSystem != null) {
+			plottingSystem.clearRegions();
+			plottingSystem.reset();
+			plottingSystem.repaint();
+		}
+	}
 
 	/**
 	 * Needed to correctly create the guibean the first time a plot is set, otherwise the guibean will be null
@@ -466,10 +866,174 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		this.roiManager = roiManager;
 	}
 
+	public IPlottingSystem getPlottingSystem() {
+		return plottingSystem;
+	}
+
+	public DataSetPlotter getMainPlotter() {
+		return mainPlotter;
+	}
+
+	@Override
+	public void update(Object theObserved, Object changeCode) {
+		if (theObserved instanceof HistogramView) {
+			HistogramUpdate update = (HistogramUpdate) changeCode;
+			mainPlotter.applyColourCast(update);
+
+			if (!mainPlotter.isDisposed())
+				mainPlotter.refresh(false);
+			if (plotUI instanceof Plot2DUI) {
+				Plot2DUI plot2Dui = (Plot2DUI) plotUI;
+				plot2Dui.getSidePlotView().sendHistogramUpdate(update);
+			}
+		}
+	}
+
 	/**
 	 * Required if you want to make tools work with Abstract Plotting System.
 	 */
-	abstract public Object getAdapter(Class<?> clazz);
+	public Object getAdapter(final Class<?> clazz) {
+		if (clazz == IToolPageSystem.class) {
+			return plottingSystem;
+		}
+		return null;
+	}
+
+	// Datasetplotter
+	protected void setup1D() {
+		mainPlotter.setMode(PlottingMode.ONED);
+		plotUI = new Plot1DUIComplete(this, getGuiManager(), bars, parentComp, getPage(), getName());
+		addCommonActions(mainPlotter);
+		bars.updateActionBars();
+		updateGuiBeanPlotMode(GuiPlotMode.ONED);
+	}
+
+	// Abstract plotting System
+	protected void setupPlotting1D() {
+		plottingSystem.setPlotType(PlotType.XY);
+		plotUI = new Plotting1DUI(plottingSystem);
+		addScriptingAction();
+		addDuplicateAction();
+		addClearAction();
+		updateGuiBeanPlotMode(GuiPlotMode.ONED);
+	}
+
+	// Dataset plotter
+	protected void setup2D() {
+		mainPlotter.setMode(PlottingMode.TWOD);
+		plotUI = new Plot2DUI(this, mainPlotter, getGuiManager(), parentComp, getPage(), bars, getName());
+		addCommonActions(mainPlotter);
+		bars.updateActionBars();
+		updateGuiBeanPlotMode(GuiPlotMode.TWOD);
+	}
+
+	// Abstract plotting System
+	protected void setupPlotting2D() {
+		plottingSystem.setPlotType(PlotType.IMAGE);
+		plotUI = new Plotting2DUI(getRoiManager(), plottingSystem);
+		addScriptingAction();
+		addDuplicateAction();
+		addClearAction();
+		updateGuiBeanPlotMode(GuiPlotMode.TWOD);
+	}
+
+	protected void setupMulti2D() {
+		mainPlotter.setMode(PlottingMode.MULTI2D);
+		plotUI = new Plot2DMultiUI(this, mainPlotter, getGuiManager(), parentComp, getPage(), bars, getName());
+		addCommonActions(mainPlotter);
+		bars.updateActionBars();
+		updateGuiBeanPlotMode(GuiPlotMode.MULTI2D);
+	}
+
+	protected void setup2DSurfaceNewPlotting() {
+		plottingSystem.setPlotType(PlotType.SURFACE);
+		plotUI = new Plotting2DUI(getRoiManager(), plottingSystem);
+		addScriptingAction();
+		addDuplicateAction();
+		addClearAction();
+		updateGuiBeanPlotMode(GuiPlotMode.SURF2D);
+	}
+
+	protected void setup2DSurfaceOldPlotting() {
+		mainPlotter.setMode(PlottingMode.SURF2D);
+		plotUI = new PlotSurf3DUI(this, mainPlotter, parentComp, getPage(), bars, getName());
+		addCommonActions(mainPlotter);
+		bars.updateActionBars();
+		updateGuiBeanPlotMode(GuiPlotMode.SURF2D);
+	}
+
+	protected void setupMulti1DPlot() {
+		mainPlotter.setMode(PlottingMode.ONED_THREED);
+		plotUI = new Plot1DStackUI(this, bars, mainPlotter, parentComp, getPage());
+		addCommonActions(mainPlotter);
+		bars.updateActionBars();
+		updateGuiBeanPlotMode(GuiPlotMode.ONED_THREED);
+	}
+
+	protected void setupScatter2DPlot() {
+		mainPlotter.setMode(PlottingMode.SCATTER2D);
+		plotUI = new PlotScatter2DUI(this, bars, mainPlotter, parentComp, getPage(), getName());
+		addCommonActions(mainPlotter);
+		bars.updateActionBars();
+		updateGuiBeanPlotMode(GuiPlotMode.SCATTER2D);
+	}
+
+	// Abstract plotting System
+	protected void setupScatterPlotting2D() {
+		plotUI = new PlottingScatter2DUI(plottingSystem);
+		addScriptingAction();
+		addDuplicateAction();
+		addClearAction();
+		updateGuiBeanPlotMode(GuiPlotMode.SCATTER2D);
+	}
+
+	protected void setupScatter3DPlot() {
+		mainPlotter.setMode(PlottingMode.SCATTER3D);
+		plotUI = new PlotScatter3DUI(this, mainPlotter, parentComp, getPage(), bars, getName());
+		addCommonActions(mainPlotter);
+		bars.updateActionBars();
+		updateGuiBeanPlotMode(GuiPlotMode.SCATTER3D);
+	}
+
+	public void dispose() {
+		PlotWindowManager.getPrivateManager().unregisterPlotWindow(this);
+		if (plotUI != null) {
+			plotUI.deactivate(false);
+			plotUI.dispose();
+		}
+		try {
+			if (mainPlotter != null) {
+				mainPlotter.cleanUp();
+			}
+			if (plottingSystem != null){//&& !plottingSystem.isDisposed()) {
+				plottingSystem.removeRegionListener(getRoiManager());
+				plottingSystem.dispose();
+			}
+		} catch (Exception ne) {
+			logger.debug("Cannot clean up plotter!", ne);
+		}
+		deleteIObservers();
+		mainPlotter = null;
+		plotUI = null;
+		System.gc();
+	}
+
+	public void notifyHistogramChange(HistogramDataUpdate histoUpdate) {
+		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM) {
+			Iterator<IObserver> iter = getObservers().iterator();
+			while (iter.hasNext()) {
+				IObserver listener = iter.next();
+				listener.update(this, histoUpdate);
+			}
+		}
+	}
+
+	protected int getDefaultPlottingSystemChoice() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? preferenceStore
+				.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) : preferenceStore
+				.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
+	}
 }
 
 class SimpleLock {

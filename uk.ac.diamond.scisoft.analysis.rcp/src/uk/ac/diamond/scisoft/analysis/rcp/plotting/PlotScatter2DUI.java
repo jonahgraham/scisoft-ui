@@ -52,9 +52,9 @@ public class PlotScatter2DUI extends Plot1DUIAdapter {
 	public final static String STATUSITEMID = "uk.ac.dimaond.scisoft.analysis.rcp.plotting.PlotScatter2DUI";
 	private DataSetPlotter mainPlotter;
 	private StatusLineContributionItem statusLine;	
-	private PlotWindow plotWindow;
+	private AbstractPlotWindow plotWindow;
 	
-	public PlotScatter2DUI(final PlotWindow window,
+	public PlotScatter2DUI(final AbstractPlotWindow window,
 							IActionBars bars, 
 							final DataSetPlotter plotter,
 							Composite parent, IWorkbenchPage page, String viewName)

@@ -57,7 +57,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 public class PlotScatter3DUI extends AbstractPlotUI {
 
 	private Composite parent;
-	private PlotWindow plotWindow;
+	private AbstractPlotWindow plotWindow;
 	private AxisValues xAxis;
 	private AxisValues yAxis;
 	private AxisValues zAxis;
@@ -95,7 +95,7 @@ public class PlotScatter3DUI extends AbstractPlotUI {
 	private String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
 	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
 
-	public PlotScatter3DUI(PlotWindow window, 
+	public PlotScatter3DUI(AbstractPlotWindow window, 
 			 			   final DataSetPlotter plotter,
 			 			   Composite parent, 
 			 			   IWorkbenchPage page, 

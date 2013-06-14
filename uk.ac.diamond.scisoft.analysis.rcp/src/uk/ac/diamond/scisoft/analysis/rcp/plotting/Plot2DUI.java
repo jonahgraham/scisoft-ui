@@ -93,7 +93,7 @@ public class Plot2DUI extends AbstractPlotUI {
 	private List<IObserver> observers = 
 		Collections.synchronizedList(new LinkedList<IObserver>());
 
-	private PlotWindow plotWindow;
+	private AbstractPlotWindow plotWindow;
 	private HistogramView histogramView;
 	private Action resetView;
 	private Action printGraph;
@@ -138,7 +138,7 @@ public class Plot2DUI extends AbstractPlotUI {
 	 * @param page 
 	 * @param id 
 	 */
-	public Plot2DUI(PlotWindow window, 
+	public Plot2DUI(AbstractPlotWindow window, 
 					final DataSetPlotter plotter,
 					final IGuiInfoManager manager,
 					Composite parent, IWorkbenchPage page, 

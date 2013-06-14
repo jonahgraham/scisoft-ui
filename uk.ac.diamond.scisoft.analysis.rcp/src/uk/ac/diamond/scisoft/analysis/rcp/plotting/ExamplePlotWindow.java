@@ -19,9 +19,13 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.trace.ColorOption;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -29,14 +33,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
+import uk.ac.diamond.scisoft.analysis.rcp.views.ExamplePlotView;
 
 /**
- * Actual PlotWindow that can be used inside a View- or EditorPart
+ * Plot Window example<br>
+ * This plot window enables to create a custom Plot View with custom 
+ * controls side by side with an IPlottingSystem linked to the plot server.<br>
+ * The IPlottingSystem should be created the following way:<br>
+ * {@code plottingSystem = PlottingFactory.createPlottingSystem();}<br>
+ * {@code plottingSystem.setColorOption(ColorOption.NONE);}<br>
+ * {@code plottingSystem.createPlotPart(parent, getName(), bars, PlotType.XY, (IViewPart) getGuiManager());}<br>
+ * {@code plottingSystem.repaint();}<br>
+ * {@code plottingSystem.addRegionListener(getRoiManager());}<br>
+ * (see {@link ExamplePlotView} for more info.)
  */
-@SuppressWarnings("deprecation")
-public class PlotWindow extends AbstractPlotWindow {
+public class ExamplePlotWindow extends AbstractPlotWindow {
 
-	static private Logger logger = LoggerFactory.getLogger(PlotWindow.class);
+	static private Logger logger = LoggerFactory.getLogger(ExamplePlotWindow.class);
 
 	/**
 	 * Obtain the IPlotWindowManager for the running Eclipse.
@@ -49,45 +62,32 @@ public class PlotWindow extends AbstractPlotWindow {
 		return PlotWindowManager.getPrivateManager();
 	}
 
-	public PlotWindow(Composite parent, GuiPlotMode plotMode, IActionBars bars, IWorkbenchPage page, String name) {
+	public ExamplePlotWindow(Composite parent, GuiPlotMode plotMode, IActionBars bars, IWorkbenchPage page, String name) {
 		this(parent, plotMode, null, null, bars, page, name);
 	}
 
-	public PlotWindow(final Composite parent, GuiPlotMode plotMode, IGuiInfoManager manager,
+	public ExamplePlotWindow(final Composite parent, GuiPlotMode plotMode, IGuiInfoManager manager,
 			IUpdateNotificationListener notifyListener, IActionBars bars, IWorkbenchPage page, String name) {
 		super(parent, plotMode, manager, notifyListener, bars, page, name);
-		parentAddControlListener();
 		PlotWindowManager.getPrivateManager().registerPlotWindow(this);
-	}
-
-	private void parentAddControlListener() {
-		// for some reason, this window does not get repainted
-		// when a perspective is switched and the view is resized
-		parentComp.addControlListener(new ControlListener() {
-			@Override
-			public void controlResized(ControlEvent e) {
-				if (e.widget.equals(parentComp)) {
-					parentComp.getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							if (mainPlotter != null && !mainPlotter.isDisposed())
-								mainPlotter.refresh(false);
-						}
-					});
-				}
-			}
-			@Override
-			public void controlMoved(ControlEvent e) {
-			}
-		});
 	}
 
 	@Override
 	public void createPlottingSystem(Composite composite) {
+		SashForm sashForm = new SashForm(composite, SWT.HORIZONTAL);
+		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		sashForm.setBackground(new Color(parentComp.getDisplay(), 192, 192, 192));
+
+		Composite controlComp = new Composite(sashForm, SWT.NONE);
+		controlComp.setLayout(new FillLayout());
+
+		Label exampleLabel = new Label(controlComp, SWT.WRAP);
+		exampleLabel.setText("Example of a composite side by side with an IPlottingSystem linked to a plot server");
+
 		try {
 			plottingSystem = PlottingFactory.createPlottingSystem();
 			plottingSystem.setColorOption(ColorOption.NONE);
-			plottingSystem.createPlotPart(composite, getName(), bars, PlotType.XY, (IViewPart) getGuiManager());
+			plottingSystem.createPlotPart(sashForm, getName(), bars, PlotType.XY, (IViewPart) getGuiManager());
 			plottingSystem.repaint();
 			plottingSystem.addRegionListener(getRoiManager());
 		} catch (Exception e) {
@@ -99,5 +99,4 @@ public class PlotWindow extends AbstractPlotWindow {
 	public GuiPlotMode getPlotMode() {
 		return GuiPlotMode.ONED;
 	}
-
 }
