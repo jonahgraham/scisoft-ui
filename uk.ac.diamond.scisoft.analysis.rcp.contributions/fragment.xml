@@ -555,6 +555,7 @@
                </dynamic>
             </menu>
          </menuContribution>
+        <!-- This menu does not work in Dawn and is supersceeded by image monitor.
         <menuContribution
             locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?before=additions">
            <command
@@ -572,6 +573,7 @@
               </visibleWhen>
            </command>
         </menuContribution>
+        -->
         <menuContribution
             locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
            <menu

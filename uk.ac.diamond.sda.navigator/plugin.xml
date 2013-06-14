@@ -369,11 +369,6 @@
                visible="true">
          </separator>
          <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.openImageGridView"
-               label="Open in Image Grid"
-               style="push">
-         </command>
-         <command
                commandId="uk.ac.diamond.sda.navigator.exploreros"
                icon="icons/folder.png"
                label="Open in File Explorer"
