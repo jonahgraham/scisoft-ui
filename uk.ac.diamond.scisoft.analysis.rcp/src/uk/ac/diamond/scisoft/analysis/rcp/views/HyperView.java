@@ -166,12 +166,26 @@ private void saveLineTracesAsAscii(String filename) {
 		List<String> headings = new ArrayList<String>();
 		IDataset data;
 		
+		int dtype = 0;
+		
 		int i = 0;
 		
 		for (ITrace trace : traces ) {
 			
 			if (firstTrace) {
+				int ddtype = AbstractDataset.getDType(((ILineTrace)trace).getData());
 				data = ((ILineTrace)trace).getXData();
+				int axdtype = AbstractDataset.getDType(data);
+				
+				if (ddtype == axdtype) {
+					dtype = ddtype;
+				} else if (ddtype > axdtype) {
+					data = DatasetUtils.cast((AbstractDataset)data, ddtype);
+					dtype = ddtype;
+				} else {
+					dtype = axdtype;
+				}
+				
 				data.setShape(data.getShape()[0],1);
 				datasets.add(data);
 				headings.add("x");
@@ -179,6 +193,11 @@ private void saveLineTracesAsAscii(String filename) {
 			}
 			
 			data = ((ILineTrace)trace).getData();
+			
+			if (dtype != AbstractDataset.getDType(data)) {
+				data = DatasetUtils.cast((AbstractDataset)data, dtype);
+			}
+			
 			data.setShape(data.getShape()[0],1);
 			datasets.add(data);
 			headings.add("dataset_" + i);
