@@ -39,12 +39,12 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotConsumer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotJob;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotJobType;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 
 /**
  * This class deals with the connection between a PlotWindow and the PlotServer
@@ -60,7 +60,7 @@ public class PlotServerConnection implements IObserver,
 	private static final Logger logger = LoggerFactory.getLogger(PlotServerConnection.class);
 
 
-	private       PlotWindow      plotWindow;
+	private       AbstractPlotWindow      plotWindow;
 	private final PlotServer      plotServer;
 	private final ExecutorService execSvc;
 	private final String          plotName;
@@ -249,11 +249,11 @@ public class PlotServerConnection implements IObserver,
 			plotConsumer.dataUpdateFinished();
 	}
 
-	public PlotWindow getPlotWindow() {
+	public AbstractPlotWindow getPlotWindow() {
 		return plotWindow;
 	}
 
-	public void setPlotWindow(PlotWindow plotWindow) {
+	public void setPlotWindow(AbstractPlotWindow plotWindow) {
 		this.plotWindow = plotWindow;
 	}
 }

@@ -42,7 +42,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 
 public class PlotUtils {
 
@@ -60,7 +60,7 @@ public class PlotUtils {
 	public static void create1DPlot(final AbstractDataset         xDataSet, 
 			                        final List<AbstractDataset>   yDataSets, 
 			                        final PlotMode         plotMode, 
-			                        final PlotWindow       plotWindow, 
+			                        final AbstractPlotWindow       plotWindow, 
 			                        final IProgressMonitor monitor) {
 		
 		if (xDataSet.getRank() != 1) return;
@@ -139,7 +139,7 @@ public class PlotUtils {
 	public static void createPlot(final AbstractDataset       data,
 			                      final List<AbstractDataset> axes,
 			                      final GuiPlotMode           mode, 
-			                      final PlotWindow            plotWindow, 
+			                      final AbstractPlotWindow    plotWindow, 
 			                      final IProgressMonitor monitor) {
 		
 		
