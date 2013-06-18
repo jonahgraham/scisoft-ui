@@ -129,5 +129,14 @@ public class HyperTab extends PlotTab {
 			composite.setEnabled(isCompatible);
 		return isCompatible;
 	}
+	
+	@Override
+	public boolean[] getUsedDims() {
+		List<String> sAxes = getSelectedAxisNames();
+		boolean[] used = new boolean[sAxes.size()];
+		for (int i = 0; i < used.length; i++) used[i] = true;
+		
+		return used;
+	}
 
 }
