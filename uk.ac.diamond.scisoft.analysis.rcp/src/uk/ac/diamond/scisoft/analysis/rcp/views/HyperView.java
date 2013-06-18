@@ -126,18 +126,18 @@ public class HyperView extends ViewPart {
 		int[] imageSize = new int[]{lazy.getShape()[axPos[1]],lazy.getShape()[axPos[0]]};
 		
 		try {
-			IRegion region = mainSystem.createRegion("testRegion", RegionType.BOX);
+			IRegion region = mainSystem.createRegion("Image Region 1", RegionType.BOX);
 			
 			mainSystem.addRegion(region);
 			//TODO make roi positioning a bit more clever
 			RectangularROI rroi = new RectangularROI(imageSize[1]/10, imageSize[0]/10, imageSize[1]/10, imageSize[0]/10, 0);
 			region.setROI(rroi);
-			region.setUserRegion(false);
+			//region.setUserRegion(false);
 			region.addROIListener(this.roiListenerLeft);
 			
 			updateRight(region, rroi);
 			
-			windowRegion = sideSystem.createRegion("testRegion2", RegionType.XAXIS);
+			windowRegion = sideSystem.createRegion("Trace Region 1", RegionType.XAXIS);
 			
 			sideSystem.addRegion(windowRegion);
 			
@@ -296,7 +296,7 @@ private void saveLineTracesAsAscii(String filename) {
 					//TODO throw error
 					if (file.exists()) return;
 					
-					Job exportJob = new Job("Export") {
+					Job exportJob = new Job("Export Traces") {
 						
 						@Override
 						protected IStatus run(IProgressMonitor monitor) {
@@ -334,7 +334,7 @@ private void saveLineTracesAsAscii(String filename) {
 	protected final void createNewRegion() {
 		// Start with a selection of the right type
 		try {
-			IRegion region = mainSystem.createRegion(RegionUtils.getUniqueName("box", mainSystem), RegionType.BOX);
+			IRegion region = mainSystem.createRegion(RegionUtils.getUniqueName("Image Region", mainSystem), RegionType.BOX);
 			region.addROIListener(roiListenerLeft);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -469,8 +469,8 @@ private void saveLineTracesAsAscii(String filename) {
 		private   IROI                currentROI;
 
 		HyperJob() {
-			super("update");
-			setSystem(true);
+			super("Update Trace");
+			setSystem(false);
 			setUser(false);
 			setPriority(Job.INTERACTIVE);
 		}
@@ -539,8 +539,8 @@ private void saveLineTracesAsAscii(String filename) {
 		private   IROI                currentROI;
 
 		HyperSideJob() {
-			super("update");
-			setSystem(true);
+			super("Update Image");
+			setSystem(false);
 			setUser(false);
 			setPriority(Job.INTERACTIVE);
 		}
