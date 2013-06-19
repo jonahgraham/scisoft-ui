@@ -19,12 +19,12 @@ package uk.ac.diamond.scisoft.analysis.rcp.views;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dawb.common.ui.hyper.HyperWindow;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.HyperWindow;
 
 /**
  * Display a 3D dataset across two plots with ROI slicing
