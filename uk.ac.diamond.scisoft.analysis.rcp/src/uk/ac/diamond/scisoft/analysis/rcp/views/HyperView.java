@@ -19,6 +19,8 @@ package uk.ac.diamond.scisoft.analysis.rcp.views;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dawb.common.ui.hyper.ArpesMainImageReducer;
+import org.dawb.common.ui.hyper.ArpesSideImageReducer;
 import org.dawb.common.ui.hyper.HyperWindow;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
@@ -41,8 +43,8 @@ public class HyperView extends ViewPart {
 		hyperWindow.createControl(parent);
 		
 	}
-
-	public void setData(ILazyDataset lazy, List<AxisChoice> daxes, int traceDim) {
+	
+	public void setData(ILazyDataset lazy, List<AxisChoice> daxes, int traceDim, boolean asImages) {
 		
 		List<ILazyDataset> axes = new ArrayList<ILazyDataset>(daxes.size());
 		
@@ -50,7 +52,10 @@ public class HyperView extends ViewPart {
 			axes.add(ax.getValues());
 		}
 		
-		hyperWindow.setData(lazy, axes, traceDim);
+		if (!asImages) hyperWindow.setData(lazy, axes, traceDim);
+		else {
+			hyperWindow.setData(lazy, axes, traceDim,new ArpesMainImageReducer(),new ArpesSideImageReducer());
+		}
 	}
 	
 	@Override

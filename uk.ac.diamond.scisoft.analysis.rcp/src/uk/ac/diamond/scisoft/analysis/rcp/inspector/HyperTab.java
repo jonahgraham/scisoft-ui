@@ -16,8 +16,20 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 
+import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
@@ -28,11 +40,68 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorTy
 import uk.ac.diamond.scisoft.analysis.rcp.views.HyperView;
 
 public class HyperTab extends PlotTab {
+	
+	private boolean asTwoImages = false;
 
 	public HyperTab(IWorkbenchPartSite partSite, InspectorType type, String title, String[] axisNames) {
 		super(partSite, type, title, axisNames);
 		// TODO Auto-generated constructor stub
 	}
+	
+	@Override
+	public Composite createTabComposite(Composite parent) {
+		ScrolledComposite sComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		Composite holder = new Composite(sComposite, SWT.NONE);
+		holder.setLayout(new GridLayout(2, false));
+
+		axisLabels = new ArrayList<Label>();
+		combos = new ArrayList<Combo>();
+
+		SelectionAdapter listener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Combo c = (Combo) e.widget;
+				int i = combos.indexOf(c);
+				if (i >= 0 && paxes != null) {
+					PlotAxisProperty p = paxes.get(i);
+					String item = c.getItem(c.getSelectionIndex()); 
+					if (item.equals(p.getName()))
+						return;
+					p.setName(item, false);
+					repopulateCombos(null, null);
+				}
+			}
+		};
+		createCombos(holder, listener);
+
+		if (daxes != null)
+			populateCombos();
+
+
+		final Button b = new Button(holder, SWT.CHECK);
+		b.setText("As Images");
+		b.setToolTipText("Check to plot two images");
+		b.setSelection(asTwoImages);
+		b.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				asTwoImages = b.getSelection();
+
+				if (paxes != null) { // signal a replot without a slice reset
+					PlotAxisProperty p = paxes.get(0);
+					p.fire(new PropertyChangeEvent(p, PlotAxisProperty.plotUpdate, p.getName(), p.getName()));
+				}
+			}
+		});
+
+		holder.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		sComposite.setContent(holder);
+		holder.setSize(holder.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+
+		composite = sComposite;
+		return composite;
+	}
+
 	
 	@Override
 	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
@@ -85,7 +154,7 @@ public class HyperTab extends PlotTab {
 						}
 					}
 					
-					tableView.setData(dataset, axisChoices, chosenDim);
+					tableView.setData(dataset, axisChoices, chosenDim,asTwoImages);
 				}
 			});
 			break;
