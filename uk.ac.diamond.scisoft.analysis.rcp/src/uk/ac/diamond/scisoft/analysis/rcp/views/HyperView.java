@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.dawb.common.ui.hyper.ArpesMainImageReducer;
 import org.dawb.common.ui.hyper.ArpesSideImageReducer;
-import org.dawb.common.ui.hyper.HyperWindow;
+import org.dawb.common.ui.hyper.HyperComponent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
@@ -34,11 +34,11 @@ import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 public class HyperView extends ViewPart {
 	
 	public static final String ID = "uk.ac.diamond.scisoft.analysis.rcp.views.HyperPlotView";
-	private HyperWindow hyperWindow;
+	private HyperComponent hyperWindow;
 	
 	@Override
 	public void createPartControl(Composite parent) {
-		hyperWindow = new HyperWindow();
+		hyperWindow = new HyperComponent();
 		hyperWindow.createControl(parent);
 	}
 	
