@@ -16,7 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.dawb.common.ui.hyper.ArpesMainImageReducer;
@@ -25,8 +24,9 @@ import org.dawb.common.ui.hyper.HyperWindow;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
+import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 
 /**
  * Display a 3D dataset across two plots with ROI slicing
@@ -38,23 +38,15 @@ public class HyperView extends ViewPart {
 	
 	@Override
 	public void createPartControl(Composite parent) {
-		
 		hyperWindow = new HyperWindow();
 		hyperWindow.createControl(parent);
-		
 	}
 	
-	public void setData(ILazyDataset lazy, List<AxisChoice> daxes, int traceDim, boolean asImages) {
+	public void setData(ILazyDataset lazy, List<AbstractDataset> daxes, Slice[] slices, int[] order, boolean asImages) {
 		
-		List<ILazyDataset> axes = new ArrayList<ILazyDataset>(daxes.size());
-		
-		for (AxisChoice ax : daxes) {
-			axes.add(ax.getValues());
-		}
-		
-		if (!asImages) hyperWindow.setData(lazy, axes, traceDim);
+		if (!asImages) hyperWindow.setData(lazy, daxes, slices, order);
 		else {
-			hyperWindow.setData(lazy, axes, traceDim,new ArpesMainImageReducer(),new ArpesSideImageReducer());
+			hyperWindow.setData(lazy, daxes, slices, order,new ArpesMainImageReducer(),new ArpesSideImageReducer());
 		}
 	}
 	
