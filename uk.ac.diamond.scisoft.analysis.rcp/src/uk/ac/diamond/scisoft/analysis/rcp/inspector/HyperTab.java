@@ -18,12 +18,15 @@ package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -34,7 +37,9 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HyperView;
@@ -101,37 +106,28 @@ public class HyperTab extends PlotTab {
 		composite = sComposite;
 		return composite;
 	}
-
+	
 	
 	@Override
 	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
 		if (dataset == null)
 			return;
 		
-		if (dataset.getRank() != 3) return;
+		if (dataset.getRank() < 3) return;
+		
+		final Slice[] slices = new Slice[sliceProperties.size()];
+		boolean[] average = new boolean[sliceProperties.size()];
+		for (int i = 0; i < slices.length; i++) {
+			slices[i] = sliceProperties.get(i).getValue();
+			average[i] =  sliceProperties.get(i).isAverage();
+		}
 
-//		Slice[] slices = new Slice[sliceProperties.size()];
-//		boolean[] average = new boolean[sliceProperties.size()];
-//		for (int i = 0; i < slices.length; i++) {
-//			slices[i] = sliceProperties.get(i).getValue();
-//			average[i] = sliceProperties.get(i).isAverage();
-//		}
-//
-//		int[] order = getOrder(daxes.size());
-//		final List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, average, order);
-//
-//
-//		if (itype == InspectorType.DATA2D) {
-//			swapFirstTwoInOrder(order);
-//		}
-//
-//		final AbstractDataset reorderedData = slicedAndReorderData(monitor, slices, average, order, null);
-//		if (reorderedData == null) return;
-//		
-//		reorderedData.setName(dataset.getName());
-//		reorderedData.squeeze();
-//		if (reorderedData.getSize() < 1)
-//			return;
+		final int[] order = getOrder(daxes.size());
+		// FIXME: Image, surface and volume plots can't work with multidimensional axis data
+		final List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, average, order);
+		
+		///
+		// --------- final AbstractDataset reorderedData = slicedAndReorderData(monitor, slices, average, order, null);
 
 		switch (itype) {
 		case HYPER:
@@ -144,17 +140,17 @@ public class HyperTab extends PlotTab {
 					
 					List<AxisChoice> axisChoices = getChosenAxes();
 					//TODO find dataset dim from paxes
-					PlotAxis pa = paxes.get(0).getValue();
+//					PlotAxis pa = paxes.get(0).getValue();
+//					
+//					int chosenDim = 0;
 					
-					int chosenDim = 0;
+//					for (int i = 0; i < axisChoices.size(); i++) {
+//						if (axisChoices.get(i).getName() == pa.getName()) {
+//							chosenDim = i;
+//						}
+//					}
 					
-					for (int i = 0; i < axisChoices.size(); i++) {
-						if (axisChoices.get(i).getName() == pa.getName()) {
-							chosenDim = i;
-						}
-					}
-					
-					tableView.setData(dataset, axisChoices, chosenDim,asTwoImages);
+					tableView.setData(dataset, slicedAxes,slices, order, asTwoImages);
 				}
 			});
 			break;
@@ -191,7 +187,7 @@ public class HyperTab extends PlotTab {
 	public boolean checkCompatible(ILazyDataset data) {
 		boolean isCompatible = false;
 		int rank = data.getRank();
-		if (rank == 3)
+		if (rank > 2)
 			isCompatible = true;
 
 		if (composite != null)
@@ -199,13 +195,71 @@ public class HyperTab extends PlotTab {
 		return isCompatible;
 	}
 	
+	
+	private static final String IMAGE_EXP_AXIS_LABEL = "images";
+	
 	@Override
-	public boolean[] getUsedDims() {
-		List<String> sAxes = getSelectedAxisNames();
-		boolean[] used = new boolean[sAxes.size()];
-		for (int i = 0; i < used.length; i++) used[i] = true;
-		
-		return used;
+	protected void populateCombos() {
+		int cSize = combos.size() - comboOffset;
+		HashMap<Integer, String> sAxes = getSelectedComboAxisNames();
+
+		for (int i = 0; i < cSize; i++) {
+			Combo c = combos.get(i + comboOffset);
+			c.removeAll();
+
+			PlotAxisProperty p = paxes.get(i + comboOffset);
+			p.clear();
+
+			Label l = axisLabels.get(i + comboOffset);
+			if (sAxes.size() == 0) {
+				p.setInSet(false);
+				c.setEnabled(false);
+				c.setVisible(false);
+				l.setVisible(false);
+				if (itype == InspectorType.IMAGEXP) { // hack to change labels
+					l = axisLabels.get(i + comboOffset - 1);
+					l.setText(IMAGE_EXP_AXIS_LABEL);
+					l.getParent().layout();
+				}
+				break;
+			}
+			c.setEnabled(true);
+			c.setVisible(true);
+			l.setVisible(true);
+			if (itype == InspectorType.IMAGEXP && l.getText().equals(IMAGE_EXP_AXIS_LABEL)) {
+				l.setText(axes[i+comboOffset]); // reset label
+				l.getParent().layout();
+			}
+			ArrayList<Integer> keyList = new ArrayList<Integer>(sAxes.keySet());
+			Collections.sort(keyList);
+			Collections.reverse(keyList);
+			Integer lastKey = keyList.get(keyList.size() - 1);
+			String a = sAxes.get(lastKey); // reverse order
+
+			if (axes.length == 1) { // for 1D plots and 1D dataset table, remove single point axes
+				int[] shape = dataset.getShape();
+				while (shape[lastKey] == 1) {
+					lastKey--;
+				}
+				a = sAxes.get(lastKey); // reverse order
+				for (int j : keyList) {
+					String n = sAxes.get(j);
+					p.put(j, n);
+					if (shape[j] != 1)
+						c.add(n);
+				}
+			} else {
+				for (int j : keyList) {
+					String n = sAxes.get(j);
+					p.put(j, n);
+					c.add(n);
+				}
+			}
+			c.setText(a);
+			sAxes.remove(lastKey);
+			p.setName(a, false);
+			p.setInSet(true);
+		}
 	}
 
 }
