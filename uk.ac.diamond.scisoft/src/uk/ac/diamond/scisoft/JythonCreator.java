@@ -100,7 +100,7 @@ public class JythonCreator implements IStartup {
 		"org.python.pydev",
 		"cbflib-0.9",
 		"org.apache.commons.codec",
-		"org.apache.commons.math",
+		"org.apache.commons.math", // includes math3
 		"uk.ac.diamond.CBFlib",
 		"uk.ac.diamond.jama",
 		"uk.ac.diamond.scisoft.analysis",
