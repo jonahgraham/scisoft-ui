@@ -16,8 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
-import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawnsci.plotting.api.PlotType;
+import org.dawnsci.plotting.api.PlottingFactory;
 import org.dawnsci.plotting.api.trace.ColorOption;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
