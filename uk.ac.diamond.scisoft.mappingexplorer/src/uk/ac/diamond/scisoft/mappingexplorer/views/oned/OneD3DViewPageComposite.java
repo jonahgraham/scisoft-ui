@@ -22,8 +22,8 @@ import gda.analysis.io.ScanFileHolderException;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -77,7 +77,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 	private Button rdDimension1;
 	private Button rdDimension2;
 	private Button rdDimension3;
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 	private Composite axisSelectionComposite;
 
 	private Stepper firstDimStepper;

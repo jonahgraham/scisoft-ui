@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.ISelection;
@@ -66,7 +67,7 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 
 	private static final int NUM_BINS = 1000; // match value used in HistogramView
 	private Composite rootComposite;
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 	private static final Logger logger = LoggerFactory.getLogger(HistogramMappingView.class);
 	private Label lblHistogram;
 
@@ -126,7 +127,7 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(histogramDatasetProviderListener);
 	}
 
-	protected void disablePlottingSystemActions(AbstractPlottingSystem plottingSystem) {
+	protected void disablePlottingSystemActions(IPlottingSystem plottingSystem) {
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.removeRegions");
 		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureConfigure Settings...");
 		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureShow Legend");

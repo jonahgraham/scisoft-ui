@@ -20,7 +20,7 @@ package uk.ac.diamond.scisoft.mappingexplorer.views;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchPart;
@@ -96,7 +96,7 @@ public abstract class BaseViewPageComposite extends Composite {
 		
 	}
 
-	protected void disablePlottingSystemActions(AbstractPlottingSystem plottingSystem) {
+	protected void disablePlottingSystemActions(IPlottingSystem plottingSystem) {
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.removeRegions");
 		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureConfigure Settings...");
 		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureShow Legend");

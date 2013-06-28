@@ -20,8 +20,8 @@ package uk.ac.diamond.scisoft.mappingexplorer.views.twod;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.axis.IPositionListener;
 import org.dawnsci.plotting.api.axis.PositionEvent;
@@ -34,6 +34,7 @@ import org.dawnsci.plotting.api.region.MouseListener;
 import org.dawnsci.plotting.api.region.ROIEvent;
 import org.dawnsci.plotting.api.region.RegionEvent;
 import org.dawnsci.plotting.api.tool.IToolChangeListener;
+import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.dawnsci.plotting.api.tool.ToolChangeEvent;
 import org.dawnsci.plotting.api.trace.ITrace;
 import org.dawnsci.plotting.api.trace.ITraceListener;
@@ -124,7 +125,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 	private IMappingView3dData mapping3DData;
 	private IMappingView2dData mapping2DData;
 	private String secondaryId;
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 	private Composite axisSelectionComposite;
 
 	private IRegion areaRegion;
@@ -217,7 +218,8 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				}
 			});
 
-			plottingSystem.addToolChangeListener(new IToolChangeListener() {
+			final IToolPageSystem system = (IToolPageSystem)plottingSystem.getAdapter(IToolPageSystem.class);
+			system.addToolChangeListener(new IToolChangeListener() {
 
 				@Override
 				public void toolChanged(ToolChangeEvent evt) {
