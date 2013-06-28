@@ -50,7 +50,7 @@
    </extension>
    <!--
    <extension
-         point="org.dawb.common.ui.toolPage">
+         point="org.dawnsci.plotting.api.toolPage">
       <plotting_tool_page
             class="uk.ac.diamond.sda.meta.tools.MetadataTool"
             icon="icons/diffraction-meta.png"
