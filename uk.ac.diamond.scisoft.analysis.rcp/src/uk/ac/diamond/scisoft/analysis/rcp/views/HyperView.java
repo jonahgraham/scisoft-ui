@@ -21,12 +21,15 @@ import java.util.List;
 import org.dawb.common.ui.hyper.ArpesMainImageReducer;
 import org.dawb.common.ui.hyper.ArpesSideImageReducer;
 import org.dawb.common.ui.hyper.HyperComponent;
+import org.dawb.common.ui.hyper.ImageTrapeziumBaselineReducer;
+import org.dawb.common.ui.hyper.TraceLineReducer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
+import uk.ac.diamond.scisoft.analysis.rcp.inspector.HyperTab.HyperType;
 
 /**
  * Display a 3D dataset across two plots with ROI slicing
@@ -42,12 +45,20 @@ public class HyperView extends ViewPart {
 		hyperWindow.createControl(parent);
 	}
 	
-	public void setData(ILazyDataset lazy, List<AbstractDataset> daxes, Slice[] slices, int[] order, boolean asImages) {
+	public void setData(ILazyDataset lazy, List<AbstractDataset> daxes, Slice[] slices, int[] order, HyperType hyperType) {
 		
-		if (!asImages) hyperWindow.setData(lazy, daxes, slices, order);
-		else {
+		switch (hyperType) {
+		case Box_Axis:
+			hyperWindow.setData(lazy, daxes, slices, order);
+			break;
+		case Line_Line:
 			hyperWindow.setData(lazy, daxes, slices, order,new ArpesMainImageReducer(),new ArpesSideImageReducer());
+			break;
+		case Line_Axis:
+			hyperWindow.setData(lazy, daxes, slices, order,new TraceLineReducer(),new ImageTrapeziumBaselineReducer());
+			break;
 		}
+		
 	}
 	
 	@Override

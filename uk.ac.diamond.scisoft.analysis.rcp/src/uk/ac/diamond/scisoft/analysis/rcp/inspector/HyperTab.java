@@ -26,7 +26,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -46,7 +45,11 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.HyperView;
 
 public class HyperTab extends PlotTab {
 	
-	private boolean asTwoImages = false;
+	public static enum HyperType {
+		Box_Axis, Line_Line, Line_Axis
+	}
+	
+	private HyperType hyperType;
 
 	public HyperTab(IWorkbenchPartSite partSite, InspectorType type, String title, String[] axisNames) {
 		super(partSite, type, title, axisNames);
@@ -81,21 +84,39 @@ public class HyperTab extends PlotTab {
 
 		if (daxes != null)
 			populateCombos();
-
-
-		final Button b = new Button(holder, SWT.CHECK);
-		b.setText("As Images");
-		b.setToolTipText("Check to plot two images");
-		b.setSelection(asTwoImages);
-		b.addSelectionListener(new SelectionAdapter() {
+		
+		final Button b1 = new Button(holder, SWT.RADIO);
+		b1.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 2, 1));
+		b1.setText("Box and Axis Region");
+		b1.setSelection(true);
+		hyperType = HyperType.Box_Axis;
+		b1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				asTwoImages = b.getSelection();
-
-				if (paxes != null) { // signal a replot without a slice reset
-					PlotAxisProperty p = paxes.get(0);
-					p.fire(new PropertyChangeEvent(p, PlotAxisProperty.plotUpdate, p.getName(), p.getName()));
-				}
+				hyperType = HyperType.Box_Axis;
+				fireUpdate();
+			}
+		});
+		
+		final Button b2 = new Button(holder, SWT.RADIO);
+		b2.setText("Line and Axis Line");
+		b2.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 2, 1));
+		b2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				hyperType = HyperType.Line_Line;
+				fireUpdate();
+			}
+		});
+		
+		final Button b3 = new Button(holder, SWT.RADIO);
+		b3.setText("Line and Axis Region");
+		b3.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 2, 1));
+		b3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				hyperType = HyperType.Line_Axis;
+				fireUpdate();
 			}
 		});
 
@@ -105,6 +126,13 @@ public class HyperTab extends PlotTab {
 
 		composite = sComposite;
 		return composite;
+	}
+	
+	private void fireUpdate() {
+		if (paxes != null) { // signal a replot without a slice reset
+			PlotAxisProperty p = paxes.get(0);
+			p.fire(new PropertyChangeEvent(p, PlotAxisProperty.plotUpdate, p.getName(), p.getName()));
+		}
 	}
 	
 	
@@ -137,20 +165,8 @@ public class HyperTab extends PlotTab {
 					HyperView tableView = getHyperView();
 					if (tableView == null)
 						return;
-					
-					List<AxisChoice> axisChoices = getChosenAxes();
-					//TODO find dataset dim from paxes
-//					PlotAxis pa = paxes.get(0).getValue();
-//					
-//					int chosenDim = 0;
-					
-//					for (int i = 0; i < axisChoices.size(); i++) {
-//						if (axisChoices.get(i).getName() == pa.getName()) {
-//							chosenDim = i;
-//						}
-//					}
-					
-					tableView.setData(dataset, slicedAxes,slices, order, asTwoImages);
+
+					tableView.setData(dataset, slicedAxes,slices, order, hyperType);
 				}
 			});
 			break;
