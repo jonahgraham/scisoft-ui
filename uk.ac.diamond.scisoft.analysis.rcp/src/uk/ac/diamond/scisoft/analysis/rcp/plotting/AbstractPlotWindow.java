@@ -605,7 +605,14 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		}
 
 		if (bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST)) {
-			plotUI.processGUIUpdate(bean);
+			try {
+				// lock ROI manager
+				getRoiManager().acquireLock();
+				plotUI.processGUIUpdate(bean);
+			} finally {
+				// release ROI manager
+				getRoiManager().releaseLock();
+			}
 		}
 	}
 
