@@ -91,7 +91,7 @@ public class PlotWindow extends AbstractPlotWindow {
 			plottingSystem.repaint();
 			plottingSystem.addRegionListener(getRoiManager());
 		} catch (Exception e) {
-			logger.error("Cannot locate any Abstract plotting System!", e);
+			logger.error("Cannot locate any plotting System!", e);
 		}
 	}
 

@@ -149,47 +149,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 
 		plotMode = getPlotMode();
 
-		if (plotMode == null)
-			plotMode = GuiPlotMode.ONED;
-
-		// this needs to be started in 1D as later mode changes will not work as plot UIs are not setup
-		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
-			createDatasetPlotter(PlottingMode.ONED);
-
-		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
-			plotSystemComposite = new Composite(parentComp, SWT.NONE);
-			plotSystemComposite.setLayout(new FillLayout());
-			createPlottingSystem(plotSystemComposite);
-			cleanUpDatasetPlotter();
-		}
-		// Setting up
-		if (plotMode.equals(GuiPlotMode.ONED)) {
-			if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
-				setup1D();
-			else
-				setupPlotting1D();
-		} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
-			setupMulti1DPlot();
-		} else if (plotMode.equals(GuiPlotMode.TWOD)) {
-			if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
-				setup2D();
-			else
-				setupPlotting2D();
-		} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
-			if(getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
-				setup2DSurfaceOldPlotting();
-			else
-				setup2DSurfaceNewPlotting();
-		} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
-			if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
-				setupScatter2DPlot();
-			else
-				setupScatterPlotting2D();
-		} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
-			setupScatter3DPlot();
-		} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
-			setupMulti2D();
-		}
+		changePlotMode(plotMode == null ? GuiPlotMode.ONED : plotMode, true);
 	}
 
 	/**
@@ -730,6 +690,64 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		});
 	}
 
+	private void changePlotMode(GuiPlotMode plotMode, boolean initialize) {
+		int choice = getDefaultPlottingSystemChoice();
+		if (choice == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM) {
+			if (initialize) {
+				// this needs to be started in 1D as later mode changes will not work as plot UIs are not setup
+				createDatasetPlotter(PlottingMode.ONED);
+			} else {
+				cleanUpFromOldMode(true);
+			}
+	
+			// Setting up
+			if (plotMode.equals(GuiPlotMode.ONED)) {
+				setup1D();
+			} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
+				setupMulti1DPlot();
+			} else if (plotMode.equals(GuiPlotMode.TWOD)) {
+				setup2D();
+			} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
+				setup2DSurfaceOldPlotting();
+			} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
+				setupScatter2DPlot();
+			} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
+				setupScatter3DPlot();
+			} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
+				setupMulti2D();
+			} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
+				clearPlot();
+			}
+		} else if (choice == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
+			if (initialize) {
+				plotSystemComposite = new Composite(parentComp, SWT.NONE);
+				plotSystemComposite.setLayout(new FillLayout());
+				createPlottingSystem(plotSystemComposite);
+				cleanUpDatasetPlotter();
+			} else {
+				cleanUp(plotMode);
+			}
+	
+			if (plotMode.equals(GuiPlotMode.ONED)) {
+				setupPlotting1D();
+			} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
+				setupMulti1DPlot();
+			} else if (plotMode.equals(GuiPlotMode.TWOD)) {
+				setupPlotting2D();
+			} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
+				setup2DSurfaceNewPlotting();
+			} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
+				setupScatterPlotting2D();
+			} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
+				setupScatter3DPlot();
+			} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
+				setupMulti2D();
+			} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
+				clearPlot();
+			}
+		}
+	}
+
 	/**
 	 * Update the Plot Mode
 	 * @param plotMode
@@ -741,51 +759,9 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			@Override
 			public void run() {
 				try {
-					int choice = getDefaultPlottingSystemChoice();
 					GuiPlotMode oldMode = getPreviousMode();
 					if (oldMode == null || !plotMode.equals(oldMode)) {
-						switch (choice) {
-						case PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM:
-							cleanUpFromOldMode(true);
-							if (plotMode.equals(GuiPlotMode.ONED)) {
-								setup1D();
-							} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
-								setupMulti1DPlot();
-							} else if (plotMode.equals(GuiPlotMode.TWOD)) {
-								setup2D();
-							} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
-								setup2DSurfaceOldPlotting();
-							} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
-								setupScatter2DPlot();
-							} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
-								setupScatter3DPlot();
-							} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
-								setupMulti2D();
-							} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
-								clearPlot();
-							}
-							break;
-						case PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM:
-							cleanUp(plotMode);
-							if (plotMode.equals(GuiPlotMode.ONED)) {
-								setupPlotting1D();
-							} else if (plotMode.equals(GuiPlotMode.TWOD)) {
-								setupPlotting2D();
-							} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
-								setupScatterPlotting2D();
-							} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
-								setupMulti1DPlot();
-							} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
-								setup2DSurfaceNewPlotting();
-							} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
-								setupScatter3DPlot();
-							} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
-								setupMulti2D();
-							} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
-								clearPlot();
-							}
-							break;
-						}
+						changePlotMode(plotMode, false);
 						setPreviousMode(plotMode);
 					}
 				} finally {
