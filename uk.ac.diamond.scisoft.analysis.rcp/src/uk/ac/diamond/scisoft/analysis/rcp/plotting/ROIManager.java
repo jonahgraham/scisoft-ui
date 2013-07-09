@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawnsci.plotting.api.IPlottingSystem;
@@ -31,6 +32,8 @@ import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.IRegionListener;
 import org.dawnsci.plotting.api.region.ROIEvent;
 import org.dawnsci.plotting.api.region.RegionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.roi.IROI;
@@ -41,18 +44,22 @@ import uk.ac.diamond.scisoft.analysis.roi.ROIUtils;
  * Class to deal with interactions of regions and ROIs
  */
 public class ROIManager implements IROIListener, IRegionListener {
+	private static Logger logger = LoggerFactory.getLogger(ROIManager.class);
+
 	private Map<String, IROI> roiMap; // region name to ROI map
 	private IROI roi;
 	private IGuiInfoManager server; // usually plot window
 	private String plotName;
 	private IPlottingSystem plottingSystem;
+	private ReentrantLock lock;
 
 	public ROIManager(IGuiInfoManager guiManager, String plotName) {
 		server = guiManager;
 		roiMap = new LinkedHashMap<String, IROI>();
 
 		this.plotName = plotName;
-		this.plottingSystem = PlottingFactory.getPlottingSystem(plotName);
+		plottingSystem = PlottingFactory.getPlottingSystem(plotName);
+		lock = new ReentrantLock();
 	}
 
 	/**
@@ -127,6 +134,9 @@ public class ROIManager implements IROIListener, IRegionListener {
 //		if (plottingSystem == null)
 //			return;
 //		IRegion region = plottingSystem.getRegion(((IRegion) evt.getSource()).getName());
+//		if (plottingSystem.getRegions().contains(region)) {
+//			System.err.println("Hello: reg " + region.getROI() + "; drag " + evt.getROI());
+//		}
 //		if (region == null) return;
 //		if (region.getROI() != null)
 //			region.setROI(null);
@@ -153,6 +163,13 @@ public class ROIManager implements IROIListener, IRegionListener {
 	private void updateGuiBean(IROI roib) {
 		IROI tmpRoi = roib;
 		updateROIMap();
+
+		// if locked then do not update server
+		if (lock.isLocked()) {
+			logger.trace("Silent");
+			return;
+		}
+		logger.trace("Broadcasting");
 
 		server.removeGUIInfo(GuiParameters.ROIDATA);
 		server.putGUIInfo(GuiParameters.ROIDATA, roib);
@@ -204,6 +221,20 @@ public class ROIManager implements IROIListener, IRegionListener {
 			}
 		}
 		return list;
+	}
+
+	/**
+	 * This stops ROI manager from broadcasting ROIs back to the plot server
+	 */
+	public void acquireLock() {
+		lock.lock();
+	}
+
+	/**
+	 * This allows ROI manager to broadcast ROIs back to the plot server
+	 */
+	public void releaseLock() {
+		lock.unlock();
 	}
 
 	/**

@@ -513,7 +513,14 @@ public class PlotWindow extends AbstractPlotWindow {
 		}
 
 		if (bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST)) {
-			plotUI.processGUIUpdate(bean);
+			try {
+				// lock ROI manager
+				getRoiManager().acquireLock();
+				plotUI.processGUIUpdate(bean);
+			} finally {
+				// release ROI manager
+				getRoiManager().releaseLock();
+			}
 		}
 	}
 
