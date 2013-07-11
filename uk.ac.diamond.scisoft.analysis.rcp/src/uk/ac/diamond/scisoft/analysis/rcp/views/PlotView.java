@@ -41,6 +41,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
  * Plot View is the main Analysis panel that can display any n-D scalar data it is the replacement of the Data Vector
  * panel inside the new RCP framework
  */
+@SuppressWarnings("deprecation")
 public class PlotView extends AbstractPlotView {
 
 	// Adding in some logging to help with getting this running
@@ -99,6 +100,7 @@ public class PlotView extends AbstractPlotView {
 		parent.setLayout(new FillLayout());
 
 		final GuiBean bean = getGUIInfo();
+		setStashedGuiBean(bean);
 		plotWindow = new PlotWindow(parent, (GuiPlotMode) bean.get(GuiParameters.PLOTMODE), this, this, getViewSite()
 				.getActionBars(), getSite().getPage(), plotViewName);
 		plotWindow.updatePlotMode(bean, false);
@@ -138,20 +140,19 @@ public class PlotView extends AbstractPlotView {
 
 	@Override
 	public void runUpdate() {
-
 		while (getDataBeanAvailable() != null || getStashedGuiBean() != null) {
+			GuiBean guiBean = getStashedGuiBean();
+			String beanLocation = getDataBeanAvailable();
 
 			// if there is a stashedGUIBean to update then do that update first
-			if (getStashedGuiBean() != null) {
-				GuiBean guiBean = getStashedGuiBean();
+			if (guiBean != null) {
 				setStashedGuiBean(null);
-				if(plotWindow != null)
+				if (plotWindow != null)
 					plotWindow.processGUIUpdate(guiBean);
 			}
 
 			// once the guiBean has been sorted out, see if there is any need to update the dataBean
-			if (getDataBeanAvailable() != null) {
-				String beanLocation = getDataBeanAvailable();
+			if (beanLocation != null) {
 				setDataBeanAvailable(null);
 				try {
 					final DataBean dataBean;
@@ -162,7 +163,7 @@ public class PlotView extends AbstractPlotView {
 
 					// update the GUI if needed
 					updateGuiBean(dataBean);
-					if(plotWindow != null)
+					if (plotWindow != null)
 						plotWindow.processPlotUpdate(dataBean);
 					notifyDataObservers(dataBean);
 				} catch (Exception e) {

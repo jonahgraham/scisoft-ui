@@ -91,13 +91,14 @@ public class ShowPlotViewHandler extends AbstractHandler {
 			PlotWindowManager manager = PlotWindowManager.getPrivateManager();
 
 			String[] views = manager.getAllPossibleViews(null);
-			Set<String> guiNamesWithData;
+			Set<String> guiNamesWithData = Collections.emptySet();
 			try {
-				guiNamesWithData = new HashSet<String>(Arrays.asList(PlotServerProvider.getPlotServer().getGuiNames()));
+				String[] names = PlotServerProvider.getPlotServer().getGuiNames();
+				if (names != null)
+					guiNamesWithData = new HashSet<String>(Arrays.asList(names));
 			} catch (Exception e) {
 				// non-fatal, just means no IN_PLOT_SERVER_SUFFIX next to view name, still shouldn't happen
 				logger.error("Failed to get list of Gui Names from Plot Server", e);
-				guiNamesWithData = Collections.emptySet();
 			}
 			Map<String, String> values = new HashMap<String, String>();
 			for (String view : views) {

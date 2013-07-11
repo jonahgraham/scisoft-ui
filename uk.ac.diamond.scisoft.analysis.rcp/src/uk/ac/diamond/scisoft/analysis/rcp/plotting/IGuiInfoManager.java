@@ -56,4 +56,14 @@ public interface IGuiInfoManager {
 	 */
 	public abstract void removeGUIInfo(GuiParameters key);
 
+	/**
+	 * Mute client so no GUI information is pushed
+	 */
+	public void mute();
+
+	/**
+	 * Un-mute client and push latest information
+	 */
+	public void unmute();
+	
 }

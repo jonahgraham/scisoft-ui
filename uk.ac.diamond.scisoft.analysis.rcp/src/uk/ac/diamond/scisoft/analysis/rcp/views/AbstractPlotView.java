@@ -79,6 +79,8 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 
 	private Thread updateThread = null;
 
+	private boolean update;
+
 	/**
 	 * Default Constructor of the plot view
 	 */
@@ -147,7 +149,6 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	 * Update the beans
 	 */
 	public void updateBeans() {
-
 		if (updateThread == null || updateThread.getState() == Thread.State.TERMINATED) {
 
 			updateThread = new Thread(new Runnable() {
@@ -159,13 +160,16 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 			}, "PlotViewUpdateThread");
 
 			updateThread.start();
+		} else {
+			// skips!
+			logger.trace("Dropping GUI bean update");
 		}
 	}
 
 	@Override
 	public void update(Object theObserved, Object changeCode) {
 		if (changeCode instanceof String && changeCode.equals(plotViewName)) {
-			logger.debug("Getting a plot data update from " + plotViewName);
+			logger.debug("Getting a plot data update from {}; thd {}",  plotViewName, Thread.currentThread().getId());
 			setDataBeanAvailable(plotViewName);
 			updateBeans();
 		}
@@ -173,9 +177,9 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 			GuiUpdate gu = (GuiUpdate) changeCode;
 			if (gu.getGuiName().contains(plotViewName)) {
 				GuiBean bean = gu.getGuiData();
-				logger.debug("Getting a plot gui update for \""+plotViewName+"\" plot: " + bean.toString());
 				UUID id = (UUID) bean.get(GuiParameters.PLOTID);
 				if (id == null || plotID.compareTo(id) != 0) { // filter out own beans
+					logger.debug("Getting a plot gui update for {}; thd {}; bean {}", new Object[] {plotViewName, Thread.currentThread().getId(), bean});
 					if (guiBean == null)
 						guiBean = bean.copy(); // cache a local copy
 					else
@@ -282,7 +286,8 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 
 		guiBean.put(key, value);
 
-		pushGUIState();
+		if (update)
+			pushGUIState();
 	}
 
 	/**
@@ -298,7 +303,19 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 
 		guiBean.remove(key);
 
-		pushGUIState();
+		if (update)
+			pushGUIState();
+	}
+
+	@Override
+	public void mute() {
+		update = false;
+	}
+
+	@Override
+	public void unmute() {
+		update = true;
+		pushGUIState();	
 	}
 
 	public String getPlotViewName() {
@@ -333,6 +350,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		if (getMainPlotter() == null)
 			return null;
 
+		@SuppressWarnings("deprecation")
 		IDataset currentData = getMainPlotter().getCurrentDataSet();
 		if (currentData != null)
 			return currentData.getMetadata();

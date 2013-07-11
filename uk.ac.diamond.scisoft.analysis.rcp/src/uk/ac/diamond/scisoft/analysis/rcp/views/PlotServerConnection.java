@@ -71,6 +71,9 @@ public class PlotServerConnection implements IObserver,
 	private Set<IObserver>  dataObservers = Collections.synchronizedSet(new LinkedHashSet<IObserver>());
 	private List<IObserver> observers     = Collections.synchronizedList(new LinkedList<IObserver>());
 
+
+	private boolean update;
+
 	/**
 	 * Default Constructor of the plot view
 	 */
@@ -215,7 +218,8 @@ public class PlotServerConnection implements IObserver,
 		guiBean.put(GuiParameters.PLOTID, plotId); // put plotID in bean
 		guiBean.put(key, value);
 
-		pushGUIState();
+		if (update)
+			pushGUIState();
 	}
 
 	/**
@@ -229,6 +233,18 @@ public class PlotServerConnection implements IObserver,
 		guiBean.put(GuiParameters.PLOTID, plotId); // put plotID in bean
 		guiBean.remove(key);
 
+		if (update)
+			pushGUIState();	
+	}
+
+	@Override
+	public void mute() {
+		update = false;
+	}
+
+	@Override
+	public void unmute() {
+		update = true;
 		pushGUIState();	
 	}
 

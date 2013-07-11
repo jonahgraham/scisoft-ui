@@ -51,6 +51,7 @@ public interface IPlotUI extends IObservable, PlotActionEventListener, AreaSelec
 	public void deactivate(boolean leaveSidePlotOpen);
 
 	/**
+	 * Process a GUI update. Implement this synchronously
 	 * @param guiBean
 	 */
 	public void processGUIUpdate(GuiBean guiBean);

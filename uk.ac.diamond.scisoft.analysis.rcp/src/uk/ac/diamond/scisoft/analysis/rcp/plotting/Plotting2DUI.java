@@ -182,15 +182,33 @@ public class Plotting2DUI extends AbstractPlotUI {
 	
 	@Override
 	public void processGUIUpdate(GuiBean guiBean) {
+		logger.debug("There is a guiBean update: {}", guiBean);
+		final Display display = Display.getDefault();
 
-		final IROI roi = (IROI)guiBean.get(GuiParameters.ROIDATA);
+		final Boolean clearAll = (Boolean) guiBean.get(GuiParameters.ROICLEARALL);
+		if (clearAll != null && clearAll) {
+			display.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					final Collection<IRegion> regions = plottingSystem.getRegions();
+					for (IRegion r : regions) {
+						plottingSystem.removeRegion(r);
+					}
+				}
+			});
+			return;
+		}
 
-		logger.debug("There is a guiBean update:"+ guiBean.toString());
-
+		final IROI roi = (IROI) guiBean.get(GuiParameters.ROIDATA);
 		final IROI croi = manager.getROI();
 		ROIList<? extends IROI> list = (ROIList<?>) guiBean.get(GuiParameters.ROIDATALIST);
 
-
+		if (roi != null)
+			logger.trace("R: {}", roi.getName());
+		if (list != null) {
+			for (IROI r : list)
+				logger.trace("L: {}", r.getName());
+		}
 		// Same as in SidePlotProfile with onSwitch = false, i.e.:
 		// logic is for each GUI parameter
 		//     if null and parameter exists
@@ -204,7 +222,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 			if (croi != null) {
 				final IRegion r = plottingSystem.getRegion(croi.getName());
 				if (r != null) {
-					Display.getDefault().syncExec(new Runnable() {
+					display.syncExec(new Runnable() {
 						@Override
 						public void run() {
 							plottingSystem.removeRegion(r);
@@ -218,7 +236,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 				if (roi.getClass().equals(croi.getClass())) { // replace current ROI
 					final IRegion r = plottingSystem.getRegion(croi.getName());
 					if (r != null) {
-						Display.getDefault().syncExec(new Runnable() {
+						display.syncExec(new Runnable() {
 							@Override
 							public void run() {
 								r.setROI(roi);
@@ -232,13 +250,15 @@ public class Plotting2DUI extends AbstractPlotUI {
 				if (list == null) {
 					list = ROIUtils.createNewROIList(roi);
 				}
-				list.add(roi);
-				Display.getDefault().syncExec(new Runnable() {
-					@Override
-					public void run() {
-						createRegion(roi);
-					}
-				});
+				if (!list.contains(roi)) {
+					list.add(roi);
+					display.syncExec(new Runnable() {
+						@Override
+						public void run() {
+							createRegion(roi);
+						}
+					});
+				}
 			}
 		}
 
@@ -256,13 +276,13 @@ public class Plotting2DUI extends AbstractPlotUI {
 		}
 
 		final Collection<IRegion> regions = plottingSystem.getRegions();
-		final List<IRegion> rList = createRegionsList(regions, clazz); // regions of given type
-		final ROIList<? extends IROI> flist = list;
-		Display.getDefault().asyncExec(new Runnable() {
+		final List<IRegion> regList = createRegionsList(regions, clazz); // regions of given type
+		final ROIList<? extends IROI> roiList = list;
+		display.syncExec(new Runnable() {
 			@Override
 			public void run() {
 				List<String> rNames = new ArrayList<String>(); // regions not removed
-				for (IRegion r : rList) { // clear all regions of given type not listed
+				for (IRegion r : regList) { // clear all regions of given type not listed
 					String rName = r.getName();
 					if (!names.contains(rName))
 						plottingSystem.removeRegion(r);
@@ -270,8 +290,8 @@ public class Plotting2DUI extends AbstractPlotUI {
 						rNames.add(rName);
 				}
 
-				if (flist != null) {
-					for (IROI r : flist) {
+				if (roiList != null) {
+					for (IROI r : roiList) {
 						String n = r.getName();
 						if (rNames.contains(n)) { // update ROI
 							plottingSystem.getRegion(n).setROI(r);

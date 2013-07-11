@@ -16,7 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -76,12 +75,12 @@ public class ROIManager implements IROIListener, IRegionListener {
 			return;
 
 		region.removeROIListener(this);
-		String rName = region.getName();
-		if (roi != null && rName.equals(roi.getName())) { // delete current ROI
-			roi = null;
-		}
-		roiMap.remove(rName);
-		updateGuiBean(roi);
+		removeROI(region.getROI());
+	}
+
+	@Override
+	public void regionsRemoved(RegionEvent evt) {
+		removeROI(null);
 	}
 
 	@Override
@@ -90,36 +89,22 @@ public class ROIManager implements IROIListener, IRegionListener {
 		if (region == null)
 			return;
 
+		region.addROIListener(this);
 		IROI eroi = region.getROI();
 		if (eroi != null && !eroi.equals(roi)) {
 			roi = eroi;
 			roiMap.put(roi.getName(), roi);
 		}
-		updateGuiBean(roi);
+		addCurrentROI();
 	}
 
 	@Override
 	public void regionCreated(RegionEvent evt) {
-		IRegion region = evt.getRegion();
-		if (region == null)
-			return;
-
-		region.addROIListener(this);
-		IROI eroi = region.getROI();
-		if (eroi != null) {
-			updateGuiBean(eroi);
-		}
+		// do nothing
 	}
 
 	@Override
 	public void regionCancelled(RegionEvent evt) {
-	}
-
-	@Override
-	public void regionsRemoved(RegionEvent evt) {
-		roi = null;
-		roiMap.clear();
-		updateGuiBean(null);
 	}
 
 	@Override
@@ -151,7 +136,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 		roi = eroi;
 
 		roiMap.put(eroi.getName(), eroi);
-		updateGuiBean(roi);
+		addCurrentROI();
 	}
 
 	@Override
@@ -160,10 +145,79 @@ public class ROIManager implements IROIListener, IRegionListener {
 		roiChanged(evt);
 	}
 
-	private void updateGuiBean(IROI roib) {
-		IROI tmpRoi = roib;
-		updateROIMap();
+	private static final long CLIENT_WAIT_PERIOD = 40;
 
+	private void removeROI(IROI or) {
+		if (or == null) { // remove all
+			clearGUIBean();
+			roi = null;
+			roiMap.clear();
+			return;
+		}
+
+//		roiMap.remove(or.getName());
+		if (roi != null) {
+			if (!or.getClass().equals(roi.getClass())) {
+				// switch current roi (and list), then delete
+				updateGuiBean(or.getClass(), or);
+				try {
+					Thread.sleep(CLIENT_WAIT_PERIOD); // allow time for clients to update
+				} catch (InterruptedException e) {
+				}
+				updateROIMap();
+				updateGuiBean(or.getClass(), null);
+				try {
+					Thread.sleep(CLIENT_WAIT_PERIOD); // allow time for clients to update
+				} catch (InterruptedException e) {
+				}
+			} else {
+				updateROIMap();
+			}
+
+			if (or.equals(roi.getName())) { // replace current ROI
+				roi = getFromROIMap(roi.getClass());
+			}
+			roi = updateGuiBean(roi.getClass(), roi);
+		} else {
+			updateROIMap();
+			roi = updateGuiBean(or.getClass(), or);
+		}
+	}
+
+	private void addCurrentROI() {
+		updateROIMap();
+		updateGuiBean(roi.getClass(), roi);
+	}
+
+	private IROI updateGuiBean(Class<? extends IROI> clazz, IROI r) {
+		// if locked then do not update server
+		if (lock.isLocked()) {
+			logger.trace("Silent");
+			return r;
+		}
+		logger.trace("Broadcasting");
+
+		try {
+			server.mute();
+			server.removeGUIInfo(GuiParameters.ROICLEARALL);
+			server.removeGUIInfo(GuiParameters.ROIDATALIST);
+			server.putGUIInfo(GuiParameters.ROIDATA, null);
+			ROIList<?> list = createNewROIList(clazz);
+			if (list != null && list.size() > 0) {
+				server.putGUIInfo(GuiParameters.ROIDATALIST, list);
+				if (!list.contains(r))
+					r = list.get(0);
+				server.putGUIInfo(GuiParameters.ROIDATA, r);
+			} else {
+				r = null;
+			}
+		} finally {
+			server.unmute();
+		}
+		return r;
+	}
+
+	private void clearGUIBean() {
 		// if locked then do not update server
 		if (lock.isLocked()) {
 			logger.trace("Silent");
@@ -171,56 +225,36 @@ public class ROIManager implements IROIListener, IRegionListener {
 		}
 		logger.trace("Broadcasting");
 
-		server.removeGUIInfo(GuiParameters.ROIDATA);
-		server.putGUIInfo(GuiParameters.ROIDATA, roib);
-
-		if (roib == null) { // get first element if possible
-			@SuppressWarnings("unchecked")
-			ROIList<? extends IROI> list = (ROIList<? extends IROI>) server.getGUIInfo().get(GuiParameters.ROIDATALIST);
-
-			if (list != null && list.size() > 0) {
-				roib = list.get(0);
-			}
-			if (roib == null) {
-				server.removeGUIInfo(GuiParameters.ROIDATALIST);
-				return;
-			}
-		}
-
-		server.removeGUIInfo(GuiParameters.ROIDATALIST);
-		Serializable list = createNewROIList(roib);
-		if (list != null)
-			server.putGUIInfo(GuiParameters.ROIDATALIST, list);
-
-		//if the region has been removed, roib will be null
-		//we get the first roi from the roilist and put it in roidata
-		if(tmpRoi == null){
-			@SuppressWarnings("unchecked")
-			ROIList<? extends IROI> roilist = (ROIList<? extends IROI>) server.getGUIInfo().get(GuiParameters.ROIDATALIST);
-
-			if (list != null && roilist.size() > 0) {
-				tmpRoi = roilist.get(0);
-			}
-			if(tmpRoi != null){
-				server.putGUIInfo(GuiParameters.ROIDATA, roib);
-			} else {
-				server.removeGUIInfo(GuiParameters.ROIDATA);
-			}
+		try {
+			server.mute();
+			server.putGUIInfo(GuiParameters.ROIDATA, null);
+			server.removeGUIInfo(GuiParameters.ROIDATALIST);
+			server.putGUIInfo(GuiParameters.ROICLEARALL, true);
+		} finally {
+			server.unmute();
 		}
 	}
 
-	public ROIList<?> createNewROIList(IROI roib) {
-		ROIList<? extends IROI> list = ROIUtils.createNewROIList(roib);
+	public ROIList<?> createNewROIList(Class<? extends IROI> clazz) {
+		ROIList<? extends IROI> list = ROIUtils.createNewROIList(clazz);
 		if (list == null)
 			return null;
 
-		Class<? extends IROI> clazz = roib.getClass();
 		for (IROI r : roiMap.values()) {
 			if (r.getClass().equals(clazz)) {
 				list.add(r);
 			}
 		}
 		return list;
+	}
+
+	private IROI getFromROIMap(Class<? extends IROI> clazz) {
+		for (IROI r : roiMap.values()) {
+			if (r.getClass().equals(clazz)) {
+				return r;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -243,10 +277,13 @@ public class ROIManager implements IROIListener, IRegionListener {
 	 * and the regions in roiMap
 	 */
 	private void updateROIMap() {
-		if(plottingSystem == null) plottingSystem = PlottingFactory.getPlottingSystem(plotName);
-		if(plottingSystem == null) return;
+		if (plottingSystem == null)
+			plottingSystem = PlottingFactory.getPlottingSystem(plotName);
+		if (plottingSystem == null)
+			return;
 		Collection<IRegion> regions = plottingSystem.getRegions();
-		if (regions == null) return;
+		if (regions == null)
+			return;
 		Set<String> regNames = new HashSet<String>();
 		for (IRegion iRegion : regions) {
 			regNames.add(iRegion.getName());
