@@ -156,7 +156,8 @@ public class Plotting2DUI extends AbstractPlotUI {
 								plottingSystem.createPlot2D(data, null, null);
 							logger.debug("Plot 2D created");
 						}
-						plottingSystem.repaint();
+						// COMMENTED TO FIX SCI-808: no need for a repaint
+						//plottingSystem.repaint();
 
 					} else
 						logger.debug("No data to plot");
