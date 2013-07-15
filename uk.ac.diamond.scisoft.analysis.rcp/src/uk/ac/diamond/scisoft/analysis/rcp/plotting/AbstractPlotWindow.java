@@ -20,6 +20,7 @@ import gda.observable.IObservable;
 import gda.observable.IObserver;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -813,8 +814,14 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 * Needed to correctly create the guibean the first time a plot is set, otherwise the guibean will be null
 	 */
 	protected void updateGuiBeanPlotMode(GuiPlotMode mode) {
-		getGuiManager().removeGUIInfo(GuiParameters.PLOTMODE);
-		getGuiManager().putGUIInfo(GuiParameters.PLOTMODE, mode);
+		IGuiInfoManager mgr = getGuiManager();
+		GuiBean b = mgr.getGUIInfo();
+		if (b == null)
+			return;
+		Serializable s = b.get(GuiParameters.PLOTMODE);
+		if (mode.equals(s))
+			return;
+		mgr.putGUIInfo(GuiParameters.PLOTMODE, mode);
 	}
 
 	public DataBean getDataBean() {

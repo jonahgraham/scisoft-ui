@@ -271,10 +271,11 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 		}
 
 		try {
-			views.addAll(Arrays.asList(getPlotServer().getGuiNames()));
+			String[] names = getPlotServer().getGuiNames();
+			if (names != null)
+				views.addAll(Arrays.asList(names));
 		} catch (Exception e) {
-			// Not a fatal error, but shouldn't happen
-			logger.error("Failed to add list of Gui Names from Plot Server", e);
+			logger.error("Failed to get list of GUI names from Plot Server", e);
 		}
 
 		return views.toArray(new String[views.size()]);

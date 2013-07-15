@@ -69,5 +69,4 @@ public class PlotView extends AbstractPlotView {
 												String name) {
 		return new PlotWindow(parent, plotMode, manager, notifyListener, bars, page, name);
 	}
-
 }
