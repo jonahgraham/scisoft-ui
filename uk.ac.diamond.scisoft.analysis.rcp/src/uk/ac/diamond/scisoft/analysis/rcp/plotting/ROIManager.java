@@ -93,7 +93,12 @@ public class ROIManager implements IROIListener, IRegionListener {
 		IROI eroi = region.getROI();
 		if (eroi != null && !eroi.equals(roi)) {
 			roi = eroi;
-			roiMap.put(roi.getName(), roi);
+			String n = roi.getName(); // check for blank name
+			if (n == null) {
+				n = region.getName();
+				roi.setName(n);
+			}
+			roiMap.put(n, roi);
 		}
 		addCurrentROI();
 	}
