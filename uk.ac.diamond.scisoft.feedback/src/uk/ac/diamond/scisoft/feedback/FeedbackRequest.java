@@ -41,7 +41,7 @@ public class FeedbackRequest {
 	private static Logger logger = LoggerFactory.getLogger(FeedbackRequest.class);
 	// this is the URL of the GAE servlet
 	// public static final String SERVLET_URL = "http://localhost:8888/";
-	public static final String SERVLET_URL = "http://dawnsci-feedback-test.appspot.com/";
+	public static final String SERVLET_URL = "http://dawnsci-feedback.appspot.com/";
 	public static final String SERVLET_NAME = "dawnfeedback";
 	// proxy
 	private static String host;
