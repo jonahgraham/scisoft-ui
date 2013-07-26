@@ -1480,7 +1480,7 @@ public class SectorProfile extends SidePlotProfile {
 		if (roiData != null && roiData.getProfileData().length > profileNr) {
 			dBean = new DataBean(GuiPlotMode.ONED);
 			DataSetWithAxisInformation axisData = new DataSetWithAxisInformation();
-			AxisMapBean axisMapBean = new AxisMapBean(AxisMapBean.DIRECT);
+			AxisMapBean axisMapBean = new AxisMapBean();
 
 			dBean.addAxis(AxisMapBean.XAXIS, roiData.getXAxis(profileNr).toDataset());
 			axisMapBean.setAxisID(new String[] {AxisMapBean.XAXIS});

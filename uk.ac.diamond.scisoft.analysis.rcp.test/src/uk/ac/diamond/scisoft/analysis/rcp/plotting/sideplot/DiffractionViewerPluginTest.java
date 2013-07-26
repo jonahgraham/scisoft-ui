@@ -59,7 +59,7 @@ public class DiffractionViewerPluginTest {
 		DataBean datab = new DataBean();
 		
 		DataSetWithAxisInformation dswai = new DataSetWithAxisInformation();
-		AxisMapBean amb = new AxisMapBean(AxisMapBean.DIRECT);
+		AxisMapBean amb = new AxisMapBean();
 		dswai.setAxisMap(amb);
 		dswai.setData(data);
 		datab.addData(dswai);

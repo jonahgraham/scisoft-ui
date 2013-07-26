@@ -163,7 +163,7 @@ public class PlotUtils {
 
 					DataBean dataBean = new DataBean(mode);
 					DataSetWithAxisInformation axisData = new DataSetWithAxisInformation();
-					AxisMapBean axisMapBean = new AxisMapBean(AxisMapBean.DIRECT);
+					AxisMapBean axisMapBean = new AxisMapBean();
 					
 					dataBean.addAxis(AxisMapBean.XAXIS, axes.get(0));
 					dataBean.addAxis(AxisMapBean.YAXIS, axes.get(1));
