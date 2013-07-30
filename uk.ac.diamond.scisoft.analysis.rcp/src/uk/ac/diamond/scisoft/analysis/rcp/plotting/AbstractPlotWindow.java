@@ -217,7 +217,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		if (mode.equals(GuiPlotMode.ONED) || mode.equals(GuiPlotMode.TWOD) || mode.equals(GuiPlotMode.SCATTER2D)
 				|| mode.equals(GuiPlotMode.SURF2D)) {
 			cleanUpDatasetPlotter();
-			if (plottingSystem == null || plottingSystem.isDisposed()){
+			if (plottingSystem == null || plottingSystem.isDisposed()) {
 				plotSystemComposite = new Composite(parentComp, SWT.NONE);
 				plotSystemComposite.setLayout(new FillLayout());
 				createPlottingSystem(plotSystemComposite);
@@ -621,6 +621,9 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	private Map<String, IAxis> axes = new LinkedHashMap<String, IAxis>();
 
 	private void processAxisOperation(final AxisOperation operation) {
+		if (plottingSystem == null || plottingSystem.isDisposed())
+			return;
+
 		doBlock();
 		parentComp.getDisplay().asyncExec(new Runnable() {
 			@Override
@@ -628,14 +631,14 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 				try {
 					final List<IAxis> pAxes = plottingSystem.getAxes();
 					if (axes.size() != 0 && axes.size() != pAxes.size()) {
-						logger.warn("Axes are out of synch!");
+						logger.warn("Axes are out of synch! {} cf {}", axes, pAxes);
 						axes.clear();
 					}
 					if (axes.size() == 0) {
 						for (IAxis i : pAxes) {
 							String t = i.getTitle();
 							if (i.isPrimaryAxis()) {
-								if (t == null || t.length() == 0) {
+								if (t == null || t.length() == 0) { // override if empty
 									t = i.isYAxis() ? "Y-Axis" : "X-Axis";
 								}
 							}
@@ -649,7 +652,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 						boolean isYAxis = operation.isYAxis();
 						if (a != null) {
 							if (isYAxis == a.isYAxis()) {
-								logger.warn("Axis already exists");
+								logger.warn("Axis already exists: {}", title);
 								return;
 							}
 							logger.debug("Axis is opposite orientation already exists");
@@ -663,6 +666,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 							axes.remove(title);
 							return;
 						}
+
 						logger.warn("Could not find axis of given name");
 					} else if (type.equals(AxisOperation.ACTIVEX)) {
 						if (a != null && !a.isYAxis()) {
@@ -804,7 +808,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			mainPlotter.refresh(true);
 		}
 		if (plottingSystem != null) {
-			plottingSystem.clearRegions();
 			plottingSystem.reset();
 			plottingSystem.repaint();
 		}
