@@ -469,7 +469,6 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		if (getMainPlotter() == null)
 			return null;
 
-		@SuppressWarnings("deprecation")
 		IDataset currentData = getMainPlotter().getCurrentDataSet();
 		if (currentData != null)
 			return currentData.getMetadata();

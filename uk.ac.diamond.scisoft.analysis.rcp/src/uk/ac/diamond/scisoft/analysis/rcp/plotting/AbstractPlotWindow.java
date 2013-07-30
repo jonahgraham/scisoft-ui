@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -618,7 +619,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	}
 
 	// this map is needed as axes from the plotting system get their titles changed
-	private Map<String, IAxis> axes = new LinkedHashMap<String, IAxis>();
+	private Map<IAxis, String> axes = new LinkedHashMap<IAxis, String>();
 
 	private void processAxisOperation(final AxisOperation operation) {
 		if (plottingSystem == null || plottingSystem.isDisposed())
@@ -642,12 +643,20 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 									t = i.isYAxis() ? "Y-Axis" : "X-Axis";
 								}
 							}
-							axes.put(t, i);
+							axes.put(i, t);
 						}
 					}
 					String title = operation.getTitle();
 					String type = operation.getOperationType();
-					IAxis a = axes.get(title);
+					IAxis a = null;
+					if (axes.containsValue(title)) {
+						for (IAxis i : axes.keySet()) {
+							if (title.equals(axes.get(i))) {
+								a = i;
+								break;
+							}
+						}
+					}
 					if (type.equals(AxisOperation.CREATE)) {
 						boolean isYAxis = operation.isYAxis();
 						if (a != null) {
@@ -658,12 +667,34 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 							logger.debug("Axis is opposite orientation already exists");
 						}
 						a = plottingSystem.createAxis(title, isYAxis, operation.getSide());
-						axes.put(title, a);
+						axes.put(a, title);
+						logger.trace("Created: {}", title);
 						return;
 					} else if (type.equals(AxisOperation.DELETE)) {
 						if (a != null) {
 							plottingSystem.removeAxis(a);
-							axes.remove(title);
+							axes.remove(a);
+							logger.trace("Removed: {}", title);
+							return;
+						} else if (title == null) { // remove all but two
+							IAxis fx = null;
+							IAxis fy = null;
+							for (IAxis i : new HashSet<IAxis>(axes.keySet())) {
+								if (i.isYAxis()) {
+									if (fy == null) {
+										fy = i;
+										continue;
+									}
+								} else {
+									if (fx == null) {
+										fx = i;
+										continue;
+									}
+								}
+								plottingSystem.removeAxis(i);
+								axes.remove(i);
+							}
+							logger.trace("Removed all!");
 							return;
 						}
 
@@ -674,7 +705,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 							return;
 						}
 						// default to first x axis
-						for (IAxis i : axes.values()) {
+						for (IAxis i : axes.keySet()) {
 							if (!i.isYAxis()) {
 								plottingSystem.setSelectedXAxis(i);
 								return;
@@ -687,13 +718,23 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 							return;
 						}
 						// default to first y axis
-						for (IAxis i : axes.values()) {
+						for (IAxis i : axes.keySet()) {
 							if (i.isYAxis()) {
 								plottingSystem.setSelectedYAxis(i);
 								return;
 							}
 						}
 						logger.warn("Could not select axis of given name");
+					} else if (type.equals(AxisOperation.RENAMEX)) {
+						a = plottingSystem.getSelectedXAxis();
+						a.setTitle(title);
+						axes.put(a, title);
+						logger.trace("Renamed x: {}", title);
+					} else if (type.equals(AxisOperation.RENAMEY)) {
+						a = plottingSystem.getSelectedYAxis();
+						a.setTitle(title);
+						axes.put(a, title);
+						logger.trace("Renamed y: {}", title);
 					}
 				} finally {
 					undoBlock();
@@ -738,6 +779,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 				cleanUpDatasetPlotter();
 			} else {
 				cleanUp(plotMode);
+				clearPlot();
 			}
 	
 			if (plotMode.equals(GuiPlotMode.ONED)) {
