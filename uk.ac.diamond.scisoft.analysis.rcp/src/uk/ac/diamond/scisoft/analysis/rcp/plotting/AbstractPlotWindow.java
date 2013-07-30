@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -670,61 +669,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 						axes.put(a, title);
 						logger.trace("Created: {}", title);
 						return;
-					} else if (type.equals(AxisOperation.DELETE)) {
-						if (a != null) {
-							plottingSystem.removeAxis(a);
-							axes.remove(a);
-							logger.trace("Removed: {}", title);
-							return;
-						} else if (title == null) { // remove all but two
-							IAxis fx = null;
-							IAxis fy = null;
-							for (IAxis i : new HashSet<IAxis>(axes.keySet())) {
-								if (i.isYAxis()) {
-									if (fy == null) {
-										fy = i;
-										continue;
-									}
-								} else {
-									if (fx == null) {
-										fx = i;
-										continue;
-									}
-								}
-								plottingSystem.removeAxis(i);
-								axes.remove(i);
-							}
-							logger.trace("Removed all!");
-							return;
-						}
-
-						logger.warn("Could not find axis of given name");
-					} else if (type.equals(AxisOperation.ACTIVEX)) {
-						if (a != null && !a.isYAxis()) {
-							plottingSystem.setSelectedXAxis(a);
-							return;
-						}
-						// default to first x axis
-						for (IAxis i : axes.keySet()) {
-							if (!i.isYAxis()) {
-								plottingSystem.setSelectedXAxis(i);
-								return;
-							}
-						}
-						logger.warn("Could not select axis of given name");
-					} else if (type.equals(AxisOperation.ACTIVEY)) {
-						if (a != null && a.isYAxis()) {
-							plottingSystem.setSelectedYAxis(a);
-							return;
-						}
-						// default to first y axis
-						for (IAxis i : axes.keySet()) {
-							if (i.isYAxis()) {
-								plottingSystem.setSelectedYAxis(i);
-								return;
-							}
-						}
-						logger.warn("Could not select axis of given name");
 					} else if (type.equals(AxisOperation.RENAMEX)) {
 						a = plottingSystem.getSelectedXAxis();
 						a.setTitle(title);
