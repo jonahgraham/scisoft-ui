@@ -467,6 +467,10 @@ class HDF5LabelProvider implements ITableLabelProvider {
 				if (data instanceof AbstractDataset) {
 					// show a single value
 					msg = ((AbstractDataset) data).getString(0);
+					HDF5Attribute units = dataset.getAttribute("units");
+					if (units != null && units.isString()) {
+						msg += " " + units.getFirstElement();
+					}
 				} else if (data.getSize() == 0) {
 					msg = "none available as dataset is zero-sized";
 				} else {
