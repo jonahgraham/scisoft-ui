@@ -46,13 +46,13 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManagerWithBuild;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.slf4j.Logger;
@@ -207,7 +207,7 @@ public class JythonCreator implements IStartup {
 //					"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=localhost:8000",
 					"-Dpython.cachedir.skip=true", // this works in Windows
 					"-jar", executable,
-					REF.getFileAbsolutePath(script)};
+					FileUtils.getFileAbsolutePath(script)};
 			File workingDir = new File(System.getProperty("java.io.tmpdir"));
 //			logger.debug("Cache and working dirs are {} and {}", cachePath, workingDir);
 			IPythonNature nature = null;

@@ -18,8 +18,6 @@ package uk.ac.diamond.scisoft.analysis.rcp.adapters;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.python.pydev.dltk.console.codegen.IScriptConsoleCodeGenerator;
-import org.python.pydev.dltk.console.codegen.PythonSnippetUtils;
 
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
