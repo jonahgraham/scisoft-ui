@@ -440,6 +440,7 @@ public class DatasetInspector extends Composite {
 				} else {
 					cInspectionTab.setParameters(cData, inspection.datasetAxes, inspection.allPlotAxes.get(type));
 					cInspectionTab.drawTab();
+					cInspectionTab.clearPlot();
 				}
 				inspection.switchType(type);
 				updateSlicers(true);
@@ -510,6 +511,7 @@ public class DatasetInspector extends Composite {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				cInspectionTab.stopInspection();
+				cInspectionTab.clearPlot();
 				if (evt.getPropertyName() != PlotAxisProperty.plotUpdate) {
 					axisSelector.refresh();
 					updateSlicers(true);
@@ -523,6 +525,7 @@ public class DatasetInspector extends Composite {
 			public void propertyChange(PropertyChangeEvent evt) {
 				if (cData != null && display != null)
 					cInspectionTab.stopInspection();
+					cInspectionTab.clearPlot();
 					display.asyncExec(new Runnable() {
 						@Override
 						public void run() {
