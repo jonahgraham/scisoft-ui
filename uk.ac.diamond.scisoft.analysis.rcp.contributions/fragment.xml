@@ -790,7 +790,7 @@
       <editor
             class="uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor"
             default="false"
-            extensions="nxs"
+            extensions="nxs, nexus"
             icon="icons/nexus.png"
             id="uk.ac.diamond.scisoft.analysis.rcp.editors.NexusTreeEditor"
             name="NeXus Data Editor">
