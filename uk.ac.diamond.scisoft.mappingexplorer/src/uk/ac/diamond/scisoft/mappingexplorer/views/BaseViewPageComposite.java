@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dawnsci.plotting.api.IPlottingSystem;
+import org.dawnsci.plotting.api.preferences.BasePlottingConstants;
+import org.dawnsci.plotting.api.preferences.ToolbarConfigurationConstants;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchPart;
@@ -97,16 +99,16 @@ public abstract class BaseViewPageComposite extends Composite {
 	}
 
 	protected void disablePlottingSystemActions(IPlottingSystem plottingSystem) {
-		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.removeRegions");
-		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureConfigure Settings...");
-		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureShow Legend");
-		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.histo");
-		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configure");
-		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.addRegions");
+		plottingSystem.getPlotActionSystem().remove(BasePlottingConstants.REMOVE_REGION);
+		plottingSystem.getPlotActionSystem().remove(BasePlottingConstants.CONFIG_SETTINGS);
+		plottingSystem.getPlotActionSystem().remove(ToolbarConfigurationConstants.CONFIG.getId() + BasePlottingConstants.XY_SHOWLEGEND);
+		plottingSystem.getPlotActionSystem().remove(BasePlottingConstants.HISTO);
+		plottingSystem.getPlotActionSystem().remove(ToolbarConfigurationConstants.CONFIG.getId());
+		plottingSystem.getPlotActionSystem().remove(BasePlottingConstants.ADD_REGION);
 		
-		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.rescale");
-		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotIndex");
-		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotX");
+		plottingSystem.getPlotActionSystem().remove(BasePlottingConstants.RESCALE);
+		plottingSystem.getPlotActionSystem().remove(BasePlottingConstants.PLOT_INDEX);
+		plottingSystem.getPlotActionSystem().remove(BasePlottingConstants.PLOT_X_AXIS);
 	}
 
 }
