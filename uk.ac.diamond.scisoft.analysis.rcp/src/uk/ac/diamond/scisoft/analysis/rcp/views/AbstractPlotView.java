@@ -299,7 +299,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 			updateThread.start();
 		} else {
 			// skips!
-			logger.trace("Dropping GUI bean update");
+			logger.trace("Dropping GUI bean update: d={}, g={}", getDataBeanAvailable(), getStashedGuiBean());
 		}
 	}
 
