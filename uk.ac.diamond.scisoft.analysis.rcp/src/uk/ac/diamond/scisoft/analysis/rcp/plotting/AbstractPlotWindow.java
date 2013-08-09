@@ -215,18 +215,13 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 */
 	protected void cleanUp(GuiPlotMode mode) {
 		if (mode.equals(GuiPlotMode.ONED) || mode.equals(GuiPlotMode.TWOD) || mode.equals(GuiPlotMode.SCATTER2D)
-				|| mode.equals(GuiPlotMode.SURF2D)) {
+				|| mode.equals(GuiPlotMode.SURF2D) || mode.equals(GuiPlotMode.ONED_THREED)) {
 			cleanUpDatasetPlotter();
 			if (plottingSystem == null || plottingSystem.isDisposed()) {
 				plotSystemComposite = new Composite(parentComp, SWT.NONE);
 				plotSystemComposite.setLayout(new FillLayout());
 				createPlottingSystem(plotSystemComposite);
 			}
-		} else if (mode.equals(GuiPlotMode.ONED_THREED)) {
-			cleanUpPlottingSystem();
-			if (mainPlotter == null || mainPlotter.isDisposed())
-				createDatasetPlotter(PlottingMode.ONED_THREED);
-			cleanUpFromOldMode(true);
 		} else if (mode.equals(GuiPlotMode.SCATTER3D)) {
 			cleanUpPlottingSystem();
 			if (mainPlotter == null || mainPlotter.isDisposed())
@@ -729,7 +724,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			if (plotMode.equals(GuiPlotMode.ONED)) {
 				setupPlotting1D();
 			} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
-				setupMulti1DPlot();
+				setupMulti1DPlotting();
 			} else if (plotMode.equals(GuiPlotMode.TWOD)) {
 				setupPlotting2D();
 			} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
@@ -946,6 +941,16 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		plotUI = new Plot1DStackUI(this, bars, mainPlotter, parentComp, getPage());
 		addCommonActions(mainPlotter);
 		bars.updateActionBars();
+		updateGuiBeanPlotMode(GuiPlotMode.ONED_THREED);
+	}
+
+	// Abstract plotting System
+	protected void setupMulti1DPlotting() {
+		plottingSystem.setPlotType(PlotType.XY_STACKED_3D);
+		plotUI = new Plotting1DStackUI(plottingSystem);
+		addScriptingAction();
+		addDuplicateAction();
+		addClearAction();
 		updateGuiBeanPlotMode(GuiPlotMode.ONED_THREED);
 	}
 
