@@ -13,10 +13,13 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.dawb.common.util.eclipse.BundleUtils;
+import org.dawnsci.common.widgets.utils.RadioUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -70,6 +73,8 @@ public class FeedbackView extends ViewPart {
 	private static final String DAWN_FEEDBACK = "[DAWN-FEEDBACK]";
 	// this is the default to the java property "org.dawnsci.feedbackmail"
 	private static final String MAIL_TO = "dawnjira@diamond.ac.uk";
+	private static final String DAWN_MAILING_LIST = "DAWN@JISCMAIL.AC.UK";
+	private String destinationEmail = System.getProperty("uk.ac.diamond.scisoft.feedback.recipient", MAIL_TO);
 
 	/**
 	 * The ID of the view as specified by the extension.
@@ -107,6 +112,17 @@ public class FeedbackView extends ViewPart {
 
 		parent.setLayout(new GridLayout(1, false));
 		makeActions();
+		{
+			Composite radioSelection = new Composite(parent, SWT.NONE);
+			radioSelection.setLayout(new GridLayout(3, false));
+			Label label = new Label(radioSelection, SWT.NONE);
+			label.setText("Send Feedback to :");
+			try {
+				RadioUtils.createRadioControls(radioSelection, createEmailRadioActions());
+			} catch (Exception e) {
+				logger.error("Could not create radio buttons", e);
+			}
+		}
 		{
 			Label lblEmailAddress = new Label(parent, SWT.NONE);
 			lblEmailAddress.setText("Your email address for Feedback");
@@ -182,6 +198,36 @@ public class FeedbackView extends ViewPart {
 
 		hookContextMenu();
 		contributeToActionBars();
+	}
+
+	private List<Entry<String, Action>> createEmailRadioActions() {
+		List<Entry<String, Action>> radioActions = new ArrayList<Entry<String, Action>>();
+		Action sendToMailingListAction = new Action() {
+			@Override
+			public void run() {
+				destinationEmail = DAWN_MAILING_LIST;
+			}
+		};
+		sendToMailingListAction.setToolTipText("Send feedback to the DAWN mailing list");
+		Entry<String, Action> sendToMailingList = new AbstractMap.SimpleEntry<String, Action>(
+				"DAWN mailing list",
+				sendToMailingListAction);
+
+		Action sendToDevelopersAction = new Action() {
+			@Override
+			public void run() {
+				destinationEmail = System.getProperty("uk.ac.diamond.scisoft.feedback.recipient", MAIL_TO);
+			}
+		};
+		sendToDevelopersAction.setToolTipText("Send feedback to DAWN developers");
+		Entry<String, Action> sendToDevelopers = new AbstractMap.SimpleEntry<String, Action>(
+				"DAWN developers",
+				sendToDevelopersAction);
+
+		radioActions.add(sendToDevelopers);
+		radioActions.add(sendToMailingList);
+
+		return radioActions;
 	}
 
 	private void createColumns(TableViewer tv) {
@@ -348,7 +394,7 @@ public class FeedbackView extends ViewPart {
 					File logFile = new File(System.getProperty("user.home"), "dawnlog.html");
 
 					// get the mail to address from the properties
-					String mailTo = System.getProperty("uk.ac.diamond.scisoft.feedback.recipient", MAIL_TO);
+//					String mailTo = System.getProperty("uk.ac.diamond.scisoft.feedback.recipient", MAIL_TO);
 
 					if (logFile.length() > MAX_SIZE) {
 						logger.error("The log file size exceeds: " + MAX_SIZE);
@@ -381,7 +427,7 @@ public class FeedbackView extends ViewPart {
 
 					// Test that the message is correctly formatted (not empty) and Test the email format
 					if (!messagevalue.equals("") && emailvalue.contains("@")) {
-						return FeedbackRequest.doRequest(from, mailTo,
+						return FeedbackRequest.doRequest(from, destinationEmail,
 								System.getProperty("user.name", "Unknown User"), subject,
 								messageBody.toString(), logFile, attachmentFiles, monitor);
 					}

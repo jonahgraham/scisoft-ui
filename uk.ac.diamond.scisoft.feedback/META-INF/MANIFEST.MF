@@ -14,6 +14,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: javax.mail,
  javax.mail.internet,
  org.dawb.common.util.eclipse,
+ org.dawnsci.common.widgets.utils,
  org.slf4j;version="[1.5.0,2.0.0)"
 Export-Package: uk.ac.diamond.scisoft.feedback
 Bundle-Vendor: Diamond Light Source
