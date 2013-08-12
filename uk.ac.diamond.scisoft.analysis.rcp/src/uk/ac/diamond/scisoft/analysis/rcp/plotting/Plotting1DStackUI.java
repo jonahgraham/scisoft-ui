@@ -219,7 +219,7 @@ public class Plotting1DStackUI extends AbstractPlotUI {
 						i++;
 					}
 					plottingSystem.reset();
-					plottingSystem.createPlot1D(nx, yl, null, plots, null);
+					plottingSystem.createPlot1D(nx, yl, null, null);
 
 					if (!hasTitle && isStringOK(title)) {
 						title = "Plot of " + title + (against && firstAxis != null ? " against "  + firstAxis.getTitle() : "");
