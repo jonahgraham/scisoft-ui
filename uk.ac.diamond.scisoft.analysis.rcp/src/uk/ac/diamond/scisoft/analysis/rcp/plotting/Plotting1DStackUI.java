@@ -28,7 +28,6 @@ import java.util.Map;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.trace.ILineStackTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
-import org.dawnsci.plotting.util.ColorUtility;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,17 +52,11 @@ public class Plotting1DStackUI extends AbstractPlotUI {
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
 
 	/**
-	 * Color idx
-	 */
-	private int idx;
-
-	/**
 	 * Constructor of a plotting 1D 3D stack
 	 * @param plottingSystem plotting system
 	 */
 	public Plotting1DStackUI(IPlottingSystem plottingSystem) {
 		this.plottingSystem = plottingSystem;
-		idx = 0;
 	}
 
 	@Override
@@ -117,10 +110,6 @@ public class Plotting1DStackUI extends AbstractPlotUI {
 					trace.setData(xDatasets, yDatasets);
 					logger.debug("Plot 1D 3D updated");
 				} else {
-					
-					// increment the colour
-					if (idx > ColorUtility.getSize())
-						idx = 0;
 
 					Map<String, AbstractDataset> axisData = dbPlot.getAxisData();
 					ArrayList<IDataset> yl = new ArrayList<IDataset>();
