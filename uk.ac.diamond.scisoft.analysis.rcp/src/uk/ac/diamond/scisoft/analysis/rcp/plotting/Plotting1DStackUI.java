@@ -26,9 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.dawnsci.plotting.api.IPlottingSystem;
-import org.dawnsci.plotting.api.axis.IAxis;
-import org.dawnsci.plotting.api.trace.ITrace;
 import org.dawnsci.plotting.api.trace.ILineStackTrace;
+import org.dawnsci.plotting.api.trace.ITrace;
 import org.dawnsci.plotting.util.ColorUtility;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
@@ -36,8 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.AxisOperation;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
@@ -69,10 +66,6 @@ public class Plotting1DStackUI extends AbstractPlotUI {
 		idx = 0;
 	}
 
-	private static boolean isStringOK(String s) {
-		return s != null && s.trim().length() > 0;
-	}
-
 	@Override
 	public void processPlotUpdate(final DataBean dbPlot, boolean isUpdate) {
 
@@ -84,8 +77,6 @@ public class Plotting1DStackUI extends AbstractPlotUI {
 					return;
 
 				GuiBean gb = dbPlot.getGuiParameters();
-				String title = gb == null ? null : (String) gb.get(GuiParameters.TITLE);
-				boolean hasTitle = title != null;
 
 				String plotOperation = gb == null ? null : (String) gb.get(GuiParameters.PLOTOPERATION);
 				Collection<ITrace> oldTraces = plottingSystem.getTraces();
@@ -102,8 +93,6 @@ public class Plotting1DStackUI extends AbstractPlotUI {
 					}
 
 					if (!useOldTraces) {
-						if (trace != null)
-					//		plottingSystem.removeTrace(trace);
 						traces = 0;
 					}
 				}
@@ -122,7 +111,6 @@ public class Plotting1DStackUI extends AbstractPlotUI {
 							xDatasets.add(nx);
 							i++;
 						}
-						
 						if (!used)
 							unused.add(data);
 					}
@@ -134,116 +122,23 @@ public class Plotting1DStackUI extends AbstractPlotUI {
 					if (idx > ColorUtility.getSize())
 						idx = 0;
 
-					List<IAxis> axes = plottingSystem.getAxes();
 					Map<String, AbstractDataset> axisData = dbPlot.getAxisData();
-					int i = 0; // number of plots
-					boolean against = true;
-					IAxis firstAxis = null;
 					ArrayList<IDataset> yl = new ArrayList<IDataset>();
 					String id = plotData.get(0).getAxisMap().getAxisID()[0];
 					AbstractDataset nx = axisData.get(id);
 					List<IDataset> xDatasets = new ArrayList<IDataset>(1);
 					xDatasets.add(nx);
-					IDataset[] yDatasets = new IDataset[plotData.size()];
 					for (DataSetWithAxisInformation d : plotData) {
-						String[] names = d.getAxisMap().getAxisNames();
-//						String id = d.getAxisMap().getAxisID()[0];
-						String an;
-						if (names == null) {
-							an = AxisMapBean.XAXIS;
-						} else {
-							an = names[0];
-							if (!isStringOK(an)) {
-								an = AxisMapBean.XAXIS;
-							}
-						}
-						
-						String n = nx.getName();
-						IAxis ax = findAxis(axes, an);
-						if (ax == null || ax.isYAxis()) {
-							if (isStringOK(n)) {
-								an = n; // override axis name with dataset's name
-								ax = findAxis(axes, an); // in case of overwrite by plotting system
-							}
-							if (ax == null || ax.isYAxis()) {
-								// help!
-								System.err.println("Haven't found x axis " + an);
-								ax = plottingSystem.createAxis(an, false, AxisOperation.BOTTOM);
-								axes.add(ax);
-							}
-						}
-						plottingSystem.setSelectedXAxis(ax);
-						if (!hasTitle) {
-							if (firstAxis == null) {
-								firstAxis = ax;
-							} else if (ax != firstAxis) {
-								against = false;
-							}
-						}
-
-						if (names == null) {
-							an = AxisMapBean.YAXIS;
-						} else {
-							an = names[1];
-							if (!isStringOK(an)) {
-								an = AxisMapBean.YAXIS;
-							}
-						}
-						IAxis ay = findAxis(axes, an);
-						if (ay == null || !ay.isYAxis()) {
-							// help!
-							System.err.println("Haven't found y axis " + an);
-							ay = plottingSystem.createAxis(an, true, AxisOperation.LEFT);
-							axes.add(ay);
-						}
-						plottingSystem.setSelectedYAxis(ay);
-
 						AbstractDataset ny = d.getData();
 						yl.add(ny);
-						yDatasets[i] = ny;
-						String nyn = ny.getName();
-						// set a name to the data if none
-						if (!isStringOK(nyn)) {
-							nyn = "Plot " + i;
-							ny.setName(nyn);
-						}
-						if (!hasTitle) {
-							if (i == 0) {
-								title = nyn;
-							} else if (i < 3) {
-								title += ", " + nyn;
-							} else if (i == 3) {
-								title += "...";
-							}
-						}
-						i++;
 					}
 					plottingSystem.reset();
 					plottingSystem.createPlot1D(nx, yl, null, null);
-
-					if (!hasTitle && isStringOK(title)) {
-						title = "Plot of " + title + (against && firstAxis != null ? " against "  + firstAxis.getTitle() : "");
-					}
-					plottingSystem.setTitle(title);
 
 					logger.debug("Plot 1D 3D created");
 				}
 			}
 		});
-	}
-
-	private IAxis findAxis(List<IAxis> axes, String n) {
-		if (n == null) {
-			return null;
-		}
-		for (IAxis a : axes) {
-			String t = a.getTitle();
-			if (n.equals(t)) {
-				return a;
-			}
-		}
-
-		return null;
 	}
 
 	@Override
