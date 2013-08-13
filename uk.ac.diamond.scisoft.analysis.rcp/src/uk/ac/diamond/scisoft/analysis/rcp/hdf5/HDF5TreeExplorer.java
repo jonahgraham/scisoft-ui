@@ -73,8 +73,6 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 	private DataHolder holder;
 
-	private boolean isOldGDA = false; // true if file has NXentry/program_name < GDAVERSION
-
 	private HDF5Loader loader = null;
 
 	public HDF5TreeExplorer(Composite parent, IWorkbenchPartSite partSite, ISelectionChangedListener valueSelect) {
@@ -134,7 +132,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			return;
 		}
 
-		HDF5Selection s = HDF5Utils.createDatasetSelection(link, isOldGDA);
+		HDF5Selection s = HDF5Utils.createDatasetSelection(link, true);
 		if (s == null) {
 			logger.error("Could not process update of selected node: {}", link.getName());
 			return;
@@ -323,7 +321,6 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			return;
 
 		tree = htree;
-		isOldGDA = HDF5Utils.isGDAFile(tree);
 
 		if (display == null)
 			return;

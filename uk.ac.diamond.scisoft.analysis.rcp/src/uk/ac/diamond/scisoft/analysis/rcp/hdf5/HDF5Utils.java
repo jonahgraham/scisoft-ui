@@ -57,10 +57,10 @@ public class HDF5Utils {
 	 * Create a (HDF5) dataset selection from given node link. It defaults the inspector type
 	 * to a line and leaves file name null
 	 * @param link
-	 * @param isOldGDA
+	 * @param isAxisFortranOrder in most cases, this should be set to true
 	 * @return HDF5 selection
 	 */
-	public static HDF5Selection createDatasetSelection(HDF5NodeLink link, final boolean isOldGDA) {
+	public static HDF5Selection createDatasetSelection(HDF5NodeLink link, final boolean isAxisFortranOrder) {
 		// two cases: axis and primary or axes
 		// iterate through each child to find axes and primary attributes
 		HDF5Node node = link.getDestination();
@@ -203,7 +203,7 @@ public class HDF5Utils {
 									intAxis = new int[str.length];
 									for (int i = 0; i < str.length; i++) {
 										int j = Integer.parseInt(str[i]) - 1;
-										intAxis[i] = isOldGDA ? j : rank - 1 - j; // fix Fortran (column-major) dimension
+										intAxis[i] = isAxisFortranOrder ? j : rank - 1 - j; // fix C (row-major) dimension
 									}
 								}
 							} else {
@@ -214,7 +214,7 @@ public class HDF5Utils {
 									int i = 0;
 									while (it.hasNext()) {
 										int j = (int) attrd.getElementLongAbs(it.index) - 1;
-										intAxis[i++] = isOldGDA ? j : rank - 1 - j; // fix Fortran (column-major) dimension
+										intAxis[i++] = isAxisFortranOrder ? j : rank - 1 - j; // fix C (row-major) dimension
 									}
 								}
 							}
@@ -267,10 +267,10 @@ public class HDF5Utils {
 					if (attr_label != null) {
 						if (attr_label.isString()) {
 							int j = Integer.parseInt(attr_label.getFirstElement()) - 1;
-							choice.setAxisNumber(isOldGDA ? j : rank - 1 - j); // fix Fortran (column-major) dimension
+							choice.setAxisNumber(isAxisFortranOrder ? j : rank - 1 - j); // fix C (row-major) dimension
 						} else {
 							int j = attr_label.getValue().getInt(0) - 1;
-							choice.setAxisNumber(isOldGDA ? j : rank - 1 - j); // fix Fortran (column-major) dimension
+							choice.setAxisNumber(isAxisFortranOrder ? j : rank - 1 - j); // fix C (row-major) dimension
 						}
 					} else
 						choice.setAxisNumber(intAxis[intAxis.length-1]);
@@ -354,45 +354,4 @@ public class HDF5Utils {
 
 		return s.split("[:,]");
 	}
-
-	private static final String NX_ENTRY = "NXentry";
-	private static final String NX_PROGRAM = "program_name";
-	private static final String GDA_VERSION_STRING = "GDA ";
-//	private static final int GDAMAJOR = 8;
-//	private static final int GDAMINOR = 20;
-
-	/**
-	 * Analyses an HDF5 tree to see if it is a GDA NeXus tree
-	 * 
-	 * @param tree
-	 * @return true is old
-	 */
-	public static boolean isGDAFile(HDF5File tree) {
-		for (HDF5NodeLink link : tree.getGroup()) {
-			if (link.isDestinationAGroup()) {
-				HDF5Group g = (HDF5Group) link.getDestination();
-				HDF5Attribute stringAttr = g.getAttribute(HDF5File.NXCLASS);
-				if (stringAttr != null && stringAttr.isString() && NX_ENTRY.equals(stringAttr.getFirstElement())) {
-					if (g.containsDataset(NX_PROGRAM)) {
-						HDF5Dataset d = g.getDataset(NX_PROGRAM);
-						if (d.isString()) {
-							String s = d.getString().trim();
-							return s.contains(GDA_VERSION_STRING); // as there's no current plans to change, just check for GDA 
-//							int i = s.indexOf(GDAVERSIONSTRING);
-//							if (i >= 0) {
-//								String v = s.substring(i+4, s.lastIndexOf("."));
-//								int j = v.indexOf(".");
-//								int maj = Integer.parseInt(v.substring(0, j));
-//								int min = Integer.parseInt(v.substring(j+1, v.length()));
-//								return maj <= GDAMAJOR || (maj == GDAMAJOR && min < GDAMINOR);
-//							}
-						}
-					}
-				}
-			}
-		}
-
-		return false;
-	}
-
 }
