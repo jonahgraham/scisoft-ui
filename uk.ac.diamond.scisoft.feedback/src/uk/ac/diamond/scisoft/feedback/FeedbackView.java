@@ -10,18 +10,15 @@
 package uk.ac.diamond.scisoft.feedback;
 
 import java.io.File;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dawb.common.util.eclipse.BundleUtils;
 import org.dawnsci.common.widgets.utils.RadioUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.Action;
@@ -32,17 +29,9 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.CellEditor;
-import org.eclipse.jface.viewers.CheckboxCellEditor;
-import org.eclipse.jface.viewers.EditingSupport;
-import org.eclipse.jface.viewers.ILabelProviderListener;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -62,17 +51,20 @@ import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.system.info.SystemInformation;
+import uk.ac.diamond.scisoft.feedback.attachment.AttachedFile;
+import uk.ac.diamond.scisoft.feedback.attachment.AttachedFileContentProvider;
+import uk.ac.diamond.scisoft.feedback.attachment.AttachedFileEditingSupport;
+import uk.ac.diamond.scisoft.feedback.attachment.AttachedFileLabelProvider;
+import uk.ac.diamond.scisoft.feedback.jobs.FeedbackJob;
+import uk.ac.diamond.scisoft.feedback.utils.FeedbackConstants;
+import uk.ac.diamond.scisoft.feedback.utils.FeedbackUtils;
 
 public class FeedbackView extends ViewPart {
 
 	private static Logger logger = LoggerFactory.getLogger(FeedbackView.class);
 
-	private static final String DAWN_FEEDBACK = "[DAWN-FEEDBACK]";
 	// this is the default to the java property "org.dawnsci.feedbackmail"
-	private static final String MAIL_TO = "dawnjira@diamond.ac.uk";
-	private static final String DAWN_MAILING_LIST = "DAWN@JISCMAIL.AC.UK";
-	private String destinationEmail = System.getProperty("uk.ac.diamond.scisoft.feedback.recipient", MAIL_TO);
+	private String destinationEmail = System.getProperty(FeedbackConstants.RECIPIENT_PROPERTY, FeedbackConstants.MAIL_TO);
 
 	/**
 	 * The ID of the view as specified by the extension.
@@ -88,13 +80,7 @@ public class FeedbackView extends ViewPart {
 	private Button btnSendFeedback;
 	private TableViewer tableViewer;
 
-	private Job feedbackJob;
-
-	private static final String FROM_PREF = FeedbackView.class.getName() + ".emailAddress";
-	private static final String SUBJ_PREF = FeedbackView.class.getName() + ".subject";
-
-	private static final int MAX_SIZE = 10000 * 1024; // bytes
-	private static final int MAX_TOTAL_SIZE = 10000 * 2048;
+	private FeedbackJob feedbackJob;
 
 	/**
 	 * The constructor.
@@ -130,7 +116,7 @@ public class FeedbackView extends ViewPart {
 			emailAddress.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 			final String email = Activator.getDefault() != null ? Activator.getDefault().getPreferenceStore()
-					.getString(FROM_PREF) : null;
+					.getString(FeedbackConstants.FROM_PREF) : null;
 			if (email != null && !"".equals(email))
 				emailAddress.setText(email);
 		}
@@ -144,7 +130,7 @@ public class FeedbackView extends ViewPart {
 			subjectText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 			final String subject = Activator.getDefault() != null ? Activator.getDefault().getPreferenceStore()
-					.getString(SUBJ_PREF) : null;
+					.getString(FeedbackConstants.SUBJ_PREF) : null;
 			if (subject != null && !"".equals(subject))
 				subjectText.setText(subject);
 		}
@@ -203,8 +189,7 @@ public class FeedbackView extends ViewPart {
 		Action sendToMailingListAction = new Action() {
 			@Override
 			public void run() {
-				destinationEmail = DAWN_MAILING_LIST;
-				System.out.println(destinationEmail);
+				destinationEmail = FeedbackConstants.DAWN_MAILING_LIST;
 			}
 		};
 		sendToMailingListAction.setText("DAWN mailing list");
@@ -213,9 +198,7 @@ public class FeedbackView extends ViewPart {
 		Action sendToDevelopersAction = new Action() {
 			@Override
 			public void run() {
-				destinationEmail = System.getProperty("uk.ac.diamond.scisoft.feedback.recipient", MAIL_TO);
-				System.out.println(destinationEmail);
-
+				destinationEmail = System.getProperty(FeedbackConstants.RECIPIENT_PROPERTY, FeedbackConstants.MAIL_TO);
 			}
 		};
 		sendToDevelopersAction.setText("DAWN developers");
@@ -282,6 +265,12 @@ public class FeedbackView extends ViewPart {
 
 	private void makeActions() {
 		feedbackAction = new Action() {
+
+			private String fromvalue;
+			private String subjectvalue;
+			private String messagevalue;
+			private String emailvalue;
+
 			@Override
 			public void run() {
 				UIJob formUIJob = new UIJob("Getting Form data") {
@@ -297,7 +286,9 @@ public class FeedbackView extends ViewPart {
 				formUIJob.addJobChangeListener(new JobChangeAdapter(){
 					@Override
 					public void done(IJobChangeEvent event) {
-						feedbackJob = createFeedbackJob();
+						feedbackJob = new FeedbackJob("Sending feedback to DAWN developers", 
+								fromvalue, subjectvalue, messagevalue, emailvalue, destinationEmail,
+								attachedFilesList);
 						feedbackJob.addJobChangeListener(getJobChangeListener());
 						feedbackJob.setUser(true);
 						feedbackJob.schedule();
@@ -325,7 +316,7 @@ public class FeedbackView extends ViewPart {
 					attachedfile.path = fileName;
 					attachedfile.name = fileName.substring((fileName.lastIndexOf(File.separator)+1));
 					File file = new File(fileName);
-					attachedfile.size = getValueWithUnit(file.length());
+					attachedfile.size = FeedbackUtils.getValueWithUnit(file.length());
 					attachedFilesList.add(attachedfile);
 					tableViewer.refresh();
 				}
@@ -334,110 +325,6 @@ public class FeedbackView extends ViewPart {
 		attachAction.setText("Attach files");
 		attachAction.setToolTipText("Attach file(s) to your feedback message");
 		attachAction.setImageDescriptor(Activator.getImageDescriptor("icons/attach.png"));
-	}
-
-	private String fromvalue;
-	private String subjectvalue;
-	private String messagevalue;
-	private String emailvalue;
-
-	private Job createFeedbackJob() {
-		return new Job("Sending feedback to DAWN developers") {
-			@Override
-			public IStatus run(IProgressMonitor monitor) {
-				try {
-					if (fromvalue == null || fromvalue.length() == 0) {
-						fromvalue = "user";
-					} else {
-						if (Activator.getDefault() != null) {
-							Activator.getDefault().getPreferenceStore().setValue(FROM_PREF, fromvalue);
-						}
-					}
-
-					if (monitor.isCanceled()) return Status.CANCEL_STATUS;
-
-					String from = fromvalue;
-					String subject = DAWN_FEEDBACK + " - " + subjectvalue;
-					if (subjectvalue != null && !"".equals(subjectvalue)) {
-						if (Activator.getDefault() != null) {
-							Activator.getDefault().getPreferenceStore()
-									.setValue(SUBJ_PREF, subjectvalue);
-						}
-					}
-					StringBuilder messageBody = new StringBuilder();
-					String computerName = "Unknown";
-					try {
-						computerName = InetAddress.getLocalHost().getHostName();
-					} finally {
-
-					}
-					messageBody.append("Machine is   : " + computerName + "\n");
-
-					String versionNumber = "Unknown";
-					try {
-						versionNumber = BundleUtils.getDawnVersion();
-					} catch (Exception e) {
-						logger.debug("Could not retrieve product and system information:" + e);
-					}
-
-					if (monitor.isCanceled()) return Status.CANCEL_STATUS;
-
-					messageBody.append("Version is   : " + versionNumber + "\n");
-					messageBody.append(messagevalue);
-					messageBody.append("\n\n\n");
-					messageBody.append(SystemInformation.getSystemString());
-
-					File logFile = new File(System.getProperty("user.home"), "dawnlog.html");
-
-					// get the mail to address from the properties
-//					String mailTo = System.getProperty("uk.ac.diamond.scisoft.feedback.recipient", MAIL_TO);
-
-					if (logFile.length() > MAX_SIZE) {
-						logger.error("The log file size exceeds: " + MAX_SIZE);
-						return new Status(IStatus.WARNING, "File Size Problem",
-								"The log file attached to the feedback exceeds 10MB.");
-					}
-
-					if (monitor.isCanceled()) return Status.CANCEL_STATUS;
-
-					// fill the list of files to attach
-					List<File> attachmentFiles = new ArrayList<File>();
-					int totalSize = 0;
-					for (int i = 0; i < attachedFilesList.size(); i++) {
-						attachmentFiles.add(new File(attachedFilesList.get(i).path));
-						// check that the size does not exceed the maximum one
-						if (attachmentFiles.get(i).length() > MAX_SIZE) {
-							logger.error("The attachment file size exceeds: " + MAX_SIZE);
-							return new Status(IStatus.WARNING, "File Size Problem",
-									"The attachment file size exceeds 10MB. Please chose a smaller file to attach.");
-						}
-						totalSize += attachmentFiles.get(i).length();
-					}
-					if (totalSize > MAX_TOTAL_SIZE) {
-						logger.error("The total size of your attachement files exceeds: " + MAX_TOTAL_SIZE);
-						return new Status(IStatus.WARNING, "File Size Problem",
-								"The total size of your attachement files exceeds 20MB. Please chose smaller files to attach.");
-					}
-
-					if (monitor.isCanceled()) return Status.CANCEL_STATUS;
-
-					// Test that the message is correctly formatted (not empty) and Test the email format
-					if (!messagevalue.equals("") && emailvalue.contains("@")) {
-						return FeedbackRequest.doRequest(from, destinationEmail,
-								System.getProperty("user.name", "Unknown User"), subject,
-								messageBody.toString(), logFile, attachmentFiles, monitor);
-					}
-					return new Status(IStatus.WARNING, "Format Problem",
-							"Please type in your email and/or the message body before sending the feedback.");
-				} catch (Exception e) {
-					logger.error("Feedback email not sent", e);
-					return new Status(
-							IStatus.WARNING,
-							"Feedback not sent!",
-							"Please check that you have an Internet connection. If the feedback is still not working, click on OK to submit your feedback using the online feedback form available at http://dawnsci-feedback.appspot.com/");
-				}
-			}
-		};
 	}
 
 	private JobChangeAdapter getJobChangeListener(){
@@ -514,15 +401,6 @@ public class FeedbackView extends ViewPart {
 		};
 	}
 
-	private String getValueWithUnit(long value){
-		if (((value / 1000) > 1) && ((value / 1000) < 1000))
-			return String.valueOf(value / 1000) + "KB";
-		else if ((value / 1000) > 1000)
-			return String.valueOf(value / 1000000) + "MB";
-		else
-			return String.valueOf(value) + "B";
-	}
-
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
@@ -530,122 +408,4 @@ public class FeedbackView extends ViewPart {
 	public void setFocus() {
 		messageText.setFocus();
 	}
-
-	/**
-	 * item data of the tableviewer
-	 */
-	class AttachedFile {
-		String path;
-		String name;
-		String size;
-		boolean delete;
-	}
-
-	/**
-	 * Content Provider of the Table Viewer
-	 */
-	class AttachedFileContentProvider implements IStructuredContentProvider {
-		@Override
-		public void dispose() {
-		}
-
-		@Override
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		}
-
-		@Override
-		public Object[] getElements(Object inputElement) {
-			if (inputElement == null) {
-				return null;
-			}
-			return ((List<?>) inputElement).toArray();
-		}
-	}
-
-	private static final Image DELETE = Activator.getImageDescriptor("icons/delete_obj.png").createImage();
-
-	/**
-	 * Label Provider of the Table Viewer
-	 */
-	class AttachedFileLabelProvider implements ITableLabelProvider {
-		@Override
-		public void addListener(ILabelProviderListener listener) {}
-
-		@Override
-		public void dispose() {}
-
-		@Override
-		public boolean isLabelProperty(Object element, String property) {
-			return true;
-		}
-
-		@Override
-		public void removeListener(ILabelProviderListener listener) {
-		}
-
-		@Override
-		public Image getColumnImage(Object element, int columnIndex) {
-			if (columnIndex != 2)
-				return null;
-			if (element == null)
-				return null;
-			return DELETE;
-		}
-
-		@Override
-		public String getColumnText(Object element, int columnIndex) {
-			if (element == null)
-				return null;
-			AttachedFile file = (AttachedFile) element;
-			if (columnIndex == 0) {
-				return file.name;
-			} else if (columnIndex == 1) {
-				return file.size;
-			} else if (columnIndex == 2) {
-				return null;
-			}
-			return null;
-		}
-	}
-
-	/**
-	 * Editing Support of the table cells (the boolean delete icon)
-	 */
-	class AttachedFileEditingSupport extends EditingSupport {
-		private TableViewer tv;
-		private int column;
-
-		public AttachedFileEditingSupport(TableViewer viewer, int col) {
-			super(viewer);
-			tv = viewer;
-			this.column = col;
-		}
-
-		@Override
-		protected CellEditor getCellEditor(Object element) {
-			return new CheckboxCellEditor(null, SWT.CHECK);
-		}
-
-		@Override
-		protected boolean canEdit(Object element) {
-			if(column == 2)
-				return true;
-			return false;
-		}
-
-		@Override
-		protected Object getValue(Object element) {
-			return true;
-		}
-
-		@Override
-		protected void setValue(Object element, Object value) {
-			if (column == 2) {
-				AttachedFile file = (AttachedFile) element;
-				attachedFilesList.remove(file);
-				tv.refresh();
-			}
-		}
-	}
-
 }
