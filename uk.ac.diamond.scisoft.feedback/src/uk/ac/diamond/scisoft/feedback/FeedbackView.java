@@ -13,10 +13,8 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.dawb.common.util.eclipse.BundleUtils;
 import org.dawnsci.common.widgets.utils.RadioUtils;
@@ -200,33 +198,31 @@ public class FeedbackView extends ViewPart {
 		contributeToActionBars();
 	}
 
-	private List<Entry<String, Action>> createEmailRadioActions() {
-		List<Entry<String, Action>> radioActions = new ArrayList<Entry<String, Action>>();
+	private List<Action> createEmailRadioActions() {
+		List<Action> radioActions = new ArrayList<Action>();
 		Action sendToMailingListAction = new Action() {
 			@Override
 			public void run() {
 				destinationEmail = DAWN_MAILING_LIST;
+				System.out.println(destinationEmail);
 			}
 		};
+		sendToMailingListAction.setText("DAWN mailing list");
 		sendToMailingListAction.setToolTipText("Send feedback to the DAWN mailing list");
-		Entry<String, Action> sendToMailingList = new AbstractMap.SimpleEntry<String, Action>(
-				"DAWN mailing list",
-				sendToMailingListAction);
 
 		Action sendToDevelopersAction = new Action() {
 			@Override
 			public void run() {
 				destinationEmail = System.getProperty("uk.ac.diamond.scisoft.feedback.recipient", MAIL_TO);
+				System.out.println(destinationEmail);
+
 			}
 		};
+		sendToDevelopersAction.setText("DAWN developers");
 		sendToDevelopersAction.setToolTipText("Send feedback to DAWN developers");
-		Entry<String, Action> sendToDevelopers = new AbstractMap.SimpleEntry<String, Action>(
-				"DAWN developers",
-				sendToDevelopersAction);
 
-		radioActions.add(sendToDevelopers);
-		radioActions.add(sendToMailingList);
-
+		radioActions.add(sendToDevelopersAction);
+		radioActions.add(sendToMailingListAction);
 		return radioActions;
 	}
 
