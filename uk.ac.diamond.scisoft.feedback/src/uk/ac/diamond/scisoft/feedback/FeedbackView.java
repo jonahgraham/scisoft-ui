@@ -289,7 +289,7 @@ public class FeedbackView extends ViewPart {
 				formUIJob.addJobChangeListener(new JobChangeAdapter(){
 					@Override
 					public void done(IJobChangeEvent event) {
-						feedbackJob = new FeedbackJob("Sending feedback to" + destinationName, 
+						feedbackJob = new FeedbackJob("Sending feedback to " + destinationName, 
 								fromvalue, subjectvalue, messagevalue, emailvalue, destinationEmail,
 								attachedFilesList);
 						feedbackJob.addJobChangeListener(getJobChangeListener());
