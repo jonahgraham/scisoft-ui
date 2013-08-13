@@ -65,6 +65,7 @@ public class FeedbackView extends ViewPart {
 
 	// this is the default to the java property "org.dawnsci.feedbackmail"
 	private String destinationEmail = System.getProperty(FeedbackConstants.RECIPIENT_PROPERTY, FeedbackConstants.MAIL_TO);
+	private String destinationName = "DAWN developers";
 
 	/**
 	 * The ID of the view as specified by the extension.
@@ -190,6 +191,7 @@ public class FeedbackView extends ViewPart {
 			@Override
 			public void run() {
 				destinationEmail = FeedbackConstants.DAWN_MAILING_LIST;
+				destinationName = "DAWN mailing list";
 			}
 		};
 		sendToMailingListAction.setText("DAWN mailing list");
@@ -199,6 +201,7 @@ public class FeedbackView extends ViewPart {
 			@Override
 			public void run() {
 				destinationEmail = System.getProperty(FeedbackConstants.RECIPIENT_PROPERTY, FeedbackConstants.MAIL_TO);
+				destinationName = "DAWN developers";
 			}
 		};
 		sendToDevelopersAction.setText("DAWN developers");
@@ -286,7 +289,7 @@ public class FeedbackView extends ViewPart {
 				formUIJob.addJobChangeListener(new JobChangeAdapter(){
 					@Override
 					public void done(IJobChangeEvent event) {
-						feedbackJob = new FeedbackJob("Sending feedback to DAWN developers", 
+						feedbackJob = new FeedbackJob("Sending feedback to" + destinationName, 
 								fromvalue, subjectvalue, messagevalue, emailvalue, destinationEmail,
 								attachedFilesList);
 						feedbackJob.addJobChangeListener(getJobChangeListener());
