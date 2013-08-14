@@ -793,8 +793,8 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			mainPlotter.refresh(true);
 		}
 		if (plottingSystem != null) {
-			plottingSystem.reset();
-			plottingSystem.repaint();
+			plottingSystem.clear();
+			plottingSystem.resetAxes();
 		}
 	}
 
