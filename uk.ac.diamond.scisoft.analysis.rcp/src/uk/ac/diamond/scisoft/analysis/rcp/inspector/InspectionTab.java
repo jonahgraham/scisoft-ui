@@ -114,9 +114,9 @@ interface InspectionTab {
 	public void drawTab();
 
 	/**
-	 * Clear plot
+	 * Clear axes
 	 */
-	public void clearPlot();
+	public void resetAxes();
 
 	/**
 	 * @return number of axes (used in inspection)
@@ -208,9 +208,9 @@ abstract class ATab implements InspectionTab {
 	}
 
 	@Override
-	public void clearPlot() {
+	public void resetAxes() {
 		try {
-			SDAPlotter.clearPlot(PLOTNAME);
+			SDAPlotter.resetAxes(PLOTNAME);
 		} catch (Exception e) {
 			logger.error("Could not clear plot", e);
 		}

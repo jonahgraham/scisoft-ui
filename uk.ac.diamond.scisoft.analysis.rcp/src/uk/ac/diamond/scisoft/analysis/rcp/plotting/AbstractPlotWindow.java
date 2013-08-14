@@ -720,7 +720,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 				cleanUp(plotMode);
 				clearPlot();
 			}
-	
+
 			if (plotMode.equals(GuiPlotMode.ONED)) {
 				setupPlotting1D();
 			} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
@@ -752,10 +752,14 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			@Override
 			public void run() {
 				try {
-					GuiPlotMode oldMode = getPreviousMode();
-					if (oldMode == null || !plotMode.equals(oldMode)) {
-						changePlotMode(plotMode, false);
-						setPreviousMode(plotMode);
+					if (plotMode.equals(GuiPlotMode.RESETAXES)) {
+						resetAxes();
+					} else {
+						GuiPlotMode oldMode = getPreviousMode();
+						if (oldMode == null || !plotMode.equals(oldMode)) {
+							changePlotMode(plotMode, false);
+							setPreviousMode(plotMode);
+						}
 					}
 				} finally {
 					undoBlock();
@@ -791,6 +795,15 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		if (plottingSystem != null) {
 			plottingSystem.reset();
 			plottingSystem.repaint();
+		}
+	}
+
+	/**
+	 * Reset the axes in the Plot Window
+	 */
+	public void resetAxes() {
+		if (plottingSystem != null) {
+			plottingSystem.resetAxes();
 		}
 	}
 
