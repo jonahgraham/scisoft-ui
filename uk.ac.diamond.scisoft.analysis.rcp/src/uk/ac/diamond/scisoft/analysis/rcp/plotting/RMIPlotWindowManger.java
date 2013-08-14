@@ -48,7 +48,7 @@ public class RMIPlotWindowManger implements IPlotWindowManagerRMI {
 	public static IPlotWindowManagerRMI getManager() {
 		try {
 			if (manager == null) {
-				manager = (IPlotWindowManagerRMI) RMIClientProvider.getInstance().lookup(null, PlotWindow.RMI_SERVICE_NAME);
+				manager = (IPlotWindowManagerRMI) RMIClientProvider.getInstance().lookup(null, AbstractPlotWindow.RMI_SERVICE_NAME);
 			}
 			return manager;
 		} catch (Exception e) {
