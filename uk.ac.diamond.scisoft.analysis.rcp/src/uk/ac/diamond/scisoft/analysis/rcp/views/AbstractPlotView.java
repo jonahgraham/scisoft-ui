@@ -215,7 +215,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 			if (bean != null) {
 				setStashedGuiBean(null);
 				if (plotWindow != null)
-					plotWindow.processGUIUpdate(guiBean);
+					plotWindow.processGUIUpdate(bean);
 			}
 
 			// once the guiBean has been sorted out, see if there is any need to update the dataBean
