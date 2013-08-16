@@ -41,7 +41,7 @@ public class HyperView extends ViewPart {
 	
 	@Override
 	public void createPartControl(Composite parent) {
-		hyperWindow = new HyperComponent();
+		hyperWindow = new HyperComponent(this);
 		hyperWindow.createControl(parent);
 	}
 	
@@ -66,4 +66,10 @@ public class HyperView extends ViewPart {
 		hyperWindow.setFocus();
 		
 	}
+	
+	@Override
+    public Object getAdapter(@SuppressWarnings("rawtypes") final Class clazz) {
+		return hyperWindow.getAdapter(clazz);
+	}
+
 }
