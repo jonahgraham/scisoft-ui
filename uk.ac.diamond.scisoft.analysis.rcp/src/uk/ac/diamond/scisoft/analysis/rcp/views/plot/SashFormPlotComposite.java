@@ -23,14 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.IPlottingSystem;
-import org.dawb.common.ui.plot.PlotType;
-import org.dawb.common.ui.plot.PlottingFactory;
-import org.dawb.common.ui.plot.region.IROIListener;
-import org.dawb.common.ui.plot.region.IRegion;
-import org.dawb.common.ui.plot.region.IRegion.RegionType;
-import org.dawb.common.ui.plot.tool.IToolPage.ToolPageRole;
 import org.dawb.common.ui.widgets.ActionBarWrapper;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
@@ -38,6 +30,7 @@ import org.dawnsci.plotting.api.PlottingFactory;
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
+import org.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -286,6 +279,6 @@ public class SashFormPlotComposite implements PlotView{
 			ys.add(ds);
 		}
 		plottingsystem.createPlot1D(null, ys, null);
-//		plottingsystem.setTitle(title);
+		plottingsystem.setTitle("");
 	}
 }
