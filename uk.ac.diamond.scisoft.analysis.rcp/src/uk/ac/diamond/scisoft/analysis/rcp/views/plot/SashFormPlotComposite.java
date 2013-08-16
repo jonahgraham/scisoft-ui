@@ -30,6 +30,7 @@ import org.dawnsci.plotting.api.PlottingFactory;
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
+import org.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -104,6 +105,8 @@ public class SashFormPlotComposite implements PlotView{
 		plottingsystem.createPlotPart(right, part.getTitle(), null, PlotType.XY, part);
 		plottingsystem.setRescale(true);
 		plottingsystem.getPlotActionSystem().fillZoomActions(wrapper.getToolBarManager());
+		plottingsystem.getPlotActionSystem().fillPrintActions(wrapper.getToolBarManager());
+		plottingsystem.getPlotActionSystem().fillToolActions(wrapper.getToolBarManager(),ToolPageRole.ROLE_1D);
 		plottingsystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		createRegionToDisplay();
 
@@ -279,9 +282,3 @@ public class SashFormPlotComposite implements PlotView{
 		plottingsystem.setTitle("");
 	}
 }
-
-
-
-
-	
-
