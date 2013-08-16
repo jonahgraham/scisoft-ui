@@ -274,9 +274,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		if (guiBean == null) {
 			guiBean = new GuiBean();
 		}
-		if (dataBean.getGuiPlotMode() != null) {
-			guiBean.put(GuiParameters.PLOTMODE, dataBean.getGuiPlotMode());
-		}
+		// do not add plot mode as this is done in plot window
 		if (dataBean.getGuiParameters() != null) {
 			guiBean.merge(dataBean.getGuiParameters());
 		}
@@ -317,10 +315,11 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 				UUID id = (UUID) bean.get(GuiParameters.PLOTID);
 				if (id == null || plotID.compareTo(id) != 0) { // filter out own beans
 					logger.debug("Getting a plot gui update for {}; thd {}; bean {}", new Object[] {plotViewName, Thread.currentThread().getId(), bean});
-					if (guiBean == null)
+					if (guiBean == null) {
 						guiBean = bean.copy(); // cache a local copy
-					else
+					} else {
 						guiBean.merge(bean); // or merge it
+					}
 					setStashedGuiBean(bean);
 					updateBeans();
 				}
