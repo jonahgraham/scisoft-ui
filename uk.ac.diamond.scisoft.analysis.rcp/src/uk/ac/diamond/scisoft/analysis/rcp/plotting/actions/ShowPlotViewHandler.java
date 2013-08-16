@@ -98,8 +98,7 @@ public class ShowPlotViewHandler extends AbstractHandler {
 					guiNamesWithData = new HashSet<String>(Arrays.asList(names));
 			} catch (Exception e) {
 				// non-fatal, just means no IN_PLOT_SERVER_SUFFIX next to view name, still shouldn't happen
-				logger.debug("Failed to get list of Gui Names from Plot Server", e);
-				guiNamesWithData = Collections.emptySet();
+				logger.error("Failed to get list of Gui Names from Plot Server", e);
 			}
 			Map<String, String> values = new HashMap<String, String>();
 			for (String view : views) {
