@@ -84,7 +84,6 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	private IPlottingSystem verticalProfilePlottingSystem;
 	private IPlottingSystem horizontalProfilePlottingSystem;
 	private AbstractToolPage roiSumProfile;
-	
 	private Action plotEdge;
 	private Action plotAverage;
 

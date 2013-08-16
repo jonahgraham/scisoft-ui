@@ -23,6 +23,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.IPlottingSystem;
+import org.dawb.common.ui.plot.PlotType;
+import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawb.common.ui.plot.region.IROIListener;
+import org.dawb.common.ui.plot.region.IRegion;
+import org.dawb.common.ui.plot.region.IRegion.RegionType;
+import org.dawb.common.ui.plot.tool.IToolPage.ToolPageRole;
 import org.dawb.common.ui.widgets.ActionBarWrapper;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
@@ -104,6 +112,8 @@ public class SashFormPlotComposite implements PlotView{
 		plottingsystem.createPlotPart(right, part.getTitle(), null, PlotType.XY, part);
 		plottingsystem.setRescale(true);
 		plottingsystem.getPlotActionSystem().fillZoomActions(wrapper.getToolBarManager());
+		plottingsystem.getPlotActionSystem().fillPrintActions(wrapper.getToolBarManager());
+		plottingsystem.getPlotActionSystem().fillToolActions(wrapper.getToolBarManager(),ToolPageRole.ROLE_1D);
 		plottingsystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		createRegionToDisplay();
 
@@ -276,12 +286,6 @@ public class SashFormPlotComposite implements PlotView{
 			ys.add(ds);
 		}
 		plottingsystem.createPlot1D(null, ys, null);
-		plottingsystem.setTitle("");
+//		plottingsystem.setTitle(title);
 	}
 }
-
-
-
-
-	
-
