@@ -1903,9 +1903,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				}
 				
 				AbstractDataset ds = AbstractDataset.zeros(sliceShape, AbstractDataset.FLOAT64); 
-				IndexIterator iter = ds.getIterator();
+				IndexIterator iter = ds.getIterator(true);
+				int[] idx = iter.getPos();
 				while (iter.hasNext()) {
-					int[] idx = ds.getNDPosition(iter.index);
 					itr = evalSymbolTable.keySet().iterator();
 					while (itr.hasNext()) {
 						String varName = itr.next();

@@ -43,14 +43,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPartSite;
 
-import uk.ac.diamond.scisoft.analysis.dataset.ByteDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Comparisons;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.LongDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
@@ -133,149 +129,46 @@ public class InfoSidePlot extends SidePlot implements Overlay2DConsumer, Selecti
 	}
 
 	private boolean determineMinMaxXYPos(IDataset data, float min, float max) {
-		boolean disableButtons = false;
-		if (data instanceof DoubleDataset) {
-			DoubleDataset dblData = (DoubleDataset)data;
-			double[] dbl = dblData.getData();
-			IndexIterator iter = dblData.getIterator();
-			while (iter.hasNext()) {
-				if (dbl[iter.index] == max) {
-					int pos[] = dblData.getNDPosition(iter.index);
-					if (pos.length > 1) {
-						yMaxPos.add(pos[0]);
-						xMaxPos.add(pos[1]);
-					} else {
-						xMaxPos.add(pos[0]);
-					}
-				} else if (dbl[iter.index]== min) {
-					int pos[] = dblData.getNDPosition(iter.index);
-					if (pos.length > 1) {
-						yMinPos.add(pos[0]);
-						xMinPos.add(pos[1]);
-					} else {
-						xMinPos.add(pos[0]);
-					}						
+		try {
+			List<IntegerDataset> posns;
+			posns = Comparisons.nonZero(Comparisons.equalTo(data, min));
+			if (posns.size() == 0)
+				return false;
+			IndexIterator iter = posns.get(0).getIterator();
+			if (posns.size() > 1) {
+				IntegerDataset y = posns.get(0);
+				IntegerDataset x = posns.get(1);
+				while (iter.hasNext()) {
+					yMinPos.add(y.getAbs(iter.index));
+					xMinPos.add(x.getAbs(iter.index));
+				}
+			} else {
+				IntegerDataset x = posns.get(0);
+				while (iter.hasNext()) {
+					xMinPos.add(x.getAbs(iter.index));
 				}
 			}
-		} else if (data instanceof FloatDataset) {
-			FloatDataset fltData = (FloatDataset)data;				
-			float[] flt = fltData.getData();
-			IndexIterator iter = fltData.getIterator();
-			while (iter.hasNext()) {
-				if (flt[iter.index] == max) {
-					int pos[] = fltData.getNDPosition(iter.index);
-					if (pos.length > 1) {
-						yMaxPos.add(pos[0]);
-						xMaxPos.add(pos[1]);
-					} else {
-						xMaxPos.add(pos[0]);
-					}
-				} else if (flt[iter.index] == min) {
-					int pos[] = fltData.getNDPosition(iter.index);
-					if (pos.length > 1) {
-						yMinPos.add(pos[0]);
-						xMinPos.add(pos[1]);
-					} else {
-						xMinPos.add(pos[0]);
-					}						
+			posns = Comparisons.nonZero(Comparisons.equalTo(data, max));
+			if (posns.size() == 0)
+				return false;
+			iter = posns.get(0).getIterator();
+			if (posns.size() > 1) {
+				IntegerDataset y = posns.get(0);
+				IntegerDataset x = posns.get(1);
+				while (iter.hasNext()) {
+					yMaxPos.add(y.getAbs(iter.index));
+					xMaxPos.add(x.getAbs(iter.index));
+				}
+			} else {
+				IntegerDataset x = posns.get(0);
+				while (iter.hasNext()) {
+					xMaxPos.add(x.getAbs(iter.index));
 				}
 			}
-		} else if (data instanceof LongDataset) {
-			LongDataset lngData = (LongDataset)data;
-			long[] lng = lngData.getData();
-			IndexIterator iter = lngData.getIterator();
-			while (iter.hasNext()) {
-				if (lng[iter.index] == (long)max) {
-					int pos[] = lngData.getNDPosition(iter.index);
-					if (pos.length > 1) {
-						yMaxPos.add(pos[0]);
-						xMaxPos.add(pos[1]);
-					} else {
-						xMaxPos.add(pos[0]);
-					}
-				} else	if (lng[iter.index] == (long)min) {
-					int pos[] = lngData.getNDPosition(iter.index);
-					if (pos.length > 1) {
-						yMinPos.add(pos[0]);
-						xMinPos.add(pos[1]);
-					} else {
-						xMinPos.add(pos[0]);
-					}
-				}
-			}
-		} else if (data instanceof IntegerDataset) {
-			IntegerDataset ingData = (IntegerDataset)data;
-			int[] intB = ingData.getData();
-			IndexIterator iter = ingData.getIterator();
-			while (iter.hasNext()) {
-				if (intB[iter.index] == (int)max) {
-					int pos[] = ingData.getNDPosition(iter.index);
-					if (pos.length > 1) {
-						yMaxPos.add(pos[0]);
-						xMaxPos.add(pos[1]);
-					} else {
-						xMaxPos.add(pos[0]);
-					}
-				} else if (intB[iter.index] == (int)min) {
-					int pos[] = ingData.getNDPosition(iter.index);
-					if (pos.length > 1) {
-						yMinPos.add(pos[0]);
-						xMinPos.add(pos[1]);
-					} else {
-						xMinPos.add(pos[0]);
-					}
-				}
-			}
-		} else if (data instanceof ShortDataset) {
-			ShortDataset shrtData = (ShortDataset)data;
-			short[] shrt = shrtData.getData();
-			IndexIterator iter = shrtData.getIterator();
-			while (iter.hasNext()) {
-				if (shrt[iter.index] == (short)max) {
-					int pos[] = shrtData.getNDPosition(iter.index);
-					if (pos.length > 1) {
-						yMaxPos.add(pos[0]);
-						xMaxPos.add(pos[1]);
-					} else {
-						xMaxPos.add(pos[0]);
-					}
-				} else if (shrt[iter.index] == (short)min) {
-					int pos[] = shrtData.getNDPosition(iter.index);
-					if (pos.length > 1) {
-						yMinPos.add(pos[0]);
-						xMinPos.add(pos[1]);
-					} else {
-						xMinPos.add(pos[0]);
-					}
-				}
-			}
-		} else if (data instanceof ByteDataset) {
-			ByteDataset bytData = (ByteDataset)data;
-			byte[] byt = bytData.getData();
-			IndexIterator iter = bytData.getIterator();
-			while (iter.hasNext()) {
-				if (byt[iter.index] == (byte)max) {
-					int pos[] = bytData.getNDPosition(iter.index);
-					if (pos.length > 1) {
-						yMaxPos.add(pos[0]);
-						xMaxPos.add(pos[1]);
-					} else {
-						xMaxPos.add(pos[0]);
-					}						
-				} else if (byt[iter.index] == (byte)min) {
-					int pos[] = bytData.getNDPosition(iter.index);
-					if (pos.length > 1) {
-						yMinPos.add(pos[0]);
-						xMinPos.add(pos[1]);
-					} else {
-						xMinPos.add(pos[0]);
-					}	
-				}
-			}
-		} else {
-			disableButtons = true;
+			return true;
+		} catch (Exception e) {
 		}
-		return disableButtons;
+		return false;
 	}
 	
 	@Override
