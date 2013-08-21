@@ -21,6 +21,7 @@ import gda.observable.IObserver;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -799,6 +800,17 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	}
 
 	/**
+	 * Sets the visibility of region according to Plot type
+	 * @param type
+	 */
+	protected void setVisibleByPlotType(PlotType type) {
+		Collection<IRegion> regions = plottingSystem.getRegions();
+		for (IRegion iRegion : regions) {
+			iRegion.setVisible(iRegion.getPlotType().equals(type));
+		}
+	}
+
+	/**
 	 * Reset the axes in the Plot Window
 	 */
 	public void resetAxes() {
@@ -903,6 +915,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		addDuplicateAction();
 		addClearAction();
 		updateGuiBeanPlotMode(GuiPlotMode.ONED);
+		setVisibleByPlotType(plottingSystem.getPlotType());
 	}
 
 	// Dataset plotter
@@ -922,6 +935,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		addDuplicateAction();
 		addClearAction();
 		updateGuiBeanPlotMode(GuiPlotMode.TWOD);
+		setVisibleByPlotType(plottingSystem.getPlotType());
 	}
 
 	protected void setupMulti2D() {
@@ -939,6 +953,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		addDuplicateAction();
 		addClearAction();
 		updateGuiBeanPlotMode(GuiPlotMode.SURF2D);
+		setVisibleByPlotType(plottingSystem.getPlotType());
 	}
 
 	protected void setup2DSurfaceOldPlotting() {
@@ -977,11 +992,13 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 
 	// Abstract plotting System
 	protected void setupScatterPlotting2D() {
+//		plottingSystem.setPlotType(PlotType.SCATTER2D); TODO create a new plot type
 		plotUI = new PlottingScatter2DUI(plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
 		addClearAction();
 		updateGuiBeanPlotMode(GuiPlotMode.SCATTER2D);
+//		setVisibleByPlotType(plottingSystem.getPlotType());
 	}
 
 	protected void setupScatter3DPlot() {
