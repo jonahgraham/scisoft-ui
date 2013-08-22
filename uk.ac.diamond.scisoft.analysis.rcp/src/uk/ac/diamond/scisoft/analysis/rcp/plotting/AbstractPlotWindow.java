@@ -892,10 +892,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 * Required if you want to make tools work with Abstract Plotting System.
 	 */
 	public Object getAdapter(final Class<?> clazz) {
-		if (clazz == IToolPageSystem.class) {
-			return plottingSystem;
-		}
-		return null;
+		return plottingSystem.getAdapter(clazz);
 	}
 
 	// Datasetplotter
