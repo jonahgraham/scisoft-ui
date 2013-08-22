@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,13 +17,22 @@
 package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
 
+import java.util.Collection;
 import java.util.List;
 
+import org.dawb.common.services.IPaletteService;
+import org.dawnsci.plotting.api.IPlottingSystem;
+import org.dawnsci.plotting.api.PlottingFactory;
+import org.dawnsci.plotting.api.preferences.BasePlottingConstants;
+import org.dawnsci.plotting.api.trace.IPaletteTrace;
+import org.dawnsci.plotting.api.trace.ITrace;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -33,9 +42,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.GlobalColourMaps;
 import uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView;
 
 /**
@@ -43,12 +52,16 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView;
  */
 public class ImageExplorerPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
+	public static final String ID = "uk.ac.diamond.scisoft.analysis.rcp.imageExplorerPreferencePage";
 	private Combo cmbColourMap;
 	private Spinner spnAutoLoThreshold;
 	private Spinner spnAutoHiThreshold;
 	private Spinner spnWaitTime;
 	private Spinner spnSkipImages;
 	private Combo cmbDisplayViews;
+
+	final IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
+	private String schemeName;
 
 	public ImageExplorerPreferencePage() {
 	}
@@ -73,8 +86,22 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 		gdc = new GridData();
 		gdc.horizontalSpan = 2;
 		cmbColourMap.setLayoutData(gdc);
-		for (int i = 0; i < GlobalColourMaps.colourMapNames.length; i++)
-			cmbColourMap.add(GlobalColourMaps.colourMapNames[i]);
+
+		// Get all information from the IPalette service
+		final Collection<String> colours = pservice.getColorSchemes();
+		schemeName = AnalysisRCPActivator.getPlottingPreferenceStore().getString(BasePlottingConstants.COLOUR_SCHEME);
+		int i = 0;
+		for (String colour : colours) {
+			cmbColourMap.add(colour);
+			if (!colour.equals(schemeName)) i++;
+		}
+		cmbColourMap.select(i);
+		cmbColourMap.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				schemeName = cmbColourMap.getText();
+			}
+		});
 
 		Label lblLThreshold = new Label(comp, SWT.LEFT);
 		lblLThreshold.setText("Auto-contrast lower threshold (in %)");
@@ -165,7 +192,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 	}
 
 	private void initializePage() {
-		cmbColourMap.select(getColourMapChoicePreference());
+		cmbColourMap.select(cmbColourMap.indexOf(getColourMapChoicePreference()));
 		spnAutoLoThreshold.setSelection(getAutoContrastLoPreference());
 		spnAutoHiThreshold.setSelection(getAutoContrastHiPreference());
 		spnWaitTime.setSelection(getTimeDelayPreference());
@@ -178,7 +205,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 	}
 
 	private void storePreferences() {
-		setColourMapChoicePreference(cmbColourMap.getSelectionIndex());
+		setColourMapChoicePreference(cmbColourMap.getItem(cmbColourMap.getSelectionIndex()));
 		setAutoContrastLoPreference(spnAutoLoThreshold.getSelection());
 		setAutoContrastHiPreference(spnAutoHiThreshold.getSelection());
 		setTimeDelayPreference(spnWaitTime.getSelection());
@@ -187,7 +214,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 	}
 
 	private void loadDefaultPreferences() {
-		cmbColourMap.select(getDefaultColourMapChoicePreference());
+		cmbColourMap.select(cmbColourMap.indexOf(getDefaultColourMapChoicePreference()));
 		spnAutoLoThreshold.setSelection(getDefaultAutoContrastLoPreference());
 		spnAutoHiThreshold.setSelection(getDefaultAutoContrastHiPreference());
 		spnWaitTime.setSelection(getDefaultTimeDelayPreference());
@@ -199,8 +226,8 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 		}
 	}
 
-	private int getDefaultColourMapChoicePreference() {
-		return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
+	private String getDefaultColourMapChoicePreference() {
+		return AnalysisRCPActivator.getPlottingPreferenceStore().getDefaultString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME);
 	}
 
 	private int getDefaultAutoContrastLoPreference() {
@@ -223,11 +250,12 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 		return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE);
 	}
 
-	private int getColourMapChoicePreference() {
-		if (getPreferenceStore().isDefault(PreferenceConstants.IMAGEEXPLORER_COLOURMAP)) {
-			return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
+	private String getColourMapChoicePreference() {
+		IPreferenceStore store = AnalysisRCPActivator.getPlottingPreferenceStore();
+		if (store.isDefault(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME)) {
+			return store.getDefaultString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME);
 		}
-		return getPreferenceStore().getInt(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
+		return store.getString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME);
 	}
 
 	private int getAutoContrastLoPreference() {
@@ -265,8 +293,21 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 		return getPreferenceStore().getString(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW);
 	}
 
-	private void setColourMapChoicePreference(int value) {
-		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, value);
+	private void setColourMapChoicePreference(String value) {
+		final PaletteData data = pservice.getPaletteData(schemeName);
+		IPlottingSystem system = PlottingFactory.getPlottingSystem(getPlaybackViewPreference());
+		if (system == null) return;
+		// update the palette data
+		final Collection<ITrace> traces = system.getTraces();
+		if (traces!=null) for (ITrace trace: traces) {
+			if (trace instanceof IPaletteTrace) {
+				IPaletteTrace palette = (IPaletteTrace) trace;
+				palette.setPaletteData(data);
+				palette.setPaletteName(schemeName);
+			}
+		}
+		// update the preference
+		AnalysisRCPActivator.getPlottingPreferenceStore().setValue(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME, value);
 	}
 
 	private void setAutoContrastLoPreference(int value) {

@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -91,6 +91,14 @@ public class ImagePlayBack implements Runnable {
 		this.step = step;
 		this.sldProgress = slider;
 		jobQueue = new InteractiveQueue(control);
+	}
+
+	/** 
+	 * Sets the Plot View used to play back the images
+	 * @param viewName
+	 */
+	public void setPlotView(String viewName) {
+		this.viewName = viewName;
 	}
 
 	private void sendOffLoadRequest(String filename) {

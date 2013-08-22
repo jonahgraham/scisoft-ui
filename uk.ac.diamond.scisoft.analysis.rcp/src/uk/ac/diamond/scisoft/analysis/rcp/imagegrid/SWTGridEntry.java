@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,24 +19,24 @@ package uk.ac.diamond.scisoft.analysis.rcp.imagegrid;
 import java.awt.Dimension;
 import java.io.IOException;
 
+import org.dawb.common.services.IPaletteService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
+import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.RGBDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Stats;
-import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.AbstractMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.GlobalColourMaps;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.SWTImageUtils;
-
 
 /**
  * SWT Image implementation of a ImageGridEntry
@@ -56,8 +56,14 @@ public class SWTGridEntry extends AbstractGridEntry {
 	private Dimension imageDim;
 	private Canvas canvas;
 	private String toolTipText = null;
+	@SuppressWarnings("unused")
 	private int colourMapChoice = 0;
-	
+	private PaletteData paletteData;
+	/**
+	 * palette service used to retrieved the colour scheme
+	 */
+	private IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
+
 	public SWTGridEntry(String filename) {
 		super(filename);
 		gridImage = null;
@@ -77,7 +83,16 @@ public class SWTGridEntry extends AbstractGridEntry {
 		this.loThreshold = loThreshold;
 		this.hiThreshold = hiThreshold;
 	}
-	
+
+	public SWTGridEntry(String filename, Object additional, Canvas canvas, String colorScheme, double loThreshold,
+			double hiThreshold) {
+		this(filename, additional);
+		this.canvas = canvas;
+		this.paletteData = pservice.getPaletteData(colorScheme);
+		this.loThreshold = loThreshold;
+		this.hiThreshold = hiThreshold;
+	}
+
 	@Override
 	public void setNewfilename(String newFilename) {
 		this.filename = newFilename;
@@ -260,22 +275,25 @@ public class SWTGridEntry extends AbstractGridEntry {
 								}
 							}
 						}
-						int redSelect = GlobalColourMaps.colourSelectList.get(colourMapChoice * 4);
-						int greenSelect = GlobalColourMaps.colourSelectList.get(colourMapChoice * 4 + 1);
-						int blueSelect = GlobalColourMaps.colourSelectList.get(colourMapChoice * 4 + 2);
-						AbstractMapFunction redFunc = GlobalColourMaps.mappingFunctions.get(Math.abs(redSelect));
-						AbstractMapFunction greenFunc = GlobalColourMaps.mappingFunctions.get(Math.abs(greenSelect));
-						AbstractMapFunction blueFunc = GlobalColourMaps.mappingFunctions.get(Math.abs(blueSelect));
-						ImageData imgD = SWTImageUtils.createImageData(ds, m[0], m[1], redFunc, greenFunc, blueFunc,
-								(redSelect < 0), (greenSelect < 0), (blueSelect < 0));
+						// Old mapping not necessary anymore 
+//						int redSelect = GlobalColourMaps.colourSelectList.get(colourMapChoice * 4);
+//						int greenSelect = GlobalColourMaps.colourSelectList.get(colourMapChoice * 4 + 1);
+//						int blueSelect = GlobalColourMaps.colourSelectList.get(colourMapChoice * 4 + 2);
+//						AbstractMapFunction redFunc = GlobalColourMaps.mappingFunctions.get(Math.abs(redSelect));
+//						AbstractMapFunction greenFunc = GlobalColourMaps.mappingFunctions.get(Math.abs(greenSelect));
+//						AbstractMapFunction blueFunc = GlobalColourMaps.mappingFunctions.get(Math.abs(blueSelect));
+//						ImageData imgD = SWTImageUtils.createImageData(ds, m[0], m[1], redFunc, greenFunc, blueFunc,
+//								(redSelect < 0), (greenSelect < 0), (blueSelect < 0));
+						ImageData imgD = SWTImageUtils.createImageData(ds, m[0], m[1], paletteData);
 						gridImage = new Image(canvas.getDisplay(), imgD);
 						imageDim = new Dimension(shape[1], shape[0]);
 						canvas.redraw();
 					} else {
-						setStatus(INVALIDSTATUS);						
+						setStatus(INVALIDSTATUS);
 					}
 				} catch (Exception e) {
 					setStatus(INVALIDSTATUS);
+					logger.debug(e.getMessage());
 				}
 			}
 			

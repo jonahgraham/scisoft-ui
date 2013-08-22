@@ -26,9 +26,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.dawb.common.services.IPaletteService;
 import org.dawb.common.ui.plot.region.RegionService;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
+import org.dawnsci.plotting.api.preferences.BasePlottingConstants;
 import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.dawnsci.plotting.api.region.RegionUtils;
@@ -38,6 +40,7 @@ import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.ISurfaceTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +51,8 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.ROIList;
 import uk.ac.diamond.scisoft.analysis.roi.ROIUtils;
@@ -143,20 +148,25 @@ public class Plotting2DUI extends AbstractPlotUI {
 							if (shape != null && Arrays.equals(shape, data.getShape())
 									&& lastXAxisName.equals(xAxisName)
 									&& lastYAxisName.equals(yAxisName)) {
+								IImageTrace image = null;
 								if(axes.size()>0)
-									plottingSystem.updatePlot2D(data, axes, null);
+									image = (IImageTrace)plottingSystem.updatePlot2D(data, axes, null);
 								else
-									plottingSystem.updatePlot2D(data, null, null);
+									image = (IImageTrace)plottingSystem.updatePlot2D(data, null, null);
+								setLivePlotPalette(image);
 								logger.debug("Plot 2D updated");
 							} else {
-								plottingSystem.createPlot2D(data, axes, null);
+								IImageTrace image = (IImageTrace)plottingSystem.createPlot2D(data, axes, null);
+								setLivePlotPalette(image);
 								logger.debug("Plot 2D created");
 							}
 						}else{
+							IImageTrace image = null;
 							if(axes.size()>0)
-								plottingSystem.createPlot2D(data, axes, null);
+								image = (IImageTrace)plottingSystem.createPlot2D(data, axes, null);
 							else
-								plottingSystem.createPlot2D(data, null, null);
+								image = (IImageTrace)plottingSystem.createPlot2D(data, null, null);
+							setLivePlotPalette(image);
 							logger.debug("Plot 2D created");
 						}
 						// COMMENTED TO FIX SCI-808: no need for a repaint
@@ -167,6 +177,25 @@ public class Plotting2DUI extends AbstractPlotUI {
 				}
 			}
 		});
+	}
+
+	private void setLivePlotPalette(IImageTrace image) {
+		// check colour scheme in if image trace is in a live plot
+		String livePlot = AnalysisRCPActivator.getDefault().getPreferenceStore().getString(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW);
+		if (plottingSystem.getPlotName().equals(livePlot)) {
+			String colorScheme = AnalysisRCPActivator.getPlottingPreferenceStore().getString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME);
+			if (image != null) {
+				String paletteName = image.getPaletteName();
+				// if no palette name or if the palette name is different 
+				// from the live plot palette name saved in the preference
+				if (paletteName == null
+						|| (!paletteName.equals(colorScheme))) {
+					IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
+					image.setPaletteData(pservice.getPaletteData(colorScheme));
+					image.setPaletteName(colorScheme);
+				}
+			}
+		}
 	}
 
 	@Override

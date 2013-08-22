@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
+import org.dawnsci.plotting.api.preferences.BasePlottingConstants;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
@@ -41,6 +42,9 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -57,6 +61,8 @@ import org.eclipse.swt.widgets.Slider;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +81,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.imagegrid.SWTGridEntry;
 import uk.ac.diamond.scisoft.analysis.rcp.imagegrid.SWTImageGrid;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ImageExplorerDirectoryChooseAction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.GlobalColourMaps;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.ImageExplorerPreferencePage;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.CommandExecutor;
 
@@ -271,6 +278,31 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 				getPreferenceTimeDelay(), getPreferencePlaybackRate());
 
 		isDisposed = false;
+
+		// Listen to preference changes to update the colour map
+		AnalysisRCPActivator.getPlottingPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				if (event.getProperty().equals(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME)) {
+					List<GridImageEntry> images = imageGrid.getListOfEntries();
+					String colourScheme = getPreferenceColourMapChoice();
+					for (GridImageEntry entry : images) {
+						SWTGridEntry gridEntry = new SWTGridEntry(entry.getFilename(), null, canvas, 
+								colourScheme, getPreferenceAutoContrastLo(), getPreferenceAutoContrastHi());
+						imageGrid.addEntry(gridEntry, entry.getGridColumnPos(), entry.getGridRowPos());
+					}
+				}
+			}
+		});
+		// listen to preference changes to update the Live plot play back view
+		AnalysisRCPActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				if (event.getProperty().equals(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW)) {
+					playback.setPlotView(getPreferencePlaybackView());
+				}
+			}
+		});
 	}
 
 	@Override
@@ -309,6 +341,14 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 
 		site.getActionBars().getMenuManager().add(filterMenu);
 
+		final Action openPreferences = new Action("Image Explorer Preferences...") {
+			@Override
+			public void run() {
+				PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), ImageExplorerPreferencePage.ID, null, null);
+				if (pref != null) pref.open();
+			}
+		};
+		site.getActionBars().getMenuManager().add(openPreferences);
 	}
 
 	@Override
@@ -370,8 +410,9 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 			e.printStackTrace();
 		}
 		playback.addFile((String) bean.get(GuiParameters.FILENAME));
+		String colourScheme = getPreferenceColourMapChoice();
 		SWTGridEntry entry = new SWTGridEntry((String) bean.get(GuiParameters.FILENAME), null, canvas,
-				getPreferenceColourMapChoice(), getPreferenceAutoContrastLo(), getPreferenceAutoContrastHi());
+				colourScheme, getPreferenceAutoContrastLo(), getPreferenceAutoContrastHi());
 		Integer xPos = (Integer) bean.get(GuiParameters.IMAGEGRIDXPOS);
 		Integer yPos = (Integer) bean.get(GuiParameters.IMAGEGRIDYPOS);
 		if (xPos != null && yPos != null)
@@ -538,9 +579,10 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 				ArrayList<GridImageEntry> entries = (ArrayList<GridImageEntry>) guiBean
 						.get(GuiParameters.IMAGEGRIDSTORE);
 				Iterator<GridImageEntry> iter = entries.iterator();
+				String colourScheme = getPreferenceColourMapChoice();
 				while (iter.hasNext()) {
 					GridImageEntry entry = iter.next();
-					SWTGridEntry gridEntry = new SWTGridEntry(entry.getFilename(), null, canvas, getPreferenceColourMapChoice(),
+					SWTGridEntry gridEntry = new SWTGridEntry(entry.getFilename(), null, canvas, colourScheme,
 							getPreferenceAutoContrastLo(), getPreferenceAutoContrastHi());
 					imageGrid.addEntry(gridEntry, entry.getGridColumnPos(), entry.getGridRowPos());
 				}
@@ -804,11 +846,11 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 		return filesToLoad;
 	}
 
-	private int getPreferenceColourMapChoice() {
-		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.IMAGEEXPLORER_COLOURMAP)
-				? preferenceStore.getDefaultInt(PreferenceConstants.IMAGEEXPLORER_COLOURMAP)
-				: preferenceStore.getInt(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
+	private String getPreferenceColourMapChoice() {
+		IPreferenceStore plottingPreferenceStore = AnalysisRCPActivator.getPlottingPreferenceStore();
+		return plottingPreferenceStore.isDefault(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME)
+				? plottingPreferenceStore.getDefaultString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME)
+				: plottingPreferenceStore.getString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME);
 	}
 
 	private int getPreferenceTimeDelay() {

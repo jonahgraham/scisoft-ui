@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,12 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.utils;
 
+import org.dawnsci.plotting.api.histogram.IImageService;
+import org.dawnsci.plotting.api.histogram.ImageServiceBean;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
@@ -112,6 +115,14 @@ public class SWTImageUtils {
 		return img;
 	}
 
+	static private ImageData createImageFromDataset(AbstractDataset a, PaletteData paletteData) throws Exception {
+		final IImageService iservice = (IImageService)PlatformUI.getWorkbench().getService(IImageService.class);
+		ImageServiceBean ibean = new ImageServiceBean();
+		ibean.setImage(a);
+		ibean.setPalette(paletteData);
+		return iservice.getImageData(ibean);
+	}
+
 	/**
 	 * Create SWT ImageData from a dataset
 	 * <p>
@@ -169,6 +180,29 @@ public class SWTImageUtils {
 										 inverseRed,inverseGreen,inverseBlue);
 		}
 
+		return img;
+	}
+
+	/**
+	 * Create SWT ImageData from a dataset given a palette data
+	 * <p>
+	 * The input dataset can be a RGB dataset in which case the mapping functions
+	 * and inversion flags are ignored.
+	 * @param a dataset
+	 * @param min minimum value of dataset
+	 * @param max maximum value of dataset
+	 * @param paletteData
+	 * @return an ImageData object for SWT
+	 * @throws Exception
+	 */
+	static public ImageData createImageData(AbstractDataset a, Number min, Number max,
+											PaletteData paletteData) throws Exception {
+		ImageData img;
+		if (a instanceof RGBDataset) {
+			img = createImageFromRGBADataset((RGBDataset)a, min.longValue(), max.longValue());
+		} else {
+			img = createImageFromDataset(a, paletteData);
+		}
 		return img;
 	}
 

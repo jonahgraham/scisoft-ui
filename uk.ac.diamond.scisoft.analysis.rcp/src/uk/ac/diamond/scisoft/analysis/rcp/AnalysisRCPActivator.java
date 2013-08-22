@@ -18,9 +18,12 @@ package uk.ac.diamond.scisoft.analysis.rcp;
 
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.util.tracker.ServiceTracker;
@@ -53,6 +56,8 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 
 	@SuppressWarnings("rawtypes")
 	private ServiceTracker plotServerTracker;
+
+	private static IPreferenceStore plottingPreferenceStore;
 
 	/**
 	 * The constructor
@@ -135,5 +140,10 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 		return des.createImage();
 	}
 
+	public static IPreferenceStore getPlottingPreferenceStore() {
+		if (plottingPreferenceStore == null)
+			plottingPreferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.dawnsci.plotting");
+		return plottingPreferenceStore;
+	}
 }
 
