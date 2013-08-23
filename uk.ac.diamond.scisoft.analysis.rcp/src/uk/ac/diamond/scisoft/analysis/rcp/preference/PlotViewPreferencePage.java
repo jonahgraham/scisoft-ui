@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,20 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
+import java.util.Collection;
+
+import org.dawb.common.services.IPaletteService;
+import org.dawnsci.plotting.api.IPlottingSystem;
+import org.dawnsci.plotting.api.PlottingFactory;
+import org.dawnsci.plotting.api.preferences.BasePlottingConstants;
+import org.dawnsci.plotting.api.trace.IPaletteTrace;
+import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -32,9 +41,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.GlobalColourMaps;
+import uk.ac.diamond.scisoft.analysis.rcp.views.AbstractPlotView;
 
 public class PlotViewPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
@@ -47,6 +57,9 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 	private Spinner spnAutoLoThreshold;
 	private Spinner spnAutoHiThreshold;
 	private Combo cmbPlottingSystem;
+
+	private IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
+	private String schemeName;
 
 	public PlotViewPreferencePage() {
 	}
@@ -96,8 +109,21 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		Label lblColourMap = new Label(plot2DGroup, SWT.LEFT);
 		lblColourMap.setText("Default colour mapping");
 		cmbColourMap = new Combo(plot2DGroup, SWT.RIGHT | SWT.READ_ONLY);
-		for (int i = 0; i < GlobalColourMaps.colourMapNames.length; i++)
-			cmbColourMap.add(GlobalColourMaps.colourMapNames[i]);
+		// Get all information from the IPalette service
+		final Collection<String> colours = pservice.getColorSchemes();
+		schemeName = AnalysisRCPActivator.getPlottingPreferenceStore().getString(BasePlottingConstants.COLOUR_SCHEME);
+		int i = 0;
+		for (String colour : colours) {
+			cmbColourMap.add(colour);
+			if (!colour.equals(schemeName)) i++;
+		}
+		cmbColourMap.select(i);
+		cmbColourMap.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				schemeName = cmbColourMap.getText();
+			}
+		});
 
 		Label lblExpertMode = new Label(plot2DGroup, SWT.LEFT);
 		lblExpertMode.setText("Colour map expert mode");
@@ -173,7 +199,7 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 	 * Load the resolution value
 	 */
 	private void initializePage() {
-		cmbColourMap.select(getColourMapChoicePreference());
+		cmbColourMap.select(cmbColourMap.indexOf(getColourMapChoicePreference()));
 		chkExpertMode.setSelection(getExpertModePreference());
 		chkAutoContrast.setSelection(getAutoContrastPreference());
 		spnAutoLoThreshold.setSelection(getAutoContrastLoPreference());
@@ -188,7 +214,7 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 	 * Load the default resolution value
 	 */
 	private void loadDefaultPreferences() {
-		cmbColourMap.select(getDefaultColourMapChoicePreference());
+		cmbColourMap.select(cmbColourMap.indexOf(getDefaultColourMapChoicePreference()));
 		chkExpertMode.setSelection(getDefaultExpertModePreference());
 		chkAutoContrast.setSelection(getDefaultAutoContrastPreference());
 		spnAutoLoThreshold.setSelection(getDefaultAutoContrastLoPreference());
@@ -203,7 +229,7 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 	 * Store the resolution value
 	 */
 	private void storePreferences() {
-		setColourMapChoicePreference(cmbColourMap.getSelectionIndex());
+		setColourMapChoicePreference(cmbColourMap.getItem(cmbColourMap.getSelectionIndex()));
 		setExpertModePreference(chkExpertMode.getSelection());
 		setAutoContrastPreference(chkAutoContrast.getSelection());
 		setAutoContrastLoPreference(spnAutoLoThreshold.getSelection());
@@ -218,8 +244,8 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ);
 	}
 
-	private int getDefaultColourMapChoicePreference() {
-		return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
+	private String getDefaultColourMapChoicePreference() {
+		return getPreferenceStore().getDefaultString(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
 	}
 
 	private int getDefautColourScaleChoicePreference() {
@@ -257,11 +283,11 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		return getPreferenceStore().getInt(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ);
 	}
 
-	private int getColourMapChoicePreference() {
+	private String getColourMapChoicePreference() {
 		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP)) {
-			return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
+			return getPreferenceStore().getDefaultString(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
 		}
-		return getPreferenceStore().getInt(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
+		return getPreferenceStore().getString(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
 	}
 
 	private boolean getExpertModePreference() {
@@ -313,7 +339,27 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		return getPreferenceStore().getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
 	}
 
-	private void setColourMapChoicePreference(int value) {
+	private void setColourMapChoicePreference(String value) {
+		final PaletteData data = pservice.getPaletteData(schemeName);
+		IPlottingSystem[] systems = PlottingFactory.getPlottingSystems();
+		if (systems == null) return;
+		// update colour map in all plot views
+		for (int i = 0; i < systems.length; i++) {
+			if (systems[i].getPart() instanceof AbstractPlotView) {
+				// change all Plot Views except live plot
+				String livePlot = getPreferenceStore().getString(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW);
+				if (!systems[i].getPlotName().equals(livePlot)) {
+					final Collection<ITrace> traces = systems[i].getTraces();
+					if (traces!=null) for (ITrace trace: traces) {
+						if (trace instanceof IPaletteTrace) {
+							IPaletteTrace palette = (IPaletteTrace) trace;
+							palette.setPaletteData(data);
+							palette.setPaletteName(schemeName);
+						}
+					}
+				}
+			}
+		}
 		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, value);
 	}
 

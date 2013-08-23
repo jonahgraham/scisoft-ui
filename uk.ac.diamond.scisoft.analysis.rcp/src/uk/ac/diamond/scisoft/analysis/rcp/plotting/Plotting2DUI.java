@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.dawb.common.services.IPaletteService;
 import org.dawb.common.ui.plot.region.RegionService;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
@@ -40,6 +41,7 @@ import org.dawnsci.plotting.api.trace.ISurfaceTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +68,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 	private IPlottingSystem plottingSystem;
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
 	private ROIManager manager;
+	private IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
 
 	private static final Logger logger = LoggerFactory.getLogger(Plotting2DUI.class);
 
@@ -152,11 +155,11 @@ public class Plotting2DUI extends AbstractPlotUI {
 									image = (IImageTrace)plottingSystem.updatePlot2D(data, axes, null);
 								else
 									image = (IImageTrace)plottingSystem.updatePlot2D(data, null, null);
-								setLivePlotPalette(image);
+								setPlotViewPalette(image);
 								logger.debug("Plot 2D updated");
 							} else {
 								IImageTrace image = (IImageTrace)plottingSystem.createPlot2D(data, axes, null);
-								setLivePlotPalette(image);
+								setPlotViewPalette(image);
 								logger.debug("Plot 2D created");
 							}
 						}else{
@@ -165,7 +168,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 								image = (IImageTrace)plottingSystem.createPlot2D(data, axes, null);
 							else
 								image = (IImageTrace)plottingSystem.createPlot2D(data, null, null);
-							setLivePlotPalette(image);
+							setPlotViewPalette(image);
 							logger.debug("Plot 2D created");
 						}
 						// COMMENTED TO FIX SCI-808: no need for a repaint
@@ -178,17 +181,29 @@ public class Plotting2DUI extends AbstractPlotUI {
 		});
 	}
 
-	private void setLivePlotPalette(IImageTrace image) {
+	private void setPlotViewPalette(IImageTrace image) {
 		if (image == null)
 			return;
 		IPreferenceStore store = AnalysisRCPActivator.getDefault().getPreferenceStore();
 		IPreferenceStore plottingStore = AnalysisRCPActivator.getPlottingPreferenceStore();
+
 		// check colour scheme in if image trace is in a live plot
+		String paletteName = image.getPaletteName();
 		String livePlot = store.getString(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW);
 		if (plottingSystem.getPlotName().equals(livePlot)) {
-			String paletteName = image.getPaletteName();
-			if (paletteName != null && !paletteName.equals(plottingStore.getString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME)))
-				plottingStore.setValue(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME, paletteName);
+			String savedLivePlotPalette = plottingStore.getString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME);
+			if (paletteName != null && !paletteName.equals(savedLivePlotPalette)) {
+				image.setPaletteData(pservice.getPaletteData(savedLivePlotPalette));
+				image.setPaletteName(plottingStore.getString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME));
+				plottingStore.setValue(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME, savedLivePlotPalette);
+			}
+		} else {
+			if (paletteName != null && !paletteName.equals(store.getString(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP))) {
+				String savedPlotViewPalette = store.getString(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
+				image.setPaletteData(pservice.getPaletteData(savedPlotViewPalette));
+				image.setPaletteName(savedPlotViewPalette);
+				store.setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, savedPlotViewPalette);
+			}
 		}
 	}
 

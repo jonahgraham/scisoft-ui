@@ -32,10 +32,10 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	private static final int DEFAULT_MAX_NUM_PEAKS = 10;
 	private static final int DEFAULT_PIXELOVERLOAD_THRESHOLD = 65535;
 	private static final boolean DEFAULT_SHOW_SCROLLBARS = true;
-	private static final int DEFAULT_COLOURMAP_CHOICE = 1;
+	private static final String DEFAULT_COLOURMAP_CHOICE = "Gray Scale";
 	private static final int DEFAULT_CAMERA_PROJECTION = 0;
 	private static final int DEFAULT_PLOTTING_SYSTEM = 0;
-	private static final int DEFAULT_IMAGEXPLORER_COLOURMAP_CHOICE = 0;
+	private static final String DEFAULT_IMAGEXPLORER_COLOURMAP_CHOICE = "Gray Scale";
 	private static final int DEFAULT_IMAGEEXPLORER_CONTRAST_LO = 0;
 	private static final int DEFAULT_IMAGEEXPLORER_CONTRAST_HI = 98;
 	private static final int DEFAULT_IMAGEEXPLORER_TIMEDEAY = 1000;
