@@ -182,12 +182,13 @@ public class Plotting2DUI extends AbstractPlotUI {
 		if (image == null)
 			return;
 		IPreferenceStore store = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		IPreferenceStore plottingStore = AnalysisRCPActivator.getPlottingPreferenceStore();
 		// check colour scheme in if image trace is in a live plot
 		String livePlot = store.getString(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW);
 		if (plottingSystem.getPlotName().equals(livePlot)) {
 			String paletteName = image.getPaletteName();
-			if (paletteName !=null)
-				store.setValue(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME, paletteName);
+			if (paletteName != null && !paletteName.equals(plottingStore.getString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME)))
+				plottingStore.setValue(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME, paletteName);
 		}
 	}
 
