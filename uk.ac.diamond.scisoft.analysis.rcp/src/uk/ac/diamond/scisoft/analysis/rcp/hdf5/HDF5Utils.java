@@ -49,6 +49,8 @@ public class HDF5Utils {
 	private static final String NX_PRIMARY = "primary";
 	private static final String NX_SIGNAL = "signal";
 	private static final String NX_DATA = "NXdata";
+	private static final String NX_ERRORS = "errors";
+	private static final String NX_ERRORS_SUFFIX = "_" + NX_ERRORS;
 	private static final String NX_NAME = "long_name";
 	private static final String NX_INDICES_SUFFIX = "_indices";
 	private static final String SDS = "SDS";
@@ -139,6 +141,24 @@ public class HDF5Utils {
 			// TODO Maybe	dNode.getAttributeNameIterator()
 		}
 
+		// add errors
+		ILazyDataset eData = null;
+		if (gNode.containsDataset(NX_ERRORS)) {
+			eData = gNode.getDataset(NX_ERRORS).getDataset();
+			eData.setName(NX_ERRORS);
+		} else {
+			String cName = cData.getName();
+			String eName = cName + NX_ERRORS_SUFFIX;
+			if (!gNode.containsDataset(eName) && !cName.equals(link.getName())) {
+				eName = link.getName() + NX_ERRORS_SUFFIX;
+			}
+			if (gNode.containsDataset(eName)) {
+				eData = gNode.getDataset(eName).getDataset();
+				eData.setName(eName);
+			}
+		}
+		cData.setLazyErrors(eData);
+
 		// set up slices
 		int[] shape = cData.getShape();
 		int rank = shape.length;
@@ -167,6 +187,20 @@ public class HDF5Utils {
 					stringAttr = d.getAttribute(NX_NAME);
 					if (stringAttr != null && stringAttr.isString())
 						choice.setLongName(stringAttr.getFirstElement());
+
+					// add errors
+					String cName = choice.getName();
+					if (cName == null)
+						cName = l.getName();
+					String eName = cName + NX_ERRORS_SUFFIX;
+					if (!gNode.containsDataset(eName) && !cName.equals(l.getName())) {
+						eName = l.getName() + NX_ERRORS_SUFFIX;
+					}
+					if (gNode.containsDataset(eName)) {
+						eData = gNode.getDataset(eName).getDataset();
+						eData.setName(eName);
+						a.setLazyErrors(eData);
+					}
 
 					HDF5Attribute attr;
 					attr = d.getAttribute(NX_PRIMARY);
