@@ -21,7 +21,6 @@ import java.util.Collection;
 import org.dawb.common.services.IPaletteService;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlottingFactory;
-import org.dawnsci.plotting.api.preferences.BasePlottingConstants;
 import org.dawnsci.plotting.api.trace.IPaletteTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.preference.PreferencePage;
@@ -111,7 +110,7 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		cmbColourMap = new Combo(plot2DGroup, SWT.RIGHT | SWT.READ_ONLY);
 		// Get all information from the IPalette service
 		final Collection<String> colours = pservice.getColorSchemes();
-		schemeName = AnalysisRCPActivator.getPlottingPreferenceStore().getString(BasePlottingConstants.COLOUR_SCHEME);
+		schemeName = AnalysisRCPActivator.getDefault().getPreferenceStore().getString(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
 		int i = 0;
 		for (String colour : colours) {
 			cmbColourMap.add(colour);

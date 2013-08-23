@@ -23,10 +23,8 @@ import java.util.List;
 import org.dawb.common.services.IPaletteService;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlottingFactory;
-import org.dawnsci.plotting.api.preferences.BasePlottingConstants;
 import org.dawnsci.plotting.api.trace.IPaletteTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -89,7 +87,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 
 		// Get all information from the IPalette service
 		final Collection<String> colours = pservice.getColorSchemes();
-		schemeName = AnalysisRCPActivator.getPlottingPreferenceStore().getString(BasePlottingConstants.COLOUR_SCHEME);
+		schemeName = getPreferenceStore().getString(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
 		int i = 0;
 		for (String colour : colours) {
 			cmbColourMap.add(colour);
@@ -227,7 +225,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 	}
 
 	private String getDefaultColourMapChoicePreference() {
-		return AnalysisRCPActivator.getPlottingPreferenceStore().getDefaultString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME);
+		return getPreferenceStore().getDefaultString(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
 	}
 
 	private int getDefaultAutoContrastLoPreference() {
@@ -251,11 +249,10 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 	}
 
 	private String getColourMapChoicePreference() {
-		IPreferenceStore store = AnalysisRCPActivator.getPlottingPreferenceStore();
-		if (store.isDefault(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME)) {
-			return store.getDefaultString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME);
+		if (getPreferenceStore().isDefault(PreferenceConstants.IMAGEEXPLORER_COLOURMAP)) {
+			return getPreferenceStore().getDefaultString(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
 		}
-		return store.getString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME);
+		return getPreferenceStore().getString(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
 	}
 
 	private int getAutoContrastLoPreference() {
@@ -307,7 +304,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 			}
 		}
 		// update the preference
-		AnalysisRCPActivator.getPlottingPreferenceStore().setValue(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME, value);
+		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, value);
 	}
 
 	private void setAutoContrastLoPreference(int value) {

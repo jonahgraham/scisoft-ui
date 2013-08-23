@@ -28,7 +28,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
-import org.dawnsci.plotting.api.preferences.BasePlottingConstants;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
@@ -279,11 +278,14 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 
 		isDisposed = false;
 
-		// Listen to preference changes to update the colour map
-		AnalysisRCPActivator.getPlottingPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+		// listen to preference changes to update the Live plot play back view and colour map
+		AnalysisRCPActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME)) {
+				if (event.getProperty().equals(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW)) {
+					playback.setPlotView(getPreferencePlaybackView());
+				}
+				if (event.getProperty().equals(PreferenceConstants.IMAGEEXPLORER_COLOURMAP)) {
 					List<GridImageEntry> images = imageGrid.getListOfEntries();
 					String colourScheme = getPreferenceColourMapChoice();
 					for (GridImageEntry entry : images) {
@@ -291,15 +293,6 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 								colourScheme, getPreferenceAutoContrastLo(), getPreferenceAutoContrastHi());
 						imageGrid.addEntry(gridEntry, entry.getGridColumnPos(), entry.getGridRowPos());
 					}
-				}
-			}
-		});
-		// listen to preference changes to update the Live plot play back view
-		AnalysisRCPActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW)) {
-					playback.setPlotView(getPreferencePlaybackView());
 				}
 			}
 		});
@@ -847,10 +840,10 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 	}
 
 	private String getPreferenceColourMapChoice() {
-		IPreferenceStore plottingPreferenceStore = AnalysisRCPActivator.getPlottingPreferenceStore();
-		return plottingPreferenceStore.isDefault(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME)
-				? plottingPreferenceStore.getDefaultString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME)
-				: plottingPreferenceStore.getString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME);
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.IMAGEEXPLORER_COLOURMAP)
+				? preferenceStore.getDefaultString(PreferenceConstants.IMAGEEXPLORER_COLOURMAP)
+				: preferenceStore.getString(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
 	}
 
 	private int getPreferenceTimeDelay() {

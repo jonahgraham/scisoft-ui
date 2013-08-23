@@ -30,7 +30,6 @@ import org.dawb.common.services.IPaletteService;
 import org.dawb.common.ui.plot.region.RegionService;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
-import org.dawnsci.plotting.api.preferences.BasePlottingConstants;
 import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.dawnsci.plotting.api.region.RegionUtils;
@@ -185,17 +184,16 @@ public class Plotting2DUI extends AbstractPlotUI {
 		if (image == null)
 			return;
 		IPreferenceStore store = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		IPreferenceStore plottingStore = AnalysisRCPActivator.getPlottingPreferenceStore();
 
 		// check colour scheme in if image trace is in a live plot
 		String paletteName = image.getPaletteName();
 		String livePlot = store.getString(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW);
 		if (plottingSystem.getPlotName().equals(livePlot)) {
-			String savedLivePlotPalette = plottingStore.getString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME);
+			String savedLivePlotPalette = store.getString(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
 			if (paletteName != null && !paletteName.equals(savedLivePlotPalette)) {
 				image.setPaletteData(pservice.getPaletteData(savedLivePlotPalette));
-				image.setPaletteName(plottingStore.getString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME));
-				plottingStore.setValue(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME, savedLivePlotPalette);
+				image.setPaletteName(store.getString(PreferenceConstants.IMAGEEXPLORER_COLOURMAP));
+				store.setValue(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, savedLivePlotPalette);
 			}
 		} else {
 			if (paletteName != null && !paletteName.equals(store.getString(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP))) {
