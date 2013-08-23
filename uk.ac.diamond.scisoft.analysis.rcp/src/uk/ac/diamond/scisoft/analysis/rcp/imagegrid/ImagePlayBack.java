@@ -152,7 +152,7 @@ public class ImagePlayBack implements Runnable {
 					fileEntry = jobFiles.get(playPos);
 					final int tPos = playPos;
 					playPos+=step;
-					if (autoRewind && playPos > jobFiles.size()) {
+					if (autoRewind && playPos >= jobFiles.size()) {
 						playPos = 0;
 					}
 					sldProgress.getDisplay().asyncExec(new Runnable() {
