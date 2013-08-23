@@ -11,6 +11,7 @@
                class="uk.ac.diamond.scisoft.feedback.FeedbackAction"
                id="uk.ac.diamond.scisoft.feedback"
                label="Leave Feedback"
+               icon="icons/mailedit.gif"
                menubarPath="Help/"
                style="push">
          </action>
@@ -25,5 +26,29 @@
             id="uk.ac.diamond.scisoft.feedback.FeedbackView"
             name="Feedback">
       </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.feedback.FeedbackAction"
+            id="uk.ac.diamond.scisoft.feedback.openFeedback"
+            name="Leave Feedback">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=org.dawnsci.intro.show.welcome">
+         <toolbar
+               id="uk.ac.diamond.scisoft.feedback.openFeedback"
+               label="Leave Feedback">
+            <command
+                  commandId="uk.ac.diamond.scisoft.feedback.openFeedback"
+                  icon="icons/mailedit.gif"
+                  label="Feedback"
+                  tooltip="Leave Feedback">
+            </command>
+         </toolbar>
+      </menuContribution>
    </extension>
 </plugin>
