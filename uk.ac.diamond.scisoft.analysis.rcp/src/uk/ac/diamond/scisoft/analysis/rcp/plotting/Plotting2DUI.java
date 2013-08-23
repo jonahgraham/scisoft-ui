@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.dawb.common.services.IPaletteService;
 import org.dawb.common.ui.plot.region.RegionService;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
@@ -39,8 +38,8 @@ import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.ISurfaceTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,21 +179,15 @@ public class Plotting2DUI extends AbstractPlotUI {
 	}
 
 	private void setLivePlotPalette(IImageTrace image) {
+		if (image == null)
+			return;
+		IPreferenceStore store = AnalysisRCPActivator.getDefault().getPreferenceStore();
 		// check colour scheme in if image trace is in a live plot
-		String livePlot = AnalysisRCPActivator.getDefault().getPreferenceStore().getString(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW);
+		String livePlot = store.getString(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW);
 		if (plottingSystem.getPlotName().equals(livePlot)) {
-			String colorScheme = AnalysisRCPActivator.getPlottingPreferenceStore().getString(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME);
-			if (image != null) {
-				String paletteName = image.getPaletteName();
-				// if no palette name or if the palette name is different 
-				// from the live plot palette name saved in the preference
-				if (paletteName == null
-						|| (!paletteName.equals(colorScheme))) {
-					IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
-					image.setPaletteData(pservice.getPaletteData(colorScheme));
-					image.setPaletteName(colorScheme);
-				}
-			}
+			String paletteName = image.getPaletteName();
+			if (paletteName !=null)
+				store.setValue(BasePlottingConstants.LIVEPLOT_COLOUR_SCHEME, paletteName);
 		}
 	}
 
