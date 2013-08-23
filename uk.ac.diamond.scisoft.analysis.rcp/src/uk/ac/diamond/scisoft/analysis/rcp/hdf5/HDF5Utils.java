@@ -103,7 +103,8 @@ public class HDF5Utils {
 				for (HDF5NodeLink l : gNode) {
 					if (l.isDestinationADataset()) {
 						dNode = (HDF5Dataset) l.getDestination();
-						if (dNode.containsAttribute(NX_SIGNAL) && dNode.isSupported()) {
+						if (dNode.containsAttribute(NX_SIGNAL) && dNode.getAttribute(NX_SIGNAL).getFirstElement().equals("1")
+								&& dNode.isSupported()) {
 							link = l;
 							break; // only one signal per NXdata item
 						}
@@ -146,7 +147,9 @@ public class HDF5Utils {
 		for (HDF5NodeLink l : gNode) {
 			if (l.isDestinationADataset()) {
 				HDF5Dataset d = (HDF5Dataset) l.getDestination();
-				if (!d.isSupported() || d.isString() || dNode == d || d.containsAttribute(NX_SIGNAL))
+				if (!d.isSupported() || d.isString() || dNode == d)
+					continue;
+				if (d.containsAttribute(NX_SIGNAL) && d.getAttribute(NX_SIGNAL).getFirstElement().equals("1"))
 					continue;
 
 				ILazyDataset a = d.getDataset();
@@ -178,7 +181,7 @@ public class HDF5Utils {
 					}
 
 					int[] intAxis = null;
-					HDF5Attribute attr_label = null;
+					HDF5Attribute attrLabel = null;
 					String indAttr = l.getName() + NX_INDICES_SUFFIX;
 					if (gNode.containsAttribute(indAttr)) {
 						// deal with index mapping from @*_indices
@@ -195,7 +198,7 @@ public class HDF5Utils {
 
 					if (intAxis == null) {
 						attr = d.getAttribute(NX_AXIS);
-						attr_label = d.getAttribute(NX_LABEL);
+						attrLabel = d.getAttribute(NX_LABEL);
 						if (attr != null) {
 							if (attr.isString()) {
 								String[] str = attr.getFirstElement().split(",");
@@ -264,12 +267,12 @@ public class HDF5Utils {
 					}
 
 					choice.setIndexMapping(intAxis);
-					if (attr_label != null) {
-						if (attr_label.isString()) {
-							int j = Integer.parseInt(attr_label.getFirstElement()) - 1;
+					if (attrLabel != null) {
+						if (attrLabel.isString()) {
+							int j = Integer.parseInt(attrLabel.getFirstElement()) - 1;
 							choice.setAxisNumber(isAxisFortranOrder ? j : rank - 1 - j); // fix C (row-major) dimension
 						} else {
-							int j = attr_label.getValue().getInt(0) - 1;
+							int j = attrLabel.getValue().getInt(0) - 1;
 							choice.setAxisNumber(isAxisFortranOrder ? j : rank - 1 - j); // fix C (row-major) dimension
 						}
 					} else
