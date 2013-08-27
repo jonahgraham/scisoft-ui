@@ -670,7 +670,7 @@
             name="Grid Scan">
       </page>
       <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            category="org.dawnsci.preferences.diffraction"
             class="uk.ac.diamond.scisoft.analysis.rcp.preference.DiffractionViewerPreferencePage"
             id="uk.ac.diamond.scisoft.analysis.rcp.diffractionViewerPreferencePage"
             name="Diffraction Viewer">
