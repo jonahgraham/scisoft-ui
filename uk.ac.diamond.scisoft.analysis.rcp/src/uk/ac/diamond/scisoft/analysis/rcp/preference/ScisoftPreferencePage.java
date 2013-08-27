@@ -23,8 +23,8 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 
 /**
- * This class is to represent global Scisoft preferences.
- * It provides a root node for the other Scisoft preference pages
+ * This class is to represent global DAWN preferences.
+ * It provides a root node for the other DAWN preference pages
  */
 public class ScisoftPreferencePage extends FieldEditorPreferencePage implements
 		IWorkbenchPreferencePage {
@@ -35,7 +35,7 @@ public class ScisoftPreferencePage extends FieldEditorPreferencePage implements
 	public ScisoftPreferencePage() {
 		super(GRID);
 		setPreferenceStore(AnalysisRCPActivator.getDefault().getPreferenceStore());
-		setDescription("Scisoft Preferences (see sub pages)");
+		setDescription("DAWN Preferences (see sub pages)");
 	}
 	
 	@Override
