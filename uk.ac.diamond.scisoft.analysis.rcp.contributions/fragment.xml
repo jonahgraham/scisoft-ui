@@ -646,19 +646,19 @@
             name="File Navigator">
       </page>
       <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            category="org.dawb.workbench.ui.visualizationPreferences"
             class="uk.ac.diamond.scisoft.analysis.rcp.preference.PlotViewPreferencePage"
             id="uk.ac.diamond.scisoft.analysis.rcp.plotViewPreferencePage"
             name="Plot View">
       </page>
       <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            category="org.dawb.workbench.ui.visualizationPreferences"
             class="uk.ac.diamond.scisoft.analysis.rcp.preference.ImageExplorerPreferencePage"
             id="uk.ac.diamond.scisoft.analysis.rcp.imageExplorerPreferencePage"
             name="Image Explorer View">
       </page>      
       <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            category="org.dawb.workbench.ui.visualizationPreferences"
             class="uk.ac.diamond.scisoft.analysis.rcp.preference.SidePlotterPreferencePage"
             id="uk.ac.diamond.scisoft.analysis.rcp.sidePlotterPreferencePage"
             name="Side Plotter">
@@ -691,7 +691,7 @@
             name="Analysis RPC and RMI">
       </page>
       <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            category="org.dawb.workbench.ui.visualizationPreferences"
             class="uk.ac.diamond.scisoft.analysis.rcp.preference.PrintSettingsPreferencePage"
             id="uk.ac.diamond.scisoft.analysis.rcp.printSettingsPreferencePage"
             name="Plot Printing Settings">
