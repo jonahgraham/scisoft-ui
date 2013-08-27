@@ -123,7 +123,7 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 		labStopping.setText("Stopping threshold");
 		labStopping.setToolTipText("Sets the stopping threshold for the fitting algorithm");
 
-		stoppingThreshold = new Spinner(numnPeakGroup, SWT.NONE);
+		stoppingThreshold = new Spinner(numnPeakGroup, SWT.BORDER);
 		stoppingThreshold.setDigits(2);
 		stoppingThreshold.setMinimum(1);
 		stoppingThreshold.setMaximum(99);
@@ -207,7 +207,7 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 		Label pixelOverloadLabel = new Label(pixelOverloadGroup, SWT.NONE);
 		pixelOverloadLabel.setText("Threshold value ");
 
-		spnPixeloverloadThreshold = new Spinner(pixelOverloadGroup, SWT.NONE);
+		spnPixeloverloadThreshold = new Spinner(pixelOverloadGroup, SWT.BORDER);
 		spnPixeloverloadThreshold.setDigits(0);
 		spnPixeloverloadThreshold.setMaximum(100000);
 		spnPixeloverloadThreshold.setMinimum(0);
