@@ -134,7 +134,7 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 
 		Label lblLThreshold = new Label(plot2DGroup, SWT.LEFT);
 		lblLThreshold.setText("Auto-contrast lower threshold (in %)");
-		spnAutoLoThreshold = new Spinner(plot2DGroup, SWT.RIGHT);
+		spnAutoLoThreshold = new Spinner(plot2DGroup, SWT.BORDER | SWT.RIGHT);
 		spnAutoLoThreshold.setMinimum(0);
 		spnAutoLoThreshold.setMaximum(99);
 		spnAutoLoThreshold.setIncrement(1);
@@ -150,7 +150,7 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 
 		Label lblHThreshold = new Label(plot2DGroup, SWT.LEFT);
 		lblHThreshold.setText("Auto-contrast upper threshold (in %)");
-		spnAutoHiThreshold = new Spinner(plot2DGroup, SWT.RIGHT);
+		spnAutoHiThreshold = new Spinner(plot2DGroup, SWT.BORDER | SWT.RIGHT);
 		spnAutoHiThreshold.setMinimum(1);
 		spnAutoHiThreshold.setMaximum(100);
 		spnAutoHiThreshold.setIncrement(1);
