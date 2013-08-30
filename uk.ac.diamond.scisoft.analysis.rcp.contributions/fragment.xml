@@ -1136,11 +1136,4 @@
          </adapter>
       </factory>
    </extension>
-   <extension
-         point="org.eclipse.ui.intro.configExtension">
-      <configExtension
-            configId="org.eclipse.ui.intro.universalConfig"
-            content="intro/introContribution.xml">
-      </configExtension>
-   </extension>
 </fragment>
