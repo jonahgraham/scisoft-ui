@@ -36,7 +36,6 @@ import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.axis.IAxis;
 import org.dawnsci.plotting.api.region.IRegion;
-import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.dawnsci.plotting.jreality.core.AxisMode;
 import org.dawnsci.plotting.jreality.print.PlotExportUtil;
 import org.eclipse.jface.action.Action;
@@ -823,14 +822,18 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 * Needed to correctly create the guibean the first time a plot is set, otherwise the guibean will be null
 	 */
 	protected void updateGuiBeanPlotMode(GuiPlotMode mode) {
-		IGuiInfoManager mgr = getGuiManager();
-		GuiBean b = mgr.getGUIInfo();
-		if (b == null)
-			return;
-		Serializable s = b.get(GuiParameters.PLOTMODE);
-		if (mode.equals(s))
-			return;
-		mgr.putGUIInfo(GuiParameters.PLOTMODE, mode);
+		try {
+			manager.mute();
+			GuiBean b = manager.getGUIInfo();
+			if (b == null)
+				return;
+			Serializable s = b.get(GuiParameters.PLOTMODE);
+			if (mode.equals(s))
+				return;
+			manager.putGUIInfo(GuiParameters.PLOTMODE, mode);
+		} finally {
+			manager.unmute();
+		}
 	}
 
 	public DataBean getDataBean() {
