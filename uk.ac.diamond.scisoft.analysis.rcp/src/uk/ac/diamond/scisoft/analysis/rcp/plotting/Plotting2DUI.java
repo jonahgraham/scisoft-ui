@@ -36,6 +36,7 @@ import org.dawnsci.plotting.api.region.RegionUtils;
 import org.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.dawnsci.plotting.api.trace.IImageTrace;
+import org.dawnsci.plotting.api.trace.IPaletteTrace;
 import org.dawnsci.plotting.api.trace.ISurfaceTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -149,24 +150,26 @@ public class Plotting2DUI extends AbstractPlotUI {
 							if (shape != null && Arrays.equals(shape, data.getShape())
 									&& lastXAxisName.equals(xAxisName)
 									&& lastYAxisName.equals(yAxisName)) {
-								IImageTrace image = null;
+								IPaletteTrace image = null;
 								if(axes.size()>0)
-									image = (IImageTrace)plottingSystem.updatePlot2D(data, axes, null);
+									image = (IPaletteTrace)plottingSystem.updatePlot2D(data, axes, null);
 								else
-									image = (IImageTrace)plottingSystem.updatePlot2D(data, null, null);
+									image = (IPaletteTrace)plottingSystem.updatePlot2D(data, null, null);
 								setPlotViewPalette(image);
 								logger.debug("Plot 2D updated");
 							} else {
-								IImageTrace image = (IImageTrace)plottingSystem.createPlot2D(data, axes, null);
+								IPaletteTrace image = (IPaletteTrace)plottingSystem.createPlot2D(data, axes, null);
 								setPlotViewPalette(image);
 								logger.debug("Plot 2D created");
 							}
 						}else{
-							IImageTrace image = null;
-							if(axes.size()>0)
-								image = (IImageTrace)plottingSystem.createPlot2D(data, axes, null);
-							else
-								image = (IImageTrace)plottingSystem.createPlot2D(data, null, null);
+							IPaletteTrace image = null;
+							if(axes.size()>0) {
+								image = (IPaletteTrace)plottingSystem.createPlot2D(data, axes, null);
+							} else {
+								image = (IPaletteTrace)plottingSystem.createPlot2D(data, null, null);
+							}
+
 							setPlotViewPalette(image);
 							logger.debug("Plot 2D created");
 						}
@@ -180,7 +183,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 		});
 	}
 
-	private void setPlotViewPalette(IImageTrace image) {
+	private void setPlotViewPalette(IPaletteTrace image) {
 		if (image == null)
 			return;
 		IPreferenceStore store = AnalysisRCPActivator.getDefault().getPreferenceStore();
