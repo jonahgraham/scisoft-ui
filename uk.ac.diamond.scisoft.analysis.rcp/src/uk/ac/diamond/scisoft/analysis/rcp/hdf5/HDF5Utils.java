@@ -379,8 +379,11 @@ public class HDF5Utils {
 			aSel.addChoice(newChoice, aSel.getMaxOrder() + 1);
 		}
 
-		InspectorType itype = cData.getRank() == 1 ? InspectorType.LINE : InspectorType.IMAGE;
-
+		InspectorType itype = InspectorType.LINE;
+		if (shape.length > 1) {
+			if (shape[shape.length - 2] > 1) // only set image type in this case
+				itype = InspectorType.IMAGE;
+		}
 		return new HDF5Selection(itype, link.getFile().getFilename(), link.getFullName(), axes, cData);
 	}
 
