@@ -143,19 +143,20 @@ public class HDF5Utils {
 
 		// add errors
 		ILazyDataset eData = null;
-		if (gNode.containsDataset(NX_ERRORS)) {
+		String cName = cData.getName();
+		String eName = cName + NX_ERRORS_SUFFIX;
+		if (!gNode.containsDataset(eName) && !cName.equals(link.getName())) {
+			eName = link.getName() + NX_ERRORS_SUFFIX;
+		}
+		if (gNode.containsDataset(eName)) {
+			eData = gNode.getDataset(eName).getDataset();
+			eData.setName(eName);
+		} else if (gNode.containsDataset(NX_ERRORS)) { // fall back
 			eData = gNode.getDataset(NX_ERRORS).getDataset();
 			eData.setName(NX_ERRORS);
-		} else {
-			String cName = cData.getName();
-			String eName = cName + NX_ERRORS_SUFFIX;
-			if (!gNode.containsDataset(eName) && !cName.equals(link.getName())) {
-				eName = link.getName() + NX_ERRORS_SUFFIX;
-			}
-			if (gNode.containsDataset(eName)) {
-				eData = gNode.getDataset(eName).getDataset();
-				eData.setName(eName);
-			}
+		}
+		if (eData != null && !AbstractDataset.areShapesCompatible(cData.getShape(), eData.getShape(), -1)) {
+			eData = null;
 		}
 		cData.setLazyErrors(eData);
 
@@ -189,10 +190,10 @@ public class HDF5Utils {
 						choice.setLongName(stringAttr.getFirstElement());
 
 					// add errors
-					String cName = choice.getName();
+					cName = choice.getName();
 					if (cName == null)
 						cName = l.getName();
-					String eName = cName + NX_ERRORS_SUFFIX;
+					eName = cName + NX_ERRORS_SUFFIX;
 					if (!gNode.containsDataset(eName) && !cName.equals(l.getName())) {
 						eName = l.getName() + NX_ERRORS_SUFFIX;
 					}
