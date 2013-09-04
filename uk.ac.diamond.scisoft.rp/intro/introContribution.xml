@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<introContent>
+  	<extensionContent id="perspectives" style="style.css" name="Perspectives Extension" path="perspectives/@">
+		<group id="general-perspectives-group" style-id="content-group">
+       		<link label="Render 3D" url="http://org.eclipse.ui.intro/runAction?pluginId=org.dawnsci.intro&amp;class=org.dawnsci.intro.actions.OpenPerspectiveAction&amp;name=uk.ac.diamond.scisoft.rp.Render3DPerspectiveLauch" id="scisoft-rp" style-id="content-link">
+          		<text>Opens the Render 3D perspective</text>
+       		</link>
+       	</group>
+  	</extensionContent>
+</introContent>

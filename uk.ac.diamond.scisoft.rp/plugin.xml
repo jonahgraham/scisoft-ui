@@ -73,4 +73,11 @@
                                           id="uk.ac.diamond.scisoft.rp.Render3DPageRegister"
                                           name="Render 3D">
                                     </introPageRegister>
+                                 </extension>
+                                 <extension
+                                       point="org.eclipse.ui.intro.configExtension">
+                                    <configExtension
+                                          configId="org.dawnsci.intro.universalConfig"
+                                          content="intro/introContribution.xml">
+                                    </configExtension>
                                  </extension></plugin>
