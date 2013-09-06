@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
@@ -245,12 +244,13 @@ public class AxisSelection extends InspectorProperty implements Iterable<String>
 			names.add(name);
 			asData.add(a);
 		} else {
-			orderPredicate.setOrder(order);
-			int j = asData.indexOf(CollectionUtils.find(asData, orderPredicate));
-			if (j < 0) {
+			orderPredicate.setOrder(order); // find first >= order
+			Object first = CollectionUtils.find(asData, orderPredicate);
+			if (first == null) {
 				names.add(name);
 				asData.add(a);
 			} else {
+				int j = asData.indexOf(first);
 				names.add(j, name);
 				asData.add(j, a);
 			}
@@ -302,15 +302,16 @@ public class AxisSelection extends InspectorProperty implements Iterable<String>
 	 */
 	public void selectAxis(int index, boolean fire) {
 		AxisSelData a = (AxisSelData) CollectionUtils.find(asData, axisSelectionPredicate);
-		String oldName = null;
-		if (a != null) {
+		if (a != null)
 			a.setSelected(false);
-			oldName = names.get(asData.indexOf(a));
+
+		asData.get(index).setSelected(true);
+		if (!fire) {
+			return;
 		}
-		a = asData.get(index);
-		a.setSelected(true);
-		if (fire)
-			fire(new PropertyChangeEvent(this, propName, oldName, names.get(index)));
+
+		String oldName = a == null ? null : names.get(asData.indexOf(a));
+		fire(new PropertyChangeEvent(this, propName, oldName, names.get(index)));
 	}
 
 	/**
@@ -425,15 +426,6 @@ public class AxisSelection extends InspectorProperty implements Iterable<String>
 	public AxisChoice getSelectedAxis() {
 		AxisSelData a = (AxisSelData) CollectionUtils.find(asData, axisSelectionPredicate);
 		return (a == null) ? null : a.getData();
-	}
-
-	/**
-	 * Call this once finished adding choices to 
-	 */
-	public void reorderChoices() {
-
-//		Collections.sort(asData);
-
 	}
 
 	/**

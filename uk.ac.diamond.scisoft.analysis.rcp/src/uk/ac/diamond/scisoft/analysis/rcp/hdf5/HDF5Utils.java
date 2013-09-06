@@ -353,8 +353,8 @@ public class HDF5Utils {
 		List<AxisSelection> axes  = new ArrayList<AxisSelection>(); // list of axes for each dimension
 
 		for (int i = 0; i < rank; i++) {
-			int dim = shape[i];
-			AxisSelection aSel = new AxisSelection(dim, i);
+			int len = shape[i];
+			AxisSelection aSel = new AxisSelection(len, i);
 			axes.add(aSel);
 			for (AxisChoice c : choices) {
 				if (c.getAxisNumber() == i) {
@@ -366,21 +366,24 @@ public class HDF5Utils {
 				} else if (aNames.contains(c.getName())) {
 					// assume order of axes names FIXME
 					// add if name is in list of axis names
-					if (aNames.indexOf(c.getName()) == i && ArrayUtils.contains(c.getValues().getShape(), dim))
+					if (aNames.indexOf(c.getName()) == i && ArrayUtils.contains(c.getValues().getShape(), len))
 						aSel.addChoice(c, 1);
 				}
 			}
 
 			// add in an automatically generated axis with top order so it appears after primary axes
-			AbstractDataset axis = AbstractDataset.arange(dim, AbstractDataset.INT32);
+			AbstractDataset axis = AbstractDataset.arange(len, AbstractDataset.INT32);
 			axis.setName(AbstractExplorer.DIM_PREFIX + (i + 1));
 			AxisChoice newChoice = new AxisChoice(axis);
 			newChoice.setAxisNumber(i);
 			aSel.addChoice(newChoice, aSel.getMaxOrder() + 1);
 		}
 
-		InspectorType itype = cData.getRank() == 1 ? InspectorType.LINE : InspectorType.IMAGE;
-
+		InspectorType itype = InspectorType.LINE;
+		if (shape.length > 1) {
+			if (shape[shape.length - 2] > 1) // only set image type in this case
+				itype = InspectorType.IMAGE;
+		}
 		return new HDF5Selection(itype, link.getFile().getFilename(), link.getFullName(), axes, cData);
 	}
 
