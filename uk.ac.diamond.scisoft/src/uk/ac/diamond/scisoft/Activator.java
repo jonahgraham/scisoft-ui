@@ -102,7 +102,7 @@ public class Activator extends AbstractUIPlugin {
 			
 			System.out.println("Logging Configuration complete");
 			
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			System.out.println("Could not set up logging properly, loggin to stdout for now, error follows");
 			e.printStackTrace();
 			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
