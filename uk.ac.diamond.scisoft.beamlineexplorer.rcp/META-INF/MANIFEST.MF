@@ -15,6 +15,7 @@ Bundle-ActivationPolicy: lazy
 Import-Package: org.dawnsci.plotting.api,
  org.dawnsci.plotting.api.region,
  org.dawnsci.plotting.api.trace,
+ org.eclipse.ui.intro.config,
  org.eclipse.ui.navigator.resources,
  org.slf4j,
  uk.ac.diamond.scisoft.analysis.dataset

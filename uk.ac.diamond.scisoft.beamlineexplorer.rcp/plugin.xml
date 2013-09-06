@@ -217,4 +217,11 @@
             natureId="uk.ac.diamond.scisoft.beamlineexplorer.rcp.recursivecontrolled">
       </image>
    </extension>
+   <extension
+         point="org.eclipse.ui.intro.configExtension">
+      <configExtension
+            configId="org.dawnsci.intro.universalConfig"
+            content="intro/data.xml">
+      </configExtension>
+   </extension>
 </plugin>
