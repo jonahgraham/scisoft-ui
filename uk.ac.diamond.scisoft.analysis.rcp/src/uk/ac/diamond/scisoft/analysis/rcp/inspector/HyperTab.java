@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.dawnsci.slicing.tools.hyper.HyperType;
+import org.dawnsci.slicing.tools.hyper.HyperView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -41,14 +43,9 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
-import uk.ac.diamond.scisoft.analysis.rcp.views.HyperView;
 
 public class HyperTab extends PlotTab {
-	
-	public static enum HyperType {
-		Box_Axis, Line_Line, Line_Axis
-	}
-	
+		
 	private HyperType hyperType;
 
 	public HyperTab(IWorkbenchPartSite partSite, InspectorType type, String title, String[] axisNames) {
