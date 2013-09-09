@@ -497,4 +497,11 @@
             name="Project Explorer File Decorators">
       </cheatsheet>
    </extension>
+   <extension
+         point="org.eclipse.ui.intro.configExtension">
+      <configExtension
+            configId="org.dawnsci.intro.universalConfig"
+            content="intro/tutorials.xml">
+      </configExtension>
+   </extension>
 </plugin>
