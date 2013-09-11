@@ -35,6 +35,7 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Group;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.io.Metadata;
+import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
@@ -42,18 +43,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorTy
 
 public class HDF5Utils {
 	private static final Logger logger = LoggerFactory.getLogger(HDF5Utils.class);
-
-	private static final String NX_AXES = "axes";
-	private static final String NX_AXIS = "axis";
-	private static final String NX_LABEL = "label";
-	private static final String NX_PRIMARY = "primary";
-	private static final String NX_SIGNAL = "signal";
-	private static final String NX_DATA = "NXdata";
-	private static final String NX_ERRORS = "errors";
-	private static final String NX_ERRORS_SUFFIX = "_" + NX_ERRORS;
-	private static final String NX_NAME = "long_name";
-	private static final String NX_INDICES_SUFFIX = "_indices";
-	private static final String SDS = "SDS";
 
 	/**
 	 * Create a (HDF5) dataset selection from given node link. It defaults the inspector type
@@ -73,7 +62,7 @@ public class HDF5Utils {
 		// see if chosen node is a NXdata class
 		HDF5Attribute stringAttr = node.getAttribute(HDF5File.NXCLASS);
 		String nxClass = stringAttr != null ? stringAttr.getFirstElement() : null;
-		if (nxClass == null || nxClass.equals(SDS)) {
+		if (nxClass == null || nxClass.equals(NexusLoader.SDS)) {
 			if (!(node instanceof HDF5Dataset))
 				return null;
 
@@ -82,12 +71,12 @@ public class HDF5Utils {
 				return null;
 
 			gNode = (HDF5Group) link.getSource(); // before hunting for axes
-		} else if (nxClass.equals(NX_DATA)) {
+		} else if (nxClass.equals(NexusLoader.NX_DATA)) {
 			assert node instanceof HDF5Group;
 			gNode = (HDF5Group) node;
 			// check if group has signal attribute (is this official?)
-			if (gNode.containsAttribute(NX_SIGNAL)) {
-				HDF5Attribute a = gNode.getAttribute(NX_SIGNAL);
+			if (gNode.containsAttribute(NexusLoader.NX_SIGNAL)) {
+				HDF5Attribute a = gNode.getAttribute(NexusLoader.NX_SIGNAL);
 				if (a.isString()) {
 					String n = a.getFirstElement();
 					if (gNode.containsDataset(n)) {
@@ -105,7 +94,7 @@ public class HDF5Utils {
 				for (HDF5NodeLink l : gNode) {
 					if (l.isDestinationADataset()) {
 						dNode = (HDF5Dataset) l.getDestination();
-						if (dNode.containsAttribute(NX_SIGNAL) && dNode.getAttribute(NX_SIGNAL).getFirstElement().equals("1")
+						if (dNode.containsAttribute(NexusLoader.NX_SIGNAL) && dNode.getAttribute(NexusLoader.NX_SIGNAL).getFirstElement().equals("1")
 								&& dNode.isSupported()) {
 							link = l;
 							break; // only one signal per NXdata item
@@ -125,7 +114,7 @@ public class HDF5Utils {
 		}
 
 		// find possible @long_name
-		stringAttr = dNode.getAttribute(NX_NAME);
+		stringAttr = dNode.getAttribute(NexusLoader.NX_NAME);
 		if (stringAttr != null && stringAttr.isString())
 			cData.setName(stringAttr.getFirstElement());
 
@@ -144,16 +133,16 @@ public class HDF5Utils {
 		// add errors
 		ILazyDataset eData = null;
 		String cName = cData.getName();
-		String eName = cName + NX_ERRORS_SUFFIX;
+		String eName = cName + NexusLoader.NX_ERRORS_SUFFIX;
 		if (!gNode.containsDataset(eName) && !cName.equals(link.getName())) {
-			eName = link.getName() + NX_ERRORS_SUFFIX;
+			eName = link.getName() + NexusLoader.NX_ERRORS_SUFFIX;
 		}
 		if (gNode.containsDataset(eName)) {
 			eData = gNode.getDataset(eName).getDataset();
 			eData.setName(eName);
-		} else if (gNode.containsDataset(NX_ERRORS)) { // fall back
-			eData = gNode.getDataset(NX_ERRORS).getDataset();
-			eData.setName(NX_ERRORS);
+		} else if (gNode.containsDataset(NexusLoader.NX_ERRORS)) { // fall back
+			eData = gNode.getDataset(NexusLoader.NX_ERRORS).getDataset();
+			eData.setName(NexusLoader.NX_ERRORS);
 		}
 		if (eData != null && !AbstractDataset.areShapesCompatible(cData.getShape(), eData.getShape(), -1)) {
 			eData = null;
@@ -170,7 +159,7 @@ public class HDF5Utils {
 				HDF5Dataset d = (HDF5Dataset) l.getDestination();
 				if (!d.isSupported() || d.isString() || dNode == d)
 					continue;
-				if (d.containsAttribute(NX_SIGNAL) && d.getAttribute(NX_SIGNAL).getFirstElement().equals("1"))
+				if (d.containsAttribute(NexusLoader.NX_SIGNAL) && d.getAttribute(NexusLoader.NX_SIGNAL).getFirstElement().equals("1"))
 					continue;
 
 				ILazyDataset a = d.getDataset();
@@ -185,7 +174,7 @@ public class HDF5Utils {
 					int[] ashape = a.getShape();
 
 					AxisChoice choice = new AxisChoice(a);
-					stringAttr = d.getAttribute(NX_NAME);
+					stringAttr = d.getAttribute(NexusLoader.NX_NAME);
 					if (stringAttr != null && stringAttr.isString())
 						choice.setLongName(stringAttr.getFirstElement());
 
@@ -193,9 +182,9 @@ public class HDF5Utils {
 					cName = choice.getName();
 					if (cName == null)
 						cName = l.getName();
-					eName = cName + NX_ERRORS_SUFFIX;
+					eName = cName + NexusLoader.NX_ERRORS_SUFFIX;
 					if (!gNode.containsDataset(eName) && !cName.equals(l.getName())) {
-						eName = l.getName() + NX_ERRORS_SUFFIX;
+						eName = l.getName() + NexusLoader.NX_ERRORS_SUFFIX;
 					}
 					if (gNode.containsDataset(eName)) {
 						eData = gNode.getDataset(eName).getDataset();
@@ -204,7 +193,7 @@ public class HDF5Utils {
 					}
 
 					HDF5Attribute attr;
-					attr = d.getAttribute(NX_PRIMARY);
+					attr = d.getAttribute(NexusLoader.NX_PRIMARY);
 					if (attr != null) {
 						if (attr.isString()) {
 							Integer intPrimary = Integer.parseInt(attr.getFirstElement());
@@ -217,7 +206,7 @@ public class HDF5Utils {
 
 					int[] intAxis = null;
 					HDF5Attribute attrLabel = null;
-					String indAttr = l.getName() + NX_INDICES_SUFFIX;
+					String indAttr = l.getName() + NexusLoader.NX_INDICES_SUFFIX;
 					if (gNode.containsAttribute(indAttr)) {
 						// deal with index mapping from @*_indices
 						attr = gNode.getAttribute(indAttr);
@@ -232,8 +221,8 @@ public class HDF5Utils {
 					}
 
 					if (intAxis == null) {
-						attr = d.getAttribute(NX_AXIS);
-						attrLabel = d.getAttribute(NX_LABEL);
+						attr = d.getAttribute(NexusLoader.NX_AXIS);
+						attrLabel = d.getAttribute(NexusLoader.NX_LABEL);
 						if (attr != null) {
 							if (attr.isString()) {
 								String[] str = attr.getFirstElement().split(",");
@@ -322,11 +311,11 @@ public class HDF5Utils {
 		}
 
 		List<String> aNames = new ArrayList<String>();
-		HDF5Attribute axesAttr = dNode.getAttribute(NX_AXES);
+		HDF5Attribute axesAttr = dNode.getAttribute(NexusLoader.NX_AXES);
 		if (axesAttr == null) { // cope with @axes being in group
-			axesAttr = gNode.getAttribute(NX_AXES);
+			axesAttr = gNode.getAttribute(NexusLoader.NX_AXES);
 			if (axesAttr != null)
-				logger.warn("Found @{} tag in group (not in '{}' dataset)", new Object[] {NX_AXES, gNode.findLinkedNodeName(dNode)});
+				logger.warn("Found @{} tag in group (not in '{}' dataset)", new Object[] {NexusLoader.NX_AXES, gNode.findLinkedNodeName(dNode)});
 		}
 
 		if (axesAttr != null) { // check axes attribute for list axes
