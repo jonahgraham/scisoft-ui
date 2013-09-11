@@ -121,8 +121,9 @@ public class Plotting2DUI extends AbstractPlotUI {
 					
 						final Collection<ITrace> traces = plottingSystem.getTraces();
 						final List<ITrace> traceList =new ArrayList<ITrace>(traces);
-						if (traces != null && traces.size() > 0 
-								&& traceList.size()>0) {
+						
+						if (traces != null && traces.size() > 0  && traceList.size()>0) {
+							
 							List<IDataset> currentAxes = null;
 							int[] shape = null; 
 							if(traceList.get(0) instanceof IImageTrace){
@@ -134,11 +135,14 @@ public class Plotting2DUI extends AbstractPlotUI {
 								shape = surface.getData() != null ? surface.getData().getShape() : null;
 								currentAxes = surface.getAxes();
 							}
+							
+							boolean newAxes = true;
 							String lastXAxisName = "", lastYAxisName = "";
-							if(currentAxes!=null && currentAxes.size()>0)
+							if(currentAxes!=null && currentAxes.size()>0) {
 								lastXAxisName = currentAxes.get(0).getName();
-							if(currentAxes!=null && currentAxes.size()>1)
 								lastYAxisName = currentAxes.get(1).getName();
+								newAxes = !currentAxes.equals(axes);
+							}
 							
 							if (shape != null && Arrays.equals(shape, data.getShape())
 									&& lastXAxisName.equals(xAxisName)
@@ -152,6 +156,8 @@ public class Plotting2DUI extends AbstractPlotUI {
 								plottingSystem.createPlot2D(data, axes, null);
 								logger.debug("Plot 2D created");
 							}
+							if (newAxes) plottingSystem.repaint();
+							
 						}else{
 							if(axes.size()>0)
 								plottingSystem.createPlot2D(data, axes, null);
@@ -159,9 +165,6 @@ public class Plotting2DUI extends AbstractPlotUI {
 								plottingSystem.createPlot2D(data, null, null);
 							logger.debug("Plot 2D created");
 						}
-						// COMMENTED TO FIX SCI-808: no need for a repaint
-						// plottingSystem.repaint();
-
 					} else
 						logger.debug("No data to plot");
 				}
