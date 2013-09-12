@@ -158,7 +158,11 @@ public class Plotting2DUI extends AbstractPlotUI {
 								setPlotViewPalette(image);
 								logger.debug("Plot 2D updated");
 							} else {
-								IPaletteTrace image = (IPaletteTrace)plottingSystem.createPlot2D(data, axes, null);
+								IPaletteTrace image = null;
+								if(axes.size()>0)
+									image = (IPaletteTrace)plottingSystem.createPlot2D(data, axes, null);
+								else 
+									image = (IPaletteTrace)plottingSystem.createPlot2D(data, null, null);
 								setPlotViewPalette(image);
 								logger.debug("Plot 2D created");
 							}
