@@ -115,8 +115,11 @@ public class HDF5Utils {
 
 		// find possible @long_name
 		stringAttr = dNode.getAttribute(NexusHDF5Loader.NX_NAME);
-		if (stringAttr != null && stringAttr.isString())
-			cData.setName(stringAttr.getFirstElement());
+		if (stringAttr != null && stringAttr.isString()) {
+			String n = stringAttr.getFirstElement();
+			if (n != null && n.length() > 0)
+				cData.setName(n);
+		}
 
 		// remove extraneous dimensions
 		cData.squeeze(true);
