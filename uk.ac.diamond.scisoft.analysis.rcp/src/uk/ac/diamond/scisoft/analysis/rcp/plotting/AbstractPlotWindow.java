@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -75,7 +75,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
  * Abstract Class used to implement PlotWindows that implement IObserver, IObservable
  */
 @SuppressWarnings("deprecation")
-public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObservable{
+public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObservable {
 
 	static private Logger logger = LoggerFactory.getLogger(AbstractPlotWindow.class);
 
@@ -290,7 +290,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 * Returns the IGuiInfoManager of the window
 	 * @return manager
 	 */
-	protected IGuiInfoManager getGuiManager(){
+	protected IGuiInfoManager getGuiManager() {
 		return manager;
 	}
 
@@ -298,7 +298,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 * Returns the notifyListener of the window
 	 * @return notifyListener
 	 */
-	protected IUpdateNotificationListener getNotififyListener(){
+	protected IUpdateNotificationListener getNotififyListener() {
 		return notifyListener;
 	}
 
@@ -317,7 +317,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		observers.clear();
 	}
 
-	protected List<IObserver> getObservers(){
+	protected List<IObserver> getObservers() {
 		return observers;
 	}
 
@@ -597,6 +597,8 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			String opStr = (String) bean.get(GuiParameters.PLOTOPERATION);
 			if (opStr.equals(GuiParameters.PLOTOP_UPDATE)) {
 				setUpdatePlot(true);
+			} else if (!opStr.equals(GuiParameters.PLOTOP_ADD)) {
+				resetAxes();
 			}
 		}
 
