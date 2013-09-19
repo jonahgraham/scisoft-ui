@@ -70,7 +70,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 				RMIServerProvider.getInstance().exportAndRegisterObject(AbstractPlotWindow.RMI_SERVICE_NAME,
 						new RMIPlotWindowManger());
 			} catch (Exception e) {
-				logger.error("Unable to register PlotWindowManager for use over RMI", e);
+				logger.warn("Unable to register PlotWindowManager for use over RMI - it might be disabled", e);
 			}
 
 			try {
