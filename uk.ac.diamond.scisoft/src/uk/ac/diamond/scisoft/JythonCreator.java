@@ -105,6 +105,7 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.jama",
 		"uk.ac.diamond.scisoft.analysis",
 		"uk.ac.diamond.scisoft.python",
+		"uk.ac.diamond.scisoft.spectroscopy",
 		"uk.ac.gda.common",
 		"org.dawb.hdf5", // fix to http://jira.diamond.ac.uk/browse/SCI-1467
 		"com.springsource.slf4j",
