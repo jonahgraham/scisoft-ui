@@ -460,14 +460,21 @@ class HDF5LabelProvider implements ITableLabelProvider {
 			}
 
 			ILazyDataset data = dataset.getDataset();
-			int[] shape = data.getShape();
 			switch (columnIndex) {
 			case 2: // dimensions
-				for (int i : shape) {
-					msg += i + ", ";
+				if (data == null) {
+					int rank = dataset.getMaxShape().length;
+					for (int i = 0; i < rank; i++) {
+						msg += "0, ";
+					}
+				} else {
+					int[] shape = data.getShape();
+					for (int i : shape) {
+						msg += i + ", ";
+					}
 				}
 				if (msg.length() > 2)
-					msg = msg.substring(0, msg.length()-2);
+					msg = msg.substring(0, msg.length() - 2);
 				break;
 			case 3: // type
 				msg = dataset.getTypeName();
@@ -480,7 +487,7 @@ class HDF5LabelProvider implements ITableLabelProvider {
 					if (units != null && units.isString()) {
 						msg += " " + units.getFirstElement();
 					}
-				} else if (data.getSize() == 0) {
+				} else if (data == null || data.getSize() == 0) {
 					msg = "none available as dataset is zero-sized";
 				} else {
 					msg = "double-click to view";
