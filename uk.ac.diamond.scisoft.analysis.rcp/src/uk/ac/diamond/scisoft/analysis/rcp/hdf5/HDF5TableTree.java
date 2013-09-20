@@ -48,6 +48,7 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Group;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
+import uk.ac.diamond.scisoft.analysis.hdf5.HDF5SymLink;
 
 /**
  * Class to contain a table-tree view of a HDF5 tree
@@ -327,6 +328,10 @@ class HDF5LazyContentProvider implements ILazyTreeContentProvider {
 
 		if (pNode instanceof HDF5Group) {
 			for (HDF5NodeLink link : (HDF5Group) pNode) {
+				if (link.isDestinationASymLink()) {
+					HDF5SymLink slink = (HDF5SymLink) link.getDestination();
+					link = slink.getNodeLink();
+				}
 				if (link.isDestinationAGroup()) {
 					String name = link.getName();
 					if (filter.select(name)) {
@@ -341,6 +346,10 @@ class HDF5LazyContentProvider implements ILazyTreeContentProvider {
 			}
 
 			for (HDF5NodeLink link : (HDF5Group) pNode) {
+				if (link.isDestinationASymLink()) {
+					HDF5SymLink slink = (HDF5SymLink) link.getDestination();
+					link = slink.getNodeLink();
+				}
 				if (link.isDestinationADataset()) {
 					String name = link.getName();
 					if (filter.select(name)) {
