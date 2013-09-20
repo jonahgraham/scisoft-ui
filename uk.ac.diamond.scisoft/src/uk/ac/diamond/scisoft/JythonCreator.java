@@ -106,6 +106,7 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.scisoft.analysis",
 		"uk.ac.diamond.scisoft.python",
 		"uk.ac.gda.common",
+		"org.dawb.hdf5", // fix to http://jira.diamond.ac.uk/browse/SCI-1467
 		"com.springsource.slf4j",
 		"com.springsource.ch.qos.logback",
 		"com.springsource.org.apache.commons",
@@ -129,7 +130,6 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.scisoft.python",
 		"uk.ac.diamond.CBFlib",
 		"uk.ac.gda.common",
-		"org.dawb.hdf5", // fix to http://jira.diamond.ac.uk/browse/SCI-1467
 		"ncsa.hdf",
 		"uk.ac.gda.libs"
 	};
