@@ -109,7 +109,7 @@ public class HDF5Utils {
 		ILazyDataset cData = dNode.getDataset(); // chosen dataset
 
 		if (cData == null || cData.getSize() == 0) {
-			logger.warn("Chosen data {} has zero size", dNode);
+			logger.warn("Chosen data {}, has zero size", dNode);
 			return null;
 		}
 
