@@ -61,9 +61,6 @@ public class SRSActionProvider extends CommonActionProvider {
 		/* Set up the property open action when enabled. */
 		if (openAction.isEnabled())
 			actionBars.setGlobalActionHandler(ICommonActionConstants.OPEN, openAction);
-		
-		if (transferAction.isEnabled())
-			actionBars.setGlobalActionHandler(ICommonActionConstants.OPEN, transferAction);	
 	}
 
 	/*
