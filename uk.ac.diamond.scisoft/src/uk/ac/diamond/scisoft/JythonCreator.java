@@ -358,9 +358,14 @@ public class JythonCreator implements IStartup {
 						}
 					}
 				}
-				for (String p : System.getenv(pathEnv).split(File.pathSeparator)) {
-					paths.add(p);
+				try {
+					for (String p : System.getenv(pathEnv).split(File.pathSeparator)) {
+						paths.add(p);
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
 				}
+				
 				StringBuilder allPaths = new StringBuilder();
 				for (String p : paths) {
 					allPaths.append(p);
