@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.core.resources,
  org.eclipse.ui.cheatsheets;bundle-version="3.4.100",
  uk.ac.diamond.scisoft.analysis.rcp,
  uk.ac.diamond.scisoft.analysis;bundle-version="1.3.0",
- uk.ac.diamond.scisoft.analysis.api;bundle-version="1.0.0"
+ uk.ac.diamond.scisoft.analysis.api;bundle-version="1.0.0",
+ org.dawnsci.slicing.api;bundle-version="1.0.0"
 Bundle-Activator: uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator
 Import-Package: gda.analysis.io,
  org.dawb.common.services,

@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.sda.navigator.actions;
 
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.navigator.CommonActionProvider;
@@ -27,7 +28,8 @@ import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
 
 public class SRSActionProvider extends CommonActionProvider {
 
-	private OpenSRSAction openAction;
+	private Action openAction;
+	private Action transferAction;
 
 	/**
 	 * Construct Property Action provider.
@@ -45,7 +47,8 @@ public class SRSActionProvider extends CommonActionProvider {
 		ICommonViewerSite viewSite = aSite.getViewSite();
 		if (viewSite instanceof ICommonViewerWorkbenchSite) {
 			ICommonViewerWorkbenchSite workbenchSite = (ICommonViewerWorkbenchSite) viewSite;
-			openAction = new OpenSRSAction(workbenchSite.getPage(), workbenchSite.getSelectionProvider());
+			openAction     = new OpenSRSAction(workbenchSite.getPage(), workbenchSite.getSelectionProvider());
+			transferAction = new CopyTransferableDataAction(workbenchSite.getPage(), workbenchSite.getSelectionProvider());
 		}
 	}
 
@@ -66,8 +69,8 @@ public class SRSActionProvider extends CommonActionProvider {
 	 */
 	@Override
 	public void fillContextMenu(IMenuManager menu) {
-		if (openAction.isEnabled())
-			menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openAction);
+		if (openAction.isEnabled())     menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openAction);
+		if (transferAction.isEnabled()) menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, transferAction);
 	}
 
 }
