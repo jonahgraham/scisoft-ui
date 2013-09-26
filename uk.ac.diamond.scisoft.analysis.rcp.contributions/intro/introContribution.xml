@@ -1,24 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <introContent>
-  	<extensionContent id="dexplore-perspective-extension" style="style.css" name="DEXPLORE Perspective" path="perspectives/@">
+  	<extensionContent id="dexplore-perspective-extension" style="style.css" name="DEXPLORE, DIVA and Python/Jython Perspective" path="perspectives/@">
 		<group id="dexplore-perspective-group" style-id="content-group">
        		<link label="DEXPLORE" url="http://org.eclipse.ui.intro/runAction?pluginId=org.dawnsci.intro&amp;class=org.dawnsci.intro.actions.OpenPerspectiveAction&amp;name=uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspectiveLaunch" id="analysisrcp-dExplore" style-id="content-link">
           		<text>Opens the Data Explorer perspective for viewing data files</text>
        		</link>
-       	</group>
-    </extensionContent>
-    <extensionContent id="diva-perspective-extension" style="style.css" name="DIVA Perspective" path="perspectives/@">
-    	<group id="diva-perspective-group" style-id="content-group">
        		<link label="DIVA" url="http://org.eclipse.ui.intro/runAction?pluginId=org.dawnsci.intro&amp;class=org.dawnsci.intro.actions.OpenPerspectiveAction&amp;name=uk.ac.diamond.scisoft.analysis.rcp.DiffractionViewerPerspectiveLaunch" id="analysisrcp-diva" style-id="content-link">
           		<text>Opens the diffraction view perspective for viewing and analysing diffraction images</text>
        		</link>
-       	</group>
-    </extensionContent>
-  	<extensionContent id="python-jython-perspective-extension" style="style.css" name="Python/Jython Perspective" path="perspectives/@">
-		<group id="python-jython-perspective-group" style-id="content-group">
        		<link label="Python/Jython Scripting" url="http://org.eclipse.ui.intro/runAction?pluginId=org.dawnsci.intro&amp;class=org.dawnsci.intro.actions.OpenPerspectiveAction&amp;name=uk.ac.diamond.scisoft.analysis.rcp.JythonPerspectiveLaunch" id="analysisrcp-python" style-id="content-link">
           		<text>Opens the Pydev environment for programmatically opening, editing, analysing, saving and displaying data files</text>
        		</link>
        	</group>
-  	</extensionContent>
+    </extensionContent>
 </introContent>
