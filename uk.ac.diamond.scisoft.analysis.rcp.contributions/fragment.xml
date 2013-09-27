@@ -1128,19 +1128,4 @@
          </adapter>
       </factory>
    </extension>
-   <extension
-         point="org.eclipse.ui.intro.configExtension">
-      <configExtension
-            configId="org.dawnsci.intro.universalConfig"
-            content="intro/introContribution.xml">
-      </configExtension>
-      <configExtension
-            configId="org.dawnsci.intro.universalConfig"
-            content="intro/data.xml">
-      </configExtension>
-      <configExtension
-            configId="org.dawnsci.intro.universalConfig"
-            content="intro/tutorials.xml">
-      </configExtension>
-   </extension>
 </fragment>
