@@ -28,8 +28,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.ide.IDE;
 
-import uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData;
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
+import uk.ac.diamond.sda.navigator.srs.SRSTreeData;
 
 public class OpenSRSAction extends Action {
 

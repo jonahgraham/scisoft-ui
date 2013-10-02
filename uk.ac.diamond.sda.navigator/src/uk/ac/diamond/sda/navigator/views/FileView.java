@@ -79,9 +79,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
+import uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferenceConstants;
 import uk.ac.diamond.sda.navigator.views.FileContentProvider.FileSortType;
 import uk.ac.gda.ui.content.FileContentProposalProvider;
 import uk.ac.gda.util.OSUtils;
@@ -264,26 +263,26 @@ public class FileView extends ViewPart implements IFileView {
 
 		final String[] titles = { "Name", "Date", "Type", "Size", "Comment", "Scan Command" };
 
-		IPreferenceStore store = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		boolean showDate = store.getBoolean(PreferenceConstants.SHOW_DATE_COLUMN);
-		boolean showType = store.getBoolean(PreferenceConstants.SHOW_TYPE_COLUMN);
-		boolean showSize = store.getBoolean(PreferenceConstants.SHOW_SIZE_COLUMN);
-		boolean showComment = store.getBoolean(PreferenceConstants.SHOW_COMMENT_COLUMN);
-		boolean showScanCmd = store.getBoolean(PreferenceConstants.SHOW_SCANCMD_COLUMN);
+		IPreferenceStore store = NavigatorRCPActivator.getDefault().getPreferenceStore();
+		boolean showDate = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_DATE_COLUMN);
+		boolean showType = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_TYPE_COLUMN);
+		boolean showSize = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_SIZE_COLUMN);
+		boolean showComment = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_COMMENT_COLUMN);
+		boolean showScanCmd = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_SCANCMD_COLUMN);
 
 		// we listen to the preference store property changes
 		store.addPropertyChangeListener(new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(PreferenceConstants.SHOW_DATE_COLUMN)) {
+				if (event.getProperty().equals(FileNavigatorPreferenceConstants.SHOW_DATE_COLUMN)) {
 					setColumnVisible(1, 120, (Boolean) event.getNewValue());
-				} else if (event.getProperty().equals(PreferenceConstants.SHOW_TYPE_COLUMN)) {
+				} else if (event.getProperty().equals(FileNavigatorPreferenceConstants.SHOW_TYPE_COLUMN)) {
 					setColumnVisible(2, 80, (Boolean) event.getNewValue());
-				} else if (event.getProperty().equals(PreferenceConstants.SHOW_SIZE_COLUMN)) {
+				} else if (event.getProperty().equals(FileNavigatorPreferenceConstants.SHOW_SIZE_COLUMN)) {
 					setColumnVisible(3, 150, (Boolean) event.getNewValue());
-				} else if (event.getProperty().equals(PreferenceConstants.SHOW_COMMENT_COLUMN)) {
+				} else if (event.getProperty().equals(FileNavigatorPreferenceConstants.SHOW_COMMENT_COLUMN)) {
 					setColumnVisible(4, 250, (Boolean) event.getNewValue());
-				} else if (event.getProperty().equals(PreferenceConstants.SHOW_SCANCMD_COLUMN)) {
+				} else if (event.getProperty().equals(FileNavigatorPreferenceConstants.SHOW_SCANCMD_COLUMN)) {
 					setColumnVisible(5, 300, (Boolean) event.getNewValue());
 				}
 			}
@@ -378,7 +377,7 @@ public class FileView extends ViewPart implements IFileView {
 	@Override
 	public void showPreferences() {
 		PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(
-				getViewSite().getShell(), "uk.ac.diamond.scisoft.analysis.rcp.fileNavigatorPreferencePage", null, null);
+				getViewSite().getShell(), "uk.ac.diamond.sda.navigator.fileNavigatorPreferencePage", null, null);
 		if (pref != null) {
 			pref.open();
 		}

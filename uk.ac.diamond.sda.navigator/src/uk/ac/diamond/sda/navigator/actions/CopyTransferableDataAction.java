@@ -30,11 +30,12 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
-import uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData;
+import uk.ac.diamond.sda.navigator.srs.SRSTreeData;
 
 public class CopyTransferableDataAction extends Action {
 
 	private static final Logger logger = LoggerFactory.getLogger(CopyTransferableDataAction.class);
+	@SuppressWarnings("unused")
 	private IWorkbenchPage page;
 	private SRSTreeData data;
 	private ISelectionProvider provider;

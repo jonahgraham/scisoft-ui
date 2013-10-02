@@ -24,8 +24,6 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.navigator.IDescriptionProvider;
 
-import uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData;
-
 /**
  * Provides a label and icon for objects of type {@link SRSTreeData}.
  */

@@ -194,7 +194,7 @@
          </triggerPoints>
          <possibleChildren>
             <or>
-               <instanceof value="uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData"/> 
+               <instanceof value="uk.ac.diamond.sda.navigator.srs.SRSTreeData"/> 
             </or>
          </possibleChildren>
          <actionProvider
@@ -503,5 +503,14 @@
             configId="org.dawnsci.intro.universalConfig"
             content="intro/tutorials.xml">
       </configExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferencePage"
+            id="uk.ac.diamond.sda.navigator.fileNavigatorPreferencePage"
+            name="File Navigator">
+      </page>
    </extension>
 </plugin>

@@ -36,7 +36,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.ExtendedSRSLoader;
 import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
-import uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData;
+import uk.ac.diamond.sda.navigator.srs.SRSTreeData;
 
 /**
  * Class used to decorate each of the sub-element of a DAT file with the corresponding data value (max, min, class...)

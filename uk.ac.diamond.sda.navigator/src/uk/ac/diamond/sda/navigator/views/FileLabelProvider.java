@@ -24,15 +24,16 @@ import java.util.Date;
 import org.dawb.common.services.IFileIconService;
 import org.dawb.common.services.ServiceManager;
 import org.dawb.common.util.io.FileUtils;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
-import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
+import uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferenceConstants;
 import uk.ac.diamond.sda.navigator.util.NavigatorUtils;
 import uk.ac.gda.util.OSUtils;
 
@@ -47,7 +48,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		this.columnIndex = column;
 		this.dateFormat  = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 		this.service = (IFileIconService)ServiceManager.getService(IFileIconService.class);
-		this.store = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		this.store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "uk.ac.diamond.scisoft.analysis.rcp");
 	}
 
 	@Override
@@ -81,8 +82,8 @@ public class FileLabelProvider extends ColumnLabelProvider {
 	@Override
 	public String getText(Object element) {
 		
-		boolean showComment = store.getBoolean(PreferenceConstants.SHOW_COMMENT_COLUMN);
-		boolean showScanCmd = store.getBoolean(PreferenceConstants.SHOW_SCANCMD_COLUMN);
+		boolean showComment = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_COMMENT_COLUMN);
+		boolean showScanCmd = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_SCANCMD_COLUMN);
 
 		if (element instanceof String) return (String)element;
 		final File node   = (File)element;

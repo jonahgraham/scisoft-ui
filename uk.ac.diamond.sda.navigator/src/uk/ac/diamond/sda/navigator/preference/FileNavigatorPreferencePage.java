@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Diamond Light Source Ltd.
+ * Copyright 203 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.preference;
+package uk.ac.diamond.sda.navigator.preference;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 
 public class FileNavigatorPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
@@ -39,25 +40,27 @@ public class FileNavigatorPreferencePage extends FieldEditorPreferencePage imple
 	@Override
 	protected void createFieldEditors() {
 
-		showDate = new BooleanFieldEditor(PreferenceConstants.SHOW_DATE_COLUMN,"Show date column",getFieldEditorParent());
+		showDate = new BooleanFieldEditor(FileNavigatorPreferenceConstants.SHOW_DATE_COLUMN,"Show date column",getFieldEditorParent());
 		addField(showDate);
 
-		showType = new BooleanFieldEditor(PreferenceConstants.SHOW_TYPE_COLUMN,"Show type column",getFieldEditorParent());
+		showType = new BooleanFieldEditor(FileNavigatorPreferenceConstants.SHOW_TYPE_COLUMN,"Show type column",getFieldEditorParent());
 		addField(showType);
 
-		showSize = new BooleanFieldEditor(PreferenceConstants.SHOW_SIZE_COLUMN, "Show size column",getFieldEditorParent());
+		showSize = new BooleanFieldEditor(FileNavigatorPreferenceConstants.SHOW_SIZE_COLUMN, "Show size column",getFieldEditorParent());
 		addField(showSize);
 
-		showComment = new BooleanFieldEditor(PreferenceConstants.SHOW_COMMENT_COLUMN, "Show comment column",getFieldEditorParent());
+		showComment = new BooleanFieldEditor(FileNavigatorPreferenceConstants.SHOW_COMMENT_COLUMN, "Show comment column",getFieldEditorParent());
 		addField(showComment);
 
-		showScanCmd = new BooleanFieldEditor(PreferenceConstants.SHOW_SCANCMD_COLUMN, "Show scan command column",getFieldEditorParent());
+		showScanCmd = new BooleanFieldEditor(FileNavigatorPreferenceConstants.SHOW_SCANCMD_COLUMN, "Show scan command column",getFieldEditorParent());
 		addField(showScanCmd);
 	}
 
 	@Override
 	public void init(IWorkbench workbench) {
-		setPreferenceStore(AnalysisRCPActivator.getDefault().getPreferenceStore());
+		IPreferenceStore store = NavigatorRCPActivator.getDefault().getPreferenceStore();
+
+		setPreferenceStore(store);
 		setDescription("Preferences for viewing a file system using the File Navigator:");
 	}
 

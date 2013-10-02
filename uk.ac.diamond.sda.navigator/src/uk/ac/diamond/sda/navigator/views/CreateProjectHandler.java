@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import uk.ac.diamond.scisoft.analysis.rcp.wizards.DataWizard;
+//import uk.ac.diamond.scisoft.analysis.rcp.wizards.DataWizard;
 
 public class CreateProjectHandler extends AbstractHandler {
 
@@ -37,6 +37,9 @@ public class CreateProjectHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		
 		try {
+			// This handler is not used anywhere
+			// it has been commented out in order to remove the analysis.rcp dependency
+			/*
 			final DataWizard wizard = (DataWizard)EclipseUtils.openWizard("uk.ac.diamond.scisoft.analysis.rcp.wizards.DataWizard", false);
 			File selectedFile = null;
 			final ISelection selection = HandlerUtil.getCurrentSelection(event);
@@ -51,6 +54,7 @@ public class CreateProjectHandler extends AbstractHandler {
 			final WizardDialog wd = new  WizardDialog(Display.getCurrent().getActiveShell(), wizard);
 			wd.setTitle(wizard.getWindowTitle());
 			wd.open();
+			*/
 			
 			// Select project explorer
 			EclipseUtils.getActivePage().showView("org.eclipse.ui.navigator.ProjectExplorer", null, IWorkbenchPage.VIEW_ACTIVATE);

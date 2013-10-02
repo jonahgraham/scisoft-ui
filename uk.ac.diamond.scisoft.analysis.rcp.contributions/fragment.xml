@@ -632,12 +632,6 @@
             name="DAWN">
       </page>
       <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.FileNavigatorPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.fileNavigatorPreferencePage"
-            name="File Navigator">
-      </page>
-      <page
             category="org.dawb.workbench.ui.visualizationPreferences"
             class="uk.ac.diamond.scisoft.analysis.rcp.preference.PlotViewPreferencePage"
             id="uk.ac.diamond.scisoft.analysis.rcp.plotViewPreferencePage"

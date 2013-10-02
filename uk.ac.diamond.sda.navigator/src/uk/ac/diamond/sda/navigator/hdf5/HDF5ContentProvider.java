@@ -30,8 +30,6 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Group;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
-import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5TableTree;
-import uk.ac.diamond.scisoft.analysis.rcp.hdf5.TreeFilter;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 
 public class HDF5ContentProvider implements ITreeContentProvider {
@@ -78,7 +76,7 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 		
 		int count = 0;
 		Iterator<String> iter = pNode.getAttributeNameIterator();
-		children = new Object[HDF5TableTree.countChildren(parent, treeFilter)];
+		children = new Object[countChildren(parent, treeFilter)];
 
 		while (iter.hasNext()) {
 			String name = iter.next();
@@ -121,7 +119,7 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 
 	@Override
 	public boolean hasChildren(Object element) {
-		if((element instanceof HDF5NodeLink) && ((HDF5TableTree.countChildren(element, treeFilter) > 0)) || (element instanceof IFile))
+		if((element instanceof HDF5NodeLink) && ((countChildren(element, treeFilter) > 0)) || (element instanceof IFile))
 			return true;
 		return false;
 	}
@@ -165,5 +163,32 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 		} catch (Exception e) {
 			logger.warn("Could not load NeXus file {}", fileName);
 		}
+	}
+
+	public static int countChildren(Object element, TreeFilter filter) {
+		int count = 0;
+		if (element instanceof HDF5Attribute) {
+			return 0;
+		}
+		if (element instanceof HDF5NodeLink) {
+			HDF5Node node = ((HDF5NodeLink) element).getDestination();
+			Iterator<String> iter = node.getAttributeNameIterator();
+			while (iter.hasNext()) {
+				if (filter.select(iter.next()))
+					count++;
+			}
+			if (node instanceof HDF5Group) {
+				HDF5Group group = (HDF5Group) node;
+				Iterator<String> nIter = group.getNodeNameIterator();
+				while (nIter.hasNext()) {
+					if (filter.select(nIter.next()))
+						count++;
+				}
+			}
+			if (node instanceof HDF5Dataset) {
+				// do nothing?
+			}
+		}
+		return count;
 	}
 }
