@@ -320,12 +320,12 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 					} else {
 						guiBean.merge(bean); // or merge it
 					}
+					guiBean.remove(GuiParameters.ROICLEARALL); // this parameter must not persist
 					setStashedGuiBean(bean);
 					updateBeans();
 				}
 			}
 		}
-
 	}
 
 	@Override

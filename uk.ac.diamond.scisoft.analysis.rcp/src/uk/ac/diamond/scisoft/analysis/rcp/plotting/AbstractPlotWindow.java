@@ -20,7 +20,6 @@ import gda.observable.IObservable;
 import gda.observable.IObserver;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -146,7 +145,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		this.bars = bars;
 		this.page = page;
 		this.name = name;
-		setRoiManager(new ROIManager(manager, name));
+		roiManager = new ROIManager(manager, name);
 
 		plotMode = getPlotMode();
 
@@ -602,7 +601,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			}
 		}
 
-		if (bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST)) {
+		if (bean.containsKey(GuiParameters.ROICLEARALL) || bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST)) {
 			try {
 				// lock ROI manager
 				getRoiManager().acquireLock();
@@ -820,24 +819,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		}
 	}
 
-	/**
-	 * Needed to correctly create the guibean the first time a plot is set, otherwise the guibean will be null
-	 */
-	protected void updateGuiBeanPlotMode(GuiPlotMode mode) {
-		try {
-			manager.mute();
-			GuiBean b = manager.getGUIInfo();
-			if (b == null)
-				return;
-			Serializable s = b.get(GuiParameters.PLOTMODE);
-			if (mode.equals(s))
-				return;
-			manager.putGUIInfo(GuiParameters.PLOTMODE, mode);
-		} finally {
-			manager.unmute();
-		}
-	}
-
 	public DataBean getDataBean() {
 		return myBeanMemory;
 	}
@@ -864,10 +845,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 
 	public ROIManager getRoiManager() {
 		return roiManager;
-	}
-
-	public void setRoiManager(ROIManager roiManager) {
-		this.roiManager = roiManager;
 	}
 
 	public IPlottingSystem getPlottingSystem() {
@@ -906,7 +883,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		plotUI = new Plot1DUIComplete(this, getGuiManager(), bars, parentComp, getPage(), getName());
 		addCommonActions(mainPlotter);
 		bars.updateActionBars();
-		updateGuiBeanPlotMode(GuiPlotMode.ONED);
 	}
 
 	// Abstract plotting System
@@ -916,7 +892,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		addScriptingAction();
 		addDuplicateAction();
 		addClearAction();
-		updateGuiBeanPlotMode(GuiPlotMode.ONED);
 		setVisibleByPlotType(plottingSystem.getPlotType());
 	}
 
@@ -926,7 +901,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		plotUI = new Plot2DUI(this, mainPlotter, getGuiManager(), parentComp, getPage(), bars, getName());
 		addCommonActions(mainPlotter);
 		bars.updateActionBars();
-		updateGuiBeanPlotMode(GuiPlotMode.TWOD);
 	}
 
 	// Abstract plotting System
@@ -936,7 +910,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		addScriptingAction();
 		addDuplicateAction();
 		addClearAction();
-		updateGuiBeanPlotMode(GuiPlotMode.TWOD);
 		setVisibleByPlotType(plottingSystem.getPlotType());
 	}
 
@@ -945,7 +918,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		plotUI = new Plot2DMultiUI(this, mainPlotter, getGuiManager(), parentComp, getPage(), bars, getName());
 		addCommonActions(mainPlotter);
 		bars.updateActionBars();
-		updateGuiBeanPlotMode(GuiPlotMode.MULTI2D);
 	}
 
 	protected void setup2DSurfaceNewPlotting() {
@@ -954,7 +926,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		addScriptingAction();
 		addDuplicateAction();
 		addClearAction();
-		updateGuiBeanPlotMode(GuiPlotMode.SURF2D);
 		setVisibleByPlotType(plottingSystem.getPlotType());
 	}
 
@@ -963,7 +934,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		plotUI = new PlotSurf3DUI(this, mainPlotter, parentComp, getPage(), bars, getName());
 		addCommonActions(mainPlotter);
 		bars.updateActionBars();
-		updateGuiBeanPlotMode(GuiPlotMode.SURF2D);
 	}
 
 	protected void setupMulti1DPlot() {
@@ -971,7 +941,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		plotUI = new Plot1DStackUI(this, bars, mainPlotter, parentComp, getPage());
 		addCommonActions(mainPlotter);
 		bars.updateActionBars();
-		updateGuiBeanPlotMode(GuiPlotMode.ONED_THREED);
 	}
 
 	// Abstract plotting System
@@ -981,7 +950,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		addScriptingAction();
 		addDuplicateAction();
 		addClearAction();
-		updateGuiBeanPlotMode(GuiPlotMode.ONED_THREED);
 	}
 
 	protected void setupScatter2DPlot() {
@@ -989,7 +957,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		plotUI = new PlotScatter2DUI(this, bars, mainPlotter, parentComp, getPage(), getName());
 		addCommonActions(mainPlotter);
 		bars.updateActionBars();
-		updateGuiBeanPlotMode(GuiPlotMode.SCATTER2D);
 	}
 
 	// Abstract plotting System
@@ -999,7 +966,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		addScriptingAction();
 		addDuplicateAction();
 		addClearAction();
-		updateGuiBeanPlotMode(GuiPlotMode.SCATTER2D);
 //		setVisibleByPlotType(plottingSystem.getPlotType());
 	}
 
@@ -1008,7 +974,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		plotUI = new PlotScatter3DUI(this, mainPlotter, parentComp, getPage(), bars, getName());
 		addCommonActions(mainPlotter);
 		bars.updateActionBars();
-		updateGuiBeanPlotMode(GuiPlotMode.SCATTER3D);
 	}
 
 	public void dispose() {
