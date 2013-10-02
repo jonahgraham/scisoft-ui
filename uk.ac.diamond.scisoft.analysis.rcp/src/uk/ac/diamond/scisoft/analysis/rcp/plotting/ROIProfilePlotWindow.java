@@ -396,7 +396,6 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		plotUI = new Plotting1DUI(plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
-		updateGuiBeanPlotMode(GuiPlotMode.ONED);
 	}
 
 	@Override
@@ -405,7 +404,6 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		addToggleActions();
 		addScriptingAction();
 		addDuplicateAction();
-		updateGuiBeanPlotMode(GuiPlotMode.TWOD);
 	}
 
 	@Override
@@ -413,7 +411,6 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		plotUI = new PlottingScatter2DUI(plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
-		updateGuiBeanPlotMode(GuiPlotMode.SCATTER2D);
 	}
 
 	@Override
