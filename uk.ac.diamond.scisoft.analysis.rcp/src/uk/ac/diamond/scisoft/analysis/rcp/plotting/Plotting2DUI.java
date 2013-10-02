@@ -22,9 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.dawb.common.services.IPaletteService;
 import org.dawb.common.ui.plot.region.RegionService;
@@ -232,7 +234,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 		logger.debug("There is a guiBean update: {}", guiBean);
 		final Display display = Display.getDefault();
 
-		final Boolean clearAll = (Boolean) guiBean.get(GuiParameters.ROICLEARALL);
+		final Boolean clearAll = (Boolean) guiBean.remove(GuiParameters.ROICLEARALL);
 		if (clearAll != null && clearAll) {
 			display.syncExec(new Runnable() {
 				@Override
@@ -243,7 +245,6 @@ public class Plotting2DUI extends AbstractPlotUI {
 					}
 				}
 			});
-			return;
 		}
 
 		final IROI roi = (IROI) guiBean.get(GuiParameters.ROIDATA);
@@ -281,8 +282,17 @@ public class Plotting2DUI extends AbstractPlotUI {
 			boolean found = false; // found existing?
 			if (croi != null) {
 				if (roi.getClass().equals(croi.getClass())) { // replace current ROI
-					final IRegion r = plottingSystem.getRegion(croi.getName());
+					String cn = croi.getName();
+					final IRegion r = plottingSystem.getRegion(cn);
 					if (r != null) {
+						String n = roi.getName(); // overwrite name if necessary
+						if (n != null && n.trim().length() > 0) {
+							r.setName(n);
+							croi.setName(n);
+						} else {
+							roi.setName(cn);
+						}
+
 						display.syncExec(new Runnable() {
 							@Override
 							public void run() {
@@ -299,13 +309,13 @@ public class Plotting2DUI extends AbstractPlotUI {
 				}
 				if (!list.contains(roi)) {
 					list.add(roi);
-					display.syncExec(new Runnable() {
-						@Override
-						public void run() {
-							createRegion(roi);
-						}
-					});
 				}
+				display.syncExec(new Runnable() {
+					@Override
+					public void run() {
+						createRegion(roi);
+					}
+				});
 			}
 		}
 
@@ -314,12 +324,17 @@ public class Plotting2DUI extends AbstractPlotUI {
 		if (clazz == null && list != null && list.size() > 0) {
 			clazz = list.get(0).getClass();
 		}
-		final List<String> names = new ArrayList<String>(); // names of ROIs of same class
+		final Set<String> names = new HashSet<String>(); // names of ROIs of same class
 		if (list != null) {
 			for (IROI r : list) {
-				if (r.getClass().equals(clazz))
-					names.add(r.getName());
+				String n = r.getName();
+				if (n != null && n.trim().length() > 0)
+					if (r.getClass().equals(clazz))
+						names.add(n);
 			}
+		}
+		if (roib != null) { // add existing ROI
+			names.add(roib.getName());
 		}
 
 		final Collection<IRegion> regions = plottingSystem.getRegions();
@@ -328,7 +343,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 		display.syncExec(new Runnable() {
 			@Override
 			public void run() {
-				List<String> rNames = new ArrayList<String>(); // regions not removed
+				Set<String> rNames = new HashSet<String>(); // regions not removed
 				for (IRegion r : regList) { // clear all regions of given type not listed
 					String rName = r.getName();
 					if (!names.contains(rName))
@@ -374,6 +389,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 		if (clazz == null)
 			return list;
 		for (IRegion r : regions) {
+//			list.add(r);
 			if (r.getROI().getClass().equals(clazz)) {
 				list.add(r);
 			}
