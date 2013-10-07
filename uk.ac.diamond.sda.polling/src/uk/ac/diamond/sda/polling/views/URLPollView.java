@@ -47,17 +47,36 @@ public class URLPollView extends ViewPart {
 		browser.setFocus();
 	}
 
-	public static void setURL(final String URL, final String browserName) {
+	public static String setURL(final String URL, final String browserName) {
 		UIJob uiJob = new UIJob("Updating URL") {
-			
+
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				browsers.get(browserName).setUrl(URL);
-				return Status.OK_STATUS;
+				if (browsers.get(browserName) != null) {
+					try {
+						browsers.get(browserName).setUrl(URL);
+						return Status.OK_STATUS;
+					} catch (Exception e) {
+						
+					}
+				}
+				return Status.CANCEL_STATUS;
 			}
 		};
 		
 		uiJob.schedule();
+		
+		try {
+			uiJob.join();
+		} catch (InterruptedException e) {
+			return ("Failed to update URL : " + URL);
+		}
+		
+		if (!uiJob.getResult().isOK()) {
+			return ("Failed to update URL : " + URL);
+		}
+		
+		return "OK";
 		
 	}
 	

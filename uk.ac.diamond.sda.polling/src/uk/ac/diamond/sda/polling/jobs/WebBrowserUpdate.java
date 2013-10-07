@@ -33,7 +33,7 @@ public class WebBrowserUpdate extends FilenameReaderUpdateOnlyJob {
 	protected void processFile(ArrayList<String> filenames) {
 		try {			
 			// only process the first file
-			URLPollView.setURL(filenames.get(0),getJobParameters().get(URL_VIEW_NAME));
+			setStatus(URLPollView.setURL(filenames.get(0),getJobParameters().get(URL_VIEW_NAME)));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

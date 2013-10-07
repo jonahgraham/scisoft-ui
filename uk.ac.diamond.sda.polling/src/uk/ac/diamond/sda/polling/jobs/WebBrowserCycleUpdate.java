@@ -40,7 +40,7 @@ public class WebBrowserCycleUpdate extends FilenameReaderJob {
 				// otherwise reset it to zero
 				cycle = 0;
 			}
-			URLPollView.setURL(filenames.get(listEnd-cycle),getJobParameters().get(URL_VIEW_NAME));
+			setStatus(URLPollView.setURL(filenames.get(listEnd-cycle),getJobParameters().get(URL_VIEW_NAME)));
 			cycle++;
 			
 		} catch (Exception e) {
