@@ -248,7 +248,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 		}
 
 		final IROI roi = (IROI) guiBean.get(GuiParameters.ROIDATA);
-		final IROI croi = manager.getROI();
+		IROI croi = manager.getROI();
 		ROIList<? extends IROI> list = (ROIList<?>) guiBean.get(GuiParameters.ROIDATALIST);
 
 		if (roi != null)
@@ -278,16 +278,20 @@ public class Plotting2DUI extends AbstractPlotUI {
 						}
 					});
 				}
+				croi = null;
 			}
 		} else {
 			rName = roi.getName(); // overwrite name if necessary
+			if (rName != null && rName.trim().length() == 0) {
+				rName = null;
+			}
 			boolean found = false; // found existing?
 			if (croi != null) {
 				if (roi.getClass().equals(croi.getClass())) { // replace current ROI
 					String cn = croi.getName();
 					final IRegion reg = plottingSystem.getRegion(cn);
 					if (reg != null) {
-						if (rName != null && rName.trim().length() > 0) {
+						if (rName != null) {
 							reg.setName(rName);
 							croi.setName(rName);
 						} else {
@@ -304,7 +308,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 						found = true;
 					}
 				} else {
-					if (rName != null && rName.trim().length() > 0) {
+					if (rName != null) {
 						final IRegion reg = plottingSystem.getRegion(rName);
 						if (reg != null) {
 							display.syncExec(new Runnable() {
@@ -339,35 +343,30 @@ public class Plotting2DUI extends AbstractPlotUI {
 						createRegion(roi);
 					}
 				});
+				croi = roi;
 			}
 		}
 
-		final IROI roib = roi != null ? roi : croi;
-		Class<? extends IROI> clazz = roib == null ? null : roib.getClass();
-		if (clazz == null && list != null && list.size() > 0) {
-			clazz = list.get(0).getClass();
+		final Set<String> names = new HashSet<String>(); // names of ROIs
+		if (rName != null) { // add existing ROI
+			names.add(rName);
 		}
-		final Set<String> names = new HashSet<String>(); // names of ROIs of same class
 		if (list != null) {
 			for (IROI r : list) {
 				String n = r.getName();
-				if (n != null && n.trim().length() > 0)
-					if (r.getClass().equals(clazz))
-						names.add(n);
+				if (n != null && n.trim().length() > 0) {
+					names.add(n);
+				}
 			}
-		}
-		if (roib != null) { // add existing ROI
-			names.add(roib.getName());
 		}
 
 		final Collection<IRegion> regions = plottingSystem.getRegions();
-		final List<IRegion> regList = createRegionsList(regions, clazz); // regions of given type
 		final ROIList<? extends IROI> roiList = list;
 		display.syncExec(new Runnable() {
 			@Override
 			public void run() {
 				Set<String> regNames = new HashSet<String>(); // regions not removed
-				for (IRegion reg : regList) { // clear all regions of given type not listed
+				for (IRegion reg : regions) { // clear all regions not listed
 					String regName = reg.getName();
 					if (!names.contains(regName)) {
 						plottingSystem.removeRegion(reg);
@@ -411,16 +410,5 @@ public class Plotting2DUI extends AbstractPlotUI {
 			logger.error("Problem creating new region from ROI", e);
 		}
 		return null;
-	}
-
-	private static List<IRegion> createRegionsList(Collection<IRegion> regions, Class<? extends IROI> clazz) {
-		List<IRegion> list = new ArrayList<IRegion>();
-		if (clazz == null)
-			return list;
-		for (IRegion r : regions) {
-			if (r.getROI().getClass().equals(clazz))
-				list.add(r);
-		}
-		return list;
 	}
 }
