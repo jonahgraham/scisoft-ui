@@ -11,3 +11,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.apache.commons.io,
  uk.ac.diamond.scisoft.analysis.io
+Bundle-Vendor: Diamond Light Source
