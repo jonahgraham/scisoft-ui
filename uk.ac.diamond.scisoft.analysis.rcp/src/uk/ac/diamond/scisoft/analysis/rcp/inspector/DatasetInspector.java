@@ -758,7 +758,8 @@ public class DatasetInspector extends Composite {
 			}
 			slicers.get(i).setParameters(n, p, axis, props, used[i]);
 		}
-		Composite parent = slicers.get(0).getParent();
+
+		Composite parent = slicers.size() == 0 ? iComp : slicers.get(0).getParent();
 		parent.pack();
 		parent.setSize(parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
