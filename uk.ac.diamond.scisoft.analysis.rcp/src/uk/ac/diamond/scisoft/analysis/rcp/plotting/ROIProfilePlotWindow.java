@@ -39,10 +39,13 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -245,6 +248,18 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			verticalProfileComposite.setLayout(new GridLayout(1, false));
 			verticalProfileComposite.setLayoutData(gridData);
 
+			final Button displayVerticalProfileROI = new Button(verticalProfileComposite, SWT.CHECK);
+			displayVerticalProfileROI.addSelectionListener(new SelectionListener() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					sideProfile2.setXAxisROIVisible(displayVerticalProfileROI.getSelection());
+				}
+
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {}
+			});
+			displayVerticalProfileROI.setText("Display Vertical Profile Region of Interest");
+			displayVerticalProfileROI.setSelection(true);
 			verticalProfileROIWidget = new ROIWidget(verticalProfileComposite, verticalProfilePlottingSystem, "Left/Right region editor");
 			verticalProfileROIWidget.setIsProfile(true);
 			verticalProfileROIWidget.createWidget();
@@ -276,6 +291,18 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			horizontalProfileComposite.setLayout(new GridLayout(1, false));
 			horizontalProfileComposite.setLayoutData(gridData);
 
+			final Button displayHorizontalProfileROI = new Button(horizontalProfileComposite, SWT.CHECK);
+			displayHorizontalProfileROI.addSelectionListener(new SelectionListener() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					sideProfile1.setXAxisROIVisible(displayHorizontalProfileROI.getSelection());
+				}
+
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {}
+			});
+			displayHorizontalProfileROI.setText("Display Horizontal Profile Region of Interest");
+			displayHorizontalProfileROI.setSelection(true);
 			horizontalProfileROIWidget = new ROIWidget(horizontalProfileComposite, horizontalProfilePlottingSystem, "Bottom/Up region editor");
 			horizontalProfileROIWidget.setIsProfile(true);
 			horizontalProfileROIWidget.createWidget();
@@ -308,7 +335,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 				}
 			});
 			//end metadata
-			
+
 			sashForm.setWeights(new int[]{1, 1});
 			plottingSystem.addRegionListener(getRoiManager());
 			
