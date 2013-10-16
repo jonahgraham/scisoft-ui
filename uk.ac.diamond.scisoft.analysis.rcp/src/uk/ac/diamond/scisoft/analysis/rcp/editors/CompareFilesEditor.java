@@ -1471,6 +1471,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			}
 		}
 
+		if (rank == 1) // override when rank-deficit
+			itype = InspectorType.LINE;
+
 		return new DatasetSelection(itype, path, newAxes, allData);
 	}
 
