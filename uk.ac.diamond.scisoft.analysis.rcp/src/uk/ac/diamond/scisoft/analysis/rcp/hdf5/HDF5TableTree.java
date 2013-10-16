@@ -489,6 +489,12 @@ class HDF5LabelProvider implements ITableLabelProvider {
 					}
 				} else if (data == null || data.getSize() == 0) {
 					msg = "none available as dataset is zero-sized";
+				} else if (data.getSize() == 1) {
+					msg = data.getSlice().getString(0);
+					HDF5Attribute units = dataset.getAttribute("units");
+					if (units != null && units.isString()) {
+						msg += " " + units.getFirstElement();
+					}
 				} else {
 					msg = "double-click to view";
 				}
