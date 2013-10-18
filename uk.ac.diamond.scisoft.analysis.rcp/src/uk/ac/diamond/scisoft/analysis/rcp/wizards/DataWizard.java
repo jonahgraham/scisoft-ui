@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -194,6 +194,9 @@ public class DataWizard extends Wizard implements INewWizard {
 			// cancel button!
 			src.createLink(new Path(finalFolder), IResource.NONE, monitor);
 		}
+
+		//add nature
+		addDataNature(project, monitor);
 	}
 
 	public static void addRemoveNature(IProject project, IProgressMonitor monitor, boolean add, String natureId) throws CoreException{
@@ -224,6 +227,18 @@ public class DataWizard extends Wizard implements INewWizard {
 		}
 	}
 
+	/**
+	 * 
+	 * @param dataProject
+	 * @param mon
+	 * @throws CoreException 
+	 */
+	private static void addDataNature(final IProject dataProject,
+			                                final IProgressMonitor mon) throws CoreException {
+		IProjectDescription description = dataProject.getDescription();
+		description.setNatureIds(new String[]{DataNature.ID});
+		dataProject.setDescription(description, mon);
+	}
 
 	/**
 	 * We will accept the selection in the workbench to see if

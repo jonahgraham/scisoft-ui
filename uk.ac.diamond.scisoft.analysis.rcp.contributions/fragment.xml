@@ -843,7 +843,7 @@
       <wizard
             category="uk.ac.diamond.scisoft.analysis.rcp.wizards"
             class="uk.ac.diamond.scisoft.analysis.rcp.wizards.DataWizard"
-            icon="icons/reel.png"
+            icon="icons/project_reel.png"
             id="uk.ac.diamond.scisoft.analysis.rcp.wizards.DataWizard"
             name="Data Project"
             project="true">
@@ -1121,5 +1121,23 @@
                type="org.python.pydev.dltk.console.codegen.IScriptConsoleCodeGenerator">
          </adapter>
       </factory>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+      <image
+            icon="icons/project_reel.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.DataProjectNatureImage"
+            natureId="uk.ac.diamond.scisoft.analysis.rcp.DataProjectNature">
+      </image>
+   </extension>
+   <extension
+         id="DataProjectNature"
+         name="Data Project"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="uk.ac.diamond.scisoft.analysis.rcp.wizards.DataNature">
+         </run>
+      </runtime>
    </extension>
 </fragment>
