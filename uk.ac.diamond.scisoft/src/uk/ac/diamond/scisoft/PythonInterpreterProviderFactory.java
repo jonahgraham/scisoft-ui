@@ -16,7 +16,7 @@
 
 package uk.ac.diamond.scisoft;
 
-import org.python.pydev.core.REF;
+import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterProviderFactory;
 import org.python.pydev.ui.pythonpathconf.AlreadyInstalledInterpreterProvider;
 import org.python.pydev.ui.pythonpathconf.IInterpreterProvider;
@@ -33,7 +33,7 @@ public class PythonInterpreterProviderFactory extends AbstractInterpreterProvide
 			return null;
 		}
 
-		if (REF.isWindowsPlatform()) {
+		if (PlatformUtils.isWindowsPlatform()) {
 			return null;
 		}
 

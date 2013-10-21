@@ -17,8 +17,8 @@
 package uk.ac.diamond.scisoft.analysis.rcp.adapters;
 
 import org.eclipse.core.runtime.IAdapterFactory;
-import org.python.pydev.dltk.console.codegen.IScriptConsoleCodeGenerator;
-import org.python.pydev.dltk.console.codegen.PythonSnippetUtils;
+import org.python.pydev.shared_interactive_console.console.codegen.IScriptConsoleCodeGenerator;
+import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippetUtils;
 
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Attribute;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;

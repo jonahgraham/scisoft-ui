@@ -41,12 +41,12 @@ import org.python.pydev.debug.newconsole.PydevConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.PydevConsoleInterpreter;
-import org.python.pydev.debug.newconsole.env.IProcessFactory;
-import org.python.pydev.debug.newconsole.env.IProcessFactory.PydevConsoleLaunchInfo;
+import org.python.pydev.debug.newconsole.env.PydevIProcessFactory;
+import org.python.pydev.debug.newconsole.env.PydevIProcessFactory.PydevConsoleLaunchInfo;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
-import org.python.pydev.dltk.console.ui.ScriptConsole;
-import org.python.pydev.dltk.console.ui.internal.ScriptConsoleViewer;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
+import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,7 +152,7 @@ public class InjectPyDevConsoleHandler extends AbstractHandler {
 
 	private PydevConsoleInterpreter getConsole() throws Exception {
 
-		IProcessFactory iprocessFactory = new IProcessFactory();
+		PydevIProcessFactory iprocessFactory = new PydevIProcessFactory();
 
 		// Shows GUI - NOTE Change here to always link into Jython without showing dialog.
 		PydevConsoleLaunchInfo createInteractiveLaunch = null;

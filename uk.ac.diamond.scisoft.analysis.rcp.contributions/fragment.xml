@@ -1111,14 +1111,14 @@
             adaptableType="uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink"
             class="uk.ac.diamond.scisoft.analysis.rcp.adapters.HDF5AdapterFactory">
          <adapter
-               type="org.python.pydev.dltk.console.codegen.IScriptConsoleCodeGenerator">
+               type="org.python.pydev.shared_interactive_console.console.codegen.IScriptConsoleCodeGenerator">
          </adapter>
       </factory>
       <factory
             adaptableType="uk.ac.diamond.scisoft.analysis.hdf5.HDF5Attribute"
             class="uk.ac.diamond.scisoft.analysis.rcp.adapters.HDF5AdapterFactory">
          <adapter
-               type="org.python.pydev.dltk.console.codegen.IScriptConsoleCodeGenerator">
+               type="org.python.pydev.shared_interactive_console.console.codegen.IScriptConsoleCodeGenerator">
          </adapter>
       </factory>
    </extension>
