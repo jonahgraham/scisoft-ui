@@ -84,7 +84,7 @@ public class MetadataTableView extends ViewPart {
 
 		final TableViewerColumn value = new TableViewerColumn(table, SWT.NONE, 1);
 		value.getColumn().setText("Value");
-		value.getColumn().setWidth(200);
+		value.getColumn().setWidth(500);
 		value.setLabelProvider(new HeaderColumnLabelProvider(1));
 
 		table.setColumnProperties(new String[] { "Key", "Value" });
