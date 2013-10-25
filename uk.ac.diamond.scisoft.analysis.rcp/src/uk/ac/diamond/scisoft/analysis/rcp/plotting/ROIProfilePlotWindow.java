@@ -112,7 +112,6 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	public ROIProfilePlotWindow(final Composite parent, GuiPlotMode plotMode, IGuiInfoManager manager,
 			IUpdateNotificationListener notifyListener, IActionBars bars, IWorkbenchPage page, String name) {
 		super(parent, plotMode, manager, notifyListener, bars, page, name);
-		createPerimeterBoxRegion();
 		PlotWindowManager.getPrivateManager().registerPlotWindow(this);
 	}
 
@@ -338,7 +337,10 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 
 			sashForm.setWeights(new int[]{1, 1});
 			plottingSystem.addRegionListener(getRoiManager());
-			
+
+			if (getGuiManager().getGUIInfo().get(GuiParameters.ROIDATA) == null) {
+				createPerimeterBoxRegion();
+			}
 		} catch (Exception e) {
 			logger.error("Cannot locate any Abstract plotting System!", e);
 		}
