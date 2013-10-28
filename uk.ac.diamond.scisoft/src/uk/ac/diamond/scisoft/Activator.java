@@ -16,8 +16,11 @@
 
 package uk.ac.diamond.scisoft;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -73,6 +76,21 @@ public class Activator extends AbstractUIPlugin {
 				System.out.println("Log folder property not set, setting this manually to the temp directory");
 				String tmpDir = System.getProperty("user.home")+"/.dawn/";
 				System.setProperty("log.folder", tmpDir);
+				
+				// Redirect standard out away from console as javaw swallows it
+				if (isWindowsOS()) {
+					final File fout = new File(System.getProperty("user.home")+"/.dawn/dawn_std_out.txt");
+					if (fout.exists()) fout.delete();
+					
+					final File ferr = new File(System.getProperty("user.home")+"/.dawn/dawn_std_err.txt");
+					if (ferr.exists()) ferr.delete();
+					
+					MultiOutputStream out = new MultiOutputStream(System.out, new BufferedOutputStream(new FileOutputStream(fout)));
+					MultiOutputStream err = new MultiOutputStream(System.err, new BufferedOutputStream(new FileOutputStream(ferr)));
+					
+					System.setOut(new PrintStream(out));
+					System.setErr(new PrintStream(err));
+				}
 			}
 
 			System.out.println("log.folder java property set to '"+System.getProperty("log.folder")+"'");
@@ -106,6 +124,9 @@ public class Activator extends AbstractUIPlugin {
 			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 			loggerContext.reset();
 		} 
+	}
+	static public boolean isWindowsOS() {
+		return (System.getProperty("os.name").indexOf("Windows") == 0);
 	}
 
 	public static File getBundleLocation(final String bundle_id) throws IOException {
