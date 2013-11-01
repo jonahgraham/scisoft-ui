@@ -1140,4 +1140,130 @@
          </run>
       </runtime>
    </extension>
+
+    <extension point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.debug.ui.VariableView?after=additions">
+         <menu
+               icon="icons/chart_curve.png"
+               label="Plot">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
+               </reference>
+            </visibleWhen>
+            <command
+                  commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.line"
+                  icon="icons/chart_line.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.addline"
+                  icon="icons/chart_line.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.image"
+                  icon="icons/color_wheel.png"
+                  style="push">
+            </command>
+         </menu>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.save.hdf5"
+               icon="icons/picture_save.png"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
+               </reference>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.debug.ui.ExpressionView?after=additions">
+         <menu
+               icon="icons/chart_curve.png"
+               label="Plot Watch Expression">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
+               </reference>
+            </visibleWhen>
+            <command
+                  commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.line"
+                  icon="icons/chart_line.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.addline"
+                  icon="icons/chart_line.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.image"
+                  icon="icons/color_wheel.png"
+                  style="push">
+            </command>
+         </menu>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.save.hdf5"
+               icon="icons/picture_save.png"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
+               </reference>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+    </extension>
+    <extension point="org.eclipse.ui.handlers">
+      <handler
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.pydev.PydevDebugPlottingLineCommandHandler"
+            commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.line">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.pydev.PydevDebugPlottingAddLineCommandHandler"
+            commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.addline">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.pydev.PydevDebugPlottingImageCommandHandler"
+            commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.image">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.pydev.PydevDebugSaveHDF5CommandHandler"
+            commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.save.hdf5">
+      </handler>
+    </extension>
+    <extension point="org.eclipse.ui.commands">
+      <command
+            description="Plot Selection as Line"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.line"
+            name="Line">
+      </command>
+      <command
+            description="Plot Selection as Additional Line"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.addline"
+            name="Add Line">
+      </command>
+      <command
+            description="Plot Selection as Image"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.image"
+            name="Image">
+      </command>
+      <command
+            description="Save a dataset as an HDF5"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.save.hdf5"
+            name="Save As HDF5">
+      </command>
+    </extension>
+
+
+
 </fragment>
