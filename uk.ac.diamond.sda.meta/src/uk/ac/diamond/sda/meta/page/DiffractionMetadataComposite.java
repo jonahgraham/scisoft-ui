@@ -43,7 +43,7 @@ import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
 import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionCrystalEnvironment;
 import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
@@ -72,7 +72,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 	private FloatSpinner yBeam;
 	private Composite content;
 	private double[] beam;
-	private AbstractDataset dataset;
+	private IDataset dataset;
 	private IMetaData metadata;
 	private DetectorProperties detprop;
 	private DetectorProperties oDetprop;
@@ -615,7 +615,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 				pixelSizeY.setDouble(detprop.getVPxSize());
 				ExposureTime.setText(String.valueOf(diffenv.getExposureTime()));
 				
-				AbstractDataset dataset = getData();
+				IDataset dataset = getData();
 				if (dataset != null) {
 					if (maxPxVal != null) {
 						Number max = dataset.max(true);
@@ -713,11 +713,11 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		update.schedule();
 	}
 
-	public void setData(AbstractDataset dataset) {
+	public void setData(IDataset dataset) {
 		this.dataset = dataset;
 	}
 	
-	public AbstractDataset getData() {
+	public IDataset getData() {
 		return this.dataset;
 	}
 	

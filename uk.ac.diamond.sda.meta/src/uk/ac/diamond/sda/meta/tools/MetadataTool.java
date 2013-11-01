@@ -15,7 +15,7 @@ import org.eclipse.ui.part.IPageSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.sda.meta.Activator;
 import uk.ac.diamond.sda.meta.page.DiffractionMetadataComposite;
@@ -56,7 +56,7 @@ public class MetadataTool extends AbstractToolPage {
 		diffMetadataComp.setEditable(true);
 		IImageTrace imageTrace = getImageTrace();
 		if (imageTrace != null) {
-			AbstractDataset dataset = (AbstractDataset)imageTrace.getData();
+			IDataset dataset = (IDataset)imageTrace.getData();
 			if (dataset != null) {
 				diffMetadataComp.setData(dataset);
 				IMetaData meta = dataset.getMetadata();
