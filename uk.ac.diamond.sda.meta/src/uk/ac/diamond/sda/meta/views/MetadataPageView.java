@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.dawb.common.services.ILoaderService;
+import org.dawb.common.ui.monitor.ProgressMonitorWrapper;
 import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -55,6 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
+import uk.ac.diamond.scisoft.analysis.io.ILoaderService;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.sda.meta.Activator;
 import uk.ac.diamond.sda.meta.contribution.MetadataPageContribution;
@@ -280,7 +281,7 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 					return Status.CANCEL_STATUS;
 
 				try {
-					meta = service.getMetaData(filePath, monitor);
+					meta = service.getMetaData(filePath, new ProgressMonitorWrapper(monitor));
 				} catch (Exception e1) {
 					logger.debug("Cannot get meta data for " + filePath, e1);
 					return Status.CANCEL_STATUS;
