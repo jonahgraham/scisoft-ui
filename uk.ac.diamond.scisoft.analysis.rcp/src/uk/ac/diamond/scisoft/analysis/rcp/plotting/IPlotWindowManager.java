@@ -25,16 +25,8 @@ import uk.ac.diamond.scisoft.analysis.plotserver.IPlotWindowManagerRMI;
  * Public interface for PlotWindowManager. A handle to the manager can be obtained from {@link PlotWindow#getManager()}
  * <p>
  * For use from jython or python of the PlotWindowManager, use the scisoftpy wrapper:
- * <p>
- * Jython:
  * <pre>
  * import scisoftpy as dnp
- * dnp.plot.window_manager.openDuplicateView(viewName)
- * dnp.plot.window_manager.openView(viewName)
- * dnp.plot.window_manager.getOpenViews()
- * </pre>
- * Python:
- * <pre>
  * import scisoftpy as dnp
  * dnp.plot.window_manager.open_duplicate_view(viewName)
  * dnp.plot.window_manager.open_view(viewName)
