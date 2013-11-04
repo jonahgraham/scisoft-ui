@@ -245,7 +245,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			mainPlotter.cleanUp();
 			mainPlotterComposite.dispose();
 
-			if(getPreviousMode()==GuiPlotMode.SURF2D){
+			if (GuiPlotMode.SURF2D.equals(getPlotMode())) {
 				EclipseUtils.closeView(DataWindowView.ID);
 			}
 		}
@@ -596,8 +596,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			String opStr = (String) bean.get(GuiParameters.PLOTOPERATION);
 			if (opStr.equals(GuiParameters.PLOTOP_UPDATE)) {
 				setUpdatePlot(true);
-			} else if (!opStr.equals(GuiParameters.PLOTOP_ADD)) {
-				resetAxes();
 			}
 		}
 
@@ -709,7 +707,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
 				setupMulti2D();
 			} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
-				clearPlot();
+				clearPlot(true);
 			}
 		} else if (choice == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
 			if (initialize) {
@@ -719,7 +717,8 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 				cleanUpDatasetPlotter();
 			} else {
 				cleanUp(plotMode);
-				clearPlot();
+				// custom axes can be initialised when plot is empty
+				clearPlot(!GuiPlotMode.EMPTY.equals(getPreviousMode()));
 			}
 
 			if (plotMode.equals(GuiPlotMode.ONED)) {
@@ -737,7 +736,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
 				setupMulti2D();
 			} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
-				clearPlot();
+				resetAxes();
 			}
 		}
 	}
@@ -789,13 +788,18 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 * Clear the Plot Window and its components
 	 */
 	public void clearPlot() {
+		clearPlot(true);
+	}
+
+	private void clearPlot(boolean resetAxes) {
 		if (mainPlotter != null && !mainPlotter.isDisposed()) {
 			mainPlotter.emptyPlot();
 			mainPlotter.refresh(true);
 		}
 		if (plottingSystem != null) {
 			plottingSystem.clear();
-			plottingSystem.resetAxes();
+			if (resetAxes)
+				plottingSystem.resetAxes();
 		}
 	}
 
@@ -813,7 +817,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	/**
 	 * Reset the axes in the Plot Window
 	 */
-	public void resetAxes() {
+	private void resetAxes() {
 		if (plottingSystem != null) {
 			plottingSystem.resetAxes();
 		}
