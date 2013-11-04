@@ -268,7 +268,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 		});
 	}
 
-	private IAxis findAxis(List<IAxis> axes, String n) {
+	private static IAxis findAxis(List<IAxis> axes, String n) {
 		if (n == null) {
 			return null;
 		}
