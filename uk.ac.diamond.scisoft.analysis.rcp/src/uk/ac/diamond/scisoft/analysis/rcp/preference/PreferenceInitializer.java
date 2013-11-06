@@ -34,7 +34,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	private static final boolean DEFAULT_SHOW_SCROLLBARS = true;
 	private static final String DEFAULT_COLOURMAP_CHOICE = "Gray Scale";
 	private static final int DEFAULT_CAMERA_PROJECTION = 0;
-	private static final int DEFAULT_PLOTTING_SYSTEM = 0;
+	private static final int DEFAULT_PLOTTING_SYSTEM = 1;
 	private static final String DEFAULT_IMAGEXPLORER_COLOURMAP_CHOICE = "Gray Scale";
 	private static final int DEFAULT_IMAGEEXPLORER_CONTRAST_LO = 0;
 	private static final int DEFAULT_IMAGEEXPLORER_CONTRAST_HI = 98;
