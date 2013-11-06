@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2012 European Synchrotron Radiation Facility,
+/*-
+ * Copyright (c) 2013 European Synchrotron Radiation Facility,
  *                    Diamond Light Source Ltd.
  *
  * All rights reserved. This program and the accompanying materials
@@ -22,9 +22,12 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
+import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -76,16 +79,31 @@ public class MetadataTableView extends ViewPart {
 		table.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		table.getTable().setLinesVisible(true);
 		table.getTable().setHeaderVisible(true);
+		table.setSorter(new MetadataTableViewerSorter());
 
 		final TableViewerColumn key = new TableViewerColumn(table, SWT.NONE, 0);
 		key.getColumn().setText("Key");
 		key.getColumn().setWidth(200);
 		key.setLabelProvider(new HeaderColumnLabelProvider(0));
+		key.getColumn().addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				((MetadataTableViewerSorter) table.getSorter()).doSort(0);
+				table.refresh();
+			}
+		});
 
 		final TableViewerColumn value = new TableViewerColumn(table, SWT.NONE, 1);
 		value.getColumn().setText("Value");
 		value.getColumn().setWidth(500);
 		value.setLabelProvider(new HeaderColumnLabelProvider(1));
+		value.getColumn().addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				((MetadataTableViewerSorter) table.getSorter()).doSort(1);
+				table.refresh();
+			}
+		});
 
 		table.setColumnProperties(new String[] { "Key", "Value" });
 		table.setUseHashlookup(true);
@@ -206,6 +224,58 @@ public class MetadataTableView extends ViewPart {
 	public void setMeta(IMetaData meta) {
 		this.meta = meta;
 		updateTable.schedule();
+	}
+
+	/**
+	 * Sorter for the table viewer
+	 * @author wqk87977
+	 *
+	 */
+	class MetadataTableViewerSorter extends ViewerSorter {
+		private static final int ASCENDING = 0;
+
+		private static final int DESCENDING = 1;
+
+		private int column;
+
+		private int direction;
+
+		public void doSort(int column) {
+			if (column == this.column) {
+				direction = 1 - direction;
+			} else {
+				this.column = column;
+				direction = ASCENDING;
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			int rc = 0;
+
+			switch (column) {
+			case 0:
+				rc = getComparator().compare(e1.toString(), e2.toString());
+				break;
+			case 1:
+				try {
+					Serializable value1 = meta == null ? null : meta.getMetaValue(e1.toString());
+					if (value1 == null)
+						value1 = "";
+					Serializable value2 = meta == null ? null : meta.getMetaValue(e2.toString());
+					if (value2 == null)
+						value2 = "";
+					rc = getComparator().compare(value1.toString(), value2.toString());
+				} catch (Exception ignored) {
+					// Null allowed
+				}
+				break;
+			}
+			if (direction == DESCENDING)
+				rc = -rc;
+			return rc;
+		}
 	}
 
 }
