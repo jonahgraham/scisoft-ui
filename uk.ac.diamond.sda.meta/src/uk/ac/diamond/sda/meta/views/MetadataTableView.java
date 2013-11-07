@@ -21,8 +21,8 @@ import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -31,6 +31,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
@@ -79,31 +80,20 @@ public class MetadataTableView extends ViewPart {
 		table.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		table.getTable().setLinesVisible(true);
 		table.getTable().setHeaderVisible(true);
-		table.setSorter(new MetadataTableViewerSorter());
+		final MetadataTableComparator comparator = new MetadataTableComparator();
+		table.setComparator(comparator);
 
 		final TableViewerColumn key = new TableViewerColumn(table, SWT.NONE, 0);
 		key.getColumn().setText("Key");
 		key.getColumn().setWidth(200);
 		key.setLabelProvider(new HeaderColumnLabelProvider(0));
-		key.getColumn().addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				((MetadataTableViewerSorter) table.getSorter()).doSort(0);
-				table.refresh();
-			}
-		});
+		key.getColumn().addSelectionListener(getSelectionAdapter(comparator, key.getColumn(), 0));
 
 		final TableViewerColumn value = new TableViewerColumn(table, SWT.NONE, 1);
 		value.getColumn().setText("Value");
 		value.getColumn().setWidth(500);
 		value.setLabelProvider(new HeaderColumnLabelProvider(1));
-		value.getColumn().addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				((MetadataTableViewerSorter) table.getSorter()).doSort(1);
-				table.refresh();
-			}
-		});
+		value.getColumn().addSelectionListener(getSelectionAdapter(comparator, value.getColumn(), 1));
 
 		table.setColumnProperties(new String[] { "Key", "Value" });
 		table.setUseHashlookup(true);
@@ -246,21 +236,41 @@ public class MetadataTableView extends ViewPart {
 		}
 	}
 
+	private SelectionAdapter getSelectionAdapter(final MetadataTableComparator comparator, final TableColumn column,
+			final int index) {
+		SelectionAdapter selectionAdapter = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				comparator.setColumn(index);
+				int dir = comparator.getDirection();
+				table.getTable().setSortDirection(dir);
+				table.getTable().setSortColumn(column);
+				table.refresh();
+			}
+		};
+		return selectionAdapter;
+	}
+
 	/**
 	 * Sorter for the table viewer
 	 * @author wqk87977
 	 *
 	 */
-	class MetadataTableViewerSorter extends ViewerSorter {
-		private static final int ASCENDING = 0;
-
-		private static final int DESCENDING = 1;
-
+	class MetadataTableComparator extends ViewerComparator {
 		private int column;
+		private static final int ASCENDING = 0;
+		private static final int DESCENDING = 1;
+		private int direction = DESCENDING;
 
-		private int direction;
+		public MetadataTableComparator() {
+			direction = ASCENDING;
+		}
 
-		public void doSort(int column) {
+		public int getDirection() {
+			return direction == 1 ? SWT.DOWN : SWT.UP;
+		}
+
+		public void setColumn(int column) {
 			if (column == this.column) {
 				direction = 1 - direction;
 			} else {
@@ -269,14 +279,13 @@ public class MetadataTableView extends ViewPart {
 			}
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
 			int rc = 0;
 
 			switch (column) {
 			case 0:
-				rc = getComparator().compare(e1.toString(), e2.toString());
+				rc = e1.toString().compareTo(e2.toString());
 				break;
 			case 1:
 				try {
@@ -286,7 +295,7 @@ public class MetadataTableView extends ViewPart {
 					Serializable value2 = meta == null ? null : meta.getMetaValue(e2.toString());
 					if (value2 == null)
 						value2 = "";
-					rc = getComparator().compare(value1.toString(), value2.toString());
+					rc = value1.toString().compareTo(value2.toString());
 				} catch (Exception ignored) {
 					// Null allowed
 				}
@@ -297,5 +306,4 @@ public class MetadataTableView extends ViewPart {
 			return rc;
 		}
 	}
-
 }
