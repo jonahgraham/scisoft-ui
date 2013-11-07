@@ -109,7 +109,9 @@ public class MetadataTableView extends ViewPart {
 		table.setUseHashlookup(true);
 
 		final HeaderFilter filter = new HeaderFilter();
+		final NXEntryFilter nxFilter = new NXEntryFilter();
 		table.addFilter(filter);
+		table.addFilter(nxFilter);
 		searchText.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
@@ -213,9 +215,6 @@ public class MetadataTableView extends ViewPart {
 			if (name.toLowerCase().matches(searchString)) {
 				return true;
 			}
-			if (name.toLowerCase().matches(searchString)) {
-				return true;
-			}
 
 			return false;
 		}
@@ -224,6 +223,27 @@ public class MetadataTableView extends ViewPart {
 	public void setMeta(IMetaData meta) {
 		this.meta = meta;
 		updateTable.schedule();
+	}
+
+	/**
+	 * Filter NX class entries
+	 * @author wqk87977
+	 *
+	 */
+	class NXEntryFilter extends ViewerFilter {
+
+		private String nxEntryString = ".*@nx.*";
+
+		@Override
+		public boolean select(Viewer viewer, Object parentElement, Object element) {
+			final String name = (String) element;
+			if (name == null || "".equals(name))
+				return true;
+			if (name.toLowerCase().matches(nxEntryString)) {
+				return false;
+			}
+			return true;
+		}
 	}
 
 	/**
