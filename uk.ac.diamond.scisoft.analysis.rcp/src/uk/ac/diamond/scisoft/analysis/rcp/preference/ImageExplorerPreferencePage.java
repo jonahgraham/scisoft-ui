@@ -292,6 +292,8 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 
 	private void setColourMapChoicePreference(String value) {
 		final PaletteData data = pservice.getPaletteData(schemeName);
+		// update the preference
+		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, value);
 		IPlottingSystem system = PlottingFactory.getPlottingSystem(getPlaybackViewPreference());
 		if (system == null) return;
 		// update the palette data
@@ -303,8 +305,6 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 				palette.setPaletteName(schemeName);
 			}
 		}
-		// update the preference
-		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, value);
 	}
 
 	private void setAutoContrastLoPreference(int value) {
