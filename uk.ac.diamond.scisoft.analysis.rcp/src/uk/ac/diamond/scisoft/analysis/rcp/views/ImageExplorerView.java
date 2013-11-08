@@ -20,14 +20,24 @@ import gda.observable.IObserver;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
+import org.dawb.common.services.IPaletteService;
+import org.dawb.common.ui.menu.CheckableActionGroup;
+import org.dawb.common.ui.menu.MenuAction;
+import org.dawnsci.plotting.api.IPlottingSystem;
+import org.dawnsci.plotting.api.PlottingFactory;
+import org.dawnsci.plotting.api.trace.IPaletteTrace;
+import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
@@ -114,7 +124,8 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 	private GuiBean guiBean = null;
 	private UUID plotID = null;
 	private final Semaphore locker = new Semaphore(1);
-	private Action[] imgExtenions;
+	private Action[] imgExtensions;
+	private MenuAction colorMenu;
 	private List<String> filter = new ArrayList<String>();
 	private List<String> filesToLoad = null;
 	private List<String> history = new ArrayList<String>();
@@ -293,6 +304,10 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 								colourScheme, getPreferenceAutoContrastLo(), getPreferenceAutoContrastHi());
 						imageGrid.addEntry(gridEntry, entry.getGridColumnPos(), entry.getGridRowPos());
 					}
+					// Check the colour menu accordingly
+					IAction currentColour = colorMenu.findAction(colourScheme);
+					if (currentColour != null)
+						currentColour.setChecked(true);
 				}
 			}
 		});
@@ -308,11 +323,12 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 			if (storedExtensions == null)
 				storedExtensions = "";
 		}
-		imgExtenions = new Action[ImageExplorerDirectoryChooseAction.LISTOFSUFFIX.length];
+		// Filter Extensions
+		imgExtensions = new Action[ImageExplorerDirectoryChooseAction.LISTOFSUFFIX.length];
 		MenuManager filterMenu = new MenuManager("File Filters");
 		for (int i = 0; i < ImageExplorerDirectoryChooseAction.LISTOFSUFFIX.length; i++) {
 			final int number = i;
-			imgExtenions[i] = new Action("", IAction.AS_CHECK_BOX) {
+			imgExtensions[i] = new Action("", IAction.AS_CHECK_BOX) {
 				@Override
 				public void run() {
 					if (this.isChecked()) {
@@ -322,18 +338,63 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 					}
 				}
 			};
-			imgExtenions[i].setText(ImageExplorerDirectoryChooseAction.LISTOFSUFFIX[i]);
-			imgExtenions[i].setDescription("Filter " + ImageExplorerDirectoryChooseAction.LISTOFSUFFIX[i] + " on/off");
+			imgExtensions[i].setText(ImageExplorerDirectoryChooseAction.LISTOFSUFFIX[i]);
+			imgExtensions[i].setDescription("Filter " + ImageExplorerDirectoryChooseAction.LISTOFSUFFIX[i] + " on/off");
 			if (storedExtensions.contains(ImageExplorerDirectoryChooseAction.LISTOFSUFFIX[i])) {
-				imgExtenions[i].setChecked(false);
+				imgExtensions[i].setChecked(false);
 				filter.add(ImageExplorerDirectoryChooseAction.LISTOFSUFFIX[i]);
 			} else
-				imgExtenions[i].setChecked(true);
-			filterMenu.add(imgExtenions[i]);
+				imgExtensions[i].setChecked(true);
+			filterMenu.add(imgExtensions[i]);
 		}
 
 		site.getActionBars().getMenuManager().add(filterMenu);
 
+		//color submenus actions
+		final IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
+		final Collection<String> names = pservice.getColorSchemes();
+		String schemeName = getPreferenceColourMapChoice();
+
+		colorMenu = new MenuAction("Color");
+		colorMenu.setId(getClass().getName()+colorMenu.getText());
+		colorMenu.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/color_wheel.png"));
+
+		final Map<String, IAction> paletteActions = new HashMap<String, IAction>(11);
+		CheckableActionGroup group      = new CheckableActionGroup();
+		for (final String paletteName : names) {
+			final Action action = new Action(paletteName, IAction.AS_CHECK_BOX) {
+				@Override
+				public void run() {
+					try {
+						setPreferenceColourMapChoice(paletteName);
+						
+						IPlottingSystem system = PlottingFactory.getPlottingSystem(getPreferencePlaybackView());
+						if (system != null) {
+							final Collection<ITrace> traces = system.getTraces();
+							if (traces!=null) for (ITrace trace: traces) {
+								if (trace instanceof IPaletteTrace) {
+									IPaletteTrace paletteTrace = (IPaletteTrace) trace;
+									paletteTrace.setPaletteData(pservice.getPaletteData(paletteName));
+									paletteTrace.setPaletteName(paletteName);
+								}
+							}
+						}
+						
+					} catch (Exception ne) {
+						logger.error("Cannot create palette data!", ne);
+					}
+				}
+			};
+			action.setId(paletteName);
+			group.add(action);
+			colorMenu.add(action);
+			action.setChecked(paletteName.equals(schemeName));
+			paletteActions.put(paletteName, action);
+		}
+		colorMenu.setToolTipText("Histogram");
+		site.getActionBars().getMenuManager().add(colorMenu);
+
+		// ImageExplorer preferences
 		final Action openPreferences = new Action("Image Explorer Preferences...") {
 			@Override
 			public void run() {
@@ -837,6 +898,11 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 
 	public List<String> getLoadedFiles() {
 		return filesToLoad;
+	}
+
+	private void setPreferenceColourMapChoice(String colorMapChoice) {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		preferenceStore.setValue(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, colorMapChoice);
 	}
 
 	private String getPreferenceColourMapChoice() {
