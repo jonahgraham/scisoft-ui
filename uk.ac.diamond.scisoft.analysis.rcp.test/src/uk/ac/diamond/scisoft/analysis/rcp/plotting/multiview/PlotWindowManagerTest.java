@@ -16,15 +16,17 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.views.IViewDescriptor;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,6 +39,8 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindowManager;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.mock.MockAttribute;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.mock.MockConfigElem;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 
@@ -54,8 +58,8 @@ public class PlotWindowManagerTest {
 			super(null);
 		}
 
-		public PlotWindowManagerUnderTest(IViewDescriptor[] views) {
-			super(views);
+		public PlotWindowManagerUnderTest(List<IConfigurationElement> viewsConfigElements) {
+			super(viewsConfigElements);
 		}
 
 		@Override
@@ -76,12 +80,24 @@ public class PlotWindowManagerTest {
 		Assert.assertTrue(plotWindowManager.getOpenViews().length == 0);
 	}
 
+	final static String MOCK_ID = "uk.ac.diamond.test.view.";
+
 	@Test
 	public void testPlotManagerCreation2() {
-		IViewDescriptor[] views = new IViewDescriptor[2];
-		views[0] = new MockViewDescriptor("Plot 1");
-		views[1] = new MockViewDescriptor("Plot 2");
-		PlotWindowManager plotWindowManager = new PlotWindowManagerUnderTest(views);
+		List<IConfigurationElement> configElements = new ArrayList<IConfigurationElement>();
+		MockConfigElem config1 = new MockConfigElem("view");
+		config1.addAttribute(new MockAttribute("class", (PlotView.class).getName()));
+		config1.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 1"));
+		config1.addAttribute(new MockAttribute("name", "Plot 1"));
+
+		MockConfigElem config2 = new MockConfigElem("view");
+		config2.addAttribute(new MockAttribute("class", (PlotView.class).getName()));
+		config2.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 2"));
+		config2.addAttribute(new MockAttribute("name", "Plot 2"));
+
+		configElements.add(config1);
+		configElements.add(config2);
+		PlotWindowManager plotWindowManager = new PlotWindowManagerUnderTest(configElements);
 		Assert.assertTrue(plotWindowManager.getOpenViews().length == 0);
 	}
 
@@ -168,10 +184,20 @@ public class PlotWindowManagerTest {
 
 	@Test
 	public void testCreateUniqueNameNoClashWithGlobalViews() {
-		IViewDescriptor[] views = new IViewDescriptor[2];
-		views[0] = new MockViewDescriptor("Plot 1");
-		views[1] = new MockViewDescriptor("Plot 2");
-		final PlotWindowManager plotWindowManager = new PlotWindowManagerUnderTest(views);
+		List<IConfigurationElement> configElements = new ArrayList<IConfigurationElement>();
+		MockConfigElem config1 = new MockConfigElem("view");
+		config1.addAttribute(new MockAttribute("class", (PlotView.class).getName()));
+		config1.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 1"));
+		config1.addAttribute(new MockAttribute("name", "Plot 1"));
+
+		MockConfigElem config2 = new MockConfigElem("view");
+		config2.addAttribute(new MockAttribute("class", (PlotView.class).getName()));
+		config2.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 2"));
+		config2.addAttribute(new MockAttribute("name", "Plot 2"));
+
+		configElements.add(config1);
+		configElements.add(config2);
+		final PlotWindowManager plotWindowManager = new PlotWindowManagerUnderTest(configElements);
 		final IWorkbenchPage page = createTestPage(plotWindowManager);
 
 		Set<String> knownNames = new HashSet<String>();
@@ -191,19 +217,22 @@ public class PlotWindowManagerTest {
 	 */
 	@Test
 	public void testOpensPlotView() {
-		IViewDescriptor[] views = new IViewDescriptor[1];
-		views[0] = new MockViewDescriptor("Plot 1");
-		final PlotWindowManager plotWindowManager = new PlotWindowManagerUnderTest(views);
+		List<IConfigurationElement> configElements = new ArrayList<IConfigurationElement>();
+		MockConfigElem config1 = new MockConfigElem("view");
+		config1.addAttribute(new MockAttribute("class", (PlotView.class).getName()));
+		config1.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 1"));
+		config1.addAttribute(new MockAttribute("name", "Plot 1"));
+
+		configElements.add(config1);
+		final PlotWindowManager plotWindowManager = new PlotWindowManagerUnderTest(configElements);
 		final IWorkbenchPage page = createTestPage(plotWindowManager);
 
 		// Test opening pre-existing plot view
 		lastShowedView[0] = null;
 		String plot1 = plotWindowManager.openView(page, "Plot 1");
 		Assert.assertEquals("Plot 1", plot1);
-		// TODO Temporary fix: warn the user that the plot name is already taken by a view if it already exists
-//		Assert.assertEquals(MockViewDescriptor.UK_AC_DIAMOND_TEST_VIEW + "Plot 1:" + null, lastShowedView[0]);
-		Assert.assertEquals(PlotView.PLOT_VIEW_MULTIPLE_ID +":"+"Plot 1", lastShowedView[0]);
-		
+		Assert.assertEquals(MOCK_ID + "Plot 1" + ":" + null, lastShowedView[0]);
+
 		// Test opening a multiple plot view
 		lastShowedView[0] = null;
 		String plot5 = plotWindowManager.openView(page, "Plot 5");

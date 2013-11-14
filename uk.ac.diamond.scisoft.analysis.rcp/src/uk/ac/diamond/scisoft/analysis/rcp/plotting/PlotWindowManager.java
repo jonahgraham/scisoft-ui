@@ -21,20 +21,25 @@ import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.views.IViewDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,27 +95,62 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 	private ObservableComponent observable = new ObservableComponent();
 
 	private PlotWindowManager() {
-		this(PlatformUI.getWorkbench().getViewRegistry().getViews());
+		this(getPlotViewsConfigElements());
 	}
 
 	/**
 	 * Constructor is protected for testing purposes only
 	 * 
-	 * @param views
-	 *            a list of view descriptors for available views in the registry
+	 * @param configs
+	 *            a list of all extension points available
 	 */
-	protected PlotWindowManager(IViewDescriptor[] views) {
-		// Register all view names that are explicit so we don't automatically
-		// create a name with the same view
-		if (views != null) {
-			for (IViewDescriptor view : views) {
-				// Register all views for duplicate name detection
-				// This means we don't create new views with known names such
-				// as Call Hierarchy or Search
-				knownViews.put(view.getLabel(), view.getId());
-				if (view.getId().startsWith(PlotView.ID)) {
-					// Record views which we believe are normal plotting views
-					knownPlotViews.put(view.getLabel(), view.getId());
+	protected PlotWindowManager(List<IConfigurationElement> configs) {
+		addPlotViews(configs);
+	}
+
+	/**
+	 * 
+	 * @return a list of IConfigurationElements which are Plot Views
+	 */
+	protected static List<IConfigurationElement> getPlotViewsConfigElements() {
+		IExtensionPoint[] points = Platform.getExtensionRegistry().getExtensionPoints();
+		List<IConfigurationElement> plotViews = new ArrayList<IConfigurationElement>();
+		for (int i = 0; i < points.length; i++) {
+			// if Views extensions points
+			if (points[i].getUniqueIdentifier().equals("org.eclipse.ui.views")){
+				IExtension[] viewsExt = points[i].getExtensions();
+				for (int j = 0; j < viewsExt.length; j++) {
+					IConfigurationElement[] config = viewsExt[j].getConfigurationElements();
+					for (int k = 0; k < config.length; k++) {
+						String name = config[k].getName();
+						if (name.equals("view")) {
+							String className = config[k].getAttribute("class");
+							// if a PlotView
+							if (className.equals((PlotView.class).getName())) {
+								plotViews.add(config[k]);
+							}
+						}
+					}
+				}
+			}
+		}
+		return plotViews;
+	}
+
+	/**
+	 * Add IConfigurationElement to the HashMap of known plot views
+	 * @param configs
+	 */
+	private void addPlotViews(List<IConfigurationElement> configs) {
+		if (configs == null)
+			return;
+		for (IConfigurationElement config : configs) {
+			String name = config.getName();
+			if (name.equals("view")) {
+				String className = config.getAttribute("class");
+				// if a PlotView
+				if (className.equals((PlotView.class).getName())) {
+					knownPlotViews.put(config.getAttribute("name"), config.getAttribute("id"));
 				}
 			}
 		}
