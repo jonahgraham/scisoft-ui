@@ -200,8 +200,10 @@ public class PlotWindowManagerTest {
 		lastShowedView[0] = null;
 		String plot1 = plotWindowManager.openView(page, "Plot 1");
 		Assert.assertEquals("Plot 1", plot1);
-		Assert.assertEquals(MockViewDescriptor.UK_AC_DIAMOND_TEST_VIEW + "Plot 1:" + null, lastShowedView[0]);
-
+		// TODO Temporary fix: warn the user that the plot name is already taken by a view if it already exists
+//		Assert.assertEquals(MockViewDescriptor.UK_AC_DIAMOND_TEST_VIEW + "Plot 1:" + null, lastShowedView[0]);
+		Assert.assertEquals(PlotView.PLOT_VIEW_MULTIPLE_ID +":"+"Plot 1", lastShowedView[0]);
+		
 		// Test opening a multiple plot view
 		lastShowedView[0] = null;
 		String plot5 = plotWindowManager.openView(page, "Plot 5");

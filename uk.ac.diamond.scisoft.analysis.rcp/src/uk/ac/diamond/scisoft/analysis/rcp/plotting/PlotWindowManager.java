@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -187,8 +187,8 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 	}
 
 	protected void openViewInternal(IWorkbenchPage page, String viewName) throws PartInitException {
-		if (knownViews.containsKey(viewName)) {
-			getPage(page).showView(knownViews.get(viewName));
+		if (knownPlotViews.containsKey(viewName)) {
+			getPage(page).showView(knownPlotViews.get(viewName));
 		} else {
 			getPage(page).showView(PlotView.PLOT_VIEW_MULTIPLE_ID, viewName, IWorkbenchPage.VIEW_ACTIVATE);
 		}
