@@ -18,9 +18,6 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -45,7 +42,6 @@ import uk.ac.diamond.scisoft.analysis.roi.ROIUtils;
 public class ROIManager implements IROIListener, IRegionListener {
 	private static Logger logger = LoggerFactory.getLogger(ROIManager.class);
 
-	private Map<String, IROI> roiMap; // region name to ROI map
 	private IROI roi;
 	private IGuiInfoManager server; // usually plot window
 	private String plotName;
@@ -54,7 +50,6 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	public ROIManager(IGuiInfoManager guiManager, String plotName) {
 		server = guiManager;
-		roiMap = new LinkedHashMap<String, IROI>();
 
 		this.plotName = plotName;
 		plottingSystem = PlottingFactory.getPlottingSystem(plotName);
@@ -93,7 +88,6 @@ public class ROIManager implements IROIListener, IRegionListener {
 		IROI eroi = region.getROI();
 		if (eroi != null && !eroi.equals(roi)) {
 			roi = eroi;
-			roiMap.put(region.getName(), roi);
 		}
 		addCurrentROI();
 	}
@@ -119,7 +113,6 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 		roi = eroi;
 
-		roiMap.put(((IRegion)evt.getSource()).getName(), eroi);
 		addCurrentROI();
 	}
 
@@ -135,7 +128,6 @@ public class ROIManager implements IROIListener, IRegionListener {
 		if (or == null) { // remove all
 			clearGUIBean();
 			roi = null;
-			roiMap.clear();
 			return;
 		}
 
@@ -221,10 +213,11 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	public ROIList<?> createNewROIList(Class<? extends IROI> clazz) {
 		ROIList<? extends IROI> list = ROIUtils.createNewROIList(clazz);
-		if (list == null)
-			return null;
+		if (list == null) return null;
 
-		for (IROI r : roiMap.values()) {
+		final Collection<IRegion> regions = plottingSystem.getRegions();
+		for (IRegion iRegion : regions) {
+			IROI r = iRegion.getROI();
 			if (r.getClass().equals(clazz)) {
 				list.add(r);
 			}
@@ -233,7 +226,10 @@ public class ROIManager implements IROIListener, IRegionListener {
 	}
 
 	private IROI getFromROIMap(Class<? extends IROI> clazz) {
-		for (IROI r : roiMap.values()) {
+		
+		final Collection<IRegion> regions = plottingSystem.getRegions();
+		for (IRegion iRegion : regions) {
+			IROI r = iRegion.getROI();
 			if (r.getClass().equals(clazz)) {
 				return r;
 			}
@@ -271,10 +267,6 @@ public class ROIManager implements IROIListener, IRegionListener {
 		Set<String> regNames = new HashSet<String>();
 		for (IRegion iRegion : regions) {
 			regNames.add(iRegion.getName());
-		}
-		for (String n : new LinkedHashSet<String>(roiMap.keySet())) {
-			if (!regNames.contains(n))
-				roiMap.remove(n);
-		}
+		}		
 	}
 }
