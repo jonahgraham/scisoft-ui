@@ -23,6 +23,10 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.views.IViewDescriptor;
 
+/**
+ * Replaced by MockConfigElem
+ */
+@Deprecated
 class MockViewDescriptor implements IViewDescriptor {
 	public static final String UK_AC_DIAMOND_TEST_VIEW = "uk.ac.diamond.test.view.";
 	private final String label;
