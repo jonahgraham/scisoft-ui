@@ -218,6 +218,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 		final Collection<IRegion> regions = plottingSystem.getRegions();
 		for (IRegion iRegion : regions) {
 			IROI r = iRegion.getROI();
+			r.setName(iRegion.getName());
 			if (r.getClass().equals(clazz)) {
 				list.add(r);
 			}
