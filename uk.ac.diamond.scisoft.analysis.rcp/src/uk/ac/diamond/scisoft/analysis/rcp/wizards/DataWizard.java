@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.GDADataNature;
-import uk.ac.gda.common.rcp.CommonRCPActivator;
 
 /**
  * This is a sample new wizard. Its role is to create a new file 
@@ -166,7 +165,7 @@ public class DataWizard extends Wizard implements INewWizard {
 			finalFolder = importFolder.trim();
 			file = new File(finalFolder);
 			if (!file.exists())
-				throw new CoreException(new Status(IStatus.ERROR, CommonRCPActivator.PLUGIN_ID, 
+				throw new CoreException(new Status(IStatus.ERROR, "uk.ac.diamond.scisoft.analysis.rcp", 
 					"Unable to create project folder " + projectName + "." + folderName + " as folder " + finalFolder + " does not exist "));
 		} else {
 			finalFolder = importFolder;

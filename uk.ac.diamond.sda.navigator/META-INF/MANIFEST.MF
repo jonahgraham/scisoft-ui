@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.core.resources,
  org.eclipse.ui.cheatsheets;bundle-version="3.4.100",
  uk.ac.diamond.scisoft.analysis;bundle-version="1.3.0",
  uk.ac.diamond.scisoft.analysis.api;bundle-version="1.0.0",
- org.dawnsci.slicing.api;bundle-version="1.0.0"
+ org.dawnsci.slicing.api;bundle-version="1.0.0",
+ org.dawnsci.common.widgets;bundle-version="1.2.0"
 Bundle-Activator: uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator
 Import-Package: gda.analysis.io,
  org.dawb.common.services,
@@ -25,9 +26,7 @@ Import-Package: gda.analysis.io,
  org.eclipse.core.filesystem,
  org.eclipse.jface.text,
  org.eclipse.ui.texteditor,
- org.slf4j,
- uk.ac.gda.ui.actions,
- uk.ac.gda.ui.content
+ org.slf4j
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Diamond Light Source

@@ -717,12 +717,6 @@
             name="Diffraction Viewer">
       </sideplot>     
       <sideplot
-     		class = "uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.Fitting1D"
-            id="uk.ac.diamond.scisoft.analysis.rcp.Fitting1DSidePlot"
-            name="1D Fitting Tool"
-            plotMode="1D">
-      </sideplot>
-      <sideplot
             class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.DerivativeViewer"
             id="uk.ac.diamond.scisoft.analysis.rcp.FirstDerivative"
             name="First Derivative"

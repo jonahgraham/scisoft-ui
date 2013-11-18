@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.TableItem;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.gda.common.rcp.util.DialogUtils;
+import org.dawb.common.ui.util.DialogUtils;
 
 /**
  *

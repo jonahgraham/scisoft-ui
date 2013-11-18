@@ -46,7 +46,6 @@ import org.slf4j.Logger;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.gda.common.rcp.util.GridUtils;
 
 /**
  * A class with a left, right and status. The right contains a plot above the 
@@ -259,14 +258,7 @@ public class SashFormPlotComposite implements PlotView{
 	}
 
 	public void layout() {
-		GridUtils.startMultiLayout(sashForm);
-		try {
-			GridUtils.layoutFull(sashForm);
-			GridUtils.layoutFull(left);
-			leftScroll.setMinSize(left.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		} finally {
-			GridUtils.endMultiLayout();
-		}
+		
 	}
 
 	/**
