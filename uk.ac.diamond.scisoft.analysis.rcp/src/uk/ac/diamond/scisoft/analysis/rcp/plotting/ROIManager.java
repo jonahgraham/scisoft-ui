@@ -89,7 +89,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 		if (eroi != null && !eroi.equals(roi)) {
 			roi = eroi;
 		}
-		addCurrentROI();
+		addCurrentROI(!region.fromServer());
 	}
 
 	@Override
@@ -107,13 +107,17 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	@Override
 	public void roiChanged(ROIEvent evt) {
+		IRegion reg = (IRegion) evt.getSource();
+		if (reg == null)
+			return;
 		IROI eroi = evt.getROI();
 		if (eroi == null)
 			return;
 
 		roi = eroi;
 
-		addCurrentROI();
+		addCurrentROI(!reg.fromServer());
+		reg.setFromServer(false);
 	}
 
 	@Override
@@ -160,9 +164,10 @@ public class ROIManager implements IROIListener, IRegionListener {
 		}
 	}
 
-	private void addCurrentROI() {
+	private void addCurrentROI(boolean updateServer) {
 		updateROIMap();
-		updateGuiBean(roi.getClass(), roi);
+		if (updateServer)
+			updateGuiBean(roi.getClass(), roi);
 	}
 
 	private IROI updateGuiBean(Class<? extends IROI> clazz, IROI r) {
@@ -213,7 +218,8 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	public ROIList<?> createNewROIList(Class<? extends IROI> clazz) {
 		ROIList<? extends IROI> list = ROIUtils.createNewROIList(clazz);
-		if (list == null) return null;
+		if (list == null)
+			return null;
 
 		final Collection<IRegion> regions = plottingSystem.getRegions();
 		for (IRegion iRegion : regions) {
@@ -226,7 +232,6 @@ public class ROIManager implements IROIListener, IRegionListener {
 	}
 
 	private IROI getFromROIMap(Class<? extends IROI> clazz) {
-		
 		final Collection<IRegion> regions = plottingSystem.getRegions();
 		for (IRegion iRegion : regions) {
 			IROI r = iRegion.getROI();
@@ -267,6 +272,6 @@ public class ROIManager implements IROIListener, IRegionListener {
 		Set<String> regNames = new HashSet<String>();
 		for (IRegion iRegion : regions) {
 			regNames.add(iRegion.getName());
-		}		
+		}
 	}
 }
