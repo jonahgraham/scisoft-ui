@@ -44,7 +44,7 @@ public class PlotView extends AbstractPlotView {
 	/**
 	 * The full path of the PlotView class
 	 */
-	public static final String PLOTVIEW_PATH = PlotView.class.getName();
+	public static final String PLOTVIEW_PATH = "uk.ac.diamond.scisoft.analysis.rcp.views.PlotView";
 
 	/**
 	 * Default Constructor of the plot view
