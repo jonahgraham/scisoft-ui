@@ -42,6 +42,11 @@ public class PlotView extends AbstractPlotView {
 	public static final String PLOT_VIEW_MULTIPLE_ID = "uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple";
 
 	/**
+	 * The full path of the PlotView class
+	 */
+	public static final String PLOTVIEW_PATH = "uk.ac.diamond.scisoft.analysis.rcp.views.PlotView";
+
+	/**
 	 * Default Constructor of the plot view
 	 */
 

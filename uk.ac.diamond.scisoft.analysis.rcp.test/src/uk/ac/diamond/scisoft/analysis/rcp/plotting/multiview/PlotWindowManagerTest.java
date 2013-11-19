@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,12 +86,12 @@ public class PlotWindowManagerTest {
 	public void testPlotManagerCreation2() {
 		List<IConfigurationElement> configElements = new ArrayList<IConfigurationElement>();
 		MockConfigElem config1 = new MockConfigElem("view");
-		config1.addAttribute(new MockAttribute("class", (PlotView.class).getName()));
+		config1.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));
 		config1.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 1"));
 		config1.addAttribute(new MockAttribute("name", "Plot 1"));
 
 		MockConfigElem config2 = new MockConfigElem("view");
-		config2.addAttribute(new MockAttribute("class", (PlotView.class).getName()));
+		config2.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));
 		config2.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 2"));
 		config2.addAttribute(new MockAttribute("name", "Plot 2"));
 
@@ -186,12 +186,12 @@ public class PlotWindowManagerTest {
 	public void testCreateUniqueNameNoClashWithGlobalViews() {
 		List<IConfigurationElement> configElements = new ArrayList<IConfigurationElement>();
 		MockConfigElem config1 = new MockConfigElem("view");
-		config1.addAttribute(new MockAttribute("class", (PlotView.class).getName()));
+		config1.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));
 		config1.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 1"));
 		config1.addAttribute(new MockAttribute("name", "Plot 1"));
 
 		MockConfigElem config2 = new MockConfigElem("view");
-		config2.addAttribute(new MockAttribute("class", (PlotView.class).getName()));
+		config2.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));
 		config2.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 2"));
 		config2.addAttribute(new MockAttribute("name", "Plot 2"));
 
@@ -219,7 +219,7 @@ public class PlotWindowManagerTest {
 	public void testOpensPlotView() {
 		List<IConfigurationElement> configElements = new ArrayList<IConfigurationElement>();
 		MockConfigElem config1 = new MockConfigElem("view");
-		config1.addAttribute(new MockAttribute("class", (PlotView.class).getName()));
+		config1.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));
 		config1.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 1"));
 		config1.addAttribute(new MockAttribute("name", "Plot 1"));
 

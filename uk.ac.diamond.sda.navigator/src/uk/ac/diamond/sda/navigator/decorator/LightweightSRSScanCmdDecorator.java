@@ -70,6 +70,9 @@ public class LightweightSRSScanCmdDecorator extends LabelProvider implements ILi
 			IFile modelFile = (IFile) element;
 			if (SRS_EXT.equals(modelFile.getFileExtension())) {
 				IFile ifile = (IFile) element;
+				
+				if (!ifile.exists())           return;
+				if (ifile.getLocation()==null) return;
 				srsMetaDataLoader(ifile.getLocation().toString());
 
 				try {
