@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ public class PlotWindowManagerTest {
 	public void testPlotManagerCreation2() {
 		List<IConfigurationElement> configElements = new ArrayList<IConfigurationElement>();
 		MockConfigElem config1 = new MockConfigElem("view");
-		config1.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));//(PlotView.class).getName()));
+		config1.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));
 		config1.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 1"));
 		config1.addAttribute(new MockAttribute("name", "Plot 1"));
 
