@@ -90,7 +90,7 @@ public class ShowPlotViewHandler extends AbstractHandler {
 		public Map<String, String> getParameterValues() {
 			PlotWindowManager manager = PlotWindowManager.getPrivateManager();
 
-			String[] views = manager.getAllPossibleViews(null);
+			String[] views = manager.getAllPossibleViews(null, false);
 			Set<String> guiNamesWithData = Collections.emptySet();
 			try {
 				String[] names = PlotServerProvider.getPlotServer().getGuiNames();

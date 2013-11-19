@@ -261,7 +261,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 
 	private String getUniqueName(String base, IWorkbenchPage page) {
 		try {
-			Set<String> knownNames = new HashSet<String>(Arrays.asList(getAllPossibleViews(page)));
+			Set<String> knownNames = new HashSet<String>(Arrays.asList(getAllPossibleViews(page, true)));
 			int lastSpaceIndex = base.lastIndexOf(' ');
 			if (lastSpaceIndex >= 0) {
 				String numString = base.substring(lastSpaceIndex + 1);
@@ -290,12 +290,18 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 	 * @param page
 	 *            workbench page to get list of view references from, can be <code>null</code> to automatically load
 	 *            default page from Platform
+	 * @param returnAll
+	 *            if true, returns all the existing plot views, else only the default ones
 	 * @return list of plot views
 	 */
-	public String[] getAllPossibleViews(IWorkbenchPage page) {
+	public String[] getAllPossibleViews(IWorkbenchPage page, boolean returnAll) {
 		Set<String> views = new HashSet<String>();
 		views.addAll(Arrays.asList(getOpenViews()));
-		views.addAll(knownPlotViews.keySet());
+		if (returnAll) {
+			views.addAll(knownPlotViews.keySet());
+		} else {
+			addDefaultPlotViews(views);
+		}
 		if (page != null) {
 			try {
 				IViewReference[] viewReferences = getPage(page).getViewReferences();
@@ -320,7 +326,20 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 
 		return views.toArray(new String[views.size()]);
 	}
-	
+
+	/**
+	 * Return all default plot views that are either open, or can be opened because they are defined in plugin.xml
+	 * @param views the set of views
+	 */
+	private void addDefaultPlotViews(Set<String> views) {
+		Set<String> keys = knownPlotViews.keySet();
+		for (String key : keys) {
+			if (knownPlotViews.get(key).startsWith(PlotView.ID)) {
+				views.add(key);
+			}
+		}
+	}
+
 	@Override
 	public boolean IsBeingObserved() {
 		return observable.IsBeingObserved();
