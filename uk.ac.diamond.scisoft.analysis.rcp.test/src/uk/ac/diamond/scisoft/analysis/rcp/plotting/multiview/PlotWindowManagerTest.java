@@ -81,18 +81,17 @@ public class PlotWindowManagerTest {
 	}
 
 	final static String MOCK_ID = "uk.ac.diamond.test.view.";
-	final static String PLOTVIEW_NAME = "uk.ac.diamond.scisoft.analysis.rcp.views.PlotView";
 
 	@Test
 	public void testPlotManagerCreation2() {
 		List<IConfigurationElement> configElements = new ArrayList<IConfigurationElement>();
 		MockConfigElem config1 = new MockConfigElem("view");
-		config1.addAttribute(new MockAttribute("class", PLOTVIEW_NAME));//(PlotView.class).getName()));
+		config1.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));//(PlotView.class).getName()));
 		config1.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 1"));
 		config1.addAttribute(new MockAttribute("name", "Plot 1"));
 
 		MockConfigElem config2 = new MockConfigElem("view");
-		config2.addAttribute(new MockAttribute("class", PLOTVIEW_NAME));
+		config2.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));
 		config2.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 2"));
 		config2.addAttribute(new MockAttribute("name", "Plot 2"));
 
@@ -187,12 +186,12 @@ public class PlotWindowManagerTest {
 	public void testCreateUniqueNameNoClashWithGlobalViews() {
 		List<IConfigurationElement> configElements = new ArrayList<IConfigurationElement>();
 		MockConfigElem config1 = new MockConfigElem("view");
-		config1.addAttribute(new MockAttribute("class", PLOTVIEW_NAME));
+		config1.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));
 		config1.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 1"));
 		config1.addAttribute(new MockAttribute("name", "Plot 1"));
 
 		MockConfigElem config2 = new MockConfigElem("view");
-		config2.addAttribute(new MockAttribute("class", PLOTVIEW_NAME));
+		config2.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));
 		config2.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 2"));
 		config2.addAttribute(new MockAttribute("name", "Plot 2"));
 
@@ -220,7 +219,7 @@ public class PlotWindowManagerTest {
 	public void testOpensPlotView() {
 		List<IConfigurationElement> configElements = new ArrayList<IConfigurationElement>();
 		MockConfigElem config1 = new MockConfigElem("view");
-		config1.addAttribute(new MockAttribute("class", PLOTVIEW_NAME));
+		config1.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));
 		config1.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 1"));
 		config1.addAttribute(new MockAttribute("name", "Plot 1"));
 

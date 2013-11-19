@@ -126,7 +126,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 						if (name.equals("view")) {
 							String className = config[k].getAttribute("class");
 							// if a PlotView
-							if (className.equals((PlotView.class).getName())) {
+							if (className.equals(PlotView.PLOTVIEW_PATH)) {
 								plotViews.add(config[k]);
 							}
 						}
@@ -149,7 +149,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 			if (name.equals("view")) {
 				String className = config.getAttribute("class");
 				// if a PlotView
-				if (className.equals((PlotView.class).getName())) {
+				if (className.equals(PlotView.PLOTVIEW_PATH)) {
 					knownPlotViews.put(config.getAttribute("name"), config.getAttribute("id"));
 				}
 			}
