@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.dawnsci.plotting.api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/uk.ac.diamond.scisoft.analysis.rcp"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
