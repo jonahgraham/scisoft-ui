@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import org.dawb.common.ui.plot.roi.data.IRowData;
 import org.eclipse.swt.graphics.RGB;
 
 import uk.ac.diamond.scisoft.analysis.fitting.functions.APeak;
-
+@Deprecated
 public class FittedPeakData implements IRowData {
 
 	private APeak fittedPeak;

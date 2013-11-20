@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 /**
  *
  */
+@Deprecated
 public class PlotScatter2DUI extends Plot1DUIAdapter {
 
 	private IWorkbenchPage page;

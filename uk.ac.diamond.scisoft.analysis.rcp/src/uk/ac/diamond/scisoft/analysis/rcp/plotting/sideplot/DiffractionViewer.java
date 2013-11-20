@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
 import java.awt.Color;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,7 +73,10 @@ import uk.ac.diamond.scisoft.analysis.roi.handler.RectangularROIHandler;
 import de.jreality.ui.viewerapp.SelectionEvent;
 import de.jreality.ui.viewerapp.SelectionListener;
 
-@SuppressWarnings("deprecation")
+/**
+ * Replaced by org.dawnsci.plotting.tools.diffraction
+ */
+@Deprecated
 public class DiffractionViewer extends SidePlotProfile implements SelectionListener {
 	private static Logger logger = LoggerFactory.getLogger(DiffractionViewer.class);
 	public static String ID = "uk.ac.diamond.scisoft.analysis.rcp.DiffractionViewer";

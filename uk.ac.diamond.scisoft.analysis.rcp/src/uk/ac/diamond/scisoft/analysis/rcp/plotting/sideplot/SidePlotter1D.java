@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
  * This is a 1D plotter that is used in side plots and provides context menu options to use log scales
  * and support zooming
  */
+@Deprecated
 public class SidePlotter1D extends DataSetPlotter implements PlotActionEventListener {
 	private Composite parent;
 	Display display;

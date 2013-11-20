@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ResolutionRingTableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
-
+@Deprecated
 public class DiffractionViewerResolutionRings extends Composite implements SelectionListener, ICellEditorListener {
 
 	private ResolutionRingList resolutionRingList = new ResolutionRingList();

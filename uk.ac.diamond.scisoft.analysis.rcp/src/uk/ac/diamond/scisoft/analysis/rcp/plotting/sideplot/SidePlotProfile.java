@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,6 +72,7 @@ import uk.ac.diamond.scisoft.analysis.roi.handler.ROIHandler;
  * roiClass and roiListClass are only used in updateGUI method so if you override that method,
  * you may not need to initialize those fields.
  */
+@Deprecated
 public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsumer, SelectionListener, ICellEditorListener {
 	private static Logger logger = LoggerFactory.getLogger(SidePlotProfile.class);
 
