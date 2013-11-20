@@ -31,7 +31,7 @@ import org.dawnsci.plotting.api.trace.ILineTrace;
 import org.dawnsci.plotting.api.trace.ILineTrace.TraceType;
 import org.dawnsci.plotting.api.trace.ITrace;
 import org.dawnsci.plotting.util.ColorUtility;
-import org.eclipse.swt.graphics.Color;
+//import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 	/**
 	 * trace color
 	 */
-	private Color plotColor;
+//	private Color plotColor;
 
 	/**
 	 * Constructor of a plotting 1D 
@@ -173,10 +173,10 @@ public class Plotting1DUI extends AbstractPlotUI {
 					logger.debug("Plot 1D updated");
 				} else {
 					// increment the colour
-					int index = traces;
+//					int index = traces;
 					if (idx > ColorUtility.getSize())
 						idx = 0;
-					plotColor = ColorUtility.getSwtColour(index > ColorUtility.getSize() ? idx++ : index);
+//					plotColor = ColorUtility.getSwtColour(index > ColorUtility.getSize() ? idx++ : index);
 
 					List<IAxis> axes = plottingSystem.getAxes();
 					Map<String, AbstractDataset> axisData = dbPlot.getAxisData();

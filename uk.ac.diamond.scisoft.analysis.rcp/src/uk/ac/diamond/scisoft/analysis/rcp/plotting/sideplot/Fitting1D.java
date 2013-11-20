@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,6 +119,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceInitializer;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 
+@Deprecated
 public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionListener, ICellEditorListener,
 		ISelectionChangedListener {
 
@@ -1425,7 +1426,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 		manager.add(showLeg);
 	}
 }
-
+@Deprecated
 class PlotFittedPeaks implements Overlay1DConsumer {
 
 	transient private static final Logger logger = LoggerFactory.getLogger(PlotFittedPeaks.class);

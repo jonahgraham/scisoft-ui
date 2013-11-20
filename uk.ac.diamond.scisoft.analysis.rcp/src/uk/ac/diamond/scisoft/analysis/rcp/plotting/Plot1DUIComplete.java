@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
  * 
  * With complete action set in the toolbar.
  */
+@Deprecated
 public class Plot1DUIComplete extends Plot1DUIAdapter {
 
 	/**

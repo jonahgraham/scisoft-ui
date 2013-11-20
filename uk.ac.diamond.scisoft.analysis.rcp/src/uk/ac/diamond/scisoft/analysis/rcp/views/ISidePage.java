@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.views;
 import org.eclipse.ui.part.IPageBookViewPage;
 
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
-
+@Deprecated
 public interface ISidePage extends IPageBookViewPage{
 
 	public void setMetadataObject(IMetaData meta);

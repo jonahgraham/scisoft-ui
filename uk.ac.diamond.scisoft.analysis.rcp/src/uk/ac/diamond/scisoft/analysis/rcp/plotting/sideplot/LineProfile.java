@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ import com.swtdesigner.SWTResourceManager;
 /**
  * Composite to show line profiles of main plotter
  */
-@SuppressWarnings("deprecation")
+@Deprecated
 public class LineProfile extends SidePlotProfile {
 	private static Logger logger = LoggerFactory.getLogger(LineProfile.class);
 

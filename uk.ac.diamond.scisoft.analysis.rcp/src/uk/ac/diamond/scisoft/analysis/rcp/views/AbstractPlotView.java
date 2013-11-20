@@ -69,7 +69,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
  * it is the replacement of the Data Vector panel inside the new RCP framework
  * (different from uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView)
  */
-@SuppressWarnings("deprecation")
+
 public abstract class AbstractPlotView extends ViewPart implements IObserver, IObservable, IGuiInfoManager, IUpdateNotificationListener,
 		ISidePlotPart, IPlottingContainer {
 

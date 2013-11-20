@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.SidePlotManager;
  * Side plot view provides a holding area for any analysis tools that implements ISidePlot. After creating this view,
  * call setPlotView and setMainPlotter to link the main plot view and its data to the tools
  */
+@Deprecated
 public class SidePlotView extends ViewPart implements ISidePlotView {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SidePlotView.class);
