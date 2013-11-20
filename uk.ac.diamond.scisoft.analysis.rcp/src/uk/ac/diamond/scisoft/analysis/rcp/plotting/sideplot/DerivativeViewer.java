@@ -72,6 +72,8 @@ import com.swtdesigner.SWTResourceManager;
  * 
  * First derivative in 1D is needed by some science.
  * 
+ * Replaced by org.dawnsci.plotting.tool.DerivativeTool
+ * 
  * TODO - change to arbitrary function plotter?
  *      - allow regions? derivative of region rather than whole function.
  *      

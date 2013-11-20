@@ -45,7 +45,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ResolutionRingTableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
-
+@Deprecated
 public class DiffractionViewerResolutionRings extends Composite implements SelectionListener, ICellEditorListener {
 
 	private ResolutionRingList resolutionRingList = new ResolutionRingList();

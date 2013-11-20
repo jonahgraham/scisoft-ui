@@ -1,5 +1,5 @@
 /*-
- * Copyright 2012 Diamond Light Source Ltd.
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.eclipse.swt.graphics.PaletteData;
 /**
  * Used to send a palette data and a min and max value after a PaletteEvent
  */
+@Deprecated
 public class ColorMappingUpdate implements ISelection{
 
 	private PaletteData palette;

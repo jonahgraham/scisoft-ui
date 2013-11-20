@@ -42,6 +42,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
 /**
  *
  */
+@Deprecated
 public class DataWindowOverlay implements Overlay2DConsumer, IObservable {
 
 	private Overlay2DProvider provider = null;

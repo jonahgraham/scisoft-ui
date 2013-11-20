@@ -46,7 +46,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.MCView.PaintMode;
 import uk.ac.diamond.scisoft.analysis.roi.MaskingBean;
-
+@Deprecated
 class xyPointList {
 	double[] xlist;
 	double[] ylist;

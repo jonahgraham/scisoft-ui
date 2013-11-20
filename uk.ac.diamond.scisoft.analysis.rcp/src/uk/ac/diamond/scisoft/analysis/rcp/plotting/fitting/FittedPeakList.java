@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.fitting;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-
+@Deprecated
 public class FittedPeakList extends ArrayList<FittedPeakData> implements Serializable { 
 
 }
