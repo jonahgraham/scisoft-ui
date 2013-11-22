@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.dawb.common.services.IPaletteService;
 import org.dawb.common.ui.plot.region.RegionService;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
+import org.dawnsci.plotting.api.histogram.IPaletteService;
 import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.dawnsci.plotting.api.region.RegionUtils;
