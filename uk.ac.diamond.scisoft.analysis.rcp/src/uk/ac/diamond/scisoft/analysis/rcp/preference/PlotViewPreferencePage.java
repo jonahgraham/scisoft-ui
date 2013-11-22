@@ -18,9 +18,9 @@ package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
 import java.util.Collection;
 
-import org.dawb.common.services.IPaletteService;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlottingFactory;
+import org.dawnsci.plotting.api.histogram.IPaletteService;
 import org.dawnsci.plotting.api.trace.IPaletteTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.preference.PreferencePage;
