@@ -127,6 +127,7 @@ public class JythonCreator implements IStartup {
 		"classpath__" // includes __classpath__ and __pyclasspath__
 	};
 	private final static String[] pluginKeys = {
+		"org.dawb.hdf5", // required for loading to work in client started from IDE
 		"uk.ac.diamond.scisoft.analysis",
 		"uk.ac.diamond.scisoft.python",
 		"uk.ac.diamond.CBFlib",
@@ -152,8 +153,7 @@ public class JythonCreator implements IStartup {
 
 		logger.debug("Initialising the Jython interpreter setup");
 
-		String runProp = System.getProperty(RUN_IN_ECLIPSE);
-		boolean isRunningInEclipse = "true".equalsIgnoreCase(runProp);
+		boolean isRunningInEclipse = "true".equalsIgnoreCase(System.getProperty(RUN_IN_ECLIPSE));
 
 		// Horrible Hack warning: This code is copied from parts of Pydev to set up the interpreter and save it.
 		{
