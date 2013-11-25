@@ -85,9 +85,7 @@ public class PlottingScatter3DUI extends AbstractPlotUI {
 						AbstractDataset ny = d.getData();
 						yl.add(ny);
 					}
-					plottingSystem.reset();
 					plottingSystem.createPlot1D(nx, datasets, null, null);
-
 					logger.debug("Plot Scatter 3D created");
 				} else {
 					logger.error("Cannot plot data with NULL axes");
