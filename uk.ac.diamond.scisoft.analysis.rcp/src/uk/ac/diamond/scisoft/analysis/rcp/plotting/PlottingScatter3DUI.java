@@ -59,23 +59,16 @@ public class PlottingScatter3DUI extends AbstractPlotUI {
 				if (plotData == null)
 					return;
 
-//				Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
 				final List<IDataset> datasets = Collections.synchronizedList(new LinkedList<IDataset>());
 
 				AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
 				AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
 				AbstractDataset zAxisValues = dbPlot.getAxis(AxisMapBean.ZAXIS);
-				
-//				while (iter.hasNext()) {
-//					DataSetWithAxisInformation dataSetAxis = iter.next();
-//					AbstractDataset data = dataSetAxis.getData();
-//					datasets.add(data);
-//				}
-				
-				datasets.add(xAxisValues);
-				datasets.add(yAxisValues);
-				datasets.add(zAxisValues);
-				if (!isUpdate) {
+
+				if (xAxisValues != null && yAxisValues != null && zAxisValues != null) {
+					datasets.add(xAxisValues);
+					datasets.add(yAxisValues);
+					datasets.add(zAxisValues);
 					Map<String, AbstractDataset> axisData = dbPlot.getAxisData();
 					ArrayList<IDataset> yl = new ArrayList<IDataset>();
 					String[] axesIDs = plotData.get(0).getAxisMap().getAxisID();
@@ -97,115 +90,9 @@ public class PlottingScatter3DUI extends AbstractPlotUI {
 
 					logger.debug("Plot Scatter 3D created");
 				} else {
-					
+					logger.error("Cannot plot data with NULL axes");
 				}
-//				
-//				GuiBean gb = dbPlot.getGuiParameters();
-//
-//				String plotOperation = gb == null ? null : (String) gb.get(GuiParameters.PLOTOPERATION);
-//				Collection<ITrace> oldTraces = plottingSystem.getTraces();
-//				ILineStackTrace trace = oldTraces.size() != 0 ? (ILineStackTrace)oldTraces.iterator().next() : null;
-//				IDataset[] stackTraces = trace != null ? trace.getStack() : null;
-//				int traces = stackTraces != null ? stackTraces.length : 0;
-//				boolean useOldTraces = false;
-//				final int plots = plotData.size();
-//				if (GuiParameters.PLOTOP_NONE.equals(plotOperation) || GuiParameters.PLOTOP_UPDATE.equals(plotOperation)) {
-//
-//					// check if same lines are being plotted
-//					if (plots <= traces) {
-//						useOldTraces = plots == traces;
-//					}
-//
-//					if (!useOldTraces) {
-//						traces = 0;
-//					}
-//				}
-//
-//				if (useOldTraces && stackTraces != null && trace != null) {
-//					List<IDataset> unused = new ArrayList<IDataset>();
-//					List<IDataset> xDatasets = new ArrayList<IDataset>(1);
-//					IDataset[] yDatasets = new IDataset[plotData.size()];
-//					for (IDataset data : stackTraces) {
-//						boolean used = false;
-//						int i = 0;
-//						for (DataSetWithAxisInformation d : plotData) {
-//							AbstractDataset ny = d.getData();
-//							yDatasets[i] = ny;
-//							AbstractDataset nx = dbPlot.getAxis(d.getAxisMap().getAxisID()[0]);
-//							xDatasets.add(nx);
-//							i++;
-//						}
-//						if (!used)
-//							unused.add(data);
-//					}
-//					trace.setData(xDatasets, yDatasets);
-//					logger.debug("Plot Scatter 3D updated");
-//				} else {
-//
-//					Map<String, AbstractDataset> axisData = dbPlot.getAxisData();
-//					ArrayList<IDataset> yl = new ArrayList<IDataset>();
-//					String id = plotData.get(0).getAxisMap().getAxisID()[0];
-//					AbstractDataset nx = axisData.get(id);
-//					List<IDataset> xDatasets = new ArrayList<IDataset>(1);
-//					xDatasets.add(nx);
-//					for (DataSetWithAxisInformation d : plotData) {
-//						AbstractDataset ny = d.getData();
-//						yl.add(ny);
-//					}
-//					plottingSystem.reset();
-//					plottingSystem.createPlot1D(nx, yl, null, null);
-//
-//					logger.debug("Plot Scatter 3D created");
-//				}
 			}
 		});
-//		
-//		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
-//		if (plotData != null) {
-//			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
-//			final List<IDataset> datasets = Collections.synchronizedList(new LinkedList<IDataset>());
-//	
-//			AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
-//			AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
-//			AbstractDataset zAxisValues = dbPlot.getAxis(AxisMapBean.ZAXIS);
-//			if (xAxisValues != null && yAxisValues != null && zAxisValues != null) {
-//
-//				while (iter.hasNext()) {
-//					DataSetWithAxisInformation dataSetAxis = iter.next();
-//					AbstractDataset data = dataSetAxis.getData();
-//					datasets.add(data);
-//				}
-//				if (!isUpdate) {
-//					try {
-//						mainPlotter.replaceAllPlots(datasets);
-//					} catch (PlotException e) {
-//						e.printStackTrace();
-//					}
-//				} else {
-//					IDataset data = datasets.get(0);
-//					IDataset currentData = mainPlotter.getCurrentDataSet();
-//					final int addLength = data.getSize();
-//					int n = currentData.getSize();
-//					currentData.resize(n + addLength);
-//					for (int i = 0; i < addLength; i++)
-//						currentData.set(data.getObject(i), n++);
-//					datasets.set(0, currentData);
-//					try {
-//						mainPlotter.replaceAllPlots(datasets);
-//					} catch (PlotException e) {
-//						e.printStackTrace();
-//					}					
-//				}
-//				//set the title/filename of plot
-//				String title = "";
-//				if (page.getActiveEditor()!=null)
-//					title = page.getActiveEditor().getTitle();
-//				mainPlotter.setTitle(title);
-//				
-//				
-//			}
-/*			dataWindowView.setData(datasets.get(0),xAxis,yAxis);*/
-//		}
 	}
-
 }
