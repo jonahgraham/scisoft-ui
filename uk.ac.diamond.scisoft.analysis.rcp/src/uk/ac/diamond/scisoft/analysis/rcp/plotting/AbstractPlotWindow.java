@@ -1,5 +1,5 @@
 /*-
- * Copyright 2012 Diamond Light Source Ltd.
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 /**
  * Abstract Class used to implement PlotWindows that implement IObserver, IObservable
  */
-@SuppressWarnings("deprecation")
 public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObservable {
 
 	static private Logger logger = LoggerFactory.getLogger(AbstractPlotWindow.class);
@@ -213,19 +212,17 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 * @param mode
 	 */
 	protected void cleanUp(GuiPlotMode mode) {
-		if (mode.equals(GuiPlotMode.ONED) || mode.equals(GuiPlotMode.TWOD) || mode.equals(GuiPlotMode.SCATTER2D)
-				|| mode.equals(GuiPlotMode.SURF2D) || mode.equals(GuiPlotMode.ONED_THREED)) {
+		if (mode.equals(GuiPlotMode.ONED) || mode.equals(GuiPlotMode.TWOD) 
+				|| mode.equals(GuiPlotMode.SCATTER2D)
+				|| mode.equals(GuiPlotMode.SURF2D)
+				|| mode.equals(GuiPlotMode.ONED_THREED)
+				|| mode.equals(GuiPlotMode.SCATTER3D)) {
 			cleanUpDatasetPlotter();
 			if (plottingSystem == null || plottingSystem.isDisposed()) {
 				plotSystemComposite = new Composite(parentComp, SWT.NONE);
 				plotSystemComposite.setLayout(new FillLayout());
 				createPlottingSystem(plotSystemComposite);
 			}
-		} else if (mode.equals(GuiPlotMode.SCATTER3D)) {
-			cleanUpPlottingSystem();
-			if (mainPlotter == null || mainPlotter.isDisposed())
-				createDatasetPlotter(PlottingMode.SCATTER3D);
-			cleanUpFromOldMode(true);
 		} else if (mode.equals(GuiPlotMode.MULTI2D)) {
 			cleanUpPlottingSystem();
 			if (mainPlotter == null || mainPlotter.isDisposed())
@@ -732,7 +729,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
 				setupScatterPlotting2D();
 			} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
-				setupScatter3DPlot();
+				setupScatter3DNewPlotting();
 			} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
 				setupMulti2D();
 			} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
@@ -878,7 +875,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 * Required if you want to make tools work with Abstract Plotting System.
 	 */
 	public Object getAdapter(final Class<?> clazz) {
-		return plottingSystem.getAdapter(clazz);
+		return plottingSystem != null ? plottingSystem.getAdapter(clazz) : null;
 	}
 
 	// Datasetplotter
@@ -978,6 +975,15 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		plotUI = new PlotScatter3DUI(this, mainPlotter, parentComp, getPage(), bars, getName());
 		addCommonActions(mainPlotter);
 		bars.updateActionBars();
+	}
+
+	// Abstract plotting System
+	protected void setupScatter3DNewPlotting() {
+		plottingSystem.setPlotType(PlotType.XY_SCATTER_3D);
+		plotUI = new PlottingScatter3DUI(plottingSystem);
+		addScriptingAction();
+		addDuplicateAction();
+		addClearAction();
 	}
 
 	public void dispose() {
