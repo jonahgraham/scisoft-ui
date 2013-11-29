@@ -85,7 +85,6 @@ import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.IAnalysisMonitor;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
@@ -107,6 +106,7 @@ import uk.ac.diamond.scisoft.analysis.optimize.NelderMead;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
@@ -1196,14 +1196,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 		@Override
 		protected IStatus run(final IProgressMonitor monitor) {
 			final List<CompositeFunction> functions = Generic1DFitter.fitPeakFunctions(xAxis, yAxis, peak, optomiser, smooth,
-					numberOfPeaks, cutoff, autoStop, measure, new IAnalysisMonitor() {
-
-						@Override
-						public boolean hasBeenCancelled() {
-							return monitor.isCanceled();
-						}
-					});
-
+					numberOfPeaks, cutoff, autoStop, measure, new ProgressMonitorWrapper(monitor));
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
 			if (functions.isEmpty()) {
