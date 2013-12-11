@@ -97,97 +97,92 @@ public class Plotting2DUI extends AbstractPlotUI {
 
 	@Override
 	public void processPlotUpdate(final DataBean dbPlot, boolean isUpdate) {
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
-				if (plotData != null) {
-					Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
-					final List<AbstractDataset> yDatasets = Collections
-							.synchronizedList(new LinkedList<AbstractDataset>());
+		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
+		if (plotData != null) {
+			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
+			final List<AbstractDataset> yDatasets = Collections
+					.synchronizedList(new LinkedList<AbstractDataset>());
 
-					final AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
-					final AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
-					final List<IDataset> axes = Collections.synchronizedList(new LinkedList<IDataset>());
-					
-					String xAxisName = "", yAxisName = "";
-					if(xAxisValues!=null){
-						axes.add(0, xAxisValues);
-						xAxisName = xAxisValues.getName();
-					}
-					if(yAxisValues!=null){
-						axes.add(1, yAxisValues);
-						yAxisName = yAxisValues.getName();
-					}
+			final AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
+			final AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
+			final List<IDataset> axes = Collections.synchronizedList(new LinkedList<IDataset>());
 
-					while (iter.hasNext()) {
-						DataSetWithAxisInformation dataSetAxis = iter.next();
-						AbstractDataset data = dataSetAxis.getData();
-						yDatasets.add(data);
-					}
-
-					AbstractDataset data = yDatasets.get(0);
-					if (data != null) {
-					
-						final Collection<ITrace> traces = plottingSystem.getTraces();
-						final List<ITrace> traceList =new ArrayList<ITrace>(traces);
-						if (traces != null && traces.size() > 0 
-								&& traceList.size()>0) {
-							List<IDataset> currentAxes = null;
-							int[] shape = null; 
-							if(traceList.get(0) instanceof IImageTrace){
-								final IImageTrace image = (IImageTrace) traces.iterator().next();
-								shape = image.getData() != null ? image.getData().getShape() : null;
-								currentAxes = image.getAxes();
-							} else if(traceList.get(0) instanceof ISurfaceTrace){
-								final ISurfaceTrace surface = (ISurfaceTrace) traces.iterator().next();
-								shape = surface.getData() != null ? surface.getData().getShape() : null;
-								currentAxes = surface.getAxes();
-							}
-							String lastXAxisName = "", lastYAxisName = "";
-							if(currentAxes!=null && currentAxes.size()>0)
-								lastXAxisName = currentAxes.get(0).getName();
-							if(currentAxes!=null && currentAxes.size()>1)
-								lastYAxisName = currentAxes.get(1).getName();
-							
-							if (shape != null && Arrays.equals(shape, data.getShape())
-									&& lastXAxisName.equals(xAxisName)
-									&& lastYAxisName.equals(yAxisName)) {
-								IPaletteTrace image = null;
-								if(axes.size()>0)
-									image = (IPaletteTrace)plottingSystem.updatePlot2D(data, axes, null);
-								else
-									image = (IPaletteTrace)plottingSystem.updatePlot2D(data, null, null);
-								setPlotViewPalette(image);
-								logger.debug("Plot 2D updated");
-							} else {
-								IPaletteTrace image = null;
-								if(axes.size()>0)
-									image = (IPaletteTrace)plottingSystem.createPlot2D(data, axes, null);
-								else 
-									image = (IPaletteTrace)plottingSystem.createPlot2D(data, null, null);
-								setPlotViewPalette(image);
-								logger.debug("Plot 2D created");
-							}
-						}else{
-							IPaletteTrace image = null;
-							if(axes.size()>0) {
-								image = (IPaletteTrace)plottingSystem.createPlot2D(data, axes, null);
-							} else {
-								image = (IPaletteTrace)plottingSystem.createPlot2D(data, null, null);
-							}
-
-							setPlotViewPalette(image);
-							logger.debug("Plot 2D created");
-						}
-						// COMMENTED TO FIX SCI-808: no need for a repaint
-						// plottingSystem.repaint();
-
-					} else
-						logger.debug("No data to plot");
-				}
+			String xAxisName = "", yAxisName = "";
+			if(xAxisValues!=null){
+				axes.add(0, xAxisValues);
+				xAxisName = xAxisValues.getName();
 			}
-		});
+			if(yAxisValues!=null){
+				axes.add(1, yAxisValues);
+				yAxisName = yAxisValues.getName();
+			}
+
+			while (iter.hasNext()) {
+				DataSetWithAxisInformation dataSetAxis = iter.next();
+				AbstractDataset data = dataSetAxis.getData();
+				yDatasets.add(data);
+			}
+
+			AbstractDataset data = yDatasets.get(0);
+			if (data != null) {
+
+				final Collection<ITrace> traces = plottingSystem.getTraces();
+				final List<ITrace> traceList =new ArrayList<ITrace>(traces);
+				if (traces != null && traces.size() > 0 
+						&& traceList.size()>0) {
+					List<IDataset> currentAxes = null;
+					int[] shape = null; 
+					if(traceList.get(0) instanceof IImageTrace){
+						final IImageTrace image = (IImageTrace) traces.iterator().next();
+						shape = image.getData() != null ? image.getData().getShape() : null;
+						currentAxes = image.getAxes();
+					} else if(traceList.get(0) instanceof ISurfaceTrace){
+						final ISurfaceTrace surface = (ISurfaceTrace) traces.iterator().next();
+						shape = surface.getData() != null ? surface.getData().getShape() : null;
+						currentAxes = surface.getAxes();
+					}
+					String lastXAxisName = "", lastYAxisName = "";
+					if(currentAxes!=null && currentAxes.size()>0)
+						lastXAxisName = currentAxes.get(0).getName();
+					if(currentAxes!=null && currentAxes.size()>1)
+						lastYAxisName = currentAxes.get(1).getName();
+
+					if (shape != null && Arrays.equals(shape, data.getShape())
+							&& lastXAxisName.equals(xAxisName)
+							&& lastYAxisName.equals(yAxisName)) {
+						IPaletteTrace image = null;
+						if(axes.size()>0)
+							image = (IPaletteTrace)plottingSystem.updatePlot2D(data, axes, null);
+						else
+							image = (IPaletteTrace)plottingSystem.updatePlot2D(data, null, null);
+						setPlotViewPalette(image);
+						logger.debug("Plot 2D updated");
+					} else {
+						IPaletteTrace image = null;
+						if(axes.size()>0)
+							image = (IPaletteTrace)plottingSystem.createPlot2D(data, axes, null);
+						else 
+							image = (IPaletteTrace)plottingSystem.createPlot2D(data, null, null);
+						setPlotViewPalette(image);
+						logger.debug("Plot 2D created");
+					}
+				}else{
+					IPaletteTrace image = null;
+					if(axes.size()>0) {
+						image = (IPaletteTrace)plottingSystem.createPlot2D(data, axes, null);
+					} else {
+						image = (IPaletteTrace)plottingSystem.createPlot2D(data, null, null);
+					}
+
+					setPlotViewPalette(image);
+					logger.debug("Plot 2D created");
+				}
+				// COMMENTED TO FIX SCI-808: no need for a repaint
+				// plottingSystem.repaint();
+
+			} else
+				logger.debug("No data to plot");
+		}
 	}
 
 	private void setPlotViewPalette(IPaletteTrace image) {
