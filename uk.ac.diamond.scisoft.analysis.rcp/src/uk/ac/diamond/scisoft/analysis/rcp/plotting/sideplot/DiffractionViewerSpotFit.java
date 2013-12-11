@@ -354,7 +354,7 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 				compFunc.addFunction(fp);
 			}
 			plottingData.add(dataSets);
-			plottingData.add(compFunc.makeDataset(DoubleDataset.arange(dataSets.getSize())));
+			plottingData.add(compFunc.calculateValues(DoubleDataset.arange(dataSets.getSize())));
 
 			try {
 				lpPlotter.replaceAllPlots(plottingData);
