@@ -1,5 +1,5 @@
 /*-
- * Copyright 2012 Diamond Light Source Ltd.
+ * Copyright 2013 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.dawb.common.services.IPaletteService;
 import org.dawb.common.ui.plot.region.RegionService;
@@ -223,143 +224,129 @@ public class Plotting2DUI extends AbstractPlotUI {
 	public void deleteIObservers() {
 		observers.clear();
 	}
-	
-	@Override
-	public void processGUIUpdate(GuiBean guiBean) {
-		logger.debug("There is a guiBean update: {}", guiBean);
-		final Display display = Display.getDefault();
 
-		final Boolean clearAll = (Boolean) guiBean.remove(GuiParameters.ROICLEARALL);
-		if (clearAll != null && clearAll) {
-			display.syncExec(new Runnable() {
-				@Override
-				public void run() {
+	// list of all unique plot ids
+	private Set<UUID> ids = new HashSet<UUID>();
+
+	@Override
+	public void processGUIUpdate(final GuiBean guiBean) {
+		
+		logger.debug("There is a guiBean update: {}", guiBean);
+		final UUID currentID = (UUID)guiBean.get(GuiParameters.PLOTID);
+
+		// stop the update if the plot ID is equal to an existing one to avoid a loop update
+		// TODO : this is a fix so that if there are more than 1 client, updating an ROI doesn't
+		// get stuck in an infinite loop
+		if (!ids.contains(currentID))
+		Display.getDefault().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				final Boolean clearAll = (Boolean) guiBean.remove(GuiParameters.ROICLEARALL);
+				if (clearAll != null && clearAll) {
 					final Collection<IRegion> regions = plottingSystem.getRegions();
 					for (IRegion r : regions) {
 						plottingSystem.removeRegion(r);
 					}
 				}
-			});
-		}
 
-		final IROI roi = (IROI) guiBean.get(GuiParameters.ROIDATA);
-		IROI croi = manager.getROI();
-		ROIList<? extends IROI> list = (ROIList<?>) guiBean.get(GuiParameters.ROIDATALIST);
+				final IROI roi = (IROI) guiBean.get(GuiParameters.ROIDATA);
+				IROI croi = manager.getROI();
+				ROIList<? extends IROI> list = (ROIList<?>) guiBean.get(GuiParameters.ROIDATALIST);
 
-		if (roi != null)
-			logger.trace("R: {}", roi.getName());
-		if (list != null) {
-			for (IROI r : list)
-				logger.trace("L: {}", r.getName());
-		}
-		// Same as in SidePlotProfile with onSwitch = false, i.e.:
-		// logic is for each GUI parameter
-		//     if null and parameter exists
-		//         delete parameter
-		//         signal updating of parameter
-		//     else if same class
-		//         replace parameter
-		//         signal updating of parameter
+				if (roi != null)
+					logger.trace("R: {}", roi.getName());
+				if (list != null) {
+					for (IROI r : list)
+						logger.trace("L: {}", r.getName());
+				}
+				// Same as in SidePlotProfile with onSwitch = false, i.e.:
+				// logic is for each GUI parameter
+				//     if null and parameter exists
+				//         delete parameter
+				//         signal updating of parameter
+				//     else if same class
+				//         replace parameter
+				//         signal updating of parameter
 
-		String rName = null;
-		if (roi == null) {
-			if (croi != null) {
-				final IRegion r = plottingSystem.getRegion(croi.getName());
-				if (r != null) {
-					display.syncExec(new Runnable() {
-						@Override
-						public void run() {
+				String rName = null;
+				if (roi == null) {
+					if (croi != null) {
+						final IRegion r = plottingSystem.getRegion(croi.getName());
+						if (r != null) {
 							plottingSystem.removeRegion(r);
 						}
-					});
-				}
-				croi = null;
-			}
-		} else {
-			rName = roi.getName(); // overwrite name if necessary
-			if (rName != null && rName.trim().length() == 0) {
-				rName = null;
-			}
-			boolean found = false; // found existing?
-			if (croi != null) {
-				if (roi.getClass().equals(croi.getClass())) { // replace current ROI
-					String cn = croi.getName();
-					final IRegion reg = plottingSystem.getRegion(cn);
-					if (reg != null) {
-						if (rName != null) {
-							reg.setName(rName);
-							croi.setName(rName);
-						} else {
-							roi.setName(cn);
-							rName = cn;
-						}
-
-						display.syncExec(new Runnable() {
-							@Override
-							public void run() {
-								reg.setROI(roi);
-							}
-						});
-						found = true;
+						croi = null;
 					}
 				} else {
-					if (rName != null) {
-						final IRegion reg = plottingSystem.getRegion(rName);
-						if (reg != null) {
-							display.syncExec(new Runnable() {
-								@Override
-								public void run() {
-									reg.setROI(roi);
+					rName = roi.getName(); // overwrite name if necessary
+					if (rName != null && rName.trim().length() == 0) {
+						rName = null;
+					}
+					boolean found = false; // found existing?
+					if (croi != null) {
+						if (roi.getClass().equals(croi.getClass())) { // replace current ROI
+							String cn = croi.getName();
+							final IRegion reg = plottingSystem.getRegion(cn);
+							if (reg != null) {
+								if (rName != null) {
+									reg.setName(rName);
+									croi.setName(rName);
+								} else {
+									roi.setName(cn);
+									rName = cn;
 								}
-							});
-							found = true;
-						}						
+								
+								reg.setFromServer(true);
+								if (!reg.getCoordinateSystem().isDisposed())
+									reg.setROI(roi);
+								found = true;
+							}
+						} else {
+							if (rName != null) {
+								final IRegion reg = plottingSystem.getRegion(rName);
+								if (reg != null) {
+									reg.setFromServer(true);
+									reg.setROI(roi);
+									found = true;
+								}
+							}
+						}
 					}
-				}
-			}
-			if (!found) { // create new region
-				if (list == null) {
-					list = ROIUtils.createNewROIList(roi);
-					list.add(roi);
-				} else {
-					if (list.size() > 0) {
-						if (list.get(0).getClass().equals(roi.getClass())) {
-							if (!list.contains(roi)) {
+					if (!found) { // create new region
+						if (list == null) {
+							list = ROIUtils.createNewROIList(roi);
+							list.add(roi);
+						} else {
+							if (list.size() > 0) {
+								if (list.get(0).getClass().equals(roi.getClass())) {
+									if (!list.contains(roi)) {
+										list.add(roi);
+									}
+								}
+							} else {
 								list.add(roi);
 							}
 						}
-					} else {
-						list.add(roi);
-					}
-				}
-				display.syncExec(new Runnable() {
-					@Override
-					public void run() {
 						createRegion(roi);
+						croi = roi;
 					}
-				});
-				croi = roi;
-			}
-		}
-
-		final Set<String> names = new HashSet<String>(); // names of ROIs
-		if (rName != null) { // add existing ROI
-			names.add(rName);
-		}
-		if (list != null) {
-			for (IROI r : list) {
-				String n = r.getName();
-				if (n != null && n.trim().length() > 0) {
-					names.add(n);
 				}
-			}
-		}
 
-		final Collection<IRegion> regions = plottingSystem.getRegions();
-		final ROIList<? extends IROI> roiList = list;
-		display.syncExec(new Runnable() {
-			@Override
-			public void run() {
+				final Set<String> names = new HashSet<String>(); // names of ROIs
+				if (rName != null) { // add existing ROI
+					names.add(rName);
+				}
+				if (list != null) {
+					for (IROI r : list) {
+						String n = r.getName();
+						if (n != null && n.trim().length() > 0) {
+							names.add(n);
+						}
+					}
+				}
+
+				final Collection<IRegion> regions = plottingSystem.getRegions();
+				final ROIList<? extends IROI> roiList = list;
 				Set<String> regNames = new HashSet<String>(); // regions not removed
 				for (IRegion reg : regions) { // clear all regions not listed
 					String regName = reg.getName();
@@ -369,22 +356,25 @@ public class Plotting2DUI extends AbstractPlotUI {
 						regNames.add(regName);
 					}
 				}
-
 				if (roiList != null) {
 					for (IROI r : roiList) {
 						String n = r.getName();
 						if (regNames.contains(n)) { // update ROI
-							plottingSystem.getRegion(n).setROI(r);
+							IRegion region = plottingSystem.getRegion(n);
+							if (region != null)
+								region.setROI(r);
 						} else { // or add new region that has not been listed
 							IRegion reg = plottingSystem.getRegion(n);
 							if (reg == null) {
 								createRegion(r);
 							} else {
+								reg.setFromServer(true);
 								reg.setROI(r);
 							}
 						}
 					}
 				}
+				ids.add(currentID);
 			}
 		});
 	}
@@ -398,6 +388,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 				roib.setName(name);
 			}
 			IRegion region = plottingSystem.createRegion(name, type);
+			region.setFromServer(true);
 			region.setROI(roib);
 			plottingSystem.addRegion(region);
 			return region;
