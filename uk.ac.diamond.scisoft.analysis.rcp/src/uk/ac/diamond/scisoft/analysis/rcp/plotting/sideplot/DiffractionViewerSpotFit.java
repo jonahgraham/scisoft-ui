@@ -57,6 +57,7 @@ import uk.ac.diamond.scisoft.analysis.fitting.Generic1DFitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.APeak;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Gaussian;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.IPeak;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.IdentifiedPeak;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Lorentzian;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.PearsonVII;
@@ -96,7 +97,7 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 	private Text averageDSpacing;
 
 	@SuppressWarnings("unused")
-	private APeak peak;
+	private Class<? extends IPeak> peak;
 	@SuppressWarnings("unused")
 	private int maxNumPeaks;
 
@@ -354,7 +355,7 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 				compFunc.addFunction(fp);
 			}
 			plottingData.add(dataSets);
-			plottingData.add(compFunc.makeDataset(DoubleDataset.arange(dataSets.getSize())));
+			plottingData.add(compFunc.calculateValues(DoubleDataset.arange(dataSets.getSize())));
 
 			try {
 				lpPlotter.replaceAllPlots(plottingData);
@@ -450,15 +451,15 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 		stoppingThreashold = threashold;
 
 		if (peakName.compareToIgnoreCase("Gaussian") == 0) {
-			peak = new Gaussian(1, 1, 1, 1);
+			peak = Gaussian.class;
 		} else if (peakName.compareToIgnoreCase("Lorentzian") == 0) {
-			peak = new Lorentzian(1, 1, 1, 1);
+			peak = Lorentzian.class;
 		} else if (peakName.compareToIgnoreCase("Pearson VII") == 0) {
-			peak = new PearsonVII(1, 1, 1, 1);
+			peak = PearsonVII.class;
 		} else if (peakName.compareToIgnoreCase("PseudoVoigt") == 0) {
-			peak = new PseudoVoigt(1, 1, 1, 1);
+			peak = PseudoVoigt.class;
 		} else {
-			peak = new Gaussian(1, 1, 1, 1);
+			peak = Gaussian.class;
 		}
 	}
 }
