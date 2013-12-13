@@ -155,7 +155,7 @@ public class CSVUtils {
 		                                  : null;
 		                                  
 		final Map<String, ILazyDataset> sortedData = new TreeMap<String, ILazyDataset>();
-		sortedData.putAll(dh.getMap());
+		sortedData.putAll(dh.toLazyMap());
 		if (requiredNames!=null) sortedData.keySet().retainAll(requiredNames);
 		
 		boolean is1DExport = false;
