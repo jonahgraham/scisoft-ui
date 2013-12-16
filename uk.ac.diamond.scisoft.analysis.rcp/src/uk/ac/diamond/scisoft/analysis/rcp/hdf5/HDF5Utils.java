@@ -121,9 +121,6 @@ public class HDF5Utils {
 				cData.setName(n);
 		}
 
-		// remove extraneous dimensions
-		cData.squeeze(true);
-		
 		// Fix to http://jira.diamond.ac.uk/browse/DAWNSCI-333. We put the path in the meta
 		// data in order to put a title containing the file in the plot.
 		if (link.getFile() != null && link.getFile().getFilename() != null) {
@@ -152,6 +149,9 @@ public class HDF5Utils {
 		}
 		cData.setLazyErrors(eData);
 
+		// remove extraneous dimensions
+		cData.squeeze(true);
+		
 		// set up slices
 		int[] shape = cData.getShape();
 		int rank = shape.length;
@@ -192,7 +192,12 @@ public class HDF5Utils {
 					if (gNode.containsDataset(eName)) {
 						eData = gNode.getDataset(eName).getDataset();
 						eData.setName(eName);
-						a.setLazyErrors(eData);
+						if (s.length != 0) // don't make a 0D dataset
+							eData.squeeze(true);
+
+						if (AbstractDataset.areShapesCompatible(ashape, eData.getShape(), -1)) {
+							a.setLazyErrors(eData);
+						}
 					}
 
 					HDF5Attribute attr;
