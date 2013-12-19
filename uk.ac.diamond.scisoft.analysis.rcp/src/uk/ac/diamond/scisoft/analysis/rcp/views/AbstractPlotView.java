@@ -186,6 +186,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 
 	@Override
 	public void setFocus() {
+		plotWindow.setFocus();
 	}
 
 	/**

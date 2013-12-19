@@ -1025,6 +1025,10 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 				.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) : preferenceStore
 				.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
 	}
+
+	public void setFocus() {
+		parentComp.setFocus();
+	}
 }
 
 class SimpleLock {
