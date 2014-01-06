@@ -23,4 +23,10 @@
             content="intro/tutorials.xml">
       </configExtension>
    </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="uk.ac.diamond.scisoft.analysis.rcp.InitPlotServer">
+      </startup>
+   </extension>
 </plugin>

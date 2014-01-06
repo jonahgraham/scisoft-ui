@@ -16,31 +16,17 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp;
 
-import org.eclipse.core.runtime.preferences.ConfigurationScope;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.prefs.BackingStoreException;
-import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.analysis.AnalysisRpcServerProvider;
-import uk.ac.diamond.scisoft.analysis.PlotServer;
-import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
-import uk.ac.diamond.scisoft.analysis.RMIServerProvider;
-import uk.ac.diamond.scisoft.analysis.ServerPortEvent;
-import uk.ac.diamond.scisoft.analysis.ServerPortListener;
-import uk.ac.diamond.scisoft.analysis.rcp.preference.AnalysisRpcAndRmiPreferencePage;
-import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
-import uk.ac.diamond.scisoft.analysis.rpc.FlatteningService;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPortListener {
+public class AnalysisRCPActivator extends AbstractUIPlugin  {
 
 	private static final Logger logger = LoggerFactory.getLogger(AnalysisRCPActivator.class);
 	/**
@@ -50,9 +36,7 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 
 	// The shared instance
 	private static AnalysisRCPActivator plugin;
-
-	@SuppressWarnings("rawtypes")
-	private ServiceTracker plotServerTracker;
+	private BundleContext context;
 
 	/**
 	 * The constructor
@@ -64,44 +48,14 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		plugin = this;
-
-		AnalysisRpcServerProvider.getInstance().addPortListener(this);
-
-		plotServerTracker = new ServiceTracker(context, PlotServer.class.getName(), null);
-		plotServerTracker.open();
-		PlotServer plotServer = (PlotServer)plotServerTracker.getService();
-		if( plotServer != null) PlotServerProvider.setPlotServer(plotServer);			
-		
-		// if the rmi server has been vetoed, dont start it up, this also has issues
-		if (Boolean.getBoolean("uk.ac.diamond.scisoft.analysis.analysisrpcserverprovider.disable") == false) {
-			AnalysisRpcServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getAnalysisRpcPort());
-			RMIServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getRmiPort());
-			FlatteningService.getFlattener().setTempLocation(AnalysisRpcAndRmiPreferencePage.getAnalysisRpcTempFileLocation());
-		}
-		
-	}
-
-	@Override
-	public void portAssigned(ServerPortEvent evt) {
-		logger.info("Setting "+PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO+" to: " +  evt.getPort());
-		IEclipsePreferences node = ConfigurationScope.INSTANCE.getNode("uk.ac.diamond.scisoft.analysis.rpc");
-		node.putInt(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO, evt.getPort());
-		try {
-			node.flush();
-		} catch (BackingStoreException e) {
-			logger.error("Error saving preference", e);
-		}
-	}
-	
+		this.context = context;
+		plugin = this;	
+	}	
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
-		PlotServer plotServer = (PlotServer)plotServerTracker.getService();
-		if( plotServer != null)
-			PlotServerProvider.setPlotServer(null);
-		plotServerTracker.close();
+		this.context = null;
 		super.stop(context);
 	}
 
@@ -133,6 +87,10 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 	public static Image getImage(String path) {
 		ImageDescriptor des = imageDescriptorFromPlugin(PLUGIN_ID, path);
 		return des.createImage();
+	}
+
+	public BundleContext getBundleContext() {
+		return context;
 	}
 }
 
