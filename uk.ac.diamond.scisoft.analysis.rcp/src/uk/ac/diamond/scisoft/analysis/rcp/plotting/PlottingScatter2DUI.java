@@ -49,7 +49,7 @@ public class PlottingScatter2DUI extends AbstractPlotUI {
 	}
 
 	@Override
-	public void processPlotUpdate(final DataBean dbPlot, boolean isUpdate) {
+	public void processPlotUpdate(final DataBean dbPlot, final boolean isUpdate) {
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -70,7 +70,9 @@ public class PlottingScatter2DUI extends AbstractPlotUI {
 
 						plottingSystem.getSelectedYAxis().setTitle(yAxisValues.getName());
 						plottingSystem.getSelectedXAxis().setTitle(xAxisValues.getName());
-						plottingSystem.clear();
+						// if we add points (an update) we do not clear the plot
+						if (!isUpdate)
+							plottingSystem.clear();
 						ILineTrace scatterPlotPoints = plottingSystem.createLineTrace(yAxisValues.getName());
 						scatterPlotPoints.setTraceType(TraceType.POINT);
 						scatterPlotPoints.setTraceColor(ColorConstants.blue);
@@ -81,7 +83,10 @@ public class PlottingScatter2DUI extends AbstractPlotUI {
 						plottingSystem.addTrace(scatterPlotPoints);
 						plottingSystem.setTitle("Plot of " + yAxisValues.getName() + " against "+ xAxisValues.getName());
 						plottingSystem.autoscaleAxes();
-						logger.debug("Scatter plot created");
+						if (!isUpdate)
+							logger.debug("Scatter plot created");
+						else
+							logger.debug("Scatter plot updated");
 						counter++;
 					}
 				}
