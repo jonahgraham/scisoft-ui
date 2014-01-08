@@ -218,14 +218,16 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	public ROIList<?> createNewROIList(Class<? extends IROI> clazz) {
 		ROIList<? extends IROI> list = ROIUtils.createNewROIList(clazz);
-		if (list == null)
+		if (list == null) {
 			return null;
-
+		}
 		final Collection<IRegion> regions = plottingSystem.getRegions();
-		for (IRegion iRegion : regions) {
-			IROI r = iRegion.getROI();
-			if (r.getClass().equals(clazz)) {
-				list.add(r);
+		if (regions != null) {
+			for (IRegion iRegion : regions) {
+				IROI r = iRegion.getROI();
+				if (r.getClass().equals(clazz)) {
+					list.add(r);
+				}
 			}
 		}
 		return list;
@@ -233,10 +235,12 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	private IROI getFromROIMap(Class<? extends IROI> clazz) {
 		final Collection<IRegion> regions = plottingSystem.getRegions();
-		for (IRegion iRegion : regions) {
-			IROI r = iRegion.getROI();
-			if (r.getClass().equals(clazz)) {
-				return r;
+		if (regions != null) {
+			for (IRegion iRegion : regions) {
+				IROI r = iRegion.getROI();
+				if (r.getClass().equals(clazz)) {
+					return r;
+				}
 			}
 		}
 		return null;
