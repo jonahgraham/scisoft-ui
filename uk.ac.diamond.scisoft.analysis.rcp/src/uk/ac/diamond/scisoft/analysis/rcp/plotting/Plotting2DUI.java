@@ -97,6 +97,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 
 	@Override
 	public void processPlotUpdate(final DataBean dbPlot, boolean isUpdate) {
+		
 		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
 		if (plotData != null) {
 			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
@@ -185,9 +186,27 @@ public class Plotting2DUI extends AbstractPlotUI {
 		}
 	}
 
-	private void setPlotViewPalette(IPaletteTrace image) {
-		if (image == null)
-			return;
+	/**
+	 * Thread safe palette update
+	 * @param image
+	 */
+	private void setPlotViewPalette(final IPaletteTrace image) {
+		
+		if (Thread.currentThread() == Display.getDefault().getThread()) {
+			setPaletteUnsafe(image);
+		} else {
+			Display.getDefault().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					setPaletteUnsafe(image);
+				}
+			});
+		}
+	}
+	
+	private void setPaletteUnsafe(IPaletteTrace image) {
+		
+		if (image == null) return;
 		IPreferenceStore store = AnalysisRCPActivator.getDefault().getPreferenceStore();
 
 		// check colour scheme in if image trace is in a live plot
@@ -208,6 +227,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 				store.setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, savedPlotViewPalette);
 			}
 		}
+
 	}
 
 	@Override
