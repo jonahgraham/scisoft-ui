@@ -97,7 +97,6 @@ public class Plotting2DUI extends AbstractPlotUI {
 
 	@Override
 	public void processPlotUpdate(final DataBean dbPlot, boolean isUpdate) {
-		
 		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
 		if (plotData != null) {
 			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
@@ -227,7 +226,6 @@ public class Plotting2DUI extends AbstractPlotUI {
 				store.setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, savedPlotViewPalette);
 			}
 		}
-
 	}
 
 	@Override
@@ -257,7 +255,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 		// stop the update if the plot ID is equal to an existing one to avoid a loop update
 		// TODO : this is a fix so that if there are more than 1 client, updating an ROI doesn't
 		// get stuck in an infinite loop
-		if (!ids.contains(currentID))
+		if (currentID == null || !ids.contains(currentID))
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -394,7 +392,8 @@ public class Plotting2DUI extends AbstractPlotUI {
 						}
 					}
 				}
-				ids.add(currentID);
+				if (currentID != null)
+					ids.add(currentID);
 			}
 		});
 	}
