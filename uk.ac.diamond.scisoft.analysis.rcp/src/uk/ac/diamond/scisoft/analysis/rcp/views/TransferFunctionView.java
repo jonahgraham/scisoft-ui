@@ -28,6 +28,7 @@ import org.dawnsci.plotting.jreality.overlay.OverlayProvider;
 import org.dawnsci.plotting.jreality.overlay.OverlayType;
 import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
 import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
+import org.dawnsci.plotting.services.util.GlobalColourMaps;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
@@ -37,7 +38,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.AbstractMapFunction;
 import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.UserCustomFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.GlobalColourMaps;
 import uk.ac.diamond.scisoft.analysis.rcp.volimage.CommandClient;
 
 

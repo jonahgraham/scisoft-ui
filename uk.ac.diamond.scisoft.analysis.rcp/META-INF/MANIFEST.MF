@@ -34,7 +34,8 @@ Require-Bundle: org.eclipse.ui,
  org.dawnsci.slicing.tools;bundle-version="1.0.0",
  org.eclipse.debug.core,
  org.eclipse.swt,
- org.apache.commons.beanutils;bundle-version="[1.8.3,1.9.0)"
+ org.apache.commons.beanutils;bundle-version="[1.8.3,1.9.0)",
+ org.dawnsci.plotting.services;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.swtdesigner,
  uk.ac.diamond.scisoft.analysis.rcp,

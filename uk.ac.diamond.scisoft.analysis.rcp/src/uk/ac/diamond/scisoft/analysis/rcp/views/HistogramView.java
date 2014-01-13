@@ -38,6 +38,7 @@ import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
 import org.dawnsci.plotting.jreality.impl.PlotException;
 import org.dawnsci.plotting.jreality.tick.TickFormatting;
 import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
+import org.dawnsci.plotting.services.util.GlobalColourMaps;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -77,7 +78,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.GlobalColourMaps;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 

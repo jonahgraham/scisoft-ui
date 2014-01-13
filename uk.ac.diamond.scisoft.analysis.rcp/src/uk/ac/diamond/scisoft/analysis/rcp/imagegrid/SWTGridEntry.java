@@ -20,6 +20,7 @@ import java.awt.Dimension;
 import java.io.IOException;
 
 import org.dawnsci.plotting.api.histogram.IPaletteService;
+import org.dawnsci.plotting.services.util.SWTImageUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
@@ -36,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.RGBDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Stats;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.SWTImageUtils;
 
 /**
  * SWT Image implementation of a ImageGridEntry
