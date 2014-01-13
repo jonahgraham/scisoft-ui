@@ -749,7 +749,11 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			@Override
 			public void run() {
 				try {
-					if (plotMode.equals(GuiPlotMode.RESETAXES)) {
+					if (plotMode.equals(GuiPlotMode.EXPORT)) {
+						GuiBean bean = getGuiManager().getGUIInfo();
+						getPlottingSystem().savePlotting((String)bean.get(GuiParameters.SAVEPATH), 
+														(String)bean.get(GuiParameters.FILEFORMAT));
+					} else if (plotMode.equals(GuiPlotMode.RESETAXES)) {
 						resetAxes();
 					} else {
 						GuiPlotMode oldMode = getPreviousMode();
@@ -758,6 +762,9 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 							setPreviousMode(plotMode);
 						}
 					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.error("Error exporting plot:"+e.getMessage());
 				} finally {
 					undoBlock();
 				}
