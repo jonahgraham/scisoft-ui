@@ -221,9 +221,14 @@ public class Plotting2DUI extends AbstractPlotUI {
 		} else {
 			if (paletteName != null && !paletteName.equals(store.getString(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP))) {
 				String savedPlotViewPalette = store.getString(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
-				image.setPaletteData(pservice.getPaletteData(savedPlotViewPalette));
-				image.setPaletteName(savedPlotViewPalette);
-				store.setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, savedPlotViewPalette);
+				try {
+					image.setPaletteData(pservice.getPaletteData(savedPlotViewPalette));
+					image.setPaletteName(savedPlotViewPalette);
+					store.setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, savedPlotViewPalette);
+				} catch (Throwable ne) {
+					// Leave palette as is and set PLOT_VIEW_PLOT2D_COLOURMAP back to grey.
+					store.setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, "Grey Scale");
+				}
 			}
 		}
 	}
