@@ -44,6 +44,7 @@ import org.dawnsci.plotting.api.trace.ISurfaceTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,8 +129,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 
 				final Collection<ITrace> traces = plottingSystem.getTraces();
 				final List<ITrace> traceList =new ArrayList<ITrace>(traces);
-				if (traces != null && traces.size() > 0 
-						&& traceList.size()>0) {
+				if (traces != null && traces.size() > 0 && traceList.size()>0) {
 					List<IDataset> currentAxes = null;
 					int[] shape = null; 
 					if(traceList.get(0) instanceof IImageTrace){
@@ -141,12 +141,14 @@ public class Plotting2DUI extends AbstractPlotUI {
 						shape = surface.getData() != null ? surface.getData().getShape() : null;
 						currentAxes = surface.getAxes();
 					}
+					boolean newAxes = true;
 					String lastXAxisName = "", lastYAxisName = "";
-					if(currentAxes!=null && currentAxes.size()>0)
+					if(currentAxes!=null && currentAxes.size()>0) {
 						lastXAxisName = currentAxes.get(0).getName();
-					if(currentAxes!=null && currentAxes.size()>1)
 						lastYAxisName = currentAxes.get(1).getName();
-
+						newAxes = !currentAxes.equals(axes);
+					}
+					
 					if (shape != null && Arrays.equals(shape, data.getShape())
 							&& lastXAxisName.equals(xAxisName)
 							&& lastYAxisName.equals(yAxisName)) {
@@ -166,6 +168,11 @@ public class Plotting2DUI extends AbstractPlotUI {
 						setPlotViewPalette(image);
 						logger.debug("Plot 2D created");
 					}
+					
+					if (newAxes) {
+						plottingSystem.repaint();
+					}
+			
 				}else{
 					IPaletteTrace image = null;
 					if(axes.size()>0) {
@@ -203,9 +210,15 @@ public class Plotting2DUI extends AbstractPlotUI {
 		} else {
 			if (paletteName != null && !paletteName.equals(store.getString(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP))) {
 				String savedPlotViewPalette = store.getString(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
-				image.setPaletteData(pservice.getPaletteData(savedPlotViewPalette));
-				image.setPaletteName(savedPlotViewPalette);
-				store.setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, savedPlotViewPalette);
+				try {
+					image.setPaletteData(pservice.getPaletteData(savedPlotViewPalette));
+					image.setPaletteName(savedPlotViewPalette);
+					store.setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, savedPlotViewPalette);
+				} catch (Exception ne) {
+					// Must be an invalid palette name
+					store.setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, "Grey Scale");
+					
+				}
 			}
 		}
 	}
