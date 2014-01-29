@@ -513,7 +513,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			plotUI = new PlottingScatter3DUI(plottingSystem);
 		} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
 			plottingSystem.setPlotType(PlotType.MULTI_IMAGE);
-			plotUI = new Plotting2DMultiUI(getRoiManager(), plottingSystem);
+			plotUI = new Plotting2DMultiUI(plottingSystem);
 		} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
 			resetAxes();
 		}
