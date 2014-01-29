@@ -27,8 +27,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import org.dawnsci.plotting.api.IPlottingContainer;
 import org.dawnsci.plotting.api.IPlottingSystem;
@@ -70,8 +72,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
  * (different from uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView)
  */
 
-public abstract class AbstractPlotView extends ViewPart implements IObserver, IObservable, IGuiInfoManager, IUpdateNotificationListener,
-		ISidePlotPart, IPlottingContainer {
+public abstract class AbstractPlotView extends ViewPart implements IObserver, IObservable, 
+                                                                   IGuiInfoManager, IUpdateNotificationListener,
+		                                                           IPlottingContainer {
 
 	// Adding in some logging to help with getting this running
 	private static final Logger logger = LoggerFactory.getLogger(AbstractPlotView.class);
@@ -79,25 +82,23 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	/**
 	 * the ID of the view
 	 */
-	protected String id;
-
+	protected String        id;
 	protected AbstractPlotWindow plotWindow;
+	protected String        plotViewName = "Plot View";
 
-	private PlotServer plotServer;
-	private ExecutorService execSvc = null;
-	protected String plotViewName = "Plot View";
-	private IPlotUI plotUI = null;
-	private UUID plotID = null;
-	private GuiBean guiBean = null;
-	private GuiBean stashedGuiBean;
-	private String dataBeanAvailable;
+	private PlotServer      plotServer;
+	private ExecutorService execSvc;
+	private IPlotUI         plotUI;
+	private UUID            plotID;
+	private String          dataBeanAvailable;
 
-	private Set<IObserver> dataObservers = Collections.synchronizedSet(new LinkedHashSet<IObserver>());
-	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
-
-	private Thread updateThread = null;
+	private Set<IObserver>   dataObservers = Collections.synchronizedSet(new LinkedHashSet<IObserver>());
+	private List<IObserver>  observers     = Collections.synchronizedList(new LinkedList<IObserver>());
 
 	private boolean update;
+	
+	private BlockingDeque<PlotEvent> queue;
+	private boolean                  isDisposed;
 
 	/**
 	 * Default Constructor of the plot view
@@ -117,15 +118,90 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	public AbstractPlotView(String id) {
 		super();
 		this.id = id;
-		init();
+		init();		
 	}
 
+
 	private void init() {
+		
 		plotID = UUID.randomUUID();
 		logger.info("Plot view uuid: {}", plotID);
 		setPlotServer(PlotServerProvider.getPlotServer());
 		getPlotServer().addIObserver(this);
 		setExecSvc(Executors.newFixedThreadPool(2));
+		
+		// Blocking queue to which we add plot update events.
+		this.queue = new LinkedBlockingDeque<PlotEvent>(100);
+		
+		// We have a thread which processes the queue
+		Thread plotThread = createPlotEventThread();
+		plotThread.setDaemon(true);
+		plotThread.start();
+	}
+	
+	private Thread createPlotEventThread() {
+		
+		return new Thread(new Runnable() {
+			@Override
+			public void run() {
+				
+				while (!isDisposed()) {
+					try {
+						PlotEvent event = queue.take();
+						if (event.getStashedGuiBean()==null && event.getGuiBean()==null) {
+							// This event is not of interest
+							continue;
+						}
+						
+						GuiBean bean = event.getStashedGuiBean();
+						String beanLocation = getDataBeanAvailable();
+	
+						// if there is a stashedGUIBean to update then do that update first
+						if (bean != null) {
+							event.setStashedGuiBean(null);
+							if (plotWindow != null)
+								plotWindow.processGUIUpdate(bean);
+						}
+	
+						// once the guiBean has been sorted out, see if there is any need to update the dataBean
+						if (beanLocation != null) {
+							setDataBeanAvailable(null);
+							try {
+								final DataBean dataBean;
+								dataBean = getPlotServer().getData(beanLocation);
+	
+								if (dataBean == null) continue;
+	
+								// update the GUI if needed
+								
+								GuiBean guiBean = event.getGuiBean();
+								if (guiBean == null) guiBean = new GuiBean();
+									
+								// do not add plot mode as this is done in plot window
+								if (dataBean.getGuiParameters() != null) {
+									guiBean.merge(dataBean.getGuiParameters());
+								}
+								
+								if (plotWindow != null) {
+									plotWindow.processPlotUpdate(dataBean);
+								}
+								notifyDataObservers(dataBean);
+							} catch (Exception e) {
+								logger.error("There has been an issue retrieving the databean from the plotserver", e);
+							}
+						}
+					} catch (Throwable ne) {
+						logger.debug("Exception raised in plot server job");
+						continue; // We still keep going until the part is disposed
+					}
+				}
+			}
+		});
+	}
+
+
+	protected boolean isDisposed() {
+		return isDisposed;
 	}
 
 	@Override
@@ -151,15 +227,16 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		// plotConsumer = new PlotConsumer(plotServer, plotViewName, this);
 		parent.setLayout(new FillLayout());
 
-		final GuiBean bean = getGUIInfo();
-		setStashedGuiBean(bean);
+		final GuiBean bean = getGUIBean();
 		plotWindow = createPlotWindow(parent, (GuiPlotMode) bean.get(GuiParameters.PLOTMODE), this, this, getViewSite()
 				.getActionBars(), getSite().getPage(), plotViewName);
 		plotWindow.updatePlotMode(bean, false);
 
 		// plotConsumer.addIObserver(this);
 		setDataBeanAvailable(plotViewName);
-		updateBeans();
+		final PlotEvent evt = new PlotEvent();
+		evt.setStashedGuiBean(bean);
+		queue.add(evt);
 		
 		//catch any errors from addTool and ignore so view is always created cleanly
 		try {
@@ -207,42 +284,10 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		plotWindow.clearPlot();
 	}
 
-	public void runUpdate() {
-		while (getDataBeanAvailable() != null || getStashedGuiBean() != null) {
-			GuiBean bean = getStashedGuiBean();
-			String beanLocation = getDataBeanAvailable();
-
-			// if there is a stashedGUIBean to update then do that update first
-			if (bean != null) {
-				setStashedGuiBean(null);
-				if (plotWindow != null)
-					plotWindow.processGUIUpdate(bean);
-			}
-
-			// once the guiBean has been sorted out, see if there is any need to update the dataBean
-			if (beanLocation != null) {
-				setDataBeanAvailable(null);
-				try {
-					final DataBean dataBean;
-					dataBean = getPlotServer().getData(beanLocation);
-
-					if (dataBean == null)
-						return;
-
-					// update the GUI if needed
-					updateGuiBean(dataBean);
-					if (plotWindow != null)
-						plotWindow.processPlotUpdate(dataBean);
-					notifyDataObservers(dataBean);
-				} catch (Exception e) {
-					logger.error("There has been an issue retrieving the databean from the plotserver", e);
-				}
-			}
-		}
-	}
-
 	@Override
 	public void dispose() {
+		
+		this.isDisposed = true;
 		if (plotWindow != null)
 			plotWindow.dispose();
 
@@ -250,7 +295,6 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		getExecSvc().shutdown();
 		deleteIObservers();
 		deleteDataObservers();
-		System.gc();
 	}
 
 	public void updatePlotMode(GuiPlotMode mode) {
@@ -271,48 +315,25 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		return plotWindow.getPlottingSystem();
 	}
 
-	public void updateGuiBean(DataBean dataBean) {
-		if (guiBean == null) {
-			guiBean = new GuiBean();
-		}
-		// do not add plot mode as this is done in plot window
-		if (dataBean.getGuiParameters() != null) {
-			guiBean.merge(dataBean.getGuiParameters());
-		}
-	}
-
-	/**
-	 * Update the beans
-	 */
-	public void updateBeans() {
-		if (updateThread == null || updateThread.getState() == Thread.State.TERMINATED) {
-
-			updateThread = new Thread(new Runnable() {
-
-				@Override
-				public void run() {
-					runUpdate();
-				}
-			}, "PlotViewUpdateThread");
-
-			updateThread.start();
-		} else {
-			// skips!
-			logger.trace("Dropping GUI bean update: d={}, g={}", getDataBeanAvailable(), getStashedGuiBean());
-		}
-	}
-
 	@Override
 	public void update(Object theObserved, Object changeCode) {
+		
 		if (changeCode instanceof String && changeCode.equals(plotViewName)) {
 			logger.debug("Getting a plot data update from {}; thd {}",  plotViewName, Thread.currentThread().getId());
 			setDataBeanAvailable(plotViewName);
-			updateBeans();
-		}
-		if (changeCode instanceof GuiUpdate) {
+			GuiBean     guiBean = getGUIBean();
+			final PlotEvent evt = new PlotEvent();
+			evt.setGuiBean(guiBean);
+			queue.add(evt);
+			
+		} else if (changeCode instanceof GuiUpdate) {
 			GuiUpdate gu = (GuiUpdate) changeCode;
 			if (gu.getGuiName().contains(plotViewName)) {
-				GuiBean bean = gu.getGuiData();
+				
+				GuiBean        bean = gu.getGuiData();
+				final PlotEvent evt = new PlotEvent();
+				GuiBean     guiBean = getGUIBean();
+				
 				UUID id = (UUID) bean.get(GuiParameters.PLOTID);
 				if (id == null || plotID.compareTo(id) != 0) { // filter out own beans
 					logger.debug("Getting a plot gui update for {}; thd {}; bean {}", new Object[] {plotViewName, Thread.currentThread().getId(), bean});
@@ -322,8 +343,9 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 						guiBean.merge(bean); // or merge it
 					}
 					guiBean.remove(GuiParameters.ROICLEARALL); // this parameter must not persist
-					setStashedGuiBean(bean);
-					updateBeans();
+					evt.setStashedGuiBean(bean);
+					evt.setGuiBean(guiBean);
+					queue.add(evt);
 				}
 			}
 		}
@@ -384,23 +406,22 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	 */
 	@Override
 	public GuiBean getGUIInfo() {
-		getGUIState();
+		return getGUIBean();
+	}
+
+	private GuiBean getGUIBean() {
+		GuiBean guiBean = null;
+		try {
+			guiBean = getPlotServer().getGuiState(plotViewName);
+		} catch (Exception e) {
+			logger.warn("Problem with getting GUI data from plot server");
+		}
+		if (guiBean == null)
+			guiBean = new GuiBean();
 		return guiBean;
 	}
 
-	private void getGUIState() {
-		if (guiBean == null) {
-			try {
-				guiBean = getPlotServer().getGuiState(plotViewName);
-			} catch (Exception e) {
-				logger.warn("Problem with getting GUI data from plot server");
-			}
-			if (guiBean == null)
-				guiBean = new GuiBean();
-		}
-	}
-
-	private void pushGUIState() {
+	private void pushGUIState(GuiBean guiBean) {
 		try {
 			getPlotServer().updateGui(plotViewName, guiBean);
 		} catch (Exception e) {
@@ -417,14 +438,13 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	 */
 	@Override
 	public void putGUIInfo(GuiParameters key, Serializable value) {
-		getGUIState();
+		GuiBean guiBean = getGUIBean();
 
 		guiBean.put(GuiParameters.PLOTID, plotID); // put plotID in bean
 
 		guiBean.put(key, value);
 
-		if (update)
-			pushGUIState();
+		if (update) pushGUIState(guiBean);
 	}
 
 	/**
@@ -434,14 +454,13 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	 */
 	@Override
 	public void removeGUIInfo(GuiParameters key) {
-		getGUIState();
+		GuiBean guiBean = getGUIBean();
 
 		guiBean.put(GuiParameters.PLOTID, plotID); // put plotID in bean
 
 		guiBean.remove(key);
 
-		if (update)
-			pushGUIState();
+		if (update)	pushGUIState(guiBean);
 	}
 
 	@Override
@@ -452,7 +471,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	@Override
 	public void unmute() {
 		update = true;
-		pushGUIState();	
+		//pushGUIState();	
 	}
 
 	public String getPlotViewName() {
@@ -464,22 +483,6 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		// do nothing
 	}
 
-	@Override
-	public IMetaData getMetadata() throws Exception {
-		if (getMainPlotter() == null)
-			return null;
-
-		IDataset currentData = getMainPlotter().getCurrentDataSet();
-		if (currentData != null)
-			return currentData.getMetadata();
-		return null;
-	}
-
-	@Override
-	public SidePlotPreference getSidePlotPreference() {
-		// TODO Return the real side preference, always diffraction for now.
-		return SidePlotPreference.DIFFRACTION_3D;
-	}
 
 	/**
 	 * @return plot UI
@@ -507,14 +510,6 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		this.dataBeanAvailable = dataBeanAvailable;
 	}
 
-	public GuiBean getStashedGuiBean() {
-		return stashedGuiBean;
-	}
-
-	public void setStashedGuiBean(GuiBean stashedGuiBean) {
-		this.stashedGuiBean = stashedGuiBean;
-	}
-
 	public PlotServer getPlotServer() {
 		return plotServer;
 	}
@@ -535,9 +530,8 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		return this.plotWindow;
 	}
 
-	@Override
 	public DataSetPlotter getMainPlotter() {
-		return plotWindow.getMainPlotter();
+		return null;
 	}
 
 	private void addToolIfRequired() throws Exception {
