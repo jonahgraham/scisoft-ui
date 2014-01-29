@@ -181,7 +181,8 @@ public class Plot2DUI extends AbstractPlotUI {
 	public ISidePlotView initSidePlotView() {
 		try {
 			SidePlotView spv = getSidePlotView();
-			spv.setPlotView(plotWindow.getMainPlotter(),manager); 
+			logger.error("The plotwindow cannot provide any DatasetPlotter anymore");
+//			spv.setPlotView(plotWindow.getMainPlotter(),manager); 
 			spv.setSwitchActions(switchToTabs);
 			
 			//			SidePlotUtils.bringToTop(page, spv);		 
@@ -248,16 +249,16 @@ public class Plot2DUI extends AbstractPlotUI {
 				compParent.getDisplay().asyncExec(lastestPlot2duiUpdater);	
 			}
 
-			AbstractDataset data = datasets.get(0);
-			boolean useRGB = 
-				(data instanceof RGBDataset) ||
- 	  	  	    (data instanceof AbstractCompoundDataset &&
-				(((AbstractCompoundDataset)data).getElementsPerItem() == 3 ||
-		 		 ((AbstractCompoundDataset)data).getElementsPerItem() == 4));
-
-			if (!useRGB)
-				plotWindow.notifyHistogramChange(histoUpdate);
-			else
+//			AbstractDataset data = datasets.get(0);
+//			boolean useRGB = 
+//				(data instanceof RGBDataset) ||
+// 	  	  	    (data instanceof AbstractCompoundDataset &&
+//				(((AbstractCompoundDataset)data).getElementsPerItem() == 3 ||
+//		 		 ((AbstractCompoundDataset)data).getElementsPerItem() == 4));
+//
+//			if (!useRGB)
+//				plotWindow.notifyHistogramChange(histoUpdate); // plotwindow no longer takes care of histogram changes
+//			else
 				mainPlotter.refresh(true);
 		}
 	}

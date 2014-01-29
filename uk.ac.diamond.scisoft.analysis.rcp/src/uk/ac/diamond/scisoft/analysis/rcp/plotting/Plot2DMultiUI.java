@@ -55,7 +55,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
+//import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
@@ -89,7 +89,7 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 	private Action copyGraph;
 	private Action printGraph;
 	private Action canvasAspect;
-	private HistogramDataUpdate histoUpdate;
+//	private HistogramDataUpdate histoUpdate;
 	private static final Logger logger = LoggerFactory.getLogger(Plot2DMultiUI.class);
 	
 	private String printButtonText = ResourceProperties.getResourceString("PRINT_BUTTON");
@@ -515,12 +515,12 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 				for (AbstractDataset data : datasets) {
 					if (!(data instanceof RGBDataset) &&
 						!(data instanceof AbstractCompoundDataset)) {
-						histoUpdate = new HistogramDataUpdate(data);
+//						histoUpdate = new HistogramDataUpdate(data);
 						break;
 					}
 				}
-				if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
-					plotWindow.notifyHistogramChange(histoUpdate);
+//				if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+//					plotWindow.notifyHistogramChange(histoUpdate);
 			} else
 				mainPlotter.refresh(true);
 		}
@@ -537,7 +537,7 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 
 	@Override
 	public void deactivate(boolean leaveSidePlotOpen) {
-		histoUpdate = null;
+//		histoUpdate = null;
 		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 			plotWindow.deleteIObserver(histogramView);
 			page.hideView(histogramView);

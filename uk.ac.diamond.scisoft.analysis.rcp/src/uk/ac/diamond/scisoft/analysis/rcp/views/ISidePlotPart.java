@@ -35,6 +35,7 @@ public interface ISidePlotPart extends IMetadataProvider, IWorkbenchPart{
 	public SidePlotPreference getSidePlotPreference();
 	
 	/**
+	 * No longer implemented: returns null
 	 * Returns the plotter used on the part
 	 * @return DataSetPlotter
 	 */

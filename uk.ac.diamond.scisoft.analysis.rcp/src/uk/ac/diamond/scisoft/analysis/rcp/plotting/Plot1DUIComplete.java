@@ -87,7 +87,9 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 							IActionBars bars, 
 					        Composite parent, IWorkbenchPage page,
 					        String viewName) {
-		super(window.getMainPlotter(), parent, viewName);
+		super(null, parent, viewName);
+//		super(window.getDatasetPlotter(), parent, viewName);
+		logger.error("The plotwindow cannot provide any DatasetPlotter anymore");
 		this.page = page;
 		plotWindow = window;
 		plotViewID = viewName;
@@ -105,7 +107,7 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 	public ISidePlotView initSidePlotView() {
 		try {
 			SidePlotView spv = getSidePlotView();
-			spv.setPlotView(plotWindow.getMainPlotter(),manager); 
+			spv.setPlotView(plotter,manager); 
 			spv.setSwitchActions(switchToTabs);
 			
 //			SidePlotUtils.bringToTop(page, spv);

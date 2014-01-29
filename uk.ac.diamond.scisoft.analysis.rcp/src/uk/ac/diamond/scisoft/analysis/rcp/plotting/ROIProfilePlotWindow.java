@@ -1,5 +1,5 @@
 /*-
- * Copyright 2012 Diamond Light Source Ltd.
+ * Copyright 2014 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -421,28 +421,6 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	}
 
 	@Override
-	protected void setupPlotting1D() {
-		plotUI = new Plotting1DUI(plottingSystem);
-		addScriptingAction();
-		addDuplicateAction();
-	}
-
-	@Override
-	protected void setupPlotting2D() {
-		plotUI = new Plotting2DUI(getRoiManager(), plottingSystem);
-		addToggleActions();
-		addScriptingAction();
-		addDuplicateAction();
-	}
-
-	@Override
-	protected void setupScatterPlotting2D() {
-		plotUI = new PlottingScatter2DUI(plottingSystem);
-		addScriptingAction();
-		addDuplicateAction();
-	}
-
-	@Override
 	public void updatePlotMode(final GuiPlotMode plotMode, boolean async) {
 		DisplayUtils.runInDisplayThread(async, parentComp, new Runnable() {
 			@Override
@@ -450,18 +428,21 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 				try {
 					GuiPlotMode oldMode = getPreviousMode();
 					if (plotMode.equals(GuiPlotMode.ONED) && oldMode != GuiPlotMode.ONED) {
-						setupPlotting1D();
+						plotUI = new Plotting1DUI(plottingSystem);
 						setPreviousMode(GuiPlotMode.ONED);
 					} else if (plotMode.equals(GuiPlotMode.TWOD) && oldMode != GuiPlotMode.TWOD) {
-						setupPlotting2D();
+						plotUI = new Plotting2DUI(getRoiManager(), plottingSystem);
+						addToggleActions();
 						setPreviousMode(GuiPlotMode.TWOD);
 					} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && oldMode != GuiPlotMode.SCATTER2D) {
-						setupScatterPlotting2D();
+						plotUI = new PlottingScatter2DUI(plottingSystem);
 						setPreviousMode(GuiPlotMode.SCATTER2D);
 					} else if (plotMode.equals(GuiPlotMode.EMPTY) && oldMode != GuiPlotMode.EMPTY) {
 						clearPlot();
 						setPreviousMode(GuiPlotMode.EMPTY);
 					}
+					addScriptingAction();
+					addDuplicateAction();
 				} finally {
 					undoBlock();
 				}

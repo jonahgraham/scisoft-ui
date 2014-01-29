@@ -1,5 +1,5 @@
 /*-
- * Copyright 2012 Diamond Light Source Ltd.
+ * Copyright 2014 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 /**
  * Actual PlotWindow that can be used inside a View- or EditorPart
  */
-@SuppressWarnings("deprecation")
 public class PlotWindow extends AbstractPlotWindow {
 
 	static private Logger logger = LoggerFactory.getLogger(PlotWindow.class);
@@ -66,15 +65,6 @@ public class PlotWindow extends AbstractPlotWindow {
 		parentComp.addControlListener(new ControlListener() {
 			@Override
 			public void controlResized(ControlEvent e) {
-				if (e.widget.equals(parentComp)) {
-					parentComp.getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							if (mainPlotter != null && !mainPlotter.isDisposed())
-								mainPlotter.refresh(false);
-						}
-					});
-				}
 			}
 			@Override
 			public void controlMoved(ControlEvent e) {

@@ -455,8 +455,8 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 					@Override
 					public void run() {
 						mainPlotter.refresh(true);
-						if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
-							plotWindow.notifyHistogramChange(histoUpdate);
+//						if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+//							plotWindow.notifyHistogramChange(histoUpdate); // plotwindow no longer takes care of histogram changes
 						plotWindow.notifyUpdateFinished();
 					}
 				});

@@ -60,7 +60,10 @@ public class PlotScatter2DUI extends Plot1DUIAdapter {
 							final DataSetPlotter plotter,
 							Composite parent, IWorkbenchPage page, String viewName)
 	{
-		super(window.getMainPlotter(), parent, viewName);
+		super(null, parent, viewName);
+		logger.error("the plotwindow cannot provide anymore a DatasetPlotter");
+//		super(window.getMainPlotter(), parent, viewName);
+
 		this.mainPlotter = plotter;
 		this.parent = parent;		
 		this.page = page;

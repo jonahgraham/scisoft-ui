@@ -1,5 +1,5 @@
 /*-
- * Copyright 2012 Diamond Light Source Ltd.
+ * Copyright 2014 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,6 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.ExamplePlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
@@ -68,9 +67,11 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
  * (different from uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView)
  */
 
-public abstract class AbstractPlotView extends ViewPart implements IObserver, IObservable, 
-                                                                   IGuiInfoManager, IUpdateNotificationListener,
-		                                                           IPlottingContainer {
+public abstract class AbstractPlotView extends ViewPart implements IObserver, 
+																   IObservable,
+																   IGuiInfoManager,
+																   IUpdateNotificationListener,
+																   IPlottingContainer {
 
 	// Adding in some logging to help with getting this running
 	private static final Logger logger = LoggerFactory.getLogger(AbstractPlotView.class);
@@ -90,7 +91,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	private List<IObserver>  observers     = Collections.synchronizedList(new LinkedList<IObserver>());
 
 	private boolean update;
-	
+
 	private BlockingDeque<PlotEvent> queue;
 	private boolean                  isDisposed;
 
@@ -112,12 +113,10 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	public AbstractPlotView(String id) {
 		super();
 		this.id = id;
-		init();		
+		init();
 	}
 
-
 	private void init() {
-		
 		plotID = UUID.randomUUID();
 		logger.info("Plot view uuid: {}", plotID);
 		setPlotServer(PlotServerProvider.getPlotServer());
@@ -131,13 +130,11 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		plotThread.setDaemon(true);
 		plotThread.start();
 	}
-	
+
 	private Thread createPlotEventThread() {
-		
 		return new Thread(new Runnable() {
 			@Override
 			public void run() {
-				
 				while (!isDisposed()) {
 					try {
 						PlotEvent event = queue.take();
@@ -166,15 +163,13 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 								if (dataBean == null) continue;
 	
 								// update the GUI if needed
-								
 								GuiBean guiBean = event.getGuiBean();
 								if (guiBean == null) guiBean = new GuiBean();
-									
+
 								// do not add plot mode as this is done in plot window
 								if (dataBean.getGuiParameters() != null) {
 									guiBean.merge(dataBean.getGuiParameters());
 								}
-								
 								if (plotWindow != null) {
 									plotWindow.processPlotUpdate(dataBean);
 								}
@@ -192,14 +187,12 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		}, "Plot View Update Daemon '"+plotID+"'");
 	}
 
-
 	protected boolean isDisposed() {
 		return isDisposed;
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-
 		if (getId() != null) {
 			// process extension configuration
 			logger.info("ID: {}", getId());
@@ -230,7 +223,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		evt.setDataBeanAvailable(plotViewName);
 		evt.setStashedGuiBean(bean);
 		offer(evt);
-		
+
 		//catch any errors from addTool and ignore so view is always created cleanly
 		try {
 			addToolIfRequired();
@@ -290,7 +283,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		deleteIObservers();
 		deleteDataObservers();
 	}
-	
+
 	/**
 	 * Tries to put plot event into queue or 
 	 * drops some events from the queue
@@ -303,10 +296,10 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	 */
 	private synchronized void offer(PlotEvent evt) {
 		if (queue.offer(evt)) return;
-        queue.remove(); // drop the head - TODO FIXME not region events!
-        if (!queue.offer(evt)) {
-        	throw new RuntimeException("Cannot offer plot events to queue!");
-        }
+		queue.remove(); // drop the head - TODO FIXME not region events!
+		if (!queue.offer(evt)) {
+			throw new RuntimeException("Cannot offer plot events to queue!");
+		}
 	}
 
 	public void updatePlotMode(GuiPlotMode mode) {
@@ -495,7 +488,6 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		// do nothing
 	}
 
-
 	/**
 	 * @return plot UI
 	 */
@@ -514,7 +506,6 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		this.id = id;
 	}
 
-
 	public PlotServer getPlotServer() {
 		return plotServer;
 	}
@@ -525,10 +516,6 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 
 	public AbstractPlotWindow getPlotWindow() {
 		return this.plotWindow;
-	}
-
-	public DataSetPlotter getMainPlotter() {
-		return null;
 	}
 
 	private void addToolIfRequired() throws Exception {
@@ -562,11 +549,10 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 					case ROLE_2D:
 						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.2D";
 						break;
-					case ROLE_1D_AND_2D:
-						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.1D_2D";
-						break;
 					case ROLE_3D:
 						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.3D";
+						break;
+					default:
 						break;
 					}
 					

@@ -501,7 +501,7 @@ public class PlotScatter3DUI extends AbstractPlotUI {
 					@Override
 					public void run() {
 						mainPlotter.refresh(true);
-						plotWindow.notifyHistogramChange(histoUpdate);
+//						plotWindow.notifyHistogramChange(histoUpdate); // Abstract PlotWindow no longer takes care of histogram update
 						plotWindow.notifyUpdateFinished();
 					}
 				});	

@@ -67,7 +67,7 @@ public class Plot1DUIAdapter extends AbstractPlotUI {
 	public final static String HISTORYSTRING = "History";
 
 	protected List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
-	protected DataSetPlotter plotter;
+	protected static DataSetPlotter plotter;
 	protected Composite      parent;
 	
 	// Actions could be in a map with a protected getter method.
@@ -157,7 +157,7 @@ public class Plot1DUIAdapter extends AbstractPlotUI {
 	}
 
 	protected IAction createShowLegend() {
-		return createShowLegend(this.plotter);
+		return createShowLegend(plotter);
 	}
 	
 	public static IAction createShowLegend(final DataSetPlotter plotter) {
