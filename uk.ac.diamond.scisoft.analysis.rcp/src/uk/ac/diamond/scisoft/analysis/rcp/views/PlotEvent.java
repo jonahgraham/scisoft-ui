@@ -22,8 +22,16 @@ class PlotEvent {
 
 	private GuiBean guiBean;
 	private GuiBean stashedGuiBean;
+	private String          dataBeanAvailable;
+
 	public GuiBean getGuiBean() {
 		return guiBean;
+	}
+	public String getDataBeanAvailable() {
+		return dataBeanAvailable;
+	}
+	public void setDataBeanAvailable(String dataBeanAvailable) {
+		this.dataBeanAvailable = dataBeanAvailable;
 	}
 	public void setGuiBean(GuiBean guiBean) {
 		this.guiBean = guiBean;

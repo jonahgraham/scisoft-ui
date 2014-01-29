@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.dawnsci.plotting.api.IPlottingContainer;
@@ -51,8 +49,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
@@ -87,10 +83,8 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	protected String        plotViewName = "Plot View";
 
 	private PlotServer      plotServer;
-	private ExecutorService execSvc;
 	private IPlotUI         plotUI;
 	private UUID            plotID;
-	private String          dataBeanAvailable;
 
 	private Set<IObserver>   dataObservers = Collections.synchronizedSet(new LinkedHashSet<IObserver>());
 	private List<IObserver>  observers     = Collections.synchronizedList(new LinkedList<IObserver>());
@@ -128,10 +122,9 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		logger.info("Plot view uuid: {}", plotID);
 		setPlotServer(PlotServerProvider.getPlotServer());
 		getPlotServer().addIObserver(this);
-		setExecSvc(Executors.newFixedThreadPool(2));
 		
 		// Blocking queue to which we add plot update events.
-		this.queue = new LinkedBlockingDeque<PlotEvent>(100);
+		this.queue = new LinkedBlockingDeque<PlotEvent>(25);
 		
 		// We have a thread which processes the queue
 		Thread plotThread = createPlotEventThread();
@@ -154,7 +147,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 						}
 						
 						GuiBean bean = event.getStashedGuiBean();
-						String beanLocation = getDataBeanAvailable();
+						String beanLocation = event.getDataBeanAvailable();
 	
 						// if there is a stashedGUIBean to update then do that update first
 						if (bean != null) {
@@ -165,7 +158,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	
 						// once the guiBean has been sorted out, see if there is any need to update the dataBean
 						if (beanLocation != null) {
-							setDataBeanAvailable(null);
+							event.setDataBeanAvailable(null);
 							try {
 								final DataBean dataBean;
 								dataBean = getPlotServer().getData(beanLocation);
@@ -196,7 +189,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 					}
 				}
 			}
-		});
+		}, "Plot View Update Daemon '"+plotID+"'");
 	}
 
 
@@ -233,10 +226,10 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		plotWindow.updatePlotMode(bean, false);
 
 		// plotConsumer.addIObserver(this);
-		setDataBeanAvailable(plotViewName);
 		final PlotEvent evt = new PlotEvent();
+		evt.setDataBeanAvailable(plotViewName);
 		evt.setStashedGuiBean(bean);
-		queue.add(evt);
+		offer(evt);
 		
 		//catch any errors from addTool and ignore so view is always created cleanly
 		try {
@@ -288,13 +281,32 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 	public void dispose() {
 		
 		this.isDisposed = true;
-		if (plotWindow != null)
-			plotWindow.dispose();
+		queue.clear();
+		queue.add(new PlotEvent());
+				
+		if (plotWindow != null) plotWindow.dispose();
 
 		getPlotServer().deleteIObserver(this);
-		getExecSvc().shutdown();
 		deleteIObservers();
 		deleteDataObservers();
+	}
+	
+	/**
+	 * Tries to put plot event into queue or 
+	 * drops some events from the queue
+	 * 
+	 * TODO dropping of events should be done if
+	 * the event is a plot update. Region events
+	 * should never be dropped.
+	 * 
+	 * @param evt
+	 */
+	private synchronized void offer(PlotEvent evt) {
+		if (queue.offer(evt)) return;
+        queue.remove(); // drop the head - TODO FIXME not region events!
+        if (!queue.offer(evt)) {
+        	throw new RuntimeException("Cannot offer plot events to queue!");
+        }
 	}
 
 	public void updatePlotMode(GuiPlotMode mode) {
@@ -320,11 +332,11 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		
 		if (changeCode instanceof String && changeCode.equals(plotViewName)) {
 			logger.debug("Getting a plot data update from {}; thd {}",  plotViewName, Thread.currentThread().getId());
-			setDataBeanAvailable(plotViewName);
 			GuiBean     guiBean = getGUIBean();
 			final PlotEvent evt = new PlotEvent();
+			evt.setDataBeanAvailable(plotViewName);
 			evt.setGuiBean(guiBean);
-			queue.add(evt);
+			offer(evt);
 			
 		} else if (changeCode instanceof GuiUpdate) {
 			GuiUpdate gu = (GuiUpdate) changeCode;
@@ -345,7 +357,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 					guiBean.remove(GuiParameters.ROICLEARALL); // this parameter must not persist
 					evt.setStashedGuiBean(bean);
 					evt.setGuiBean(guiBean);
-					queue.add(evt);
+					offer(evt);
 				}
 			}
 		}
@@ -502,13 +514,6 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 		this.id = id;
 	}
 
-	public String getDataBeanAvailable() {
-		return dataBeanAvailable;
-	}
-
-	public void setDataBeanAvailable(String dataBeanAvailable) {
-		this.dataBeanAvailable = dataBeanAvailable;
-	}
 
 	public PlotServer getPlotServer() {
 		return plotServer;
@@ -516,14 +521,6 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver, IO
 
 	public void setPlotServer(PlotServer plotServer) {
 		this.plotServer = plotServer;
-	}
-
-	public ExecutorService getExecSvc() {
-		return execSvc;
-	}
-
-	public void setExecSvc(ExecutorService execSvc) {
-		this.execSvc = execSvc;
 	}
 
 	public AbstractPlotWindow getPlotWindow() {

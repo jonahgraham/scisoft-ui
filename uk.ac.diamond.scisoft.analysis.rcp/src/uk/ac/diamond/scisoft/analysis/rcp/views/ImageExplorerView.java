@@ -665,6 +665,9 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 		if (imageGrid != null) {
 			imageGrid.dispose();
 		}
+		if (execSvc!=null) {
+			execSvc.shutdown();
+		}
 		if (finalBean != null) {
 			try {
 				plotServer.updateGui(plotViewName, finalBean);
