@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.python.pydev.debug.model.AbstractDebugTarget;
+import org.python.pydev.debug.model.IVariableLocator;
 import org.python.pydev.debug.model.remote.RunCustomOperationCommand;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -42,7 +43,7 @@ public class PydevDebugSaveHDF5CommandHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection selection = HandlerUtil.getCurrentSelection(event);
-		Tuple<AbstractDebugTarget, String> context = RunCustomOperationCommand.extractContextFromSelection(selection);
+		Tuple<AbstractDebugTarget, IVariableLocator> context = RunCustomOperationCommand.extractContextFromSelection(selection);
 		if (context != null) {
 			Shell activeShell = Display.getDefault().getActiveShell();
 			FileDialog dialog = new FileDialog(activeShell, SWT.SAVE);
