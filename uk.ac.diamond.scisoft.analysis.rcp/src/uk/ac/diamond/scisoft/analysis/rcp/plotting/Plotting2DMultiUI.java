@@ -38,7 +38,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 /**
  *
  */
-public class Plotting2DMultiUI extends AbstractPlotUI implements IObserver{
+public class Plotting2DMultiUI extends AbstractPlotUI {
 
 	private IPlottingSystem plottingSystem;
 
@@ -87,10 +87,6 @@ public class Plotting2DMultiUI extends AbstractPlotUI implements IObserver{
 			}
 		});
 	}	
-
-	@Override
-	public void update(Object theObserved, final Object changeCode) {
-	}
 
 	@Override
 	public void deactivate(boolean leaveSidePlotOpen) {
