@@ -42,7 +42,7 @@ public class InitPlotServer implements IStartup, ServerPortListener{
 	@SuppressWarnings("rawtypes")
 	private ServiceTracker plotServerTracker;
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void earlyStartup() {
 

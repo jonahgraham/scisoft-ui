@@ -20,15 +20,12 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The activator class controls the plug-in life cycle
  */
 public class AnalysisRCPActivator extends AbstractUIPlugin  {
 
-	private static final Logger logger = LoggerFactory.getLogger(AnalysisRCPActivator.class);
 	/**
 	 * The plug-in ID
 	 */
@@ -44,7 +41,6 @@ public class AnalysisRCPActivator extends AbstractUIPlugin  {
 	public AnalysisRCPActivator() {
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
