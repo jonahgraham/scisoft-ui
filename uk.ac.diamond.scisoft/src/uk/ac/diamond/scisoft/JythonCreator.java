@@ -112,7 +112,7 @@ public class JythonCreator implements IStartup {
 		"com.springsource.ch.qos.logback",
 		"com.springsource.org.apache.commons",
 		"com.springsource.javax.media.jai.core",
-//		"com.springsource.javax.media.jai.codec",
+		"com.springsource.javax.media.jai.codec",
 		"jtransforms",
 		"jai_imageio",
 		"it.tidalwave.imageio.raw",
@@ -132,8 +132,7 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.scisoft.python",
 		"uk.ac.diamond.CBFlib",
 		"uk.ac.gda.common",
-		"ncsa.hdf",
-		"uk.ac.gda.libs"
+		"ncsa.hdf"
 	};
 
 	private void initialiseInterpreter(IProgressMonitor monitor) throws CoreException {
