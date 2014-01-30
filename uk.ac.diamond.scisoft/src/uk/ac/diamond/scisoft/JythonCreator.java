@@ -246,8 +246,10 @@ public class JythonCreator implements IStartup {
 			// the executable is the jar itself
 			info.executableOrJar = executable;
 
-			// TODO include 'Mac OS X' if needed "DYLD_LIBRARY_PATH" + others ...
-			final String pathEnv = System.getProperty("os.name").contains("Windows") ? "PATH" : "LD_LIBRARY_PATH";
+			final String osName = System.getProperty("os.name");
+			final boolean isMacOSX = osName.contains("Mac OS X");
+			final String pathEnv = isMacOSX ? "DYLD_LIBRARY_PATH" : (osName.contains("Windows") ? "PATH"
+					: "LD_LIBRARY_PATH");
 			logPaths("Library paths:", System.getenv(pathEnv));
 
 			logPaths("Class paths:", System.getProperty("java.library.path"));
@@ -339,13 +341,13 @@ public class JythonCreator implements IStartup {
 			info.libs.removeAll(removals);
 			info.libs.addAll(pyPaths);
 
-			// now set up the LD_LIBRARY_PATH, or PATH for windows
+			// now set up the dynamic library environment
 			File libraryDir = new File(pluginsDir.getParent(), "lib");
-			String libraryPath;
+			Set<String> paths = new LinkedHashSet<String>();
 			if (!isRunningInEclipse && libraryDir.exists()) {
-				libraryPath = libraryDir.getAbsolutePath();
+				paths.add(libraryDir.getAbsolutePath());
 			} else {
-				Set<String> paths = new LinkedHashSet<String>();
+				// check each plugin directory's for dynamic libraries
 				String osarch = Platform.getOS() + "-" + Platform.getOSArch();
 				logger.debug("Using OS and ARCH: {}", osarch);
 				for (File dir : allPluginDirs) {
@@ -358,29 +360,44 @@ public class JythonCreator implements IStartup {
 						}
 					}
 				}
-				try {
-					for (String p : System.getenv(pathEnv).split(File.pathSeparator)) {
-						paths.add(p);
-					}
-				} catch (Exception e) {
-					// TODO: handle exception
-				}
-				
-				StringBuilder allPaths = new StringBuilder();
-				for (String p : paths) {
-					allPaths.append(p);
-					allPaths.append(File.pathSeparatorChar);
-				}
-				libraryPath = allPaths.substring(0, allPaths.length()-1);
+
 			}
 
-			String env = pathEnv + "=" + libraryPath;
-			logPaths("Setting " + pathEnv + " for dynamic libraries", env);
+			// add from environment variables
+			String ldPath = System.getenv(pathEnv);
+			if (ldPath != null) {
+				for (String p : ldPath.split(File.pathSeparator)) {
+					paths.add(p);
+				}
+			}
+			StringBuilder allPaths = new StringBuilder();
+			for (String p : paths) {
+				allPaths.append(p);
+				allPaths.append(File.pathSeparatorChar);
+			}
+			String libraryPath = allPaths.length() > 0 ? allPaths.substring(0, allPaths.length()-1) : null;
 
 			PyDevAdditionalInterpreterSettings settings = new PyDevAdditionalInterpreterSettings();
 			Collection<String> envVariables = settings.getAdditionalEnvVariables();
-			envVariables.add(env);
-			
+			if (libraryPath == null) {
+				logger.warn("{} not defined as no library paths were found!" + pathEnv);
+			} else {
+				logPaths("Setting " + pathEnv + " for dynamic libraries", libraryPath);
+				envVariables.add(pathEnv + "=" + libraryPath);
+			}
+
+			if (isMacOSX) {
+				// do we also add DYLD_VERSIONED_LIBRARY_PATH and DYLD_ROOT_PATH?
+				String fbPathEnv = "DYLD_FALLBACK_LIBRARY_PATH";
+				String fbPath = System.getenv(fbPathEnv);
+				if (fbPath == null) {
+					logger.debug("{} not defined" + fbPathEnv);
+				} else {
+					logPaths("For Mac OS X, setting " + fbPathEnv + " for dynamic libraries", fbPath);
+					envVariables.add(fbPathEnv + "=" + fbPath);
+				}
+			}
+
 			String[] envVarsAlreadyIn = info.getEnvVariables();
 			if (envVarsAlreadyIn != null) {
 				envVariables.addAll(Arrays.asList(envVarsAlreadyIn));
