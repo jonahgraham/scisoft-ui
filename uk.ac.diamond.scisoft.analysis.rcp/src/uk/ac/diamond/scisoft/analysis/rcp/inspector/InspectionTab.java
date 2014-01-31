@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2014 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.dawnsci.plotting.api.IPlottingSystem;
+import org.dawnsci.plotting.api.PlottingFactory;
+import org.dawnsci.plotting.api.tool.IToolPageSystem;
+import org.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
 import org.dawnsci.plotting.jreality.impl.DataSet3DPlot2DMulti;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -43,6 +47,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
@@ -283,6 +288,25 @@ class PlotTab extends ATab {
 					if (paxes != null) { // signal a replot without a slice reset
 						PlotAxisProperty p = paxes.get(0);
 						p.fire(new PropertyChangeEvent(p, PlotAxisProperty.plotUpdate, p.getName(), p.getName()));
+					}
+				}
+			});
+		} else if (itype == InspectorType.SURFACE) {
+			final IPlottingSystem plottingSystem = PlottingFactory.getPlottingSystem(PLOTNAME);
+			final Link openWindowing = new Link(holder, SWT.WRAP);
+			openWindowing.setText("Open the <a>Slice Window</a>");
+			openWindowing.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 0));
+			openWindowing.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (plottingSystem != null) {
+						try {
+							final IToolPageSystem system = (IToolPageSystem)plottingSystem.getAdapter(IToolPageSystem.class);
+							system.setToolVisible("org.dawb.workbench.plotting.tools.windowTool", ToolPageRole.ROLE_3D, 
+													"org.dawb.workbench.plotting.views.toolPageView.3D");
+						} catch (Exception e1) {
+							logger.error("Cannot open window tool!", e1);
+						}
 					}
 				}
 			});

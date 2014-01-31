@@ -1,5 +1,5 @@
 /*-
- * Copyright 2013 Diamond Light Source Ltd.
+ * Copyright 2014 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,13 +31,10 @@ import java.util.UUID;
 
 import org.dawb.common.ui.plot.region.RegionService;
 import org.dawnsci.plotting.api.IPlottingSystem;
-import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.histogram.IPaletteService;
 import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.dawnsci.plotting.api.region.RegionUtils;
-import org.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
-import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.IPaletteTrace;
 import org.dawnsci.plotting.api.trace.ISurfaceTrace;
@@ -83,16 +80,6 @@ public class Plotting2DUI extends AbstractPlotUI {
 	public Plotting2DUI(ROIManager roiManager, final IPlottingSystem plotter) {
 		manager = roiManager;
 		plottingSystem = plotter;
-		if (plottingSystem.getPlotType().equals(PlotType.SURFACE)){
-			try {
-				((IToolPageSystem)plottingSystem.getAdapter(IToolPageSystem.class))
-					.setToolVisible("org.dawb.workbench.plotting.tools.windowTool", 
-									ToolPageRole.ROLE_3D, 
-									"org.dawb.workbench.plotting.views.toolPageView.3D");
-			} catch (Exception e1) {
-				logger.error("Cannot open window tool!", e1);
-			}
-		}
 	}
 
 	@Override
