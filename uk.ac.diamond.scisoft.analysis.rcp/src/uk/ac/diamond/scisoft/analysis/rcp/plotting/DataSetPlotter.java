@@ -2152,7 +2152,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 
 	public void setDataWindowPosition(SurfacePlotROI roi) {
 		if (currentMode == PlottingMode.SURF2D) {
-			((DataSet3DPlot3D) plotter).setDataWindow(null, roi);
+			((DataSet3DPlot3D) plotter).setDataWindow(null, roi, null);
 		}
 	}
 
