@@ -31,8 +31,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.preferences.ViewSettingsDialog;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 
 /**

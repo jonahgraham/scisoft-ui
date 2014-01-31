@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
+
 import org.dawnsci.plotting.jreality.core.AxisMode;
 import org.dawnsci.plotting.jreality.impl.PlotException;
 import org.eclipse.swt.SWT;
@@ -24,28 +25,30 @@ import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 @Deprecated
-public class DiffractionSpotExaminer extends Composite {
+public class DiffractionPeakViewer extends Composite {
+	
 	private DataSetPlotter plotter;
 	private HistogramUpdate update;
-
-	public DiffractionSpotExaminer(Composite parent, int style) {
-		super(parent, style);
+	
+	public DiffractionPeakViewer(Composite parent, int style) {
+		super(parent,style);
 		setLayout(new FillLayout(SWT.VERTICAL));
-		plotter = new DataSetPlotter(PlottingMode.TWOD, this, false);
+		plotter = new DataSetPlotter(PlottingMode.SURF2D, this,false);
 		plotter.setAxisModes(AxisMode.LINEAR_WITH_OFFSET, AxisMode.LINEAR_WITH_OFFSET, AxisMode.LINEAR);
+		plotter.setZAxisLabel("Intensity");
 	}
-
+	
 	public void processROI(IDataset data, RectangularROI rectROI) {
 		if (rectROI.getLengths()[0] <= 1 || rectROI.getLengths()[1] <= 1 || data.getSize() <= 1)
 			return;
-		int[] startPoint = rectROI.getIntPoint();
-		int[] stopPoint = rectROI.getIntPoint(1, 1);
-		IDataset ROIdata = data.getSlice(new int[] { startPoint[1], startPoint[0] }, new int[] { stopPoint[1],
-				stopPoint[0] }, new int[] { 1, 1 });
+
+		int [] startPoint = rectROI.getIntPoint();
+		int [] stopPoint = rectROI.getIntPoint(1, 1);
+		IDataset ROIdata = data.getSlice(new int[]{startPoint[1],startPoint[0]}, new int []{stopPoint[1],stopPoint[0]},new int[]{1,1});
 		plotter.setAxisOffset(rectROI.getPointX(), rectROI.getPointY(), 0.0);
 
 		try {
@@ -54,28 +57,26 @@ public class DiffractionSpotExaminer extends Composite {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if (update != null) {
-			plotter.applyColourCast(update.getRedMapFunction(), update.getGreenMapFunction(),
-					update.getBlueMapFunction(), update.getAlphaMapFunction(), update.inverseRed(),
-					update.inverseGreen(), update.inverseBlue(), update.inverseAlpha(), update.getMinValue(),
-					update.getMaxValue());
+		if (update !=null){
+			plotter.applyColourCast(update.getRedMapFunction(), update.getGreenMapFunction(), update
+					.getBlueMapFunction(), update.getAlphaMapFunction(), update.inverseRed(), update.inverseGreen(),
+					update.inverseBlue(), update.inverseAlpha(), update.getMinValue(), update.getMaxValue());
 		}
 		plotter.refresh(true);
 	}
-
+	
 	@Override
 	public void dispose() {
-		if (plotter != null)
-			plotter.cleanUp();
+		if(plotter != null) plotter.cleanUp();
 	}
 
 	public void sendHistogramUpdate(HistogramUpdate update) {
 		this.update = update;
-		if (plotter == null)
+		if(plotter == null)
 			return;
-		plotter.applyColourCast(update.getRedMapFunction(), update.getGreenMapFunction(), update.getBlueMapFunction(),
-				update.getAlphaMapFunction(), update.inverseRed(), update.inverseGreen(), update.inverseBlue(),
-				update.inverseAlpha(), update.getMinValue(), update.getMaxValue());
+		plotter.applyColourCast(update.getRedMapFunction(), update.getGreenMapFunction(), update
+				.getBlueMapFunction(), update.getAlphaMapFunction(), update.inverseRed(), update.inverseGreen(),
+				update.inverseBlue(), update.inverseAlpha(), update.getMinValue(), update.getMaxValue());
 		plotter.refresh(true);
 	}
 }

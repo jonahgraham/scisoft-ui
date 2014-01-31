@@ -57,7 +57,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.ExamplePlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlottingUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
 
 /**
@@ -84,7 +84,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver,
 	protected String        plotViewName = "Plot View";
 
 	private PlotServer      plotServer;
-	private IPlotUI         plotUI;
+	private IPlottingUI         plotUI;
 	private UUID            plotID;
 
 	private Set<IObserver>   dataObservers = Collections.synchronizedSet(new LinkedHashSet<IObserver>());
@@ -491,7 +491,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver,
 	/**
 	 * @return plot UI
 	 */
-	public IPlotUI getPlotUI() {
+	public IPlottingUI getPlotUI() {
 		return plotUI;
 	}
 

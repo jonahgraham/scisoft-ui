@@ -46,6 +46,9 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotDataTableDialog;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
 

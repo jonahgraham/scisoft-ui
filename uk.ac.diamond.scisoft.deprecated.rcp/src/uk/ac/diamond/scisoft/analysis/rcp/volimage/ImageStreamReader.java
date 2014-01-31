@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
+@Deprecated
 public class ImageStreamReader implements Runnable {
 
 	private Logger logger = LoggerFactory.getLogger(ImageStreamReader.class);	

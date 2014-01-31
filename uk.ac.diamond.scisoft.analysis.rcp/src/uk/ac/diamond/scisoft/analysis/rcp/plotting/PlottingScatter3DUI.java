@@ -1,5 +1,5 @@
 /*-
- * Copyright 2013 Diamond Light Source Ltd.
+ * Copyright 2014 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 /**
  *
  */
-public class PlottingScatter3DUI extends AbstractPlotUI {
+public class PlottingScatter3DUI extends AbstractPlottingUI {
 
 	private Logger logger = LoggerFactory.getLogger(PlottingScatter3DUI.class);
 

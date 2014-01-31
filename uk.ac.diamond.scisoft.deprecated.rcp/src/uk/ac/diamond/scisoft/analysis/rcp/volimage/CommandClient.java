@@ -37,6 +37,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.TransferFunctionView;
 /**
  *
  */
+@Deprecated
 public class CommandClient implements IObservable, IObserver {
 
 	private Socket socket = null;
