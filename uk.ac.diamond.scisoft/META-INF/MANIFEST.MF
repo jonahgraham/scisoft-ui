@@ -17,7 +17,7 @@ Import-Package: ch.qos.logback.classic;version="0.9.15",
  ch.qos.logback.core;version="0.9.15",
  ch.qos.logback.core.joran;version="0.9.15",
  ch.qos.logback.core.spi;version="0.9.15",
- org.slf4j;version="[1.5.0,2.0.0)"
+ org.slf4j;version="[1.7.5,1.7.6)"
 Export-Package: uk.ac.diamond.scisoft
 Bundle-Vendor: Diamond Light Source
 Bundle-ActivationPolicy: lazy
