@@ -32,6 +32,7 @@ import javax.swing.JApplet;
 import javax.swing.JPanel;
 
 import org.dawb.common.ui.printing.PrintSettings;
+import org.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
 import org.dawnsci.plotting.jreality.compositing.CompositeEntry;
 import org.dawnsci.plotting.jreality.compositing.CompositeOp;
 import org.dawnsci.plotting.jreality.compositing.CompositingControl;
@@ -103,7 +104,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.diffraction.QSpace;
-import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.AbstractMapFunction;
 import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;

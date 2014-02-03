@@ -201,7 +201,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 		if (plottingSystem.getPlotName().equals(livePlot)) {
 			String savedLivePlotPalette = store.getString(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
 			if (paletteName != null && !paletteName.equals(savedLivePlotPalette)) {
-				image.setPaletteData(pservice.getPaletteData(savedLivePlotPalette));
+				image.setPaletteData(pservice.getDirectPaletteData(savedLivePlotPalette));
 				image.setPaletteName(store.getString(PreferenceConstants.IMAGEEXPLORER_COLOURMAP));
 				store.setValue(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, savedLivePlotPalette);
 			}
@@ -209,7 +209,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 			if (paletteName != null && !paletteName.equals(store.getString(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP))) {
 				String savedPlotViewPalette = store.getString(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
 				try {
-					image.setPaletteData(pservice.getPaletteData(savedPlotViewPalette));
+					image.setPaletteData(pservice.getDirectPaletteData(savedPlotViewPalette));
 					image.setPaletteName(savedPlotViewPalette);
 					store.setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, savedPlotViewPalette);
 				} catch (Throwable ne) {

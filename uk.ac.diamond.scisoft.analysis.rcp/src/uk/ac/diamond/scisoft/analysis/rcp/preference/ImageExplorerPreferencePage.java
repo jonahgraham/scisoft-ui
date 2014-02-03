@@ -291,7 +291,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 	}
 
 	private void setColourMapChoicePreference(String value) {
-		final PaletteData data = pservice.getPaletteData(schemeName);
+		final PaletteData data = pservice.getDirectPaletteData(schemeName);
 		// update the preference
 		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, value);
 		IPlottingSystem system = PlottingFactory.getPlottingSystem(getPlaybackViewPreference());

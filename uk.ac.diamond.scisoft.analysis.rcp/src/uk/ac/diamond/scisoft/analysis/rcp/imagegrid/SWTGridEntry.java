@@ -88,7 +88,7 @@ public class SWTGridEntry extends AbstractGridEntry {
 			double hiThreshold) {
 		this(filename, additional);
 		this.canvas = canvas;
-		this.paletteData = pservice.getPaletteData(colorScheme);
+		this.paletteData = pservice.getDirectPaletteData(colorScheme);
 		this.loThreshold = loThreshold;
 		this.hiThreshold = hiThreshold;
 	}

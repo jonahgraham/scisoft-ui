@@ -339,7 +339,7 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 	}
 
 	private void setColourMapChoicePreference(String value) {
-		final PaletteData data = pservice.getPaletteData(schemeName);
+		final PaletteData data = pservice.getDirectPaletteData(schemeName);
 		IPlottingSystem[] systems = PlottingFactory.getPlottingSystems();
 		if (systems == null) return;
 		// update colour map in all plot views

@@ -36,9 +36,9 @@ import org.dawb.common.ui.menu.MenuAction;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlottingFactory;
 import org.dawnsci.plotting.api.histogram.IPaletteService;
+import org.dawnsci.plotting.api.histogram.functions.GlobalColourMaps;
 import org.dawnsci.plotting.api.trace.IPaletteTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
-import org.dawnsci.plotting.services.util.GlobalColourMaps;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
@@ -374,7 +374,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 							if (traces!=null) for (ITrace trace: traces) {
 								if (trace instanceof IPaletteTrace) {
 									IPaletteTrace paletteTrace = (IPaletteTrace) trace;
-									paletteTrace.setPaletteData(pservice.getPaletteData(paletteName));
+									paletteTrace.setPaletteData(pservice.getDirectPaletteData(paletteName));
 									paletteTrace.setPaletteName(paletteName);
 								}
 							}
