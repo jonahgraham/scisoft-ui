@@ -90,8 +90,6 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver,
 	private Set<IObserver>   dataObservers = Collections.synchronizedSet(new LinkedHashSet<IObserver>());
 	private List<IObserver>  observers     = Collections.synchronizedList(new LinkedList<IObserver>());
 
-	private boolean update;
-
 	private BlockingDeque<PlotEvent> queue;
 	private boolean                  isDisposed;
 
@@ -421,18 +419,11 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver,
 		} catch (Exception e) {
 			logger.warn("Problem with getting GUI data from plot server");
 		}
-		if (guiBean == null)
+		if (guiBean == null) {
+			logger.error("This should not happen!");
 			guiBean = new GuiBean();
-		return guiBean;
-	}
-
-	private void pushGUIState(GuiBean guiBean) {
-		try {
-			getPlotServer().updateGui(plotViewName, guiBean);
-		} catch (Exception e) {
-			logger.warn("Problem with updating plot server with GUI data");
-			e.printStackTrace();
 		}
+		return guiBean;
 	}
 
 	/**
@@ -445,11 +436,9 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver,
 	public void putGUIInfo(GuiParameters key, Serializable value) {
 		GuiBean guiBean = getGUIBean();
 
-		guiBean.put(GuiParameters.PLOTID, plotID); // put plotID in bean
-
 		guiBean.put(key, value);
 
-		if (update) pushGUIState(guiBean);
+		sendGUIInfo(guiBean);
 	}
 
 	/**
@@ -461,22 +450,21 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver,
 	public void removeGUIInfo(GuiParameters key) {
 		GuiBean guiBean = getGUIBean();
 
-		guiBean.put(GuiParameters.PLOTID, plotID); // put plotID in bean
-
 		guiBean.remove(key);
 
-		if (update)	pushGUIState(guiBean);
+		sendGUIInfo(guiBean);
 	}
 
 	@Override
-	public void mute() {
-		update = false;
-	}
+	public void sendGUIInfo(GuiBean guiBean) {
+		guiBean.put(GuiParameters.PLOTID, plotID); // put plotID in bean
 
-	@Override
-	public void unmute() {
-		update = true;
-		//pushGUIState();	
+		try {
+			getPlotServer().updateGui(plotViewName, guiBean);
+		} catch (Exception e) {
+			logger.warn("Problem with updating plot server with GUI data");
+			e.printStackTrace();
+		}
 	}
 
 	public String getPlotViewName() {

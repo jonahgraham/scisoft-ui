@@ -38,7 +38,7 @@ public interface IGuiInfoManager {
 	 * 
 	 * @return The data which specifies the gui state
 	 */
-	public abstract GuiBean getGUIInfo();
+	public GuiBean getGUIInfo();
 
 	/**
 	 * This method allows interested parties to push relevant GUI information to the 
@@ -47,23 +47,18 @@ public interface IGuiInfoManager {
 	 * @param key key with which the specified value is to be associated
 	 * @param value value to be associated with the specified key
 	 */
-	public abstract void putGUIInfo(GuiParameters key, Serializable value);
+	public void putGUIInfo(GuiParameters key, Serializable value);
 
 	/**
 	 * This method allows interested parties to remove GUI information from the client
 	 *  
 	 * @param key key with which the specified value is to be associated
 	 */
-	public abstract void removeGUIInfo(GuiParameters key);
+	public void removeGUIInfo(GuiParameters key);
 
 	/**
-	 * Mute client so no GUI information is pushed
+	 * Push latest information back to plot server
 	 */
-	public void mute();
-
-	/**
-	 * Un-mute client and push latest information
-	 */
-	public void unmute();
+	public void sendGUIInfo(GuiBean guiBean);
 	
 }
