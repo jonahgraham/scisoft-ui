@@ -20,7 +20,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dawb.common.ui.plot.region.RegionService;
+import org.dawb.common.ui.plot.region.RegionServiceImpl;
 import org.dawb.common.ui.plot.roi.data.IRowData;
 import org.dawb.common.ui.plot.roi.data.ROIData;
 import org.dawnsci.plotting.jreality.overlay.Overlay2DConsumer;
@@ -831,7 +831,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	 * @param roi
 	 */
 	protected void setROIName(String prefix, IROI roi) {
-		String stub = RegionService.forROI(roi).getName();
+		String stub = RegionServiceImpl.forROI(roi).getName();
 		if (prefix != null)
 			stub = prefix + stub;
 

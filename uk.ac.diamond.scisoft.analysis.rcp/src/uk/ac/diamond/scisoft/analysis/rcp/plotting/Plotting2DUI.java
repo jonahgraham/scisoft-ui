@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.dawb.common.ui.plot.region.RegionService;
+import org.dawb.common.ui.plot.region.RegionServiceImpl;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.histogram.IPaletteService;
 import org.dawnsci.plotting.api.region.IRegion;
@@ -392,7 +392,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 
 	private IRegion createRegion(IROI roib) {
 		try {
-			RegionType type = RegionService.getRegion(roib.getClass());
+			RegionType type = RegionServiceImpl.getRegion(roib.getClass());
 			String name = roib.getName();
 			if (name == null || name.trim().length() == 0) {
 				name = RegionUtils.getUniqueName(type.getName(), plottingSystem);
