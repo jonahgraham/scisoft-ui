@@ -1,5 +1,5 @@
 /*-
- * Copyright 2012 Diamond Light Source Ltd.
+ * Copyright 20142 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,6 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 	private Button chkScrollbars;
 	private Spinner spnAutoLoThreshold;
 	private Spinner spnAutoHiThreshold;
-	private Combo cmbPlottingSystem;
 
 	private IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
 	private String schemeName;
@@ -76,21 +75,10 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		Composite comp = new Composite(parent, SWT.NONE);
 		comp.setLayout(new GridLayout(1, false));
 
-		Group plottingSystemGroup = new Group(comp, SWT.NONE);
-		plottingSystemGroup.setText("Plotting System");
-		plottingSystemGroup.setLayout(new GridLayout(2, false));
-		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		plottingSystemGroup.setLayoutData(gd);
-		Label lblPlottingSys = new Label(plottingSystemGroup, SWT.LEFT);
-		lblPlottingSys.setText("Default plotting system (restart to take effect): ");
-		cmbPlottingSystem = new Combo(plottingSystemGroup, SWT.RIGHT | SWT.READ_ONLY);
-		cmbPlottingSystem.add("Hardware Accelerated", 0);
-		cmbPlottingSystem.add("Lightweight", 1);
-
 		Group plotMulti1DGroup = new Group(comp, SWT.NONE);
 		plotMulti1DGroup.setText("Plot 1DStack");
 		plotMulti1DGroup.setLayout(new GridLayout(2, false));
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		plotMulti1DGroup.setLayoutData(gd);
 
 		Label lblCameraType = new Label(plotMulti1DGroup, SWT.LEFT);
@@ -206,7 +194,6 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		cmbColourScale.select(getColourScaleChoicePreference());
 		cmbCameraPerspective.select(getPerspectivePreference());
 		chkScrollbars.setSelection(getScrollBarPreference());
-		cmbPlottingSystem.select(getPlottingSystemPreference());
 	}
 
 	/**
@@ -221,7 +208,6 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		cmbColourScale.select(getDefautColourScaleChoicePreference());
 		cmbCameraPerspective.select(getDefaultPerspectivePreference());
 		chkScrollbars.setSelection(getDefaultScrollBarPreference());
-		cmbPlottingSystem.select(getDefaultPlottingSystemPreference());
 	}
 
 	/**
@@ -236,7 +222,6 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		setColourScaleChoicePreference(cmbColourScale.getSelectionIndex());
 		setCameraPerspective(cmbCameraPerspective.getSelectionIndex());
 		setScrollBarPreference(chkScrollbars.getSelection());
-		setPlottingSystem(cmbPlottingSystem.getSelectionIndex());
 	}
 
 	private int getDefaultPerspectivePreference() {
@@ -269,10 +254,6 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 
 	private boolean getDefaultScrollBarPreference() {
 		return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_SHOWSCROLLBAR);
-	}
-
-	private int getDefaultPlottingSystemPreference() {
-		return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
 	}
 
 	private int getPerspectivePreference() {
@@ -331,13 +312,6 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		return getPreferenceStore().getBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_SHOWSCROLLBAR);
 	}
 
-	private int getPlottingSystemPreference() {
-		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)) {
-			return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
-		}
-		return getPreferenceStore().getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
-	}
-
 	private void setColourMapChoicePreference(String value) {
 		final PaletteData data = pservice.getPaletteData(schemeName);
 		IPlottingSystem[] systems = PlottingFactory.getPlottingSystems();
@@ -388,9 +362,5 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 
 	private void setScrollBarPreference(boolean value) {
 		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_SHOWSCROLLBAR, value);
-	}
-
-	private void setPlottingSystem(int value) {
-		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM, value);
 	}
 }

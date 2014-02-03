@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2014 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import org.dawb.common.ui.printing.PrintSettings;
 import org.dawb.common.ui.printing.PrintSettings.Orientation;
 import org.dawb.common.ui.printing.PrintSettings.Resolution;
 import org.dawb.common.ui.printing.PrintSettings.Scale;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -101,9 +100,6 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 		Label resolutionLabel = new Label(printSettingsGroup, SWT.LEFT);
 		resolutionLabel.setText("Resolution: ");
 		resolutionCombo = new Combo(printSettingsGroup, SWT.RIGHT|SWT.READ_ONLY);
-		// no need of resolution if in new plotting
-		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM)
-			resolutionCombo.setEnabled(false);
 		resolutionCombo.setToolTipText("Change the resolution of the plot to be printed");
 		Resolution[] resolutionList = Resolution.values();
 		for (int i = 0; i < resolutionList.length; i++) {
@@ -245,13 +241,6 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 	public void setResolutionPreference(int value) {
 		settings.setResolution(Resolution.values()[value]);
 		getPreferenceStore().setValue(PreferenceConstants.PRINTSETTINGS_RESOLUTION, value);
-	}
-
-	private int getDefaultPlottingSystemChoice() {
-		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
-				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
-				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
 	}
 }
 
