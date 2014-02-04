@@ -15,7 +15,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dawnsci.common.widgets.utils.RadioUtils;
+import org.dawnsci.common.widgets.radio.RadioGroupWidget;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -102,11 +102,9 @@ public class FeedbackView extends ViewPart {
 			radioSelection.setLayout(new GridLayout(3, false));
 			Label label = new Label(radioSelection, SWT.NONE);
 			label.setText("Send Feedback to :");
-			try {
-				RadioUtils.createRadioControls(radioSelection, createEmailRadioActions());
-			} catch (Exception e) {
-				logger.error("Could not create radio buttons", e);
-			}
+
+			RadioGroupWidget mailToRadios = new RadioGroupWidget(radioSelection);
+			mailToRadios.setActions(createEmailRadioActions());
 		}
 		{
 			Label lblEmailAddress = new Label(parent, SWT.NONE);
