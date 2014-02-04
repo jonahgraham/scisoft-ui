@@ -29,16 +29,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.dawb.common.ui.plot.region.RegionServiceImpl;
+import org.dawb.common.ui.Activator;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.histogram.IPaletteService;
 import org.dawnsci.plotting.api.region.IRegion;
+import org.dawnsci.plotting.api.region.IRegionService;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.dawnsci.plotting.api.region.RegionUtils;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.IPaletteTrace;
 import org.dawnsci.plotting.api.trace.ISurfaceTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
+import org.dawnsci.plotting.services.RegionServiceImpl;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
@@ -392,7 +394,8 @@ public class Plotting2DUI extends AbstractPlotUI {
 
 	private IRegion createRegion(IROI roib) {
 		try {
-			RegionType type = RegionServiceImpl.getRegion(roib.getClass());
+			final IRegionService rservice = (IRegionService)Activator.getService(IRegionService.class);
+			RegionType type = rservice.getRegion(roib.getClass());
 			String name = roib.getName();
 			if (name == null || name.trim().length() == 0) {
 				name = RegionUtils.getUniqueName(type.getName(), plottingSystem);
