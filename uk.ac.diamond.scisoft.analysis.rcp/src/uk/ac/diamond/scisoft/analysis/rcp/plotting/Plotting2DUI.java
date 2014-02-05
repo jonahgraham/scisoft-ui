@@ -115,8 +115,7 @@ public class Plotting2DUI extends AbstractPlottingUI {
 
 				final Collection<ITrace> traces = plottingSystem.getTraces();
 				final List<ITrace> traceList =new ArrayList<ITrace>(traces);
-				if (traces != null && traces.size() > 0 
-						&& traceList.size()>0) {
+				if (traces != null && traces.size() > 0 && traceList.size()>0) {
 					List<IDataset> currentAxes = null;
 					int[] shape = null; 
 					if(traceList.get(0) instanceof IImageTrace){
@@ -128,11 +127,13 @@ public class Plotting2DUI extends AbstractPlottingUI {
 						shape = surface.getData() != null ? surface.getData().getShape() : null;
 						currentAxes = surface.getAxes();
 					}
+					boolean newAxes = true;
 					String lastXAxisName = "", lastYAxisName = "";
-					if(currentAxes!=null && currentAxes.size()>0)
+					if(currentAxes!=null && currentAxes.size()>0) {
 						lastXAxisName = currentAxes.get(0).getName();
-					if(currentAxes!=null && currentAxes.size()>1)
 						lastYAxisName = currentAxes.get(1).getName();
+						newAxes = !currentAxes.equals(axes);
+					}
 
 					if (shape != null && Arrays.equals(shape, data.getShape())
 							&& lastXAxisName.equals(xAxisName)
@@ -152,6 +153,9 @@ public class Plotting2DUI extends AbstractPlottingUI {
 							image = (IPaletteTrace)plottingSystem.createPlot2D(data, null, null);
 						setPlotViewPalette(image);
 						logger.debug("Plot 2D created");
+					}
+					if (newAxes) {
+						plottingSystem.repaint();
 					}
 				}else{
 					IPaletteTrace image = null;
