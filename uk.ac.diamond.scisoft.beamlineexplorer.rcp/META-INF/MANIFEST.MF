@@ -17,7 +17,7 @@ Import-Package: org.dawnsci.plotting.api,
  org.dawnsci.plotting.api.trace,
  org.eclipse.ui.intro.config,
  org.eclipse.ui.navigator.resources,
- org.slf4j;version="[1.7.5,1.7.6)",
+ org.slf4j;version="[1.7.6,1.7.7)",
  uk.ac.diamond.scisoft.analysis.dataset
 Bundle-ClassPath: .,
  lib/ojdbc6.jar
