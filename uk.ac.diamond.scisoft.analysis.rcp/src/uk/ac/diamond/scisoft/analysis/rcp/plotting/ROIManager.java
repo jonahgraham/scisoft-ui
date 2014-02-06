@@ -167,7 +167,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	private void addCurrentROI(boolean updateServer) {
 		updateROIMap();
-		if (updateServer)
+		if (updateServer && roi != null)
 			updateGuiBean(roi.getClass(), roi);
 	}
 
