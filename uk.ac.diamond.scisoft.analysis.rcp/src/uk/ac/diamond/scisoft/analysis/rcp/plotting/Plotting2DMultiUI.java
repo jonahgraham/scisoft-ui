@@ -38,7 +38,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 /**
  *
  */
-public class Plotting2DMultiUI extends AbstractPlotUI {
+public class Plotting2DMultiUI extends AbstractPlottingUI {
 
 	private IPlottingSystem plottingSystem;
 

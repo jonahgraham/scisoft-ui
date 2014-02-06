@@ -71,9 +71,6 @@ public class PlotServerConnection implements IObserver,
 	private Set<IObserver>  dataObservers = Collections.synchronizedSet(new LinkedHashSet<IObserver>());
 	private List<IObserver> observers     = Collections.synchronizedList(new LinkedList<IObserver>());
 
-
-	private boolean update;
-
 	/**
 	 * Default Constructor of the plot view
 	 */
@@ -197,15 +194,6 @@ public class PlotServerConnection implements IObserver,
 		}
 	}
 
-	private void pushGUIState() {
-		try {
-			plotServer.updateGui(plotName, guiBean);
-		} catch (Exception e) {
-			logger.warn("Problem with updating plot server with GUI data");
-			e.printStackTrace();
-		}
-	}
-
 	/**
 	 * Push gui information back to plot server
 	 * @param key 
@@ -215,11 +203,9 @@ public class PlotServerConnection implements IObserver,
 	public void putGUIInfo(GuiParameters key, Serializable value) {
 		getGUIState();
 
-		guiBean.put(GuiParameters.PLOTID, plotId); // put plotID in bean
 		guiBean.put(key, value);
 
-		if (update)
-			pushGUIState();
+		sendGUIInfo(guiBean);
 	}
 
 	/**
@@ -230,24 +216,12 @@ public class PlotServerConnection implements IObserver,
 	public void removeGUIInfo(GuiParameters key) {
 		getGUIState();
 
-		guiBean.put(GuiParameters.PLOTID, plotId); // put plotID in bean
 		guiBean.remove(key);
 
-		if (update)
-			pushGUIState();	
+		sendGUIInfo(guiBean);
 	}
 
-	@Override
-	public void mute() {
-		update = false;
-	}
-
-	@Override
-	public void unmute() {
-		update = true;
-		pushGUIState();	
-	}
-
+	
 	/**
 	 * Does not dispose the plot window
 	 */
@@ -257,6 +231,17 @@ public class PlotServerConnection implements IObserver,
 	   deleteIObservers();
 	   deleteDataObservers();
 	   System.gc();
+	}
+
+	@Override
+	public void sendGUIInfo(GuiBean guiBean) {
+		guiBean.put(GuiParameters.PLOTID, plotId); // put plotID in bean
+		try {
+			plotServer.updateGui(plotName, guiBean);
+		} catch (Exception e) {
+			logger.warn("Problem with updating plot server with GUI data");
+			e.printStackTrace();
+		}
 	}
 
 	@Override

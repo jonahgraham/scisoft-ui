@@ -26,7 +26,7 @@ Import-Package: gda.analysis.io,
  org.eclipse.core.filesystem,
  org.eclipse.jface.text,
  org.eclipse.ui.texteditor,
- org.slf4j
+ org.slf4j;version="[1.7.5,1.7.6)"
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Diamond Light Source

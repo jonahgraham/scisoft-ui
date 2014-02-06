@@ -1,5 +1,5 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright 2014 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	private static final boolean DEFAULT_SHOW_SCROLLBARS = true;
 	private static final String DEFAULT_COLOURMAP_CHOICE = "Gray Scale";
 	private static final int DEFAULT_CAMERA_PROJECTION = 0;
-	private static final int DEFAULT_PLOTTING_SYSTEM = 1;
 	private static final String DEFAULT_IMAGEXPLORER_COLOURMAP_CHOICE = "Gray Scale";
 	private static final int DEFAULT_IMAGEEXPLORER_CONTRAST_LO = 0;
 	private static final int DEFAULT_IMAGEEXPLORER_CONTRAST_HI = 98;
@@ -124,7 +123,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_SCALING, DEFAULT_COLOURSCALE_CHOICE);
 		store.setDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_SHOWSCROLLBAR, DEFAULT_SHOW_SCROLLBARS);
 		store.setDefault(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ, DEFAULT_CAMERA_PROJECTION);
-		store.setDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM, DEFAULT_PLOTTING_SYSTEM);
 
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, DEFAULT_IMAGEXPLORER_COLOURMAP_CHOICE);
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_LOTHRESHOLD, DEFAULT_IMAGEEXPLORER_CONTRAST_LO);

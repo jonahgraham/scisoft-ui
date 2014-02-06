@@ -108,8 +108,11 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.scisoft.spectroscopy",
 		"uk.ac.gda.common",
 		"org.dawb.hdf5", // fix to http://jira.diamond.ac.uk/browse/SCI-1467
-		"com.springsource.slf4j",
-		"com.springsource.ch.qos.logback",
+		"slf4j.api",
+		"jcl.over.slf4j",
+		"log4j.over.slf4j",
+		"ch.qos.logback.core",
+		"ch.qos.logback.classic",
 		"com.springsource.org.apache.commons",
 		"com.springsource.javax.media.jai.core",
 		"com.springsource.javax.media.jai.codec",

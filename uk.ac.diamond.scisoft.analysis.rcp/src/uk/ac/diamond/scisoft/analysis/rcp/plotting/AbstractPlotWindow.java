@@ -1,5 +1,5 @@
 /*-
- * Copyright 2013 Diamond Light Source Ltd.
+ * Copyright 2014 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	private DataBean myBeanMemory;
 	private ROIManager roiManager;
 
-	protected IPlotUI plotUI = null;
+	protected IPlottingUI plotUI = null;
 	private boolean isUpdatePlot = false;
 
 	private GuiPlotMode previousMode;
@@ -145,7 +145,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	/**
 	 * @return plot UI
 	 */
-	public IPlotUI getPlotUI() {
+	public IPlottingUI getPlotUI() {
 		return plotUI;
 	}
 

@@ -31,6 +31,7 @@ import org.dawnsci.plotting.api.region.RegionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.ROIList;
@@ -178,23 +179,20 @@ public class ROIManager implements IROIListener, IRegionListener {
 		}
 		logger.trace("Broadcasting");
 
-		try {
-			server.mute();
-			server.removeGUIInfo(GuiParameters.ROICLEARALL);
-			server.removeGUIInfo(GuiParameters.ROIDATALIST);
-			server.putGUIInfo(GuiParameters.ROIDATA, null);
-			ROIList<?> list = createNewROIList(clazz);
-			if (list != null && list.size() > 0) {
-				server.putGUIInfo(GuiParameters.ROIDATALIST, list);
-				if (!list.contains(r))
-					r = list.get(0);
-				server.putGUIInfo(GuiParameters.ROIDATA, r);
-			} else {
-				r = null;
-			}
-		} finally {
-			server.unmute();
+		GuiBean bean = server.getGUIInfo();
+		bean.remove(GuiParameters.ROICLEARALL);
+		bean.remove(GuiParameters.ROIDATALIST);
+		bean.put(GuiParameters.ROIDATA, null);
+		ROIList<?> list = createNewROIList(clazz);
+		if (list != null && list.size() > 0) {
+			bean.put(GuiParameters.ROIDATALIST, list);
+			if (!list.contains(r))
+				r = list.get(0);
+			bean.put(GuiParameters.ROIDATA, r);
+		} else {
+			r = null;
 		}
+		server.sendGUIInfo(bean);
 		return r;
 	}
 
@@ -206,14 +204,11 @@ public class ROIManager implements IROIListener, IRegionListener {
 		}
 		logger.trace("Broadcasting");
 
-		try {
-			server.mute();
-			server.putGUIInfo(GuiParameters.ROIDATA, null);
-			server.removeGUIInfo(GuiParameters.ROIDATALIST);
-			server.putGUIInfo(GuiParameters.ROICLEARALL, true);
-		} finally {
-			server.unmute();
-		}
+		GuiBean bean = server.getGUIInfo();
+		bean.put(GuiParameters.ROIDATA, null);
+		bean.remove(GuiParameters.ROIDATALIST);
+		bean.put(GuiParameters.ROICLEARALL, true);
+		server.sendGUIInfo(bean);
 	}
 
 	public ROIList<?> createNewROIList(Class<? extends IROI> clazz) {
