@@ -92,6 +92,7 @@ public class JythonCreator implements IStartup {
 	private static final String[] blackListedJarDirs = {
 		"uk.ac.gda.libs",
 		"ch.qos.logback.eclipse",
+		"ch.qos.logback.beagle",
 		"org.dawb.workbench.jmx",
 		GIT_REPO_ENDING,
 		JYTHON_DIR
