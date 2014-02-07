@@ -465,8 +465,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				plottingSystem.addRegion(xHair);
 				xHair.addMouseListener(xHairMouseListener);
 			} catch (Exception e) {
-				logger.error("TODO put description of error here", e);
-			} finally {
+				logger.error("Cannot create region for crosshair", e);
 			}
 		}
 		if (yHair == null || plottingSystem.getRegion(REGION_Y_HAIR) == null) {
@@ -478,8 +477,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				yHair.setUserRegion(false); // They cannot see preferences or change it!
 				plottingSystem.addRegion(yHair);
 			} catch (Exception e) {
-				logger.error("TODO put description of error here", e);
-			} finally {
+				logger.error("Cannot create region for crosshair", e);
 			}
 		}
 	}

@@ -75,7 +75,7 @@ public class MappingViewPageProvider extends EditorPart {
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 							.showView(TwoDMappingView.ID, getPartName(), IWorkbenchPage.VIEW_VISIBLE);
 				} catch (PartInitException e1) {
-					logger.error("TODO put description of error here", e1);
+					logger.error(e1.getMessage(), e1);
 				}
 			}
 		});
@@ -88,7 +88,7 @@ public class MappingViewPageProvider extends EditorPart {
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 							.showView(TwoDMappingView.ID, null, IWorkbenchPage.VIEW_VISIBLE);
 				} catch (PartInitException e1) {
-					logger.error("TODO put description of error here", e1);
+					logger.error(e1.getMessage(), e1);
 				}
 			}
 		});
@@ -102,7 +102,7 @@ public class MappingViewPageProvider extends EditorPart {
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 							.showView(OneDMappingView.ID, getPartName(), IWorkbenchPage.VIEW_VISIBLE);
 				} catch (PartInitException e1) {
-					logger.error("TODO put description of error here", e1);
+					logger.error(e1.getMessage(), e1);
 				}
 			}
 		});
@@ -115,7 +115,7 @@ public class MappingViewPageProvider extends EditorPart {
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 							.showView(OneDMappingView.ID, null, IWorkbenchPage.VIEW_VISIBLE);
 				} catch (PartInitException e1) {
-					logger.error("TODO put description of error here", e1);
+					logger.error(e1.getMessage(), e1);
 				}
 			}
 		});
@@ -153,7 +153,7 @@ public class MappingViewPageProvider extends EditorPart {
 							dim0 = Hdf5Helper.getInstance().readAttributeAsString(fileName, TYPE.GROUP,
 									"entry1/instrument/excalibur_summary_ad", "dim0");
 						} catch (Exception e) {
-							logger.error("TODO put description of error here", e);
+							logger.error(e1.getMessage(), e);
 						}
 						Object data0 = Hdf5Helper.getInstance().readDataSetAll(fileName, "entry1/excalibur_summary_ad", dim0, true).data;
 						double[] d0 = getDoubleArray(data0);
@@ -163,7 +163,7 @@ public class MappingViewPageProvider extends EditorPart {
 							dim1 = Hdf5Helper.getInstance().readAttributeAsString(fileName, TYPE.GROUP,
 									"entry1/instrument/excalibur_summary_ad", "dim1");
 						} catch (Exception e) {
-							logger.error("TODO put description of error here", e);
+							logger.error(e.getMessage(), e);
 						}
 						Object data1 = Hdf5Helper.getInstance().readDataSetAll(fileName, "entry1/excalibur_summary_ad", dim1, true).data;
 						double[] d1 = getDoubleArray(data1);
@@ -173,7 +173,7 @@ public class MappingViewPageProvider extends EditorPart {
 							dim2 = Hdf5Helper.getInstance().readAttributeAsString(fileName, TYPE.GROUP,
 									"entry1/instrument/excalibur_summary_ad", "dim2");
 						} catch (Exception e) {
-							logger.error("TODO put description of error here", e);
+							logger.error(e.getMessage(), e);
 						}
 						Object data2 = Hdf5Helper.getInstance().readDataSetAll(fileName, "entry1/excalibur_summary_ad", dim2, true).data;
 						double[] d2 = getDoubleArray(data2);
@@ -183,7 +183,7 @@ public class MappingViewPageProvider extends EditorPart {
 					}
 				}
 			} catch (Exception e) {
-				logger.error("TODO put description of error here", e);
+				logger.error(e.getMessage(), e);
 			}
 		}
 		return super.getAdapter(adapter);

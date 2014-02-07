@@ -335,7 +335,6 @@ public class FileView extends ViewPart implements IFileView {
 		tree.getTree().addKeyListener(new KeyListener() {		
 			@Override
 			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
 				
 			}
 			
@@ -567,8 +566,7 @@ public class FileView extends ViewPart implements IFileView {
 			try {
 				part = page.showView("org.dawb.workbench.views.imageMonitorView");
 			} catch (PartInitException e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
+				logger.error(e.getMessage(), e);
 				return;
 			}
 			if (part != null && part instanceof ImageMonitorView) {
