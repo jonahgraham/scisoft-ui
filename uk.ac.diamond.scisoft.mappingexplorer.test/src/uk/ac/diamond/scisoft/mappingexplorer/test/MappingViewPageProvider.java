@@ -153,7 +153,7 @@ public class MappingViewPageProvider extends EditorPart {
 							dim0 = Hdf5Helper.getInstance().readAttributeAsString(fileName, TYPE.GROUP,
 									"entry1/instrument/excalibur_summary_ad", "dim0");
 						} catch (Exception e) {
-							logger.error(e1.getMessage(), e);
+							logger.error(e.getMessage(), e);
 						}
 						Object data0 = Hdf5Helper.getInstance().readDataSetAll(fileName, "entry1/excalibur_summary_ad", dim0, true).data;
 						double[] d0 = getDoubleArray(data0);
