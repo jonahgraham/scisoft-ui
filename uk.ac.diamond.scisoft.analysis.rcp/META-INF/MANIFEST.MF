@@ -36,7 +36,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.swt,
  org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)",
  org.dawnsci.plotting.services;bundle-version="1.0.0",
- org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)"
+ org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
+ org.dawb.common.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.swtdesigner,
  uk.ac.diamond.scisoft.analysis.rcp,

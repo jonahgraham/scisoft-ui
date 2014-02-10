@@ -34,6 +34,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.preference.AnalysisRpcAndRmiPreference
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rpc.FlatteningService;
 
+import org.dawb.common.util.net.NetUtils;
+
 public class InitPlotServer implements IStartup, ServerPortListener{
 	
 	private static final Logger logger = LoggerFactory.getLogger(InitPlotServer.class);
@@ -55,8 +57,13 @@ public class InitPlotServer implements IStartup, ServerPortListener{
 		
 		// if the rmi server has been vetoed, dont start it up, this also has issues
 		if (Boolean.getBoolean("uk.ac.diamond.scisoft.analysis.analysisrpcserverprovider.disable") == false) {
-			AnalysisRpcServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getAnalysisRpcPort());
-			RMIServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getRmiPort());
+			
+			int analysisPort = AnalysisRpcAndRmiPreferencePage.getAnalysisRpcPort();
+			if (analysisPort<1 || NetUtils.isPortFree(analysisPort)) AnalysisRpcServerProvider.getInstance().setPort(analysisPort);
+
+			int rmiPort = AnalysisRpcAndRmiPreferencePage.getRmiPort();
+			if (rmiPort<1 || NetUtils.isPortFree(rmiPort)) RMIServerProvider.getInstance().setPort(rmiPort);
+			
 			FlatteningService.getFlattener().setTempLocation(AnalysisRpcAndRmiPreferencePage.getAnalysisRpcTempFileLocation());
 		}
 		
