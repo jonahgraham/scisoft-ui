@@ -70,15 +70,18 @@ public class LightweightMetadataDecorator extends LabelProvider implements ILigh
 		if (element instanceof IFile) {
 			IFile ifile = (IFile) element;
 			IPath path = ifile.getLocation();
-			File file = path.toFile();
-			String lastModified = new SimpleDateFormat("dd/MM/yy hh:mm aaa").format(new Date(file.lastModified()));
-			String filePermission = getFilePermission(file);
-			//file size - date of last modification - file permissions
-			decoration.addSuffix("  "+readableFileSize(file.length())+"  "+lastModified);//+"  "+filePermission);
-			//Image overlay decoration according to file permission:
-			if(filePermission.equals("- - -")){
-				ImageDescriptor lockOverlay = ImageDescriptor.createFromFile(this .getClass(),"/icons/decorators/unconfigured_co.gif");
-				decoration.addOverlay(lockOverlay);
+			if (path != null) {
+				File file = path.toFile();
+				String lastModified = new SimpleDateFormat("dd/MM/yy hh:mm aaa").format(new Date(file.lastModified()));
+				String filePermission = getFilePermission(file);
+				// file size - date of last modification - file permissions
+				decoration.addSuffix("  " + readableFileSize(file.length()) + "  " + lastModified);// +"  "+filePermission);
+				// Image overlay decoration according to file permission:
+				if (filePermission.equals("- - -")) {
+					ImageDescriptor lockOverlay = ImageDescriptor.createFromFile(this.getClass(),
+							"/icons/decorators/unconfigured_co.gif");
+					decoration.addOverlay(lockOverlay);
+				}
 			}
 		}
 	}
