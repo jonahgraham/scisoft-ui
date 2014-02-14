@@ -291,19 +291,19 @@ class DatasetGridLayerStack extends DefaultGridLayer {
 			if (c) {
 				freezeLayer.setTopLeftPosition(0, 0);
 				freezeLayer.setBottomRightPosition(0, 0);
-				v.setMinimumOriginPosition(1, 1);
+				v.setMinimumOrigin(1, 1);
 				v.fireLayerEvent(new FreezeEvent(v));
 			} else {
 				freezeLayer.setTopLeftPosition(0, -1);
 				freezeLayer.setBottomRightPosition(0, -1);
-				v.setMinimumOriginPosition(1, 0);
+				v.setMinimumOrigin(1, 0);
 				v.fireLayerEvent(new FreezeEvent(v));
 			}
 		} else {
 			if (c) {
 				freezeLayer.setTopLeftPosition(-1, 0);
 				freezeLayer.setBottomRightPosition(-1, 0);
-				v.setMinimumOriginPosition(0, 1);
+				v.setMinimumOrigin(0, 1);
 				v.fireLayerEvent(new FreezeEvent(v));
 			} else {
 				freezeLayer.setTopLeftPosition(-1, -1);
