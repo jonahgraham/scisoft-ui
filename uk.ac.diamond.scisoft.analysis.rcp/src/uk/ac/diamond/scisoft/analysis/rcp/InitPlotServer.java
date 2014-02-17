@@ -62,7 +62,10 @@ public class InitPlotServer implements IStartup, ServerPortListener{
 			if (analysisPort<1 || NetUtils.isPortFree(analysisPort)) AnalysisRpcServerProvider.getInstance().setPort(analysisPort);
 
 			int rmiPort = AnalysisRpcAndRmiPreferencePage.getRmiPort();
-			if (rmiPort<1 || NetUtils.isPortFree(rmiPort)) RMIServerProvider.getInstance().setPort(rmiPort);
+			if (rmiPort<1 || NetUtils.isPortFree(rmiPort)) {
+				int port = RMIServerProvider.getInstance().getPort();
+				if (port<1) RMIServerProvider.getInstance().setPort(rmiPort);
+			}
 			
 			FlatteningService.getFlattener().setTempLocation(AnalysisRpcAndRmiPreferencePage.getAnalysisRpcTempFileLocation());
 		}
