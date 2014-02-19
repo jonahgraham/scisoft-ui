@@ -220,7 +220,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 		if (regions != null) {
 			for (IRegion iRegion : regions) {
 				IROI r = iRegion.getROI();
-				if (r.getClass().equals(clazz)) {
+				if (r != null && r.getClass().equals(clazz)) {
 					list.add(r);
 				}
 			}
@@ -233,7 +233,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 		if (regions != null) {
 			for (IRegion iRegion : regions) {
 				IROI r = iRegion.getROI();
-				if (r.getClass().equals(clazz)) {
+				if (r != null && r.getClass().equals(clazz)) {
 					return r;
 				}
 			}
