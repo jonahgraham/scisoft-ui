@@ -1,5 +1,5 @@
 <configuration>
-
+  
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
 			<level>DEBUG</level>
@@ -64,6 +64,8 @@
 			<level>ERROR</level>
 		</filter>
 	</logger>
+	
+	<logger name="ncsa.hdf" level="ERROR"/>
 	
 	<root>
 		<level value="ALL" />
