@@ -34,7 +34,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	@Override
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		store.setDefault(PreferenceConstants.P_PATH, System.getProperty("uk.ac.diamond.sda.polling.default.directory", "/pollserver"));
+		store.setDefault(PreferenceConstants.P_PATH, System.getProperty("uk.ac.diamond.sda.polling.default.directory", "/"));
 	}
 
 }
