@@ -48,6 +48,8 @@ public class InitPlotServer implements IStartup, ServerPortListener{
 	@Override
 	public void earlyStartup() {
 
+		if (AnalysisRCPActivator.isCorbaClient()) return;
+		
 		AnalysisRpcServerProvider.getInstance().addPortListener(this);
 
 		plotServerTracker = new ServiceTracker(AnalysisRCPActivator.getDefault().getBundleContext(), PlotServer.class.getName(), null);
