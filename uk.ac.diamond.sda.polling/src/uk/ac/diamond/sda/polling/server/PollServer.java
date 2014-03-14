@@ -160,7 +160,7 @@ public class PollServer implements IPropertyChangeListener {
 		for (PollJobContribution jobContribution : getPollJobClasses()) {
 			String contributionClassName = jobContribution.getClassName();
 			String jobParametersClassName = jobParameters.get(CLASS);
-			if(jobParametersClassName.contains(contributionClassName)) {
+			if (jobParametersClassName != null && jobParametersClassName.contains(contributionClassName)) {
 				return jobContribution.getJob(jobParameters);
 			}
 		}
