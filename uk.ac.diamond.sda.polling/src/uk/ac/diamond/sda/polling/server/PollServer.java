@@ -164,8 +164,8 @@ public class PollServer implements IPropertyChangeListener {
 				return jobContribution.getJob(jobParameters);
 			}
 		}
-		
-		throw new IllegalArgumentException("Class type not found");		
+
+		return null;
 	}
 	
 	
@@ -185,7 +185,9 @@ public class PollServer implements IPropertyChangeListener {
 					File file = new File(pollFileDirectory, name);
 					if (file.isFile()) {
 						AbstractPollJob job = createJobFromFile(file.getAbsolutePath());
-						this.addJob(job);
+						if (job != null) {
+							addJob(job);
+						}
 					}
 				} catch (Exception e) {
 					// dont need to worry about this to much, best not to stop things working
