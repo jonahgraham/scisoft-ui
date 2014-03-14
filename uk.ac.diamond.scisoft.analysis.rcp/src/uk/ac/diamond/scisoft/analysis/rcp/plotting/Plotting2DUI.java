@@ -27,20 +27,18 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.dawb.common.ui.Activator;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.histogram.IPaletteService;
 import org.dawnsci.plotting.api.region.IRegion;
-import org.dawnsci.plotting.api.region.IRegionService;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
+import org.dawnsci.plotting.api.region.IRegionService;
 import org.dawnsci.plotting.api.region.RegionUtils;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.IPaletteTrace;
 import org.dawnsci.plotting.api.trace.ISurfaceTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
-import org.dawnsci.plotting.services.RegionServiceImpl;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
@@ -241,19 +239,11 @@ public class Plotting2DUI extends AbstractPlottingUI {
 		observers.clear();
 	}
 
-	// list of all unique plot ids
-	private Set<UUID> ids = new HashSet<UUID>();
-
 	@Override
 	public void processGUIUpdate(final GuiBean guiBean) {
 		
 		logger.debug("There is a guiBean update: {}", guiBean);
-		final UUID currentID = (UUID)guiBean.get(GuiParameters.PLOTID);
 
-		// stop the update if the plot ID is equal to an existing one to avoid a loop update
-		// TODO : this is a fix so that if there are more than 1 client, updating an ROI doesn't
-		// get stuck in an infinite loop
-		if (currentID == null || !ids.contains(currentID))
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -285,7 +275,7 @@ public class Plotting2DUI extends AbstractPlottingUI {
 				//         signal updating of parameter
 
 				String rName = null;
-				if (roi == null) {
+				if (roi == null) { // this indicates to remove the current ROI
 					if (croi != null) {
 						final IRegion r = plottingSystem.getRegion(croi.getName());
 						if (r != null) {
@@ -362,7 +352,6 @@ public class Plotting2DUI extends AbstractPlottingUI {
 				}
 
 				final Collection<IRegion> regions = plottingSystem.getRegions();
-				final ROIList<? extends IROI> roiList = list;
 				Set<String> regNames = new HashSet<String>(); // regions not removed
 				for (IRegion reg : regions) { // clear all regions not listed
 					String regName = reg.getName();
@@ -372,8 +361,11 @@ public class Plotting2DUI extends AbstractPlottingUI {
 						regNames.add(regName);
 					}
 				}
-				if (roiList != null) {
-					for (IROI r : roiList) {
+				if (list != null) {
+					for (IROI r : list) {
+						if (r == croi)
+							continue; // no need to update region
+
 						String n = r.getName();
 						if (regNames.contains(n)) { // update ROI
 							IRegion region = plottingSystem.getRegion(n);
@@ -390,13 +382,13 @@ public class Plotting2DUI extends AbstractPlottingUI {
 						}
 					}
 				}
-				if (currentID != null)
-					ids.add(currentID);
 			}
 		});
 	}
 
 	private IRegion createRegion(IROI roib) {
+		if (roib == null)
+			return null;
 		try {
 			final IRegionService rservice = (IRegionService)Activator.getService(IRegionService.class);
 			RegionType type = rservice.getRegion(roib.getClass());

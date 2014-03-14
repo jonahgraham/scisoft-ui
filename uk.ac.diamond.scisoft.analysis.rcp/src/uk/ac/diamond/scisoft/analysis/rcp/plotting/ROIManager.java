@@ -17,8 +17,6 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.dawnsci.plotting.api.IPlottingSystem;
@@ -51,10 +49,20 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	public ROIManager(IGuiInfoManager guiManager, String plotName) {
 		server = guiManager;
-
 		this.plotName = plotName;
-		plottingSystem = PlottingFactory.getPlottingSystem(plotName);
 		lock = new ReentrantLock();
+	}
+
+	private IPlottingSystem getPlottingSystem() {
+		if (plottingSystem == null) {
+			plottingSystem = PlottingFactory.getPlottingSystem(plotName);
+		}
+		if (plottingSystem == null) {
+			logger.error("Plotting system is null");
+		} else if (plottingSystem.isDisposed()) {
+			logger.error("Plotting system is disposed");
+		}
+		return plottingSystem;
 	}
 
 	/**
@@ -91,6 +99,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 			roi = eroi;
 		}
 		addCurrentROI(!region.fromServer());
+		region.setFromServer(false);
 	}
 
 	@Override
@@ -174,10 +183,10 @@ public class ROIManager implements IROIListener, IRegionListener {
 	private IROI updateGuiBean(Class<? extends IROI> clazz, IROI r) {
 		// if locked then do not update server
 		if (lock.isLocked()) {
-			logger.trace("Silent");
+			logger.trace("Silent update: {}", r);
 			return r;
 		}
-		logger.trace("Broadcasting");
+		logger.trace("Broadcasting update: {}", r);
 
 		GuiBean bean = server.getGUIInfo();
 		bean.remove(GuiParameters.ROICLEARALL);
@@ -199,10 +208,10 @@ public class ROIManager implements IROIListener, IRegionListener {
 	private void clearGUIBean() {
 		// if locked then do not update server
 		if (lock.isLocked()) {
-			logger.trace("Silent");
+			logger.trace("Silent clear");
 			return;
 		}
-		logger.trace("Broadcasting");
+		logger.trace("Broadcasting clear");
 
 		GuiBean bean = server.getGUIInfo();
 		bean.put(GuiParameters.ROIDATA, null);
@@ -216,7 +225,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 		if (list == null) {
 			return null;
 		}
-		final Collection<IRegion> regions = plottingSystem.getRegions();
+		final Collection<IRegion> regions = getPlottingSystem().getRegions();
 		if (regions != null) {
 			for (IRegion iRegion : regions) {
 				IROI r = iRegion.getROI();
@@ -229,7 +238,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 	}
 
 	private IROI getFromROIMap(Class<? extends IROI> clazz) {
-		final Collection<IRegion> regions = plottingSystem.getRegions();
+		final Collection<IRegion> regions = getPlottingSystem().getRegions();
 		if (regions != null) {
 			for (IRegion iRegion : regions) {
 				IROI r = iRegion.getROI();
@@ -261,16 +270,18 @@ public class ROIManager implements IROIListener, IRegionListener {
 	 * and the regions in roiMap
 	 */
 	private void updateROIMap() {
-		if (plottingSystem == null)
-			plottingSystem = PlottingFactory.getPlottingSystem(plotName);
-		if (plottingSystem == null)
-			return;
-		Collection<IRegion> regions = plottingSystem.getRegions();
-		if (regions == null)
-			return;
-		Set<String> regNames = new HashSet<String>();
-		for (IRegion iRegion : regions) {
-			regNames.add(iRegion.getName());
-		}
+		// this no longer does anything!!! but leave in place
+		// TODO update bean with a  map
+//		if (plottingSystem == null)
+//			plottingSystem = PlottingFactory.getPlottingSystem(plotName);
+//		if (plottingSystem == null)
+//			return;
+//		Collection<IRegion> regions = plottingSystem.getRegions();
+//		if (regions == null)
+//			return;
+//		Set<String> regNames = new HashSet<String>();
+//		for (IRegion iRegion : regions) {
+//			regNames.add(iRegion.getName());
+//		}
 	}
 }

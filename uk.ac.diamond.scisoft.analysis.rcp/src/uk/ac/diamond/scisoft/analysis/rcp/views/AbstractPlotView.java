@@ -322,7 +322,7 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver,
 	public void update(Object theObserved, Object changeCode) {
 		
 		if (changeCode instanceof String && changeCode.equals(plotViewName)) {
-			logger.debug("Getting a plot data update from {}; thd {}",  plotViewName, Thread.currentThread().getId());
+			logger.debug("Getting a plot data update for {}; thd {}",  plotViewName, Thread.currentThread().getId());
 			GuiBean     guiBean = getGUIBean();
 			final PlotEvent evt = new PlotEvent();
 			evt.setDataBeanAvailable(plotViewName);
