@@ -180,7 +180,7 @@ public class PollServer implements IPropertyChangeListener {
 
 				try {
 					File file = new File(pollFileDirectory, name);
-					if (file.isFile()) {
+					if (file.canRead() && file.isFile()) {
 						AbstractPollJob job = createJobFromFile(file.getAbsolutePath());
 						if (job != null) {
 							addJob(job);
