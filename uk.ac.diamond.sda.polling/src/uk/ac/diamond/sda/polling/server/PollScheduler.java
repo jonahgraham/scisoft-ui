@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,13 +18,13 @@ package uk.ac.diamond.sda.polling.server;
 
 import uk.ac.diamond.sda.polling.jobs.AbstractPollJob;
 
-public class PollSheduler implements Runnable {
+public class PollScheduler implements Runnable {
 
 	private static final int DEFAULT_MAXIMUM_POLL_TIME = 10000;
 	public static boolean SCHEDULER_RUNNING = false;
 	PollServer pollServer = null;
 
-	public PollSheduler(PollServer pollServer) {
+	public PollScheduler(PollServer pollServer) {
 		this.pollServer = pollServer;
 	}
 
@@ -37,12 +37,12 @@ public class PollSheduler implements Runnable {
 	public void run() {
 
 		SCHEDULER_RUNNING = true;
-		
-		//TODO should make this easily killable
-		while(SCHEDULER_RUNNING) {
+
+		// TODO should make this easily killable
+		while (SCHEDULER_RUNNING) {
 
 			pollServer.pollMonitor.pollLoopStart();
-			long timeTillNextJob = processAllJobs(); 
+			long timeTillNextJob = processAllJobs();
 
 			try {
 				Thread.sleep(timeTillNextJob);
@@ -65,8 +65,8 @@ public class PollSheduler implements Runnable {
 
 			long timeTillNextEvent = pollJob.timeToSchedule();
 
-			if ((timeTillNextEvent > 0)&&(timeTillNextEvent < timeTillNextJob)) {
-				timeTillNextJob = timeTillNextEvent;				
+			if (timeTillNextEvent > 0 && timeTillNextEvent < timeTillNextJob) {
+				timeTillNextJob = timeTillNextEvent;
 			}
 		}
 		pollServer.pollMonitor.processingJobsComplete(timeTillNextJob);

@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,10 +15,10 @@
  */
 
 package uk.ac.diamond.sda.polling.jobs;
+
 import java.io.IOException;
 
 import org.eclipse.core.runtime.jobs.Job;
-
 
 public abstract class AbstractPollJob extends Job {
 
@@ -37,18 +37,17 @@ public abstract class AbstractPollJob extends Job {
 		lastRun = System.currentTimeMillis();
 		this.schedule();
 	}
-	
+
 	public long timeToSchedule() {
-		long pollTime = (long) (Double.parseDouble(jobParameters.get(POLL_TIME))*1000.0);
-		long time = (lastRun+pollTime)-System.currentTimeMillis();
+		long pollTime = (long) (Double.parseDouble(jobParameters.get(POLL_TIME)) * 1000.0);
+		long time = (lastRun + pollTime) - System.currentTimeMillis();
 		if (time < 0) {
 			runJob();
 			time = pollTime;
 		}
 		return time;
 	}
-	
-	
+
 	public AbstractPollJob(String name) {
 		super(name);
 		lastRun = System.currentTimeMillis();
@@ -67,9 +66,9 @@ public abstract class AbstractPollJob extends Job {
 	}
 
 	public void setJobParametersFilename(String fileName) throws IOException {
-		jobParameters = new JobParameters(fileName);		
+		jobParameters = new JobParameters(fileName);
 	}
-	
+
 	public String getJobParametersFilename() {
 		return jobParameters.getParameterFile().getAbsolutePath();
 	}

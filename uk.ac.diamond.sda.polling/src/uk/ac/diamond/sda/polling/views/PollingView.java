@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -261,7 +261,7 @@ public class PollingView extends ViewPart implements IPollMonitor {
 				public void run() {
 
 					try {
-						String newFileName = PollServer.getInstance().getNewJobFileName(pollJobContribution);						
+						String newFileName = PollServer.getInstance().getNewJobFileName(pollJobContribution);
 						AbstractPollJob pollJob = pollJobContribution.getJob(newFileName);
 						PollServer.getInstance().addJob(pollJob);
 
