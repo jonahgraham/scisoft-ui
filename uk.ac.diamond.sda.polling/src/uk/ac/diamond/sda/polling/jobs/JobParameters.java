@@ -51,13 +51,18 @@ public class JobParameters extends HashMap<String, String> {
 	private void loadParameterFile() throws IOException{
 		FileInputStream fin = new FileInputStream(parameterFile);
 		BufferedInputStream bis = new BufferedInputStream(fin);
-		BufferedReader br = new BufferedReader(new InputStreamReader(bis));
-		
-		String line = null;
-		while ((line = br.readLine()) != null) {
-			loadParameterString(line);
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new InputStreamReader(bis));
+
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				loadParameterString(line);
+			}
+		} finally {
+			if (br != null)
+				br.close();
 		}
-		
 	}
 	
 	private void loadParameterString(String parameterString) {
