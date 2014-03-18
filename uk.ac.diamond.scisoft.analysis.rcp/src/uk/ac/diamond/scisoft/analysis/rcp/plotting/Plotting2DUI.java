@@ -333,7 +333,7 @@ public class Plotting2DUI extends AbstractPlottingUI {
 								list.add(roi);
 							}
 						}
-						createRegion(roi);
+						createRegion(roi, guiBean);
 						croi = roi;
 					}
 				}
@@ -374,7 +374,7 @@ public class Plotting2DUI extends AbstractPlottingUI {
 						} else { // or add new region that has not been listed
 							IRegion reg = plottingSystem.getRegion(n);
 							if (reg == null) {
-								createRegion(r);
+								createRegion(r, guiBean);
 							} else {
 								reg.setFromServer(true);
 								reg.setROI(r);
@@ -386,7 +386,7 @@ public class Plotting2DUI extends AbstractPlottingUI {
 		});
 	}
 
-	private IRegion createRegion(IROI roib) {
+	private IRegion createRegion(IROI roib, GuiBean guiBean) {
 		if (roib == null)
 			return null;
 		try {
@@ -395,7 +395,9 @@ public class Plotting2DUI extends AbstractPlottingUI {
 			String name = roib.getName();
 			if (name == null || name.trim().length() == 0) {
 				name = RegionUtils.getUniqueName(type.getName(), plottingSystem);
+				logger.warn("Blank or unset name in ROI now set to {}", name);
 				roib.setName(name);
+				guiBean.put(GuiParameters.QUIET_UPDATE, ""); // mark bean to be sent back 
 			}
 			IRegion region = plottingSystem.createRegion(name, type);
 			region.setFromServer(true);

@@ -412,6 +412,9 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 				getRoiManager().releaseLock();
 			}
 		}
+		if (bean.containsKey(GuiParameters.QUIET_UPDATE)) {
+			manager.sendGUIInfo(bean);
+		}
 	}
 
 	// this map is needed as axes from the plotting system get their titles changed
