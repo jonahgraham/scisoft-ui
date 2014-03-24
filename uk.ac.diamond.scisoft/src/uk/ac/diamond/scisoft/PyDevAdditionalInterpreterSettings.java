@@ -79,15 +79,14 @@ public class PyDevAdditionalInterpreterSettings extends InterpreterNewCustomEntr
 		// Add Fabio to the path
 		try {
 			IPath path = new Path(System.getProperty("eclipse.home.location").replace("file:", ""));
-			path = path.append("fabio");
+			//path = path.append("fabio");
 			logger.debug("Fabio python path is : " + path.toOSString());
 			if (path.toFile().exists()) {
 				entriesToAdd.add(path.toOSString());
 				logger.debug("Fabio python path added");
 			}
 		} catch (Exception e) {
-			// TODO Dial this back in for the release. error for debug only.
-			logger.error("Failed to add Fabio to add the python path");
+			logger.warn("Failed to add Fabio to add the python path");
 		}		
 
 		return entriesToAdd;
