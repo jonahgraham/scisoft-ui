@@ -76,6 +76,18 @@ public class PyDevAdditionalInterpreterSettings extends InterpreterNewCustomEntr
 			logger.debug("Failed to find location of scisfotpy to add the python path");
 		}
 		
+		// Add Fabio to the path
+		try {
+			IPath path = new Path(System.getProperty("eclipse.home.location").replace("file:/", ""));
+			path = path.append("fabio");
+			if (path.toFile().exists()) {
+				entriesToAdd.add(path.toOSString());
+			}
+			logger.error("Fabio python path is" + path.toOSString());
+		} catch (Exception e) {
+			// TODO Dial this back in for the release. error for debug only.
+			logger.error("Failed to add Fabio to add the python path");
+		}		
 
 		return entriesToAdd;
 	}
