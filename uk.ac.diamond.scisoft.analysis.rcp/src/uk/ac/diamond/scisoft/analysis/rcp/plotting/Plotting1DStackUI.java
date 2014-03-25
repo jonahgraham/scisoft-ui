@@ -21,9 +21,11 @@ import gda.observable.IObserver;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.trace.ILineStackTrace;
@@ -34,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
@@ -69,61 +72,72 @@ public class Plotting1DStackUI extends AbstractPlottingUI {
 				if (plotData == null)
 					return;
 
+				final int n = plotData.size();
+				if (n == 0)
+					return;
+
+				// single stack trace with multiple plots
+
+				// work out if more than one x axis supplied
+				String xName = null;
+				Set<String> xNames = new HashSet<String>();
+				for (int i = 0; i < n; i++) {
+					DataSetWithAxisInformation d = plotData.get(i);
+					xNames.add(d.getAxisMap().getAxisID()[0]);
+				}
+				if (xNames.size() == 1)
+					xName = xNames.iterator().next();
+
 				GuiBean gb = dbPlot.getGuiParameters();
-
 				String plotOperation = gb == null ? null : (String) gb.get(GuiParameters.PLOTOPERATION);
+
+				// check for number of stack traces
+				ILineStackTrace trace = null;
 				Collection<ITrace> oldTraces = plottingSystem.getTraces();
-				ILineStackTrace trace = oldTraces.size() != 0 ? (ILineStackTrace)oldTraces.iterator().next() : null;
-				IDataset[] stackTraces = trace != null ? trace.getStack() : null;
-				int traces = stackTraces != null ? stackTraces.length : 0;
-				boolean useOldTraces = false;
-				final int plots = plotData.size();
-				if (GuiParameters.PLOTOP_NONE.equals(plotOperation) || GuiParameters.PLOTOP_UPDATE.equals(plotOperation)) {
-
-					// check if same lines are being plotted
-					if (plots <= traces) {
-						useOldTraces = plots == traces;
-					}
-
-					if (!useOldTraces) {
-						traces = 0;
+				for (ITrace t : oldTraces) {
+					if (t instanceof ILineStackTrace) {
+						 ILineStackTrace s = (ILineStackTrace) t;
+						 if (trace == null) {
+							 trace = s;
+						 } else if (!GuiParameters.PLOTOP_UPDATE.equals(plotOperation)) {
+							 plottingSystem.removeTrace(s);
+						 }
+					} else {
+						logger.warn("Trace is not a line stack trace: {}", t);
 					}
 				}
 
-				if (useOldTraces && stackTraces != null && trace != null) {
-					List<IDataset> unused = new ArrayList<IDataset>();
-					List<IDataset> xDatasets = new ArrayList<IDataset>(1);
-					IDataset[] yDatasets = new IDataset[plotData.size()];
-					for (IDataset data : stackTraces) {
-						boolean used = false;
-						int i = 0;
-						for (DataSetWithAxisInformation d : plotData) {
-							AbstractDataset ny = d.getData();
-							yDatasets[i] = ny;
-							AbstractDataset nx = dbPlot.getAxis(d.getAxisMap().getAxisID()[0]);
-							xDatasets.add(nx);
-							i++;
-						}
-						if (!used)
-							unused.add(data);
-					}
-					trace.setData(xDatasets, yDatasets);
+				// check if same number of lines are being plotted when not adding
+				if (!GuiParameters.PLOTOP_ADD.equals(plotOperation)) {
+					trace = null;
+				}
+
+				boolean usingOldTrace = true;
+				if (trace == null) {
+					plottingSystem.reset();
+					trace = plottingSystem.createLineStackTrace("Plots", n);
+					usingOldTrace = false;
+				}
+
+				IDataset[] ys = new IDataset[n];
+				List<IDataset> axes = new ArrayList<IDataset>();
+				Map<String, AbstractDataset> axisData = dbPlot.getAxisData();
+				for (int i = 0; i < n; i++) {
+					DataSetWithAxisInformation d = plotData.get(i);
+					ys[i] = d.getData();
+					if (xName == null)
+						axes.add(axisData.get(d.getAxisMap().getAxisID()[0]));
+				}
+				if (xName != null) {
+					axes.add(axisData.get(xName));
+				}
+				axes.add(null);
+				axes.add(axisData.get(AxisMapBean.ZAXIS));
+				trace.setData(axes, ys);
+				if (usingOldTrace) {
 					logger.debug("Plot 1D 3D updated");
 				} else {
-
-					Map<String, AbstractDataset> axisData = dbPlot.getAxisData();
-					ArrayList<IDataset> yl = new ArrayList<IDataset>();
-					String id = plotData.get(0).getAxisMap().getAxisID()[0];
-					AbstractDataset nx = axisData.get(id);
-					List<IDataset> xDatasets = new ArrayList<IDataset>(1);
-					xDatasets.add(nx);
-					for (DataSetWithAxisInformation d : plotData) {
-						AbstractDataset ny = d.getData();
-						yl.add(ny);
-					}
-					plottingSystem.reset();
-					plottingSystem.createPlot1D(nx, yl, null, null);
-
+					plottingSystem.addTrace(trace);
 					logger.debug("Plot 1D 3D created");
 				}
 			}
