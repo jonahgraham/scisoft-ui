@@ -72,12 +72,8 @@ public class PlottingScatter3DUI extends AbstractPlottingUI {
 					Map<String, AbstractDataset> axisData = dbPlot.getAxisData();
 					ArrayList<IDataset> yl = new ArrayList<IDataset>();
 					String[] axesIDs = plotData.get(0).getAxisMap().getAxisID();
-					String id = "";
-					if (axesIDs == null) {
-						id = "X-Axis";
-					} else {
-						id = plotData.get(0).getAxisMap().getAxisID()[0];
-					}
+					String id = axesIDs == null ? AxisMapBean.XAXIS :
+						plotData.get(0).getAxisMap().getAxisID()[0];
 					AbstractDataset nx = axisData.get(id);
 					List<IDataset> xDatasets = new ArrayList<IDataset>(1);
 					xDatasets.add(nx);
