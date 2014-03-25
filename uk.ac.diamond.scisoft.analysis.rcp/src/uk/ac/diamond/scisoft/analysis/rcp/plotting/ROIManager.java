@@ -84,7 +84,8 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 	@Override
 	public void regionsRemoved(RegionEvent evt) {
-		removeROI(null);
+		clearGUIBean();
+		roi = null;
 	}
 
 	@Override
@@ -139,12 +140,6 @@ public class ROIManager implements IROIListener, IRegionListener {
 	private static final long CLIENT_WAIT_PERIOD = 40;
 
 	private void removeROI(IROI or) {
-		if (or == null) { // remove all
-			clearGUIBean();
-			roi = null;
-			return;
-		}
-
 //		roiMap.remove(or.getName());
 		if (roi != null) {
 			if (!or.getClass().equals(roi.getClass())) {
