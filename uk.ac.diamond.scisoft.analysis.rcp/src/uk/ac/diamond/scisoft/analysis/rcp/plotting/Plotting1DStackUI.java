@@ -92,13 +92,13 @@ public class Plotting1DStackUI extends AbstractPlottingUI {
 				String plotOperation = gb == null ? null : (String) gb.get(GuiParameters.PLOTOPERATION);
 
 				// check for number of stack traces
-				ILineStackTrace trace = null;
+				ILineStackTrace oldTrace = null;
 				Collection<ITrace> oldTraces = plottingSystem.getTraces();
 				for (ITrace t : oldTraces) {
 					if (t instanceof ILineStackTrace) {
 						 ILineStackTrace s = (ILineStackTrace) t;
-						 if (trace == null) {
-							 trace = s;
+						 if (oldTrace == null) {
+							 oldTrace = s;
 						 } else if (!GuiParameters.PLOTOP_UPDATE.equals(plotOperation)) {
 							 plottingSystem.removeTrace(s);
 						 }
@@ -107,16 +107,12 @@ public class Plotting1DStackUI extends AbstractPlottingUI {
 					}
 				}
 
-				// check if same number of lines are being plotted when not adding
-				if (!GuiParameters.PLOTOP_ADD.equals(plotOperation)) {
-					trace = null;
-				}
-
-				boolean usingOldTrace = true;
-				if (trace == null) {
+				ILineStackTrace trace;
+				if (oldTrace != null) {
+					trace = oldTrace;
+				} else {
 					plottingSystem.reset();
 					trace = plottingSystem.createLineStackTrace("Plots", n);
-					usingOldTrace = false;
 				}
 
 				IDataset[] ys = new IDataset[n];
@@ -134,10 +130,11 @@ public class Plotting1DStackUI extends AbstractPlottingUI {
 				axes.add(null);
 				axes.add(axisData.get(AxisMapBean.ZAXIS));
 				trace.setData(axes, ys);
-				if (usingOldTrace) {
+
+				if (trace == oldTrace) {
 					logger.debug("Plot 1D 3D updated");
 				} else {
-					plottingSystem.addTrace(trace);
+					plottingSystem.addTrace(oldTrace);
 					logger.debug("Plot 1D 3D created");
 				}
 			}
