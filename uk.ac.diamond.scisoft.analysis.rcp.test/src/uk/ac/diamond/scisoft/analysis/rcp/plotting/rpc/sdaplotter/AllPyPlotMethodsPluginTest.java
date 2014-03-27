@@ -129,22 +129,22 @@ public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 
 	@Test
 	public void testPlotStringIDataset() throws Exception {
-		redirectPlotter.plot(plotName, null, null, new IDataset[] {yAxis}, null, null);
+		redirectPlotter.plot(plotName, null, null, new IDataset[] {yAxis}, null, null, null);
 	}
 
 	@Test
 	public void testPlotStringIDatasetIDataset() throws Exception {
-		redirectPlotter.plot(plotName, null, new IDataset[] {xAxis}, new IDataset[] {yAxis}, null, null);
+		redirectPlotter.plot(plotName, null, new IDataset[] {xAxis}, new IDataset[] {yAxis}, null, null, null);
 	}
 
 	@Test
 	public void testPlotStringIDatasetIDatasetArray() throws Exception {
-		redirectPlotter.plot(plotName, null, new IDataset[] {xAxis}, yAxes, null, null);
+		redirectPlotter.plot(plotName, null, new IDataset[] {xAxis}, yAxes, null, null, null);
 	}
 
 	@Test
 	public void testPlotStringIDatasetArrayIDatasetArray() throws Exception {
-		redirectPlotter.plot(plotName, null, xAxes, yAxes, null, null);
+		redirectPlotter.plot(plotName, null, xAxes, yAxes, null, null, null);
 	}
 
 	@Test
