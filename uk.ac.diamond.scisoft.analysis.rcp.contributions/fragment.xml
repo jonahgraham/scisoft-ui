@@ -1198,6 +1198,12 @@
             name="Save As HDF5">
       </command>
     </extension>
+    <extension
+          point="org.dawb.hdf5.editor.double.click.listener">
+       <double_click_provider
+             class="uk.ac.diamond.scisoft.analysis.rcp.inspector.InspectorSelectionProvider">
+       </double_click_provider>
+    </extension>
 
 
 
