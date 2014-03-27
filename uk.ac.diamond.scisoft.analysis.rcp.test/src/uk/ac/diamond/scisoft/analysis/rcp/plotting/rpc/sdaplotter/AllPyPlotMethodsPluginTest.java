@@ -169,7 +169,7 @@ public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 
 	@Test
 	public void testImagePlotStringIDataset() throws Exception {
-		redirectPlotter.imagePlot(plotName, null, null, image);
+		redirectPlotter.imagePlot(plotName, null, null, image, null, null);
 	}
 
 	@Test
@@ -179,7 +179,7 @@ public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 
 	@Test
 	public void testImagePlotStringIDatasetIDatasetIDataset() throws Exception {
-		redirectPlotter.imagePlot(plotName, xAxis, yAxis, image);
+		redirectPlotter.imagePlot(plotName, xAxis, yAxis, image, null, null);
 	}
 
 	@Test
