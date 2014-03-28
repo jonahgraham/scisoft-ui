@@ -146,7 +146,7 @@ public class FeedbackJob extends Job {
 						messageBody.toString(), logFile, attachmentFiles, monitor);
 			}
 			return new Status(IStatus.WARNING, "Format Problem",
-					"Please type in your email and/or the message body before sending the feedback.");
+					"Please type in your email and the message body before sending the feedback.");
 		} catch (Exception e) {
 			logger.error("Feedback email not sent", e);
 			return new Status(
