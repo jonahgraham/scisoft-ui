@@ -307,6 +307,8 @@ public class FeedbackView extends ViewPart {
 			@Override
 			public void run() {
 				FileDialog fd = new FileDialog(Display.getDefault().getActiveShell());
+				fd.setFilterNames (new String [] {"Log Files (.log)", "Text Files (.txt)", "All Files (*.*)"});
+				fd.setFilterExtensions (new String [] {"*?.log", "*?.txt", "*?.*"}); 
 				fd.setText("Attach selected file to your feedback message");
 				// fd.setFilterPath("C:/");
 				// String[] filterExt = { "*.txt", "*.doc", ".rtf", "*.*" };
