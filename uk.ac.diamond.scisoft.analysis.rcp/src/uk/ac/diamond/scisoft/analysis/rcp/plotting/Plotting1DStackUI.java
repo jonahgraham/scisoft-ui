@@ -134,7 +134,7 @@ public class Plotting1DStackUI extends AbstractPlottingUI {
 				if (trace == oldTrace) {
 					logger.debug("Plot 1D 3D updated");
 				} else {
-					plottingSystem.addTrace(oldTrace);
+					plottingSystem.addTrace(trace);
 					logger.debug("Plot 1D 3D created");
 				}
 			}
