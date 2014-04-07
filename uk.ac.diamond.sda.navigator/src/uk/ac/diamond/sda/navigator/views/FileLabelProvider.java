@@ -24,15 +24,16 @@ import java.util.Date;
 import org.dawb.common.services.IFileIconService;
 import org.dawb.common.services.ServiceManager;
 import org.dawb.common.util.io.FileUtils;
-import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.dawb.hdf5.HierarchicalDataFactory;
+import org.dawb.hdf5.IHierarchicalDataFile;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
+import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 import uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferenceConstants;
 import uk.ac.diamond.sda.navigator.util.NavigatorUtils;
 import uk.ac.gda.util.OSUtils;
@@ -48,7 +49,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		this.columnIndex = column;
 		this.dateFormat  = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 		this.service = (IFileIconService)ServiceManager.getService(IFileIconService.class);
-		this.store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "uk.ac.diamond.scisoft.analysis.rcp");
+		this.store =  NavigatorRCPActivator.getDefault().getPreferenceStore();
 	}
 
 	@Override
@@ -81,13 +82,15 @@ public class FileLabelProvider extends ColumnLabelProvider {
 	 */
 	@Override
 	public String getText(Object element) {
-		
 		boolean showComment = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_COMMENT_COLUMN);
 		boolean showScanCmd = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_SCANCMD_COLUMN);
 
 		if (element instanceof String) return (String)element;
 		final File node   = (File)element;
-	
+
+		//if node is an hdf5 file, returns the file
+		IHierarchicalDataFile h5File = getH5File(node);
+
 		switch(columnIndex) {
 		case 0:
 			return "".equals(node.getName())
@@ -103,7 +106,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
 			String comment;
 			if(!node.isDirectory() && showComment){
 				try {
-					comment = NavigatorUtils.getComment(node);
+					comment = NavigatorUtils.getComment(node, h5File);
 				} catch (Exception e) {
 					e.printStackTrace();
 					comment = "N/A";
@@ -116,7 +119,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
 			String scanCmd;
 			if(!node.isDirectory() && showScanCmd){
 				try {
-					scanCmd = NavigatorUtils.getScanCommand(node);
+					scanCmd = NavigatorUtils.getHDF5ScanCommand(node.getAbsolutePath(), h5File);
 				} catch (Exception e) {
 					e.printStackTrace();
 					scanCmd = "N/A";
@@ -128,6 +131,21 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		default:
 			return null;
 		}
+	}
+
+	private IHierarchicalDataFile getH5File(File node) {
+		IHierarchicalDataFile h5File = null;
+		if (FileUtils.getFileExtension(node).equals("h5")
+				||FileUtils.getFileExtension(node).equals("hdf5")
+				||FileUtils.getFileExtension(node).equals("nxs")
+				||FileUtils.getFileExtension(node).equals("hdf")) {
+			try {
+				h5File = HierarchicalDataFactory.getReader(node.getAbsolutePath());
+			} catch (Exception e1) {
+				System.err.println(e1.getMessage());
+			}
+		}
+		return h5File;
 	}
 
 	private String getRootLabel(File node) {

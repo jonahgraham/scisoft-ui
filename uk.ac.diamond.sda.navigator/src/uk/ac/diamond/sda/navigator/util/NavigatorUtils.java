@@ -18,18 +18,25 @@ package uk.ac.diamond.sda.navigator.util;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
-import org.dawb.common.util.io.FileUtils;
+import javax.swing.tree.TreeNode;
 
-import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.StringDataset;
-import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import ncsa.hdf.object.Dataset;
+
+import org.dawb.common.util.io.FileUtils;
+import org.dawb.hdf5.HierarchicalDataFactory;
+import org.dawb.hdf5.IHierarchicalDataFile;
+
 import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 public class NavigatorUtils {
+
+	private static final String scanCmdName = "scan_command";
+	private static final String titleName = "title";
 
 	/**
 	 * Method that returns a Scan Command given a .nxs, .hdf5, .srs, .dat file
@@ -75,9 +82,6 @@ public class NavigatorUtils {
 		return result;
 	}
 
-	private static final String scanCmdName = "scan_command";
-	private static final String titleName = "title";
-
 	/**
 	 * Method that returns a matrix of String with scan commands and titles given the full path to a Nexus file.<br>
 	 * Make sure that the file path is the one of a Nexus file.
@@ -86,27 +90,35 @@ public class NavigatorUtils {
 	 * @throws Exception
 	 */
 	public static String[][] getHDF5TitlesAndScanCmds(String fullpath) throws Exception {
-		
-		List<ILazyDataset> list = new HDF5Loader(fullpath).findDatasets(new String[] {scanCmdName, titleName}, 1, null);
 
 		List<String> scans = new ArrayList<String>();
 		List<String> titles = new ArrayList<String>();
-		for (ILazyDataset d : list) {
-			if (d instanceof StringDataset) {
-				StringDataset sd = (StringDataset) d;
-				String n = d.getName();
-				if (n == null) {
-					continue;
-				}
-				if (n.contains(scanCmdName)) {
-					scans.add(sd.getString(0));
-					if (scans.size() > titles.size() + 1)
-						titles.add(null); // bulk out list
-				} else if (n.contains(titleName)) {
-					titles.add(sd.getString(0));
-					if (titles.size() > scans.size() + 1)
-						scans.add(null);
-				}
+
+		IHierarchicalDataFile file = HierarchicalDataFactory.getReader(fullpath);
+		Enumeration<?> rootEntries = file.getNode().children();
+		while (rootEntries.hasMoreElements()) {
+			Object elem = rootEntries.nextElement();
+			TreeNode node = (TreeNode) elem;
+			String entryName = node.toString();
+
+			//read scan command
+			Dataset scanCmdData = (Dataset)file.getData(entryName + "/" + scanCmdName);
+			if (scanCmdData != null) {
+				Object val = scanCmdData.read();
+				String[] scan =  (String[])val;
+				scans.add(scan[0]);
+				if (scans.size() > titles.size() + 1)
+					titles.add(null); // bulk out list
+			}
+
+			//read title
+			Dataset titleData = (Dataset)file.getData(entryName + "/" + titleName);
+			if (titleData != null) {
+				Object val = titleData.read();
+				String[] title =  (String[])val;
+				titles.add(title[0]);
+				if (titles.size() > scans.size() + 1)
+					scans.add(null);
 			}
 		}
 
@@ -140,9 +152,7 @@ public class NavigatorUtils {
 				str = str.substring(0,  100) + "...";
 			}
 			results[1][i] = str == null ? "" : System.getProperty("line.separator")+"ScanCmd" + (i+1) + ": " + str;
-			
 		}
-
 		return results;
 	}
 
@@ -154,56 +164,71 @@ public class NavigatorUtils {
 	 * @throws Exception
 	 */
 	public static String getHDF5ScanCommand(String fullpath) throws Exception {
-		return getHDF5ScanCommandOrTitle(fullpath, scanCmdName);
+		return getHDF5ScanCommandOrTitle(fullpath, scanCmdName, null);
+	}
+
+	/**
+	 * Method that returns of the Scan Command of the nxs file being looked at.<br>
+	 * If there are more than one scan command, it returns the first one<br>
+	 * @param fullpath
+	 * @param h5File 
+	 *          can be null
+	 * @return the Scan command as a String 
+	 * @throws Exception
+	 */
+	public static String getHDF5ScanCommand(String fullpath, IHierarchicalDataFile h5File) throws Exception {
+		return getHDF5ScanCommandOrTitle(fullpath, scanCmdName, h5File);
 	}
 
 	/**
 	 * Method that returns the title of the nxs file being looked at.<br>
 	 * If there are more than one title, it returns the first one<br>
 	 * @param fullpath
+	 * @param h5File 
+	 *          (if null, a IHierarchicalDataFile reader is created
 	 * @return a String 
 	 * @throws Exception
 	 */
-	public static String getHDF5Title(String fullpath) throws Exception {
-		return getHDF5ScanCommandOrTitle(fullpath, titleName);
+	public static String getHDF5Title(String fullpath, IHierarchicalDataFile h5File) throws Exception {
+		return getHDF5ScanCommandOrTitle(fullpath, titleName, h5File);
 	}
 
-	private static String getHDF5ScanCommandOrTitle(String fullpath, String type) throws Exception {
+	private static String getHDF5ScanCommandOrTitle(String fullpath, String type, IHierarchicalDataFile h5File) throws Exception {
 		// make it work just for nxs and hdf5 files
-		File node = new File(fullpath);
-		if(!FileUtils.getFileExtension(node).equals("hdf5") 
-				&& !FileUtils.getFileExtension(node).equals("hdf")
-				&& !FileUtils.getFileExtension(node).equals("h5")
-				&& !FileUtils.getFileExtension(node).equals("nxs")) return "";
-
-		List<ILazyDataset> list = new HDF5Loader(fullpath).findDatasets(new String[] {type}, 1, null);
-
-		List<String> scans = new ArrayList<String>();
-		for (ILazyDataset d : list) {
-			if (d instanceof StringDataset) {
-				String n = d.getName();
-				if (n == null) {
-					continue;
-				}
-				if (n.contains(type)) {
-					scans.add(d.toString());
-					if(scans.size()>1) break; // get out of the loop if more than 1 scan command
-				}
-			}
-		}
+		if(!fullpath.endsWith(".hdf5") 
+				&& !fullpath.endsWith(".hdf")
+				&& !fullpath.endsWith(".h5")
+				&& !fullpath.endsWith(".nxs")) return "";
 
 		String result = "N/A";
-		if(scans.size()>0){
-			String str = scans.get(0);
+		List<String> comments = new ArrayList<String>();
+
+		if (h5File == null)
+			h5File = HierarchicalDataFactory.getReader(fullpath);
+		Enumeration<?> rootEntries = h5File.getNode().children();
+		if (!rootEntries.hasMoreElements())
+			return result;
+		Object elem = rootEntries.nextElement();
+		TreeNode node = (TreeNode) elem;
+		String entryName = node.toString();
+
+		// read scan command /title
+		Dataset commentData = (Dataset) h5File.getData(entryName + "/" + type);
+		if (commentData != null) {
+			Object val = commentData.read();
+			String[] comment = (String[]) val;
+			comments.add(comment[0]);
+		}
+
+		int s = comments.size();
+		if (s > 0) {
+			String str = comments.get(0);
 			if (str != null && str.length() > 100) { // restrict to 100 characters
 				str = str.substring(0,  100) + "...";
 			}
-			if(scans.size() > 1){
-				result = str == null ? "" : "1/"+list.size()+ ": "+str;
-			} else if(scans.size() == 1) {
-				result = str == null ? "" : str;
-			}
+			result = str == null ? result : str;
 		}
+
 		return result;
 	}
 
@@ -214,12 +239,24 @@ public class NavigatorUtils {
 	 * @throws Exception
 	 */
 	public static String getComment(File file) throws Exception {
+		return getHDF5Title(file.getAbsolutePath(), null);
+	}
+
+	/**
+	 * Method that returns a title if the parameter is a nexus file, a comment if Ascii
+	 * @param file
+	 * @param h5File
+	 *           can be null
+	 * @return a String
+	 * @throws Exception
+	 */
+	public static String getComment(File file, IHierarchicalDataFile h5File) throws Exception {
 		String extension = FileUtils.getFileExtension(file);
 		if(extension.equals("hdf5") 
 				|| extension.equals("hdf")
 				|| extension.equals("h5")
 				|| extension.equals("nxs")) 
-			return getHDF5Title(file.getAbsolutePath());
+			return getHDF5Title(file.getAbsolutePath(), h5File);
 		return "";
 	}
 
