@@ -16,26 +16,21 @@
 
 package uk.ac.diamond.sda.navigator.decorator;
 
-import gda.analysis.io.ScanFileHolderException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.sda.navigator.util.NavigatorUtils;
 
 public class LightweightNXSScanCmdDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
 	public static final String ID = "uk.ac.diamond.sda.navigator.nxsScancmdDecorator";
-	
+
 	private static final String NXS_EXT = "nxs"; //$NON-NLS-1$
 	private String decorator = "";
-	private static final Logger logger = LoggerFactory.getLogger(LightweightNXSScanCmdDecorator.class);
 
 	public LightweightNXSScanCmdDecorator() {
 		super();
@@ -71,16 +66,10 @@ public class LightweightNXSScanCmdDecorator extends LabelProvider implements ILi
 			if (modelFilePath != null && modelFilePath.toFile().canRead() && NXS_EXT.equals(modelFile.getFileExtension())) {
 				IFile ifile = (IFile) element;
 
-				try {
-					String[][] listTitlesAndScanCmd = NavigatorUtils.getHDF5TitlesAndScanCmds(ifile.getLocation().toString());
-					for (int i = 0; i < listTitlesAndScanCmd[0].length; i++) {
-						decorator = listTitlesAndScanCmd[0][i] + listTitlesAndScanCmd[1][i];
-						decoration.addSuffix(decorator);
-					}
-				} catch (ScanFileHolderException e) {
-					logger.error("Could not read Nexus file: ", e);
-				}catch (Exception e){
-					logger.error("Could not read Nexus metadata: ", e);
+				String[][] listTitlesAndScanCmd = NavigatorUtils.getHDF5TitlesAndScanCmds(ifile.getLocation().toString());
+				for (int i = 0; i < listTitlesAndScanCmd[0].length; i++) {
+					decorator = listTitlesAndScanCmd[0][i] + listTitlesAndScanCmd[1][i];
+					decoration.addSuffix(decorator);
 				}
 			}
 		}		
