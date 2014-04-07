@@ -153,6 +153,7 @@ public class NavigatorUtils {
 			}
 			results[1][i] = str == null ? "" : System.getProperty("line.separator")+"ScanCmd" + (i+1) + ": " + str;
 		}
+		file.close();
 		return results;
 	}
 
@@ -228,7 +229,6 @@ public class NavigatorUtils {
 			}
 			result = str == null ? result : str;
 		}
-
 		return result;
 	}
 

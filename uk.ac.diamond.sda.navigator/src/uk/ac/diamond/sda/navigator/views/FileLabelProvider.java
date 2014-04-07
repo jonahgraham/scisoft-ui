@@ -103,6 +103,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		case 3:
 			return formatSize(node.length());
 		case 4:
+			
 			String comment;
 			if(!node.isDirectory() && showComment){
 				try {
@@ -114,6 +115,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
 			} else {
 				comment = "";
 			}
+			close(h5File);
 			return comment;
 		case 5:
 			String scanCmd;
@@ -127,6 +129,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
 			} else {
 				scanCmd = "";
 			}
+			close(h5File);
 			return scanCmd;
 		default:
 			return null;
@@ -146,6 +149,16 @@ public class FileLabelProvider extends ColumnLabelProvider {
 			}
 		}
 		return h5File;
+	}
+
+	private void close(IHierarchicalDataFile h5File) {
+		try {
+			if (h5File != null && !h5File.isClosed())
+				h5File.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.err.println(e.getMessage());
+		}
 	}
 
 	private String getRootLabel(File node) {
