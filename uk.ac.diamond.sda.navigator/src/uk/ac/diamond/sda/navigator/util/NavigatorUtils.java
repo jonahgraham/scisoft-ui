@@ -193,7 +193,6 @@ public class NavigatorUtils {
 	 * If there are more than one scan command, it returns the first one<br>
 	 * @param fullpath
 	 * @param h5File 
-	 *          can be null
 	 * @return the Scan command as a String 
 	 */
 	public static String getHDF5ScanCommand(String fullpath, IHierarchicalDataFile h5File) {
@@ -205,7 +204,6 @@ public class NavigatorUtils {
 	 * If there are more than one title, it returns the first one<br>
 	 * @param fullpath
 	 * @param h5File 
-	 *          (if null, a IHierarchicalDataFile reader is created
 	 * @return a String 
 	 */
 	public static String getHDF5Title(String fullpath, IHierarchicalDataFile h5File) {
@@ -270,7 +268,6 @@ public class NavigatorUtils {
 	 * Method that returns a title if the parameter is a nexus file, a comment if Ascii
 	 * @param file
 	 * @param h5File
-	 *           can be null
 	 * @return a String
 	 */
 	public static String getComment(File file, IHierarchicalDataFile h5File) {
