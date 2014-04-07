@@ -35,6 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.RGBDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Stats;
 
@@ -162,7 +164,10 @@ public class SWTGridEntry extends AbstractGridEntry {
 	}
 
 	@Override
-	public void createImage(final AbstractDataset ds) {
+	public void createImage(final IDataset ids) {
+		
+		final AbstractDataset ds = DatasetUtils.convertToAbstractDataset(ids);
+		
 		canvas.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {

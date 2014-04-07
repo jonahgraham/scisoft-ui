@@ -16,8 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
-import gda.analysis.io.ScanFileHolderException;
-
 import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -112,9 +110,10 @@ import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.io.AbstractFileLoader;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.ILazyLoader;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.diamond.scisoft.analysis.io.Utils;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
@@ -519,7 +518,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			super(f.f);
 			if (!f.hasDataHolder()) {
 				try {
-					DataHolder holder = explorer.loadFile(f.getAbsolutePath(), null);
+					IDataHolder holder = explorer.loadFile(f.getAbsolutePath(), null);
 					if (holder != null) {
 						f.setDataHolder(holder);
 					}
@@ -1235,7 +1234,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		for (SelectedFile f : fileList) {
 			if (!f.hasMetadata() && !f.hasDataHolder()) {
 				try {
-					DataHolder holder = explorer.loadFile(f.getAbsolutePath(), null);
+					IDataHolder holder = explorer.loadFile(f.getAbsolutePath(), null);
 					f.setDataHolder(holder);
 				} catch (Exception e) {
 					continue;
@@ -1252,7 +1251,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		for (SelectedFile f : fileList) {
 			if (!f.hasDataHolder()) {
 				try {
-					DataHolder holder = explorer.loadFile(f.getAbsolutePath(), null);
+					IDataHolder holder = explorer.loadFile(f.getAbsolutePath(), null);
 					if (holder == null) {
 						continue;
 					}
@@ -1639,7 +1638,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	}
 
 	private class SelectedFile extends SelectedObject {
-		DataHolder h;
+		IDataHolder h;
 
 		public SelectedFile(int index, IFile file) {
 			f = new File(file.getLocationURI());
@@ -1690,7 +1689,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 //			m = metadata;
 //		}
 
-		public void setDataHolder(DataHolder holder) {
+		public void setDataHolder(IDataHolder holder) {
 			h = holder;
 			if (h != null) {
 				m = h.getMetadata();

@@ -61,6 +61,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.AbstractFileLoader;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.ImageStackLoader;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
@@ -240,7 +241,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 	}
 
 	@Override
-	public DataHolder loadFile(String fileName, IMonitor mon) throws Exception {
+	public IDataHolder loadFile(String fileName, IMonitor mon) throws Exception {
 		if (fileName == this.fileName)
 			return data;
 
@@ -251,7 +252,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
 		this.fileName = fileName;
 
-		DataHolder loadedData = LoaderFactory.getData(fileName, mon);
+		IDataHolder loadedData = LoaderFactory.getData(fileName, mon);
 		data = new DataHolder();
 		if (loadedData != null) {
 			for (String name : loadedData.getNames()) {

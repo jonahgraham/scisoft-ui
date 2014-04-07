@@ -16,7 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
-import gda.analysis.io.ScanFileHolderException;
 import gda.observable.IObserver;
 
 import java.io.File;
@@ -47,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;

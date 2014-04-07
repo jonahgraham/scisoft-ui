@@ -16,8 +16,6 @@
 
 package uk.ac.diamond.sda.navigator.decorator;
 
-import gda.analysis.io.ScanFileHolderException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.IDecoration;
@@ -27,6 +25,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.diamond.sda.navigator.util.NavigatorUtils;
 
 public class LightweightNXSScanCmdDecorator extends LabelProvider implements ILightweightLabelDecorator {

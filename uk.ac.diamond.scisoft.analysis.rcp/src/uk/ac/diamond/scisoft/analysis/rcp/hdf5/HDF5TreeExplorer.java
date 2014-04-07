@@ -45,6 +45,7 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
@@ -261,7 +262,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	}
 
 	@Override
-	public DataHolder loadFile(String fileName, IMonitor mon) throws Exception {
+	public IDataHolder loadFile(String fileName, IMonitor mon) throws Exception {
 		if (fileName == filename)
 			return holder;
 

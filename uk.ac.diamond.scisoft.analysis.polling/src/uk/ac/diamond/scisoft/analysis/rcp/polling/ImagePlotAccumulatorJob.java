@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.sda.polling.jobs.FilenameReaderUpdateOnlyJob;
 
@@ -40,7 +40,7 @@ public class ImagePlotAccumulatorJob extends FilenameReaderUpdateOnlyJob {
 			
 			int position = 0;
 			while (listEnd-position >= 0 && position < Integer.parseInt(getJobParameters().get(MAX_IMAGES_TO_ACCUMULATE))) {
-				DataHolder data = LoaderFactory.getData(filenames.get(listEnd-position));
+				IDataHolder data = LoaderFactory.getData(filenames.get(listEnd-position));
 				images.add(data.getDataset(0));
 				position++;
 			}			

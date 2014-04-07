@@ -21,8 +21,6 @@ package uk.ac.diamond.sda.navigator.decorator;
 import java.util.ArrayList;
 import java.util.List;
 
-import gda.analysis.io.ScanFileHolderException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
@@ -36,6 +34,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.ExtendedSRSLoader;
 import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.diamond.sda.navigator.srs.SRSTreeData;
 
 /**

@@ -31,7 +31,7 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchPartSite;
 
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 
 /**
@@ -103,7 +103,7 @@ abstract public class AbstractExplorer extends Composite implements ISelectionPr
 	 * @return data holder
 	 * @throws Exception
 	 */
-	abstract public DataHolder loadFile(String fileName, IMonitor mon) throws Exception;
+	abstract public IDataHolder loadFile(String fileName, IMonitor mon) throws Exception;
 
 	/**
 	 * Load file and display in explorer

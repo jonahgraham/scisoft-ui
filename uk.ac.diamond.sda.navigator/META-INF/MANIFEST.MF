@@ -16,8 +16,7 @@ Require-Bundle: org.eclipse.core.resources,
  org.dawnsci.slicing.api;bundle-version="1.0.0",
  org.dawnsci.common.widgets;bundle-version="1.2.0"
 Bundle-Activator: uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator
-Import-Package: gda.analysis.io,
- org.dawb.common.services,
+Import-Package: org.dawb.common.services,
  org.dawb.common.ui.menu,
  org.dawb.common.ui.util,
  org.dawb.common.ui.views,

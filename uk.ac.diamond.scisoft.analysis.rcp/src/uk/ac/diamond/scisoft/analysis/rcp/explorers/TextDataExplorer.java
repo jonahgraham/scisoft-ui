@@ -51,6 +51,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
@@ -62,7 +63,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorTy
 public class TextDataExplorer extends AbstractExplorer implements ISelectionProvider {
 
 	private TableViewer viewer;
-	private DataHolder data = null;
+	private IDataHolder data = null;
 	private ISelectionChangedListener listener;
 	private Display display = null;
 	private SelectionAdapter contextListener = null;
@@ -226,7 +227,7 @@ public class TextDataExplorer extends AbstractExplorer implements ISelectionProv
 	}
 
 	@Override
-	public DataHolder loadFile(String fileName, IMonitor mon) throws Exception {
+	public IDataHolder loadFile(String fileName, IMonitor mon) throws Exception {
 		if (fileName == this.fileName)
 			return data;
 

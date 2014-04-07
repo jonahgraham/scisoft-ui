@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.FileOperationBean;
@@ -116,7 +117,7 @@ public class ThumbnailLoadService implements Runnable, IObserver {
 	}
 	
 	private void loadAndCreateThumbnailImage(AbstractGridEntry entry) {
-		AbstractDataset ds = ImageThumbnailLoader.loadImage(entry.getFilename(),true, false);
+		IDataset ds = ImageThumbnailLoader.loadImage(entry.getFilename(),true, false);
 		entry.createImage(ds);
 		locker.release();
 	}

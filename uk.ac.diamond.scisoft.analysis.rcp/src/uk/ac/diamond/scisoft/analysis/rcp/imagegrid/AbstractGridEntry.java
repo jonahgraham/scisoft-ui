@@ -16,7 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.imagegrid;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 
 /**
  * An abstract entry for the ImageGridTable
@@ -51,7 +51,7 @@ public abstract class AbstractGridEntry {
 	
 	public abstract void dispose();
 
-	public abstract void createImage(AbstractDataset ds);
+	public abstract void createImage(IDataset ds);
 
 	public abstract String getToolTipText();
 
