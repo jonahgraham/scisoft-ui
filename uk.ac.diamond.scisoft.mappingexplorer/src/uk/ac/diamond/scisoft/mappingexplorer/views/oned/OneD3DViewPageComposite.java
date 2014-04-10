@@ -17,8 +17,6 @@
  */
 package uk.ac.diamond.scisoft.mappingexplorer.views.oned;
 
-import gda.analysis.io.ScanFileHolderException;
-
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -54,6 +52,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.mappingexplorer.MappingExplorerPlugin;
 import uk.ac.diamond.scisoft.mappingexplorer.views.AxisSelection;
