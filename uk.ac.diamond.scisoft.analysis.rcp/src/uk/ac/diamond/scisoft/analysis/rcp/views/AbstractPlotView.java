@@ -20,6 +20,7 @@ import gda.observable.IObservable;
 import gda.observable.IObserver;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -34,6 +35,7 @@ import org.dawnsci.plotting.api.IPlottingContainer;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.tool.IToolPage;
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
+import org.dawnsci.plotting.api.views.ISettablePlotView;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
@@ -49,6 +51,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.IPeak;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
@@ -66,8 +69,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
  * it is the replacement of the Data Vector panel inside the new RCP framework
  * (different from uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView)
  */
-
-public abstract class AbstractPlotView extends ViewPart implements IObserver, 
+public abstract class AbstractPlotView extends ViewPart implements ISettablePlotView,
+																   IObserver,
 																   IObservable,
 																   IGuiInfoManager,
 																   IUpdateNotificationListener,
@@ -467,6 +470,20 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver,
 		}
 	}
 
+	@Override
+	public void updateData(Serializable data, Class<?> clazz) {
+		if (data instanceof ArrayList<?>) {
+			ArrayList<?> list = (ArrayList<?>) data;
+			if (clazz.getName().equals(IPeak.class.getName())) {
+				if (list.isEmpty()) {
+					this.removeGUIInfo(GuiParameters.FITTEDPEAKS);
+				} else {
+					this.putGUIInfo(GuiParameters.FITTEDPEAKS, (ArrayList<IPeak>) list);
+				}
+			}
+		}
+	}
+
 	public String getPlotViewName() {
 		return plotViewName;
 	}
@@ -537,8 +554,17 @@ public abstract class AbstractPlotView extends ViewPart implements IObserver,
 					case ROLE_2D:
 						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.2D";
 						break;
-					case ROLE_3D:
-						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.3D";
+					case ROLE_STACK_3D:
+						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.stack.3D";
+						break;
+					case ROLE_SURFACE_2D:
+						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.surface.3D";
+						break;
+					case ROLE_SCATTER_3D:
+						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.scatter.3D";
+						break;
+					case ROLE_MULTI_2D:
+						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.multi.3D";
 						break;
 					default:
 						break;
