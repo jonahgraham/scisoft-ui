@@ -478,7 +478,7 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 				if (list.isEmpty()) {
 					this.removeGUIInfo(GuiParameters.FITTEDPEAKS);
 				} else {
-					this.putGUIInfo(GuiParameters.FITTEDPEAKS, (ArrayList<IPeak>) list);
+					this.putGUIInfo(GuiParameters.FITTEDPEAKS, list);
 				}
 			}
 		}
