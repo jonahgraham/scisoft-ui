@@ -554,17 +554,8 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 					case ROLE_2D:
 						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.2D";
 						break;
-					case ROLE_STACK_3D:
-						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.stack.3D";
-						break;
-					case ROLE_SURFACE_2D:
-						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.surface.3D";
-						break;
-					case ROLE_SCATTER_3D:
-						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.scatter.3D";
-						break;
-					case ROLE_MULTI_2D:
-						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.multi.3D";
+					case ROLE_3D:
+						toolViewId ="org.dawb.workbench.plotting.views.toolPageView.3D";
 						break;
 					default:
 						break;
