@@ -312,6 +312,7 @@ class DatasetGridLayerStack extends DefaultGridLayer {
 				v.fireLayerEvent(new UnfreezeEvent(v));
 			}
 		}
+		refresh();
 	}
 
 	public SelectionLayer getSelectionLayer() {
