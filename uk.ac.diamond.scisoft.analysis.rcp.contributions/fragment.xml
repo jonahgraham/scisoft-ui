@@ -795,7 +795,7 @@
       <editor
             class="uk.ac.diamond.scisoft.analysis.rcp.editors.ImageEditor"
             default="false"
-            extensions="png, jpg, jpeg, tif, tiff, cbf, img, ciff, mccd, edf, pgm, osc"
+            extensions="png, jpg, jpeg, tif, tiff, cbf, img, ciff, mccd, edf, pgm, osc, mar3450, pck3450"
             icon="icons/chart_curve.png"
             id="uk.ac.diamond.scisoft.analysis.rcp.editors.ImageEditor"
             name="Image Data Editor">
