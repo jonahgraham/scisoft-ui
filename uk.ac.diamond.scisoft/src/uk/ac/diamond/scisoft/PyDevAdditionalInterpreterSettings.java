@@ -26,6 +26,7 @@ import java.util.List;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.ui.PlatformUI;
 import org.python.pydev.ui.pythonpathconf.InterpreterNewCustomEntriesAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,9 @@ public class PyDevAdditionalInterpreterSettings extends InterpreterNewCustomEntr
 
 	@Override
 	public Collection<String> getAdditionalLibraries() {
+		
+		if (!PlatformUI.isWorkbenchRunning()) return null; // Headless mode, for instance workflows!
+		
 		List<String> entriesToAdd = new ArrayList<String>();
 
 		// Try to add the scisoftpy location when in dev
