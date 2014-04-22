@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft;
 
+import org.eclipse.ui.PlatformUI;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterProviderFactory;
 import org.python.pydev.ui.pythonpathconf.AlreadyInstalledInterpreterProvider;
@@ -29,6 +30,9 @@ public class PythonInterpreterProviderFactory extends AbstractInterpreterProvide
 
 	@Override
 	public IInterpreterProvider[] getInterpreterProviders(InterpreterType type) {
+		
+		if (!PlatformUI.isWorkbenchRunning()) return null;
+		
 		if (type != IInterpreterProviderFactory.InterpreterType.PYTHON) {
 			return null;
 		}

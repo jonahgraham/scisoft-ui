@@ -36,6 +36,7 @@ public class PyDevAdditionalInterpreterSettings extends InterpreterNewCustomEntr
 
 	@Override
 	public Collection<String> getAdditionalEnvVariables() {
+		if (!PlatformUI.isWorkbenchRunning()) return null;
 		List<String> entriesToAdd = new ArrayList<String>();
 		entriesToAdd.add("SCISOFT_RPC_PORT=${scisoft_rpc_port}");
 		entriesToAdd.add("SCISOFT_RMI_PORT=${scisoft_rmi_port}");
