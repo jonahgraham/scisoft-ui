@@ -256,7 +256,13 @@ public class SashFormPlotComposite implements PlotView{
 			}
 		});
 	}
-
+	
+	public void clearStatus()
+	{
+		statusLabel.setText("");
+		
+	}
+	
 	public void layout() {
 		
 	}
