@@ -367,7 +367,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 					xAxislabel = mappingViewData.getDimension1Label();
 					if (mappingViewData.getDimension1Values() != null) {
 						axisValues = new DoubleDataset(mappingViewData.getDimension1Values(),
-								new int[mappingViewData.getDimension1Values().length]);
+								new int[]{mappingViewData.getDimension1Values().length});
 					}
 				} else if (dim2Selection) {
 					slice = (AbstractDataset) dataset.getSlice((IMonitor) null,
@@ -377,7 +377,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 					xAxislabel = mappingViewData.getDimension2Label();
 					if (mappingViewData.getDimension2Values() != null) {
 						axisValues = new DoubleDataset(mappingViewData.getDimension2Values(),
-								new int[mappingViewData.getDimension2Values().length]);
+								new int[]{mappingViewData.getDimension2Values().length});
 					}
 				} else if (dim3Selection) {
 					slice = (AbstractDataset) dataset.getSlice((IMonitor) null,
@@ -388,7 +388,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 					xAxislabel = mappingViewData.getDimension3Label();
 					if (mappingViewData.getDimension3Values() != null) {
 						axisValues = new DoubleDataset(mappingViewData.getDimension3Values(),
-								new int[mappingViewData.getDimension3Values().length]);
+								new int[]{mappingViewData.getDimension3Values().length});
 					}
 				}
 				final int[] shapeToplot = finalShape;
