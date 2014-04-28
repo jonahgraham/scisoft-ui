@@ -813,14 +813,13 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 
 			final String xLabel = xAxisLabel;
 			final String yLabel = yAxisLabel;
-			final List<IDataset> axisList = new ArrayList<IDataset>();
 			if (!jobDisplay.isDisposed()) {
 				jobDisplay.asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
 						if (currentSlice != null) {
-							plottingSystem.updatePlot2D(currentSlice, axisList, new NullProgressMonitor());
+							plottingSystem.updatePlot2D(currentSlice, null, new NullProgressMonitor());
 						}
 						plottingSystem.getSelectedXAxis().setTitle(xLabel);
 						plottingSystem.getSelectedYAxis().setTitle(yLabel);
