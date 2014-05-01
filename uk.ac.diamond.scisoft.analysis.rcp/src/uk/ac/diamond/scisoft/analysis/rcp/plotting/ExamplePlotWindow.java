@@ -99,4 +99,9 @@ public class ExamplePlotWindow extends AbstractPlotWindow {
 	public GuiPlotMode getPlotMode() {
 		return GuiPlotMode.ONED;
 	}
+
+	@Override
+	public void createRegion() {
+		// TODO Auto-generated method stub
+	}
 }

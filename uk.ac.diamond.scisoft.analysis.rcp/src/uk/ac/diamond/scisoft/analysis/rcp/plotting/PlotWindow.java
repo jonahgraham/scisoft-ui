@@ -90,4 +90,9 @@ public class PlotWindow extends AbstractPlotWindow {
 		return GuiPlotMode.ONED;
 	}
 
+	@Override
+	public void createRegion() {
+		// do nothing
+	}
+
 }

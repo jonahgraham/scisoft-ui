@@ -47,6 +47,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
@@ -58,6 +59,7 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
@@ -338,26 +340,48 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			sashForm.setWeights(new int[]{1, 1});
 			plottingSystem.addRegionListener(getRoiManager());
 
-			if (getGuiManager().getGUIInfo().get(GuiParameters.ROIDATA) == null) {
-				createPerimeterBoxRegion();
-			}
 		} catch (Exception e) {
 			logger.error("Cannot locate any Abstract plotting System!", e);
 		}
 	}
 
-	private void createPerimeterBoxRegion() {
-		try {
-			region = getPlottingSystem().createRegion(REGION_NAME, RegionType.PERIMETERBOX);
-			double width = plottingSystem.getAxes().get(0).getUpper()/2;
-			double height = plottingSystem.getAxes().get(1).getUpper()/2;
-			PerimeterBoxROI proi = new PerimeterBoxROI(0, 0, width, height, 0);
-			proi.setName(REGION_NAME);
-			region.setROI(proi);
-			plottingSystem.addRegion(region);
-		} catch (Exception e) {
-			logger.error("Cannot create region for perimeter PlotView!");
-		}
+	@Override
+	public void createRegion() {
+		Display.getDefault().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					IRegion region = getPlottingSystem().getRegion(REGION_NAME);
+					if (region == null) {
+						region = getPlottingSystem().createRegion(REGION_NAME, RegionType.PERIMETERBOX);
+						double width, height;
+						IDataset data = getDataBean() != null && !getDataBean().getData().isEmpty() ? getDataBean().getData().get(0).getData() : null;
+						PerimeterBoxROI proi = null;
+						if (data != null) {
+							width = data.getShape()[0];
+							double newWidth = (80 * width)/100; 
+							height = data.getShape()[1];
+							double newHeight = (80 * height)/100;
+							double startX = (width - newWidth)/2;
+							double startY = (height - newHeight)/2;
+							proi = new PerimeterBoxROI(startX, startY, newWidth, newHeight, 0);
+						} else {
+							width = plottingSystem.getAxes().get(0).getUpper()/2;
+							height = plottingSystem.getAxes().get(1).getUpper()/2;
+							proi = new PerimeterBoxROI(0, 0, width, height, 0);
+						}
+						proi.setName(REGION_NAME);
+						proi.setPlot(true);
+						region.setROI(proi);
+						region.setUserRegion(true);
+						region.setMobile(true);
+						plottingSystem.addRegion(region);
+					}
+				} catch (Exception e) {
+					logger.error("Cannot create region for perimeter PlotView!");
+				}
+			}
+		});
 	}
 
 	/**

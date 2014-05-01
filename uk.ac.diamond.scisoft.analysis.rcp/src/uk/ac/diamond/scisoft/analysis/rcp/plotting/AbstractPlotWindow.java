@@ -375,10 +375,16 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 			// Now plot the data as standard
 			plotUI.processPlotUpdate(dbPlot, isUpdatePlot());
 			setDataBean(dbPlot);
+			createRegion();
 		} finally {
 			undoBlock();
 		}
 	}
+
+	/**
+	 * Creates a region if needed
+	 */
+	abstract public void createRegion();
 
 	/**
 	 * Update the GuiBean
