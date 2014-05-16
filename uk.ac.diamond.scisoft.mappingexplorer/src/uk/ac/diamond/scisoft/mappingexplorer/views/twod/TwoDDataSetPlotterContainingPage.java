@@ -227,7 +227,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				}
 			});
 
-			plottingSystem.addRegionListener(new IRegionListener() {
+			plottingSystem.addRegionListener(new IRegionListener.Stub() {
 
 				@Override
 				public void regionsRemoved(RegionEvent evt) {
@@ -254,12 +254,6 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				@Override
 				public void regionAdded(RegionEvent evt) {
 					// logger.warn("Region added");
-				}
-
-				@Override
-				public void regionCancelled(RegionEvent evt) {
-					// TODO Auto-generated method stub
-					
 				}
 			});
 

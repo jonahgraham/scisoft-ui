@@ -89,6 +89,12 @@ public class ROIManager implements IROIListener, IRegionListener {
 	}
 
 	@Override
+	public void regionNameChanged(RegionEvent evt, String oldName) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
 	public void regionAdded(RegionEvent evt) {
 		IRegion region = evt.getRegion();
 		if (region == null)
