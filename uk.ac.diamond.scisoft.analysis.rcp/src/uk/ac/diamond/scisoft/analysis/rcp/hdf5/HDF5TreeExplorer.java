@@ -19,6 +19,9 @@ package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.dawb.common.ui.util.EclipseUtils;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -33,8 +36,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +53,7 @@ import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
+import uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.MetadataSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
@@ -199,6 +205,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	}
 	
 	private void handleDoubleClick() {
+		checkDataExplorePerspective();
 		final Cursor cursor = getCursor();
 		Cursor tempCursor = getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
 		if (tempCursor != null) setCursor(tempCursor);
@@ -216,6 +223,40 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		} finally {
 			if (tempCursor != null)
 				setCursor(cursor);
+		}
+	}
+
+	private void checkDataExplorePerspective() {
+		final IWorkbenchPage page = EclipseUtils.getPage();
+		if (page != null) {
+			final String id = page.getPerspective().getId();
+			if (!id.equals(DataExplorationPerspective.ID)) {
+				boolean openDExplore = false;
+				MessageDialogWithToggle dialog = MessageDialogWithToggle
+						.openYesNoQuestion(
+								page.getWorkbenchWindow().getShell(),
+								"Open Data Exploration Perspective",
+								"This kind of action is associated with the 'DExplore' Perspective.\n\nWould you like to switch to the DExplore perspective now?",
+								null, true, null, null);
+				switch (dialog.getReturnCode()) {
+				case IDialogConstants.CANCEL_ID:
+					return;
+				case IDialogConstants.YES_ID:
+					openDExplore = true;
+					break;
+				case IDialogConstants.NO_ID:
+					openDExplore = false;
+					break;
+				}
+				if (openDExplore) {
+					try {
+						PlatformUI.getWorkbench().showPerspective(DataExplorationPerspective.ID,
+								page.getWorkbenchWindow());
+					} catch (Exception ne) {
+						logger.error(ne.getMessage(), ne);
+					}
+				}
+			}
 		}
 	}
 
