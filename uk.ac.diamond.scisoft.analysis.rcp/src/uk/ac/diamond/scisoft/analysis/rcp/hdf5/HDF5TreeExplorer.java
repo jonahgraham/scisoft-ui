@@ -20,8 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.dawb.common.ui.util.EclipseUtils;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -230,24 +229,11 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		final IWorkbenchPage page = EclipseUtils.getPage();
 		if (page != null) {
 			final String id = page.getPerspective().getId();
-			if (!id.equals(DataExplorationPerspective.ID)) {
-				boolean openDExplore = false;
-				MessageDialogWithToggle dialog = MessageDialogWithToggle
-						.openYesNoQuestion(
-								page.getWorkbenchWindow().getShell(),
-								"Open Data Exploration Perspective",
-								"This kind of action is associated with the 'DExplore' Perspective.\n\nWould you like to switch to the DExplore perspective now?",
-								null, true, null, null);
-				switch (dialog.getReturnCode()) {
-				case IDialogConstants.CANCEL_ID:
-					return;
-				case IDialogConstants.YES_ID:
-					openDExplore = true;
-					break;
-				case IDialogConstants.NO_ID:
-					openDExplore = false;
-					break;
-				}
+			// Check that the user is not in DExplore or NCD perspective
+			if (!id.equals(DataExplorationPerspective.ID)&&!id.equals("uk.ac.diamond.scisoft.ncd.rcp.ncdperspective")) {
+				boolean openDExplore = MessageDialog.openQuestion(page.getWorkbenchWindow().getShell(),
+						"Open Data Exploration Perspective",
+						"This kind of action is associated with the 'DExplore' Perspective.\n\nWould you like to switch to the DExplore perspective now?");
 				if (openDExplore) {
 					try {
 						PlatformUI.getWorkbench().showPerspective(DataExplorationPerspective.ID,
