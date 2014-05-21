@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
@@ -57,6 +58,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.MetadataSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 import uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView;
+import uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView;
 
 public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProvider {
 	private static final Logger logger = LoggerFactory.getLogger(HDF5TreeExplorer.class);
@@ -228,9 +230,9 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	private void checkDataExplorePerspective() {
 		final IWorkbenchPage page = EclipseUtils.getPage();
 		if (page != null) {
-			final String id = page.getPerspective().getId();
-			// Check that the user is not in DExplore or NCD perspective
-			if (!id.equals(DataExplorationPerspective.ID)&&!id.equals("uk.ac.diamond.scisoft.ncd.rcp.ncdperspective")) {
+			IViewReference viewRef = page.findViewReference(DatasetInspectorView.ID);
+			// Check whether the datasetInspector view is open or not
+			if (viewRef == null) {
 				boolean openDExplore = MessageDialog.openQuestion(page.getWorkbenchWindow().getShell(),
 						"Open Data Exploration Perspective",
 						"This kind of action is associated with the 'DExplore' Perspective.\n\nWould you like to switch to the DExplore perspective now?");
