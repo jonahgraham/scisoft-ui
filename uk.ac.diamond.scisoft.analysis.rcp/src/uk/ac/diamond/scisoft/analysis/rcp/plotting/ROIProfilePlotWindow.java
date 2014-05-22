@@ -372,10 +372,10 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 						}
 						proi.setName(REGION_NAME);
 						proi.setPlot(true);
+						region.setROI(proi);
 						region.setUserRegion(true);
 						region.setMobile(true);
 						plottingSystem.addRegion(region);
-						region.setROI(proi);
 					}
 				} catch (Exception e) {
 					logger.error("Cannot create region for perimeter PlotView!");

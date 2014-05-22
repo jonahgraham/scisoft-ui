@@ -397,8 +397,8 @@ public class Plotting2DUI extends AbstractPlottingUI {
 			}
 			IRegion region = plottingSystem.createRegion(name, type);
 			region.setFromServer(true);
-			plottingSystem.addRegion(region);
 			region.setROI(roib);
+			plottingSystem.addRegion(region);
 			return region;
 		} catch (Exception e) {
 			logger.error("Problem creating new region from ROI", e);
