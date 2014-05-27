@@ -32,6 +32,10 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -95,10 +99,14 @@ public class FeedbackView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 
-		parent.setLayout(new GridLayout(1, false));
+		final ScrolledComposite scrollComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		final Composite content = new Composite(scrollComposite, SWT.NONE);
+		content.setLayout(new GridLayout(1, false));
+		content.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
 		makeActions();
 		{
-			Composite radioSelection = new Composite(parent, SWT.NONE);
+			Composite radioSelection = new Composite(content, SWT.NONE);
 			radioSelection.setLayout(new GridLayout(3, false));
 			Label label = new Label(radioSelection, SWT.NONE);
 			label.setText("Send Feedback to :");
@@ -107,11 +115,11 @@ public class FeedbackView extends ViewPart {
 			mailToRadios.setActions(createEmailRadioActions());
 		}
 		{
-			Label lblEmailAddress = new Label(parent, SWT.NONE);
+			Label lblEmailAddress = new Label(content, SWT.NONE);
 			lblEmailAddress.setText("Your email address for Feedback");
 		}
 		{
-			emailAddress = new Text(parent, SWT.BORDER | SWT.SINGLE);
+			emailAddress = new Text(content, SWT.BORDER | SWT.SINGLE);
 			emailAddress.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 			final String email = Activator.getDefault() != null ? Activator.getDefault().getPreferenceStore()
@@ -120,12 +128,12 @@ public class FeedbackView extends ViewPart {
 				emailAddress.setText(email);
 		}
 		{
-			Label lblSubject = new Label(parent, SWT.NONE);
+			Label lblSubject = new Label(content, SWT.NONE);
 			lblSubject.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 			lblSubject.setText("Summary");
 		}
 		{
-			subjectText = new Text(parent, SWT.BORDER | SWT.SINGLE);
+			subjectText = new Text(content, SWT.BORDER | SWT.SINGLE);
 			subjectText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 			final String subject = Activator.getDefault() != null ? Activator.getDefault().getPreferenceStore()
@@ -134,19 +142,21 @@ public class FeedbackView extends ViewPart {
 				subjectText.setText(subject);
 		}
 		{
-			Label lblComment = new Label(parent, SWT.NONE);
+			Label lblComment = new Label(content, SWT.NONE);
 			lblComment.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 			lblComment.setText("Comment");
 		}
 		{
-			messageText = new Text(parent, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
-			messageText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+			messageText = new Text(content, SWT.BORDER | SWT.MULTI | SWT.WRAP);
+			GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+			gd.minimumHeight = 200;
+			messageText.setLayoutData(gd);
 		}
 		{
-			Label attachLabel = new Label(parent, SWT.NONE);
+			Label attachLabel = new Label(content, SWT.NONE);
 			attachLabel.setText("Attached Files");
 
-			tableViewer = new TableViewer(parent, SWT.FULL_SELECTION | SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+			tableViewer = new TableViewer(content, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER);
 			createColumns(tableViewer);
 //			tableViewer.getTable().setLinesVisible(true);
 			tableViewer.getTable().setToolTipText("Delete the file by clicking on the X");
@@ -157,7 +167,7 @@ public class FeedbackView extends ViewPart {
 			tableViewer.refresh();
 		}
 		{
-			Composite actionComp = new Composite(parent, SWT.NONE);
+			Composite actionComp = new Composite(content, SWT.NONE);
 			actionComp.setLayout(new GridLayout(3, false));
 			actionComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
@@ -178,6 +188,19 @@ public class FeedbackView extends ViewPart {
 			btnSendFeedback.setText("Send Feedback");
 			btnSendFeedback.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		}
+
+		scrollComposite.setContent(content);
+		scrollComposite.setExpandVertical(true);
+		scrollComposite.setExpandHorizontal(true);
+		scrollComposite.addControlListener(new ControlAdapter() {
+			@Override
+			public void controlResized(ControlEvent e) {
+				Rectangle r = scrollComposite.getClientArea();
+				int height = content.computeSize(r.width, SWT.DEFAULT).y;
+				scrollComposite.setMinHeight(height);
+				scrollComposite.setMinWidth(content.computeSize(SWT.DEFAULT, r.height).x);
+			}
+		});
 
 		hookContextMenu();
 		contributeToActionBars();
