@@ -48,6 +48,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
@@ -280,7 +281,7 @@ public class TextDataExplorer extends AbstractExplorer implements ISelectionProv
 			AxisSelection axisSelection = new AxisSelection(len, j);
 			axes.add(axisSelection);
 	
-			AbstractDataset autoAxis = AbstractDataset.arange(len, AbstractDataset.INT32);
+			AbstractDataset autoAxis = AbstractDataset.arange(len, Dataset.INT32);
 			autoAxis.setName(AbstractExplorer.DIM_PREFIX + (j+1));
 			AxisChoice newChoice = new AxisChoice(autoAxis);
 			newChoice.setAxisNumber(j);

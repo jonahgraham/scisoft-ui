@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
@@ -45,7 +46,7 @@ public class ImagePlotAccumulatorJob extends FilenameReaderUpdateOnlyJob {
 				position++;
 			}			
 				
-			AbstractDataset accumulator =  AbstractDataset.zeros((AbstractDataset) images.get(0), AbstractDataset.ARRAYFLOAT64);
+			AbstractDataset accumulator =  AbstractDataset.zeros((AbstractDataset) images.get(0), Dataset.ARRAYFLOAT64);
 			for(int i = 0; i < images.size(); i++) {
 				accumulator.iadd(images.get(i));
 			}

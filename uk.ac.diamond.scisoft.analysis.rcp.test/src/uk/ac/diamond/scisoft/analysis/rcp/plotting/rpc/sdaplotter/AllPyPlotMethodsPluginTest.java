@@ -28,6 +28,7 @@ import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.PythonHelper.PythonRunInfo;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.RcpPlottingTestBase;
@@ -77,11 +78,11 @@ public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 		// create some data sets and other objects to use, this test does not use
 		// the contents of the data set, except they are flattened
 		// and unflattened. The type of the object is more important
-		xCoords = yCoords = zCoords = xAxis = yAxis = zAxis = AbstractDataset.arange(100, AbstractDataset.INT);
-		data = image = AbstractDataset.arange(100, AbstractDataset.INT).reshape(10, 10);
-		xAxes = yAxes = new IDataset[] { xAxis, AbstractDataset.arange(100, AbstractDataset.FLOAT) };
-		images = new IDataset[] { image, AbstractDataset.arange(100, AbstractDataset.FLOAT) };
-		sizes = AbstractDataset.arange(100, AbstractDataset.INT);
+		xCoords = yCoords = zCoords = xAxis = yAxis = zAxis = AbstractDataset.arange(100, Dataset.INT);
+		data = image = AbstractDataset.arange(100, Dataset.INT).reshape(10, 10);
+		xAxes = yAxes = new IDataset[] { xAxis, AbstractDataset.arange(100, Dataset.FLOAT) };
+		images = new IDataset[] { image, AbstractDataset.arange(100, Dataset.FLOAT) };
+		sizes = AbstractDataset.arange(100, Dataset.INT);
 		pathname = "/tmp/dir";
 		regex = "a.*b";
 		order = SDAPlotter.IMAGEORDERNONE;

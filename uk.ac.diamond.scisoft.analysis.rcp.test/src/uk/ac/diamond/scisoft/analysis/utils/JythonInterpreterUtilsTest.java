@@ -22,6 +22,7 @@ import org.python.core.PyObjectDerived;
 import org.python.util.PythonInterpreter;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.python.JythonInterpreterUtils;
 
 public class JythonInterpreterUtilsTest {
@@ -50,7 +51,7 @@ public class JythonInterpreterUtilsTest {
 		if (fred==null) throw new Exception("Cannot read object 'fred'!");
 		if (!(fred instanceof PyFloat)) throw new Exception("Fred should be a float!");
 		
-		final AbstractDataset set = AbstractDataset.arange(0, 100, 1, AbstractDataset.FLOAT32);
+		final AbstractDataset set = AbstractDataset.arange(0, 100, 1, Dataset.FLOAT32);
 		interpreter.set("x", set);
 		interpreter.exec("x = dnp.Sciwrap(x)");
 		final Object x = interpreter.get("x");

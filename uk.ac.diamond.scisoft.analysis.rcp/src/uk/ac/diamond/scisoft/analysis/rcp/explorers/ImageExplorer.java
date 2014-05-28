@@ -55,6 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
@@ -341,7 +342,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 			AxisSelection axisSelection = new AxisSelection(len, j);
 			axes.add(axisSelection);
 	
-			AbstractDataset autoAxis = AbstractDataset.arange(len, AbstractDataset.INT32);
+			AbstractDataset autoAxis = AbstractDataset.arange(len, Dataset.INT32);
 			autoAxis.setName(AbstractExplorer.DIM_PREFIX + (j+1));
 			AxisChoice newChoice = new AxisChoice(autoAxis);
 			newChoice.setAxisNumber(j);

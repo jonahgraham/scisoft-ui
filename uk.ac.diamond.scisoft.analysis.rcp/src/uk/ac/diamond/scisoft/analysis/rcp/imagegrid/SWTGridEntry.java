@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.RGBDataset;
@@ -179,13 +180,13 @@ public class SWTGridEntry extends AbstractGridEntry {
 							if (loThreshold > 0) {
 								if (ds instanceof RGBDataset) {
 									RGBDataset rgb = (RGBDataset) ds;
-									m = Stats.quantile(rgb.createRedDataset(AbstractDataset.INT16), loThreshold, hiThreshold);
-									double[] t = Stats.quantile(rgb.createGreenDataset(AbstractDataset.INT16), loThreshold, hiThreshold);
+									m = Stats.quantile(rgb.createRedDataset(Dataset.INT16), loThreshold, hiThreshold);
+									double[] t = Stats.quantile(rgb.createGreenDataset(Dataset.INT16), loThreshold, hiThreshold);
 									if (m[0] > t[0])
 										m[0] = t[0];
 									if (m[1] < t[1])
 										m[1] = t[1];
-									t = Stats.quantile(rgb.createBlueDataset(AbstractDataset.INT16), loThreshold, hiThreshold);
+									t = Stats.quantile(rgb.createBlueDataset(Dataset.INT16), loThreshold, hiThreshold);
 									if (m[0] > t[0])
 										m[0] = t[0];
 									if (m[1] < t[1])
@@ -196,12 +197,12 @@ public class SWTGridEntry extends AbstractGridEntry {
 							} else {
 								if (ds instanceof RGBDataset) {
 									RGBDataset rgb = (RGBDataset) ds;
-									AbstractDataset c = rgb.createRedDataset(AbstractDataset.INT16);
+									AbstractDataset c = rgb.createRedDataset(Dataset.INT16);
 									double min = c.min().doubleValue();
 									double max = Stats.quantile(c, hiThreshold);
 									double t;
 
-									c = rgb.createGreenDataset(AbstractDataset.INT16);
+									c = rgb.createGreenDataset(Dataset.INT16);
 									t = c.min().doubleValue();
 									if (min > t)
 										min = t;
@@ -209,7 +210,7 @@ public class SWTGridEntry extends AbstractGridEntry {
 									if (max < t)
 										max = t;
 
-									c = rgb.createBlueDataset(AbstractDataset.INT16);
+									c = rgb.createBlueDataset(Dataset.INT16);
 									t = c.min().doubleValue();
 									if (min > t)
 										min = t;
@@ -226,12 +227,12 @@ public class SWTGridEntry extends AbstractGridEntry {
 							if (loThreshold > 0) {
 								if (ds instanceof RGBDataset) {
 									RGBDataset rgb = (RGBDataset) ds;
-									AbstractDataset c = rgb.createRedDataset(AbstractDataset.INT16);
+									AbstractDataset c = rgb.createRedDataset(Dataset.INT16);
 									double min = Stats.quantile(c, loThreshold);
 									double max = c.max().doubleValue();
 									double t;
 
-									c = rgb.createGreenDataset(AbstractDataset.INT16);
+									c = rgb.createGreenDataset(Dataset.INT16);
 									t = Stats.quantile(c, loThreshold);
 									if (min > t)
 										min = t;
@@ -239,7 +240,7 @@ public class SWTGridEntry extends AbstractGridEntry {
 									if (max < t)
 										max = t;
 
-									c = rgb.createBlueDataset(AbstractDataset.INT16);
+									c = rgb.createBlueDataset(Dataset.INT16);
 									t = Stats.quantile(c, loThreshold);
 									if (min > t)
 										min = t;
@@ -253,12 +254,12 @@ public class SWTGridEntry extends AbstractGridEntry {
 							} else {
 								if (ds instanceof RGBDataset) {
 									RGBDataset rgb = (RGBDataset) ds;
-									AbstractDataset c = rgb.createRedDataset(AbstractDataset.INT16);
+									AbstractDataset c = rgb.createRedDataset(Dataset.INT16);
 									double min = c.min().doubleValue();
 									double max = c.max().doubleValue();
 									double t;
 
-									c = rgb.createGreenDataset(AbstractDataset.INT16);
+									c = rgb.createGreenDataset(Dataset.INT16);
 									t = c.min().doubleValue();
 									if (min > t)
 										min = t;
@@ -266,7 +267,7 @@ public class SWTGridEntry extends AbstractGridEntry {
 									if (max < t)
 										max = t;
 
-									c = rgb.createBlueDataset(AbstractDataset.INT16);
+									c = rgb.createBlueDataset(Dataset.INT16);
 									t = c.min().doubleValue();
 									if (min > t)
 										min = t;
