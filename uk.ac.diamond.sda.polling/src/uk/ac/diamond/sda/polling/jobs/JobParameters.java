@@ -48,23 +48,20 @@ public class JobParameters extends HashMap<String, String> {
 		}
 	}
 	
-	private void loadParameterFile() throws IOException{
+	private void loadParameterFile() throws IOException {
 		FileInputStream fin = new FileInputStream(parameterFile);
 		BufferedInputStream bis = new BufferedInputStream(fin);
-		BufferedReader br = null;
+		BufferedReader br = new BufferedReader(new InputStreamReader(bis));
 		try {
-			br = new BufferedReader(new InputStreamReader(bis));
-
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				loadParameterString(line);
 			}
 		} finally {
-			if (br != null)
-				br.close();
+			br.close();
 		}
 	}
-	
+
 	private void loadParameterString(String parameterString) {
 		
 		if (parameterString.contains("=")) {
