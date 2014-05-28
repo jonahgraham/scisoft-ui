@@ -84,11 +84,21 @@ public class JythonCreator implements IStartup {
 
 	private static final String JYTHON_BUNDLE = "uk.ac.diamond.jython";
 	private static final String JYTHON_VERSION = "2.5";
-	public static final String  INTERPRETER_NAME = "Jython" + JYTHON_VERSION;
+
+	/**
+	 * Name of interpreter that is set in the PyDev Jython Interpreter settings
+	 */
+	public static final String INTERPRETER_NAME = "Jython" + JYTHON_VERSION;
+
 	private static String JYTHON_DIR = "jython" + JYTHON_VERSION;
 	private static final String GIT_REPO_ENDING = ".git";
 	private static final String GIT_SUFFIX = "_git";
-	private static final String RUN_IN_ECLIPSE = "run.in.eclipse";
+
+	/**
+	 * Boolean to set to true if running jython scripts that utilise ScisoftPy in IDE
+	 */
+	public static final String RUN_IN_ECLIPSE = "run.in.eclipse";
+
 	private static final String[] blackListedJarDirs = {
 		"uk.ac.gda.libs",
 		"ch.qos.logback.eclipse",
