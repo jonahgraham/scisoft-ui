@@ -33,6 +33,7 @@ import org.dawnsci.plotting.api.histogram.IPaletteService;
 import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.dawnsci.plotting.api.region.IRegionService;
+import org.dawnsci.plotting.api.region.ROIEvent;
 import org.dawnsci.plotting.api.region.RegionUtils;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.IPaletteTrace;
@@ -170,6 +171,14 @@ public class Plotting2DUI extends AbstractPlottingUI {
 				logger.debug("No data to plot");
 			}
 		}
+		// update the guibean with regions if any
+		Collection<IRegion> regions = plottingSystem.getRegions();
+		if (regions.isEmpty())
+			return;
+		IRegion region = regions.iterator().next();
+		if (region == null)
+			return;
+		manager.roiChanged(new ROIEvent(region, region.getROI()));
 	}
 
 	/**
