@@ -63,10 +63,11 @@ public class JobParameters extends HashMap<String, String> {
 	}
 
 	private void loadParameterString(String parameterString) {
-		
+
 		if (parameterString.contains("=")) {
 			String[] parts = parameterString.split("=");
-			put(parts[0].trim(), parts[1].trim());
+			if (parts.length > 1)
+				put(parts[0].trim(), parts[1].trim());
 		}
 
 	}
