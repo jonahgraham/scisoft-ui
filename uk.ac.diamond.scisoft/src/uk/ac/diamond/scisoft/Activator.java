@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,8 @@ public class Activator extends AbstractUIPlugin {
 	// The shared instance
 	private static Activator plugin;
 
+	private static BundleContext bundleContext;
+
 	/**
 	 * The constructor
 	 */
@@ -67,6 +70,7 @@ public class Activator extends AbstractUIPlugin {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		plugin = this;
+		bundleContext = context;
 
 		// First thing to do here is to try to set up the logging properly.
 		// during this, System.out will be used for logging
@@ -186,6 +190,7 @@ public class Activator extends AbstractUIPlugin {
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
+		bundleContext = context;
 	}
 
 	/**
@@ -195,5 +200,12 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
+	}
+
+	public static Object getService(final Class<?> serviceClass) {
+		if (bundleContext == null) return null;
+		ServiceReference<?> ref = bundleContext.getServiceReference(serviceClass);
+		if (ref==null) return null;
+		return bundleContext.getService(ref);
 	}
 }

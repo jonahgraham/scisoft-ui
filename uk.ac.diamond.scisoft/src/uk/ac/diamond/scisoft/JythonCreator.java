@@ -58,6 +58,8 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.io.ILoaderFactoryExtensionService;
+
 public class JythonCreator implements IStartup {
 
 	private static Logger logger = LoggerFactory.getLogger(JythonCreator.class);
@@ -134,7 +136,7 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.org.apache.ws.commons.util",
 		"uk.ac.diamond.org.apache.xmlrpc.client",
 		"uk.ac.diamond.org.apache.xmlrpc.common",
-		"uk.ac.diamond.org.apache.xmlrpc.server"
+		"uk.ac.diamond.org.apache.xmlrpc.server",
 	};
 	private static final String[] removedLibEndings = {
 		"pysrc",
@@ -148,6 +150,7 @@ public class JythonCreator implements IStartup {
 		"uk.ac.gda.common",
 		"ncsa.hdf"
 	};
+	private static String[] extraPlugins = null;
 
 	private void initialiseInterpreter(IProgressMonitor monitor) throws CoreException {
 		/*
@@ -277,6 +280,14 @@ public class JythonCreator implements IStartup {
 				if (!pyPaths.add(jar.getAbsolutePath())) {
 					logger.warn("File {} already there!", jar.getName());
 				}
+			}
+
+			// Find all packages that contribute to loader factory
+			ILoaderFactoryExtensionService service = (ILoaderFactoryExtensionService) Activator.getService(ILoaderFactoryExtensionService.class);
+			if (service != null) {
+				List<String> plugins = service.getPlugins();
+				logger.debug("Extra plugins: {}", plugins);
+				extraPlugins = plugins.toArray(new String[0]);
 			}
 
 			// Defines all third party libs that can be used in scripts.
@@ -416,7 +427,16 @@ public class JythonCreator implements IStartup {
 			if (envVarsAlreadyIn != null) {
 				envVariables.addAll(Arrays.asList(envVarsAlreadyIn));
 			}
-			
+
+			// add custom loader extensions to work around Jython not being OSGI
+			if (service != null) {
+				String ev = "LOADER_FACTORY_EXTENSIONS=";
+				for (String e : service.getExtensions()) {
+					ev += e + "|";
+				}
+				envVariables.add(ev);
+			}
+
 			info.setEnvVariables(envVariables.toArray(new String[envVariables.size()]));
 
 			// java, java.lang, etc should be found now
@@ -540,7 +560,7 @@ public class JythonCreator implements IStartup {
 				final String name = f.getName();
 				// if the file is a jar, then add it
 				if (name.endsWith(".jar")) {
-					if (isRequired(f, requiredJars)) {
+					if (isRequired(f, requiredJars, extraPlugins)) {
 						libs.add(f);
 					}
 				} else if (f.isDirectory() && !isRequired(f, blackListedJarDirs)) {
@@ -596,7 +616,7 @@ public class JythonCreator implements IStartup {
 			for (File f : dirs) {
 				for (File p : f.listFiles()) {
 					if (p.isDirectory()) {
-						if (isRequired(p, pluginKeys)) {
+						if (isRequired(p, pluginKeys, extraPlugins)) {
 							logger.debug("Adding plugin directory {}", p);
 							plugins.add(p);
 						}
@@ -608,7 +628,7 @@ public class JythonCreator implements IStartup {
 			if (directory.isDirectory()) {
 				for (File f : directory.listFiles()) {
 					if (f.isDirectory()) {
-						if (isRequired(f, pluginKeys)) {
+						if (isRequired(f, pluginKeys, extraPlugins)) {
 							logger.debug("Adding plugin directory {}", f);
 							plugins.add(f);
 						}
@@ -621,10 +641,19 @@ public class JythonCreator implements IStartup {
 	}
 
 	private static boolean isRequired(File file, String[] keys) {
+		return isRequired(file, keys, null);
+	}
+
+	private static boolean isRequired(File file, String[] keys, String[] extraKeys) {
 		String filename = file.getName();
 //		logger.debug("Jar/dir found: {}", filename);
 		for (String key : keys) {
 			if (filename.startsWith(key)) return true;
+		}
+		if (extraKeys != null) {
+			for (String key : extraKeys) {
+				if (filename.startsWith(key)) return true;
+			}
 		}
 		return false;
 	}
