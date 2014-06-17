@@ -44,7 +44,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.ExamplePlotView;
  * {@code plottingSystem.setColorOption(ColorOption.NONE);}<br>
  * {@code plottingSystem.createPlotPart(parent, getName(), bars, PlotType.XY, (IViewPart) getGuiManager());}<br>
  * {@code plottingSystem.repaint();}<br>
- * {@code plottingSystem.addRegionListener(getRoiManager());}<br>
+ * {@code plottingSystem.addRegionListener(getRoiManager());}
+ * {@code plottingSystem.addTraceListener(getRoiManager().getTraceListener());}<br>
  * (see {@link ExamplePlotView} for more info.)
  */
 public class ExamplePlotWindow extends AbstractPlotWindow {
@@ -90,6 +91,7 @@ public class ExamplePlotWindow extends AbstractPlotWindow {
 			plottingSystem.createPlotPart(sashForm, getName(), bars, PlotType.XY, (IViewPart) getGuiManager());
 			plottingSystem.repaint();
 			plottingSystem.addRegionListener(getRoiManager());
+			plottingSystem.addTraceListener(getRoiManager().getTraceListener());
 		} catch (Exception e) {
 			logger.error("Cannot locate any Abstract plotting System!", e);
 		}

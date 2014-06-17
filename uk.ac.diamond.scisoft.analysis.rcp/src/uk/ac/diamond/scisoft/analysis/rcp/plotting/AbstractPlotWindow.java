@@ -31,13 +31,16 @@ import java.util.Map;
 import org.dawb.common.ui.util.DisplayUtils;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
+import org.dawnsci.plotting.api.PlottingFactory;
 import org.dawnsci.plotting.api.axis.IAxis;
 import org.dawnsci.plotting.api.region.IRegion;
+import org.dawnsci.plotting.api.trace.ColorOption;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.CommandContributionItem;
@@ -116,7 +119,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 		this.page = page;
 		this.name = name;
 		roiManager = new ROIManager(manager, name);
-
 		plotMode = getPlotMode();
 
 		changePlotMode(plotMode == null ? GuiPlotMode.ONED : plotMode, true);
@@ -129,12 +131,24 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 	 * {@code	plottingSystem.setColorOption(ColorOption.NONE);}<br>
 	 * {@code	plottingSystem.createPlotPart(parent, getName(), bars, PlotType.XY, (IViewPart) getGuiManager());}<br>
 	 * {@code	plottingSystem.repaint();}<br>
-	 * {@code	plottingSystem.addRegionListener(getRoiManager());}<br>
+	 * {@code	plottingSystem.addRegionListener(getRoiManager());}
+	 * {@code	plottingSystem.addTraceListener(getRoiManager().getTraceListener());}<br>
 	 * <br>
 	 * (see {@link ExamplePlotView} for more info.)
 	 * @param composite
 	 */
-	public abstract void createPlottingSystem(Composite composite);
+	public void createPlottingSystem(Composite composite) {
+		try {
+			plottingSystem = PlottingFactory.createPlottingSystem();
+			plottingSystem.setColorOption(ColorOption.NONE);
+			plottingSystem.createPlotPart(composite, getName(), bars, PlotType.XY, (IViewPart) getGuiManager());
+			plottingSystem.repaint();
+			plottingSystem.addRegionListener(getRoiManager());
+			plottingSystem.addTraceListener(getRoiManager().getTraceListener());
+		} catch (Exception e) {
+			logger.error("Cannot locate any plotting System!", e);
+		}
+	}
 
 	/**
 	 * Set the default plot mode
@@ -161,6 +175,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 				plottingSystem.removeRegion(region);
 			}
 			plottingSystem.removeRegionListener(getRoiManager());
+			plottingSystem.removeTraceListener(getRoiManager().getTraceListener());
 			plottingSystem.dispose();
 			plotSystemComposite.dispose();
 		}

@@ -33,7 +33,6 @@ import org.dawnsci.plotting.api.histogram.IPaletteService;
 import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.dawnsci.plotting.api.region.IRegionService;
-import org.dawnsci.plotting.api.region.ROIEvent;
 import org.dawnsci.plotting.api.region.RegionUtils;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.dawnsci.plotting.api.trace.IPaletteTrace;
@@ -171,14 +170,6 @@ public class Plotting2DUI extends AbstractPlottingUI {
 				logger.debug("No data to plot");
 			}
 		}
-		// update the guibean with regions if any
-		Collection<IRegion> regions = plottingSystem.getRegions();
-		if (regions.isEmpty())
-			return;
-		IRegion region = regions.iterator().next();
-		if (region == null)
-			return;
-		manager.roiChanged(new ROIEvent(region, region.getROI()));
 	}
 
 	/**
@@ -252,6 +243,8 @@ public class Plotting2DUI extends AbstractPlottingUI {
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
+//				TODO investigate why this is called when there is a really small time between 2 plot updates
+//				System.err.println("Should not be called!!!");
 				final Boolean clearAll = (Boolean) guiBean.remove(GuiParameters.ROICLEARALL);
 				if (clearAll != null && clearAll) {
 					final Collection<IRegion> regions = plottingSystem.getRegions();
