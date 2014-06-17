@@ -19,8 +19,8 @@ package uk.ac.diamond.scisoft.analysis.rcp.polling;
 import java.util.ArrayList;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractCompoundDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.CompoundDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
@@ -39,12 +39,12 @@ public class SRSFilePlotterJob extends FilenameReaderJob {
 			
 			String[] dataPlotNames = getJobParameters().get("YAxis").split(",");
 						
-			ArrayList<AbstractCompoundDataset> list = new ArrayList<AbstractCompoundDataset>();
+			ArrayList<CompoundDataset> list = new ArrayList<CompoundDataset>();
 		
 			for (String name : dataPlotNames) {				
 				
 				AbstractDataset[] acd = new AbstractDataset[] { holder.getDataset(getJobParameters().get("XAxis")), holder.getDataset(name.trim()) };
-				AbstractCompoundDataset cdd = DatasetUtils.cast(acd, acd[0].getDtype());
+				CompoundDataset cdd = DatasetUtils.cast(acd, acd[0].getDtype());
 				list.add(cdd);			
 			}
 			
@@ -54,7 +54,7 @@ public class SRSFilePlotterJob extends FilenameReaderJob {
 			}
 			
 			SDAPlotter.scatter2DPlot(getJobParameters().get(PLOT_VIEW_NAME),
-					list.toArray(new AbstractCompoundDataset[0]),
+					list.toArray(new CompoundDataset[0]),
 					sizes);
 			
 			
