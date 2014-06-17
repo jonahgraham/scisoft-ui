@@ -89,10 +89,13 @@ public class Activator extends AbstractUIPlugin {
 				// Redirect standard out away from console as javaw swallows it
 				if (isWindowsOS()) {
 					final File fout = new File(System.getProperty("user.home")+"/.dawn/dawn_std_out.txt");
+					fout.mkdirs();
 					if (fout.exists()) fout.delete();
+					fout.createNewFile();
 					
 					final File ferr = new File(System.getProperty("user.home")+"/.dawn/dawn_std_err.txt");
 					if (ferr.exists()) ferr.delete();
+					ferr.createNewFile();
 					
 					MultiOutputStream out = new MultiOutputStream(System.out, new BufferedOutputStream(new FileOutputStream(fout)));
 					MultiOutputStream err = new MultiOutputStream(System.err, new BufferedOutputStream(new FileOutputStream(ferr)));
