@@ -32,8 +32,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -43,11 +41,6 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
  */
 public class Activator extends AbstractUIPlugin {
 
-	/**
-	 * Setup the logging facilities
-	 */
-	@SuppressWarnings("unused")
-	transient private static final Logger logger = LoggerFactory.getLogger(Activator.class);
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "uk.ac.diamond.scisoft";
@@ -108,7 +101,8 @@ public class Activator extends AbstractUIPlugin {
 			System.out.println("log.folder java property set to '"+System.getProperty("log.folder")+"'");
 
 			System.out.println("Starting to Configure Logger");
-			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+			Object object = org.slf4j.LoggerFactory.getILoggerFactory();
+			LoggerContext loggerContext = (LoggerContext) object;
 			loggerContext.reset();
 			
 			System.out.println("Logger Context Reset");
@@ -133,7 +127,7 @@ public class Activator extends AbstractUIPlugin {
 		} catch (Throwable e) {
 			System.out.println("Could not set up logging properly, loggin to stdout for now, error follows");
 			e.printStackTrace();
-			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+			LoggerContext loggerContext = (LoggerContext)org.slf4j.LoggerFactory.getILoggerFactory();
 			loggerContext.reset();
 		} 
 	}
