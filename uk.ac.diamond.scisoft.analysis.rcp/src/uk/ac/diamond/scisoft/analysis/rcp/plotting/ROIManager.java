@@ -26,6 +26,8 @@ import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.IRegionListener;
 import org.dawnsci.plotting.api.region.ROIEvent;
 import org.dawnsci.plotting.api.region.RegionEvent;
+import org.dawnsci.plotting.api.trace.ITraceListener;
+import org.dawnsci.plotting.api.trace.TraceEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +53,24 @@ public class ROIManager implements IROIListener, IRegionListener {
 		server = guiManager;
 		this.plotName = plotName;
 		lock = new ReentrantLock();
+	}
+
+	/**
+	 * Return the Trace Listener to be added to the PlottingSystem
+	 * @return ITraceListener
+	 */
+	public ITraceListener getTraceListener() {
+		return new ITraceListener.Stub() {
+			@Override
+			public void traceUpdated(TraceEvent evt) {
+				addCurrentROI(true, true);
+			}
+
+			@Override
+			public void traceAdded(TraceEvent evt) {
+				addCurrentROI(true, true);
+			}
+		};
 	}
 
 	private IPlottingSystem getPlottingSystem() {
@@ -105,7 +125,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 		if (eroi != null && !eroi.equals(roi)) {
 			roi = eroi;
 		}
-		addCurrentROI(!region.fromServer());
+		addCurrentROI(!region.fromServer(), false);
 		region.setFromServer(false);
 	}
 
@@ -133,7 +153,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 
 		roi = eroi;
 
-		addCurrentROI(!reg.fromServer());
+		addCurrentROI(!reg.fromServer(), false);
 		reg.setFromServer(false);
 	}
 
@@ -150,13 +170,13 @@ public class ROIManager implements IROIListener, IRegionListener {
 		if (roi != null) {
 			if (!or.getClass().equals(roi.getClass())) {
 				// switch current roi (and list), then delete
-				updateGuiBean(or.getClass(), or);
+				updateGuiBean(or.getClass(), or, false);
 				try {
 					Thread.sleep(CLIENT_WAIT_PERIOD); // allow time for clients to update
 				} catch (InterruptedException e) {
 				}
 				updateROIMap();
-				updateGuiBean(or.getClass(), null);
+				updateGuiBean(or.getClass(), null, false);
 				try {
 					Thread.sleep(CLIENT_WAIT_PERIOD); // allow time for clients to update
 				} catch (InterruptedException e) {
@@ -168,20 +188,20 @@ public class ROIManager implements IROIListener, IRegionListener {
 			if (or.equals(roi.getName())) { // replace current ROI
 				roi = getFromROIMap(roi.getClass());
 			}
-			roi = updateGuiBean(roi.getClass(), roi);
+			roi = updateGuiBean(roi.getClass(), roi, false);
 		} else {
 			updateROIMap();
-			roi = updateGuiBean(or.getClass(), or);
+			roi = updateGuiBean(or.getClass(), or, false);
 		}
 	}
 
-	private void addCurrentROI(boolean updateServer) {
+	private void addCurrentROI(boolean updateServer, boolean quietUpdate) {
 		updateROIMap();
 		if (updateServer && roi != null)
-			updateGuiBean(roi.getClass(), roi);
+			updateGuiBean(roi.getClass(), roi, quietUpdate);
 	}
 
-	private IROI updateGuiBean(Class<? extends IROI> clazz, IROI r) {
+	private IROI updateGuiBean(Class<? extends IROI> clazz, IROI r, boolean quietUpdate) {
 		// if locked then do not update server
 		if (lock.isLocked()) {
 			logger.trace("Silent update: {}", r);
@@ -193,6 +213,8 @@ public class ROIManager implements IROIListener, IRegionListener {
 		bean.remove(GuiParameters.ROICLEARALL);
 		bean.remove(GuiParameters.ROIDATALIST);
 		bean.put(GuiParameters.ROIDATA, null);
+		if (quietUpdate)
+			bean.put(GuiParameters.QUIET_UPDATE, "");
 		ROIList<?> list = createNewROIList(clazz);
 		if (list != null && list.size() > 0) {
 			bean.put(GuiParameters.ROIDATALIST, list);

@@ -339,6 +339,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 
 			sashForm.setWeights(new int[]{1, 1});
 			plottingSystem.addRegionListener(getRoiManager());
+			plottingSystem.addTraceListener(getRoiManager().getTraceListener());
 
 		} catch (Exception e) {
 			logger.error("Cannot locate any Abstract plotting System!", e);
@@ -518,6 +519,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			bars.getMenuManager().remove(plotEdgeACI);
 			bars.getMenuManager().remove(plotAverageACI);
 			plottingSystem.removeRegionListener(getRoiManager());
+			plottingSystem.removeTraceListener(getRoiManager().getTraceListener());
 			plottingSystem.dispose();
 			sideProfile1.dispose();
 			sideProfile2.dispose();
