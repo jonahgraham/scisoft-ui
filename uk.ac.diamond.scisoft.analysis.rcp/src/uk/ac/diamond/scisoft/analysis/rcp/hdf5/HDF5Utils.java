@@ -104,6 +104,11 @@ public class HDF5Utils {
 					}
 				}
 			}
+
+			if (dNode == null && gNode.containsDataset(NexusHDF5Loader.DATA)) {
+				// fallback to "data" when no signal attribute is found
+				dNode = gNode.getDataset(NexusHDF5Loader.DATA);
+			}
 		}
 
 		if (dNode == null || gNode == null) return null;
@@ -172,8 +177,10 @@ public class HDF5Utils {
 					int[] s = a.getShape();
 					s = AbstractDataset.squeezeShape(s, true);
 
-					if (s.length != 0) // don't make a 0D dataset
-						a.squeeze(true);
+					if (s.length == 0 || a.getSize() == 1)
+						continue;  // don't make a 0D dataset as the data has already been squeezed
+	
+					a.squeeze(true);
 
 					int[] ashape = a.getShape();
 
@@ -308,8 +315,9 @@ public class HDF5Utils {
 							int j = attrLabel.getValue().getInt(0) - 1;
 							choice.setAxisNumber(isAxisFortranOrder ? j : rank - 1 - j); // fix C (row-major) dimension
 						}
-					} else
+					} else {
 						choice.setAxisNumber(intAxis[intAxis.length-1]);
+					}
 
 					choices.add(choice);
 				} catch (Exception e) {
