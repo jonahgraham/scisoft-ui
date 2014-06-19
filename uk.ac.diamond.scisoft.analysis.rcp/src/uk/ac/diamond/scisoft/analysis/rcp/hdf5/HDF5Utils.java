@@ -119,6 +119,11 @@ public class HDF5Utils {
 			return null;
 		}
 
+		if (cData.getSize() == 1) {
+			logger.warn("Chosen data {}, has only one value", dNode);
+			return null;
+		}
+
 		// find possible @long_name
 		stringAttr = dNode.getAttribute(NexusHDF5Loader.NX_NAME);
 		if (stringAttr != null && stringAttr.isString()) {
