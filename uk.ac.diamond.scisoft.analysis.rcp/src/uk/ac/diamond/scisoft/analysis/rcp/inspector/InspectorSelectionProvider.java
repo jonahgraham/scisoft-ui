@@ -20,21 +20,15 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import ncsa.hdf.object.HObject;
 
-import org.dawb.common.ui.util.EclipseUtils;
 import org.dawb.hdf5.editor.IH5DoubleClickSelectionProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.IViewPart;
 
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
-import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5Selection;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5Utils;
-import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
-import uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView;
 
 /**
  * Provides a link from the HDF5Tree, which is HDFView based and is fast, to the
