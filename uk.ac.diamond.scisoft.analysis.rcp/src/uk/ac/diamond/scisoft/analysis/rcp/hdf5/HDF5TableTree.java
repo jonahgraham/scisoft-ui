@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Attribute;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Dataset;
@@ -480,9 +480,10 @@ class HDF5LabelProvider implements ITableLabelProvider {
 				msg = dataset.getTypeName();
 				break;
 			case 4: // data
-				if (data instanceof AbstractDataset) {
+				if (data instanceof IDataset) {
 					// show a single value
-					msg = ((AbstractDataset) data).getString(0);
+					msg = data.getRank() == 0 ? ((IDataset) data).getString() :
+						((IDataset) data).getString(0);
 					HDF5Attribute units = dataset.getAttribute("units");
 					if (units != null && units.isString()) {
 						msg += " " + units.getFirstElement();
