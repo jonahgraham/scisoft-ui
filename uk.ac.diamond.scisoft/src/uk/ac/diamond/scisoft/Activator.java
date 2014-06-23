@@ -71,7 +71,7 @@ public class Activator extends AbstractUIPlugin {
 			String logloc = System.getProperty("log.folder");
 			if (logloc == null || "".equals(logloc)) {
 				System.out.println("Log folder property not set, setting this manually to the temp directory");
-				String tmpDir = System.getProperty("user.home")+"/.dawn/";
+				String tmpDir = System.getProperty("user.home")+ LogConstants.LOG_FOLDER;
 				File tmpDirFile = new File(tmpDir);
 				if (tmpDirFile.exists() != true) {
 					tmpDirFile.mkdirs();
@@ -81,12 +81,12 @@ public class Activator extends AbstractUIPlugin {
 				
 				// Redirect standard out away from console as javaw swallows it
 				if (isWindowsOS()) {
-					final File fout = new File(System.getProperty("user.home")+"/.dawn/dawn_std_out.txt");
+					final File fout = new File(System.getProperty("user.home")+ LogConstants.LOG_FOLDER + LogConstants.OUT_FILE);
 					fout.mkdirs();
 					if (fout.exists()) fout.delete();
 					fout.createNewFile();
 					
-					final File ferr = new File(System.getProperty("user.home")+"/.dawn/dawn_std_err.txt");
+					final File ferr = new File(System.getProperty("user.home")+ LogConstants.LOG_FOLDER + LogConstants.ERR_FILE);
 					if (ferr.exists()) ferr.delete();
 					ferr.createNewFile();
 					
