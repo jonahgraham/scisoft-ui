@@ -1,10 +1,13 @@
 package uk.ac.diamond.scisoft.feedback.attachment;
 
+import java.io.File;
+
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.swt.graphics.Image;
 
 import uk.ac.diamond.scisoft.feedback.utils.FeedbackConstants;
+import uk.ac.diamond.scisoft.feedback.utils.FeedbackUtils;
 
 /**
  * Label Provider of the Table Viewer
@@ -41,11 +44,11 @@ public class AttachedFileLabelProvider implements ITableLabelProvider {
 	public String getColumnText(Object element, int columnIndex) {
 		if (element == null)
 			return null;
-		AttachedFile file = (AttachedFile) element;
+		File file = (File) element;
 		if (columnIndex == 0) {
-			return file.name;
+			return file.getName().substring((file.getName().lastIndexOf(File.separator)+1));
 		} else if (columnIndex == 1) {
-			return file.size;
+			return FeedbackUtils.getValueWithUnit(file.length());
 		} else if (columnIndex == 2) {
 			return null;
 		}

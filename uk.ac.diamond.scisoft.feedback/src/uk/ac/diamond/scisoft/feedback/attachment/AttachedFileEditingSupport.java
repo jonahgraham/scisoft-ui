@@ -1,5 +1,6 @@
 package uk.ac.diamond.scisoft.feedback.attachment;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,9 +44,9 @@ public class AttachedFileEditingSupport extends EditingSupport {
 	@Override
 	protected void setValue(Object element, Object value) {
 		if (column == 2) {
-			AttachedFile file = (AttachedFile) element;
-			List<AttachedFile> files = new ArrayList<AttachedFile>();
-			files = (List<AttachedFile>) tv.getInput();
+			File file = (File) element;
+			List<File> files = new ArrayList<File>();
+			files = (List<File>) tv.getInput();
 			files.remove(file);
 			tv.setInput(files);
 			tv.refresh();

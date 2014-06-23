@@ -55,13 +55,12 @@ import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.feedback.attachment.AttachedFile;
+import uk.ac.diamond.scisoft.LogConstants;
 import uk.ac.diamond.scisoft.feedback.attachment.AttachedFileContentProvider;
 import uk.ac.diamond.scisoft.feedback.attachment.AttachedFileEditingSupport;
 import uk.ac.diamond.scisoft.feedback.attachment.AttachedFileLabelProvider;
 import uk.ac.diamond.scisoft.feedback.jobs.FeedbackJob;
 import uk.ac.diamond.scisoft.feedback.utils.FeedbackConstants;
-import uk.ac.diamond.scisoft.feedback.utils.FeedbackUtils;
 
 public class FeedbackView extends ViewPart {
 
@@ -81,7 +80,7 @@ public class FeedbackView extends ViewPart {
 	private Text messageText;
 	private Text subjectText;
 
-	private List<AttachedFile> attachedFilesList = new ArrayList<AttachedFile>();
+	private List<File> attachedFiles = new ArrayList<File>();
 	private Button btnSendFeedback;
 	private TableViewer tableViewer;
 
@@ -155,14 +154,16 @@ public class FeedbackView extends ViewPart {
 		{
 			Label attachLabel = new Label(content, SWT.NONE);
 			attachLabel.setText("Attached Files");
-
+			
+			//add the log file to the input of the tableviewer
+			attachedFiles = getLogFile();
 			tableViewer = new TableViewer(content, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER);
 			createColumns(tableViewer);
 //			tableViewer.getTable().setLinesVisible(true);
 			tableViewer.getTable().setToolTipText("Delete the file by clicking on the X");
 			tableViewer.setContentProvider(new AttachedFileContentProvider());
 			tableViewer.setLabelProvider(new AttachedFileLabelProvider());
-			tableViewer.setInput(attachedFilesList);
+			tableViewer.setInput(attachedFiles);
 			tableViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 			tableViewer.refresh();
 		}
@@ -312,7 +313,7 @@ public class FeedbackView extends ViewPart {
 					public void done(IJobChangeEvent event) {
 						feedbackJob = new FeedbackJob("Sending feedback to " + destinationName, 
 								fromvalue, subjectvalue, messagevalue, emailvalue, destinationEmail,
-								attachedFilesList);
+								attachedFiles);
 						feedbackJob.addJobChangeListener(getJobChangeListener());
 						feedbackJob.setUser(true);
 						feedbackJob.schedule();
@@ -335,12 +336,12 @@ public class FeedbackView extends ViewPart {
 				fd.setText("Attach selected file to your feedback message");
 				String fileName = fd.open();
 				if (fileName != null) {
-					AttachedFile attachedfile = new AttachedFile();
-					attachedfile.path = fileName;
-					attachedfile.name = fileName.substring((fileName.lastIndexOf(File.separator)+1));
+//					AttachedFile attachedfile = new AttachedFile();
+//					attachedfile.setPath(fileName);
+//					attachedfile.setName(fileName.substring((fileName.lastIndexOf(File.separator)+1)));
 					File file = new File(fileName);
-					attachedfile.size = FeedbackUtils.getValueWithUnit(file.length());
-					attachedFilesList.add(attachedfile);
+//					attachedfile.setSize(FeedbackUtils.getValueWithUnit(file.length()));
+					attachedFiles.add(file);
 					tableViewer.refresh();
 				}
 			}
@@ -371,7 +372,7 @@ public class FeedbackView extends ViewPart {
 					public void run() {
 						if (event.getResult().isOK()) {
 							messageText.setText("");
-							attachedFilesList.clear();
+							//attachedFilesList.clear();
 							Display.getDefault().asyncExec(new Runnable() {
 								@Override
 								public void run() {
@@ -422,6 +423,37 @@ public class FeedbackView extends ViewPart {
 				});
 			}
 		};
+	}
+
+	private List<File> getLogFile() {
+		List<File> files = new ArrayList<File>(); 
+		if (isWindowsOS()) {
+			File fout = new File(System.getProperty("user.home")+ LogConstants.LOG_FOLDER + LogConstants.OUT_FILE);
+			File ferr = new File(System.getProperty("user.home")+ LogConstants.LOG_FOLDER + LogConstants.ERR_FILE);
+			if (fout.exists() && fout.length() > 0) {
+				files.add(fout);
+			}
+			if (ferr.exists() && ferr.length() > 0) {
+				files.add(ferr);
+			}
+		} else {
+			// try to get the log file for module loads (/tmp/{user.name}-log.txt)
+			File linuxLog = new File(System.getProperty("java.io.tmpdir") + File.separator + System.getProperty("user.name") + "-log.txt");
+			if (linuxLog.exists() && linuxLog.length() > 0) {
+				files.add(linuxLog);
+			} else {
+				// try to get the log file in user.home
+				linuxLog = new File(System.getProperty("user.home") + File.separator + "dawnlog.html");
+				if (linuxLog.exists() && linuxLog.length() > 0) {
+					files.add(linuxLog);
+				}
+			}
+		}
+		return files;
+	}
+
+	private boolean isWindowsOS() {
+		return (System.getProperty("os.name").indexOf("Windows") == 0);
 	}
 
 	/**
