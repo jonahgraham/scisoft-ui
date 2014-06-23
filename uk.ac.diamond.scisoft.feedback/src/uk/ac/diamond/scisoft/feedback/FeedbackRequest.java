@@ -55,11 +55,11 @@ public class FeedbackRequest {
 	 * @param name
 	 * @param subject
 	 * @param messageBody
-	 * @param logFile
+	 * @param attachmentFiles
 	 * @param monitor
 	 */
 	public static IStatus doRequest(String email, String to, String name, String subject, String messageBody,
-			File logFile, List<File> attachmentFiles, IProgressMonitor monitor) throws Exception {
+			List<File> attachmentFiles, IProgressMonitor monitor) throws Exception {
 		Status status = null;
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 
@@ -86,10 +86,6 @@ public class FeedbackRequest {
 			entity.addPart("to", new StringBody(to));
 			entity.addPart("subject", new StringBody(subject));
 			entity.addPart("message", new StringBody(messageBody));
-
-			// Add the log file to the Multipart entity
-			if (logFile != null && logFile.exists())
-				entity.addPart("log.html", new FileBody(logFile));
 
 			// add attachement files to the multipart entity
 			for (int i = 0 ; i < attachmentFiles.size(); i++) {

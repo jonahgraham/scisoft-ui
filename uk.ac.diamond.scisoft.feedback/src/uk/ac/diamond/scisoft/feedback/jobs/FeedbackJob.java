@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.LogConstants;
 import uk.ac.diamond.scisoft.feedback.Activator;
 import uk.ac.diamond.scisoft.feedback.FeedbackRequest;
 import uk.ac.diamond.scisoft.feedback.attachment.AttachedFile;
@@ -105,22 +106,15 @@ public class FeedbackJob extends Job {
 			messageBody.append("\n\n\n");
 			messageBody.append(SystemInformation.getSystemString());
 
-			File logFile = new File(System.getProperty("user.home"), "dawnlog.html");
-
 			// get the mail to address from the properties
 //			String mailTo = System.getProperty("uk.ac.diamond.scisoft.feedback.recipient", MAIL_TO);
-
-			if (logFile.length() > FeedbackConstants.MAX_SIZE) {
-				logger.error("The log file size exceeds: " + FeedbackConstants.MAX_SIZE);
-				return new Status(IStatus.WARNING, "File Size Problem",
-						"The log file attached to the feedback exceeds 10MB.");
-			}
 
 			if (monitor.isCanceled()) return Status.CANCEL_STATUS;
 
 			// fill the list of files to attach
 			List<File> attachmentFiles = new ArrayList<File>();
 			int totalSize = 0;
+			// add user attached files
 			for (int i = 0; i < attachedFilesList.size(); i++) {
 				attachmentFiles.add(new File(attachedFilesList.get(i).path));
 				// check that the size does not exceed the maximum one
@@ -131,6 +125,18 @@ public class FeedbackJob extends Job {
 				}
 				totalSize += attachmentFiles.get(i).length();
 			}
+			// add logs files
+			List<File> logFiles = getLogFile();
+			for (File file : logFiles) {
+				if (file.length() > FeedbackConstants.MAX_SIZE) {
+					logger.error("The log file size exceeds: " + FeedbackConstants.MAX_SIZE);
+					return new Status(IStatus.WARNING, "File Size Problem",
+							"The log file attached to the feedback exceeds 10MB.");
+				}
+				attachmentFiles.add(file);
+				totalSize += file.length();
+			}
+
 			if (totalSize > FeedbackConstants.MAX_TOTAL_SIZE) {
 				logger.error("The total size of your attachement files exceeds: " + FeedbackConstants.MAX_TOTAL_SIZE);
 				return new Status(IStatus.WARNING, "File Size Problem",
@@ -143,7 +149,7 @@ public class FeedbackJob extends Job {
 			if (!messagevalue.equals("") && emailvalue.contains("@")) {
 				return FeedbackRequest.doRequest(from, destinationEmail,
 						System.getProperty("user.name", "Unknown User"), subject,
-						messageBody.toString(), logFile, attachmentFiles, monitor);
+						messageBody.toString(), attachmentFiles, monitor);
 			}
 			return new Status(IStatus.WARNING, "Format Problem",
 					"Please type in your email and the message body before sending the feedback.");
@@ -154,5 +160,32 @@ public class FeedbackJob extends Job {
 					"Feedback not sent!",
 					"Please check that you have an Internet connection. If the feedback is still not working, click on OK to submit your feedback using the online feedback form available at http://dawnsci-feedback.appspot.com/");
 		}
+	}
+
+	private List<File> getLogFile() {
+		List<File> files = new ArrayList<File>(); 
+		if (isWindowsOS()) {
+			File fout = new File(System.getProperty("user.home")+ LogConstants.LOG_FOLDER + LogConstants.OUT_FILE);
+			File ferr = new File(System.getProperty("user.home")+ LogConstants.LOG_FOLDER + LogConstants.ERR_FILE);
+			files.add(fout);
+			files.add(ferr);
+		} else {
+			// try to get the log file for module loads (/tmp/{user.name}-log.txt)
+			File linuxLog = new File(System.getProperty("java.io.tmpdir") + System.lineSeparator() + System.getProperty("user.name") + "-log.txt");
+			if (linuxLog.exists()) {
+				files.add(linuxLog);
+			} else {
+				// try to get the log file in user.home
+				linuxLog = new File(System.getProperty("user.home") + System.lineSeparator() + "dawnlog.html");
+				if (linuxLog.exists()) {
+					files.add(linuxLog);
+				}
+			}
+		}
+		return files;
+	}
+
+	private boolean isWindowsOS() {
+		return (System.getProperty("os.name").indexOf("Windows") == 0);
 	}
 }
