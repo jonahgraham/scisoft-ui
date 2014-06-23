@@ -173,12 +173,12 @@ public class FeedbackJob extends Job {
 				files.add(ferr);
 		} else {
 			// try to get the log file for module loads (/tmp/{user.name}-log.txt)
-			File linuxLog = new File(System.getProperty("java.io.tmpdir") + System.lineSeparator() + System.getProperty("user.name") + "-log.txt");
+			File linuxLog = new File(System.getProperty("java.io.tmpdir") + File.separator + System.getProperty("user.name") + "-log.txt");
 			if (linuxLog.exists() && linuxLog.length() > 0) {
 				files.add(linuxLog);
 			} else {
 				// try to get the log file in user.home
-				linuxLog = new File(System.getProperty("user.home") + System.lineSeparator() + "dawnlog.html");
+				linuxLog = new File(System.getProperty("user.home") + File.separator + "dawnlog.html");
 				if (linuxLog.exists() && linuxLog.length() > 0) {
 					files.add(linuxLog);
 				}
