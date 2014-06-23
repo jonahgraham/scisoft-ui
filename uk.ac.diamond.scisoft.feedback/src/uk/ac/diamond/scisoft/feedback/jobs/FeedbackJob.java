@@ -167,17 +167,19 @@ public class FeedbackJob extends Job {
 		if (isWindowsOS()) {
 			File fout = new File(System.getProperty("user.home")+ LogConstants.LOG_FOLDER + LogConstants.OUT_FILE);
 			File ferr = new File(System.getProperty("user.home")+ LogConstants.LOG_FOLDER + LogConstants.ERR_FILE);
-			files.add(fout);
-			files.add(ferr);
+			if (fout.exists() && fout.length() > 0)
+				files.add(fout);
+			if (ferr.exists() && ferr.length() > 0)
+				files.add(ferr);
 		} else {
 			// try to get the log file for module loads (/tmp/{user.name}-log.txt)
 			File linuxLog = new File(System.getProperty("java.io.tmpdir") + System.lineSeparator() + System.getProperty("user.name") + "-log.txt");
-			if (linuxLog.exists()) {
+			if (linuxLog.exists() && linuxLog.length() > 0) {
 				files.add(linuxLog);
 			} else {
 				// try to get the log file in user.home
 				linuxLog = new File(System.getProperty("user.home") + System.lineSeparator() + "dawnlog.html");
-				if (linuxLog.exists()) {
+				if (linuxLog.exists() && linuxLog.length() > 0) {
 					files.add(linuxLog);
 				}
 			}
