@@ -441,7 +441,8 @@ public class FeedbackView extends ViewPart {
 			File dir = new File(System.getProperty(LogConstants.USER_HOME_PROP), LogConstants.LOG_FOLDER);
 			// std out logs
 			File fout = new File(dir, LogConstants.OUT_FILE);
-			if (fout.exists() && fout.length() > 0) {
+			long size = fout.length();
+			if (fout.exists() && size > 0 && size < 10000000) {
 				File copyOut = new File(dir, "std_out_log.txt");
 				// copy file so the file sent is not being written of modified while the sending occurs (a malformed String Exception can occur on the server side)
 				FeedbackUtils.copyFile(fout, copyOut);
@@ -449,7 +450,8 @@ public class FeedbackView extends ViewPart {
 			}
 			// std err logs
 			File ferr = new File(dir, LogConstants.ERR_FILE);
-			if (ferr.exists() && ferr.length() > 0) {
+			size = ferr.length();
+			if (ferr.exists() && size > 0 && size < 10000000) {
 				File copyErr = new File(dir, "std_err_log.txt");
 				FeedbackUtils.copyFile(ferr, copyErr);
 				files.add(copyErr);
@@ -457,12 +459,14 @@ public class FeedbackView extends ViewPart {
 		} else {
 			// try to get the log file for module loads (/tmp/{user.name}-log.txt)
 			File linuxLog = new File(System.getProperty("java.io.tmpdir"), System.getProperty("user.name") + "-log.txt");
-			if (linuxLog.exists() && linuxLog.length() > 0) {
+			long size = linuxLog.length();
+			if (linuxLog.exists() && size > 0 && size < 10000000) {
 				files.add(linuxLog);
 			} else {
 				// try to get the log file in user.home
 				linuxLog = new File(System.getProperty(LogConstants.USER_HOME_PROP), "dawnlog.html");
-				if (linuxLog.exists() && linuxLog.length() > 0) {
+				size = linuxLog.length();
+				if (linuxLog.exists() && size > 0 && size < 10000000) {
 					files.add(linuxLog);
 				}
 			}
