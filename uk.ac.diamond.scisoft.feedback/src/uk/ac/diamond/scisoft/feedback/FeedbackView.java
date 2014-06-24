@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.feedback;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -68,6 +69,7 @@ import uk.ac.diamond.scisoft.feedback.attachment.AttachedFileEditingSupport;
 import uk.ac.diamond.scisoft.feedback.attachment.AttachedFileLabelProvider;
 import uk.ac.diamond.scisoft.feedback.jobs.FeedbackJob;
 import uk.ac.diamond.scisoft.feedback.utils.FeedbackConstants;
+import uk.ac.diamond.scisoft.feedback.utils.FeedbackUtils;
 
 public class FeedbackView extends ViewPart {
 
@@ -163,7 +165,12 @@ public class FeedbackView extends ViewPart {
 			attachLabel.setText("Attached Files");
 			
 			//add the log file to the input of the tableviewer
-			attachedFiles = getLogFile();
+			try {
+				attachedFiles = getLogFile();
+			} catch (IOException e1) {
+				logger.error("Could not get log file", e1);
+				attachedFiles = new ArrayList<File>();
+			}
 			tableViewer = new TableViewer(content, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER);
 			createColumns(tableViewer);
 //			tableViewer.getTable().setLinesVisible(true);
@@ -343,11 +350,7 @@ public class FeedbackView extends ViewPart {
 				fd.setText("Attach selected file to your feedback message");
 				String fileName = fd.open();
 				if (fileName != null) {
-//					AttachedFile attachedfile = new AttachedFile();
-//					attachedfile.setPath(fileName);
-//					attachedfile.setName(fileName.substring((fileName.lastIndexOf(File.separator)+1)));
 					File file = new File(fileName);
-//					attachedfile.setSize(FeedbackUtils.getValueWithUnit(file.length()));
 					attachedFiles.add(file);
 					tableViewer.refresh();
 				}
@@ -432,17 +435,24 @@ public class FeedbackView extends ViewPart {
 		};
 	}
 
-	private List<File> getLogFile() {
+	private List<File> getLogFile() throws IOException {
 		List<File> files = new ArrayList<File>(); 
 		if (System.getProperty("os.name").startsWith("Windows")) {
 			File dir = new File(System.getProperty(LogConstants.USER_HOME_PROP), LogConstants.LOG_FOLDER);
+			// std out logs
 			File fout = new File(dir, LogConstants.OUT_FILE);
-			File ferr = new File(dir, LogConstants.ERR_FILE);
 			if (fout.exists() && fout.length() > 0) {
-				files.add(fout);
+				File copyOut = new File(dir, "std_out_log.txt");
+				// copy file so the file sent is not being written of modified while the sending occurs (a malformed String Exception can occur on the server side)
+				FeedbackUtils.copyFile(fout, copyOut);
+				files.add(copyOut);
 			}
+			// std err logs
+			File ferr = new File(dir, LogConstants.ERR_FILE);
 			if (ferr.exists() && ferr.length() > 0) {
-				files.add(ferr);
+				File copyErr = new File(dir, "std_err_log.txt");
+				FeedbackUtils.copyFile(ferr, copyErr);
+				files.add(copyErr);
 			}
 		} else {
 			// try to get the log file for module loads (/tmp/{user.name}-log.txt)

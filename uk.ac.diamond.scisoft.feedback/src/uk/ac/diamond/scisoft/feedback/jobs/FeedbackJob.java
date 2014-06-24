@@ -18,7 +18,6 @@ package uk.ac.diamond.scisoft.feedback.jobs;
 
 import java.io.File;
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.dawb.common.util.eclipse.BundleUtils;
