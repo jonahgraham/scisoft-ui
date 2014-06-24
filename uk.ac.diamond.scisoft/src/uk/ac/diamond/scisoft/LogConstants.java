@@ -18,8 +18,23 @@ package uk.ac.diamond.scisoft;
 
 public class LogConstants {
 
-	public static final String LOG_FOLDER = "/.dawn";
-	public static final String OUT_FILE = "/dawn_std_out.txt";
-	public static final String ERR_FILE = "/dawn_std_err.txt";
+	/**
+	 * user.home system property
+	 */
+	public static final String USER_HOME_PROP = "user.home";
 
+	/**
+	 * Hidden folder for Dawn logs
+	 */
+	public static final String LOG_FOLDER = ".dawn";
+
+	/**
+	 * Standard output for Dawn
+	 */
+	public static final String OUT_FILE = "dawn_std_out.txt";
+	
+	/**
+	 * Standard error for Dawn
+	 */
+	public static final String ERR_FILE = "dawn_std_err.txt";
 }

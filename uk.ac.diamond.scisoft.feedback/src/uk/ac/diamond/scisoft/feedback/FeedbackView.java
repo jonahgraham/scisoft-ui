@@ -1,10 +1,17 @@
-/*
- * Copyright 2012 Diamond Light Source Ltd. Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific language governing permissions and limitations under the
- * License.
+/*-
+ * Copyright 2012 Diamond Light Source Ltd.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package uk.ac.diamond.scisoft.feedback;
@@ -427,9 +434,10 @@ public class FeedbackView extends ViewPart {
 
 	private List<File> getLogFile() {
 		List<File> files = new ArrayList<File>(); 
-		if (isWindowsOS()) {
-			File fout = new File(System.getProperty("user.home")+ LogConstants.LOG_FOLDER + LogConstants.OUT_FILE);
-			File ferr = new File(System.getProperty("user.home")+ LogConstants.LOG_FOLDER + LogConstants.ERR_FILE);
+		if (System.getProperty("os.name").startsWith("Windows")) {
+			File dir = new File(System.getProperty(LogConstants.USER_HOME_PROP), LogConstants.LOG_FOLDER);
+			File fout = new File(dir, LogConstants.OUT_FILE);
+			File ferr = new File(dir, LogConstants.ERR_FILE);
 			if (fout.exists() && fout.length() > 0) {
 				files.add(fout);
 			}
@@ -438,22 +446,18 @@ public class FeedbackView extends ViewPart {
 			}
 		} else {
 			// try to get the log file for module loads (/tmp/{user.name}-log.txt)
-			File linuxLog = new File(System.getProperty("java.io.tmpdir") + File.separator + System.getProperty("user.name") + "-log.txt");
+			File linuxLog = new File(System.getProperty("java.io.tmpdir"), System.getProperty("user.name") + "-log.txt");
 			if (linuxLog.exists() && linuxLog.length() > 0) {
 				files.add(linuxLog);
 			} else {
 				// try to get the log file in user.home
-				linuxLog = new File(System.getProperty("user.home") + File.separator + "dawnlog.html");
+				linuxLog = new File(System.getProperty(LogConstants.USER_HOME_PROP), "dawnlog.html");
 				if (linuxLog.exists() && linuxLog.length() > 0) {
 					files.add(linuxLog);
 				}
 			}
 		}
 		return files;
-	}
-
-	private boolean isWindowsOS() {
-		return (System.getProperty("os.name").indexOf("Windows") == 0);
 	}
 
 	/**
