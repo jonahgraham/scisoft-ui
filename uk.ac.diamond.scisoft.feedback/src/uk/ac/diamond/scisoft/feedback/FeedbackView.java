@@ -88,12 +88,15 @@ public class FeedbackView extends ViewPart {
 	private Text emailAddress;
 	private Text messageText;
 	private Text subjectText;
+	private Label attachLabel;
 
 	private List<File> attachedFiles = new ArrayList<File>();
 	private Button btnSendFeedback;
 	private TableViewer tableViewer;
 
 	private FeedbackJob feedbackJob;
+
+	private final String ATTACH_LABEL = "Attached Files";
 
 	/**
 	 * The constructor.
@@ -106,103 +109,86 @@ public class FeedbackView extends ViewPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-
 		final ScrolledComposite scrollComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		final Composite content = new Composite(scrollComposite, SWT.NONE);
 		content.setLayout(new GridLayout(1, false));
 		content.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		makeActions();
-		{
-			Composite radioSelection = new Composite(content, SWT.NONE);
-			radioSelection.setLayout(new GridLayout(3, false));
-			Label label = new Label(radioSelection, SWT.NONE);
-			label.setText("Send Feedback to :");
+		
+		Composite radioSelection = new Composite(content, SWT.NONE);
+		radioSelection.setLayout(new GridLayout(3, false));
+		Label label = new Label(radioSelection, SWT.NONE);
+		label.setText("Send Feedback to :");
 
-			RadioGroupWidget mailToRadios = new RadioGroupWidget(radioSelection);
-			mailToRadios.setActions(createEmailRadioActions());
-		}
-		{
-			Label lblEmailAddress = new Label(content, SWT.NONE);
-			lblEmailAddress.setText("Your email address for Feedback");
-		}
-		{
-			emailAddress = new Text(content, SWT.BORDER | SWT.SINGLE);
-			emailAddress.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		RadioGroupWidget mailToRadios = new RadioGroupWidget(radioSelection);
+		mailToRadios.setActions(createEmailRadioActions());
+		Label lblEmailAddress = new Label(content, SWT.NONE);
+		lblEmailAddress.setText("Your email address for Feedback");
 
-			final String email = Activator.getDefault() != null ? Activator.getDefault().getPreferenceStore()
-					.getString(FeedbackConstants.FROM_PREF) : null;
-			if (email != null && !"".equals(email))
-				emailAddress.setText(email);
-		}
-		{
-			Label lblSubject = new Label(content, SWT.NONE);
-			lblSubject.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
-			lblSubject.setText("Summary");
-		}
-		{
-			subjectText = new Text(content, SWT.BORDER | SWT.SINGLE);
-			subjectText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		emailAddress = new Text(content, SWT.BORDER | SWT.SINGLE);
+		emailAddress.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-			final String subject = Activator.getDefault() != null ? Activator.getDefault().getPreferenceStore()
-					.getString(FeedbackConstants.SUBJ_PREF) : null;
-			if (subject != null && !"".equals(subject))
-				subjectText.setText(subject);
-		}
-		{
-			Label lblComment = new Label(content, SWT.NONE);
-			lblComment.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
-			lblComment.setText("Comment");
-		}
-		{
-			messageText = new Text(content, SWT.BORDER | SWT.MULTI | SWT.WRAP);
-			GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-			gd.minimumHeight = 200;
-			messageText.setLayoutData(gd);
-		}
-		{
-			Label attachLabel = new Label(content, SWT.NONE);
-			attachLabel.setText("Attached Files");
-			
-			//add the log file to the input of the tableviewer
-			try {
-				attachedFiles = getLogFile();
-			} catch (IOException e1) {
-				logger.error("Could not get log file", e1);
-				attachedFiles = new ArrayList<File>();
-			}
-			tableViewer = new TableViewer(content, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER);
-			createColumns(tableViewer);
-//			tableViewer.getTable().setLinesVisible(true);
-			tableViewer.getTable().setToolTipText("Delete the file by clicking on the X");
-			tableViewer.setContentProvider(new AttachedFileContentProvider());
-			tableViewer.setLabelProvider(new AttachedFileLabelProvider());
-			tableViewer.setInput(attachedFiles);
-			tableViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-			tableViewer.refresh();
-		}
-		{
-			Composite actionComp = new Composite(content, SWT.NONE);
-			actionComp.setLayout(new GridLayout(3, false));
-			actionComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		final String email = Activator.getDefault() != null ? Activator.getDefault().getPreferenceStore()
+				.getString(FeedbackConstants.FROM_PREF) : null;
+		if (email != null && !"".equals(email))
+			emailAddress.setText(email);
 
-			ActionContributionItem attachAci = new ActionContributionItem(attachAction);
-			attachAci = new ActionContributionItem(attachAci.getAction());
-			attachAci.fill(actionComp);
-			Button btnBrowseFile = (Button) attachAci.getWidget();
-			btnBrowseFile.setText("Attach Files");
-			btnBrowseFile.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+		Label lblSubject = new Label(content, SWT.NONE);
+		lblSubject.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
+		lblSubject.setText("Summary");
 
-			Label fileNameLabel = new Label(actionComp, SWT.SINGLE);
-			fileNameLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		subjectText = new Text(content, SWT.BORDER | SWT.SINGLE);
+		subjectText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-			ActionContributionItem sendAci = new ActionContributionItem(feedbackAction);
-			sendAci = new ActionContributionItem(sendAci.getAction());
-			sendAci.fill(actionComp);
-			btnSendFeedback = (Button) sendAci.getWidget();
-			btnSendFeedback.setText("Send Feedback");
-			btnSendFeedback.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		}
+		final String subject = Activator.getDefault() != null ? Activator.getDefault().getPreferenceStore()
+				.getString(FeedbackConstants.SUBJ_PREF) : null;
+		if (subject != null && !"".equals(subject))
+			subjectText.setText(subject);
+
+		Label lblComment = new Label(content, SWT.NONE);
+		lblComment.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
+		lblComment.setText("Comment");
+
+		messageText = new Text(content, SWT.BORDER | SWT.MULTI | SWT.WRAP);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.minimumHeight = 200;
+		messageText.setLayoutData(gd);
+
+		attachLabel = new Label(content, SWT.NONE);
+		attachLabel.setText("Attached Files");
+
+		tableViewer = new TableViewer(content, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER);
+		createColumns(tableViewer);
+		// tableViewer.getTable().setLinesVisible(true);
+		tableViewer.getTable().setToolTipText("Delete the file by clicking on the X");
+		tableViewer.setContentProvider(new AttachedFileContentProvider());
+		tableViewer.setLabelProvider(new AttachedFileLabelProvider());
+		tableViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		attachedFiles = new ArrayList<File>();
+		tableViewer.setInput(attachedFiles);
+		tableViewer.refresh();
+
+		Composite actionComp = new Composite(content, SWT.NONE);
+		actionComp.setLayout(new GridLayout(3, false));
+		actionComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+		ActionContributionItem attachAci = new ActionContributionItem(attachAction);
+		attachAci = new ActionContributionItem(attachAci.getAction());
+		attachAci.fill(actionComp);
+		Button btnBrowseFile = (Button) attachAci.getWidget();
+		btnBrowseFile.setText("Attach Files");
+		btnBrowseFile.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+
+		Label emptyLabel = new Label(actionComp, SWT.SINGLE);
+		emptyLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+		ActionContributionItem sendAci = new ActionContributionItem(feedbackAction);
+		sendAci = new ActionContributionItem(sendAci.getAction());
+		sendAci.fill(actionComp);
+		btnSendFeedback = (Button) sendAci.getWidget();
+		btnSendFeedback.setText("Send Feedback");
+		btnSendFeedback.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 
 		scrollComposite.setContent(content);
 		scrollComposite.setExpandVertical(true);
@@ -219,6 +205,14 @@ public class FeedbackView extends ViewPart {
 
 		hookContextMenu();
 		contributeToActionBars();
+
+		//add the log file to the input of the tableviewer
+		try {
+			attachedFiles = getLogFile();
+		} catch (Exception e1) {
+			attachLabel.setText(ATTACH_LABEL + ": Error attaching log file (" + e1.getMessage() + ")");
+		}
+		tableViewer.refresh();
 	}
 
 	private List<Action> createEmailRadioActions() {
@@ -351,9 +345,19 @@ public class FeedbackView extends ViewPart {
 				String fileName = fd.open();
 				if (fileName != null) {
 					File file = new File(fileName);
-					attachedFiles.add(file);
-					tableViewer.refresh();
+					long size = file.length();
+					if (size > FeedbackConstants.MAX_SIZE) {
+						MessageBox messageDialog = new MessageBox(PlatformUI.getWorkbench()
+								.getActiveWorkbenchWindow().getShell(), SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+						messageDialog.setText("File not attached");
+						messageDialog.setMessage("The file is too big (>10MB)");
+						messageDialog.open();
+					} else {
+						attachedFiles.add(file);
+						tableViewer.refresh();
+					}
 				}
+				attachLabel.setText(ATTACH_LABEL);
 			}
 		};
 		attachAction.setText("Attach files");
@@ -418,6 +422,7 @@ public class FeedbackView extends ViewPart {
 						}
 						btnSendFeedback.setText("Send Feedback");
 						feedbackAction.setEnabled(true);
+						attachLabel.setText(ATTACH_LABEL);
 					}
 				});
 			}
@@ -442,32 +447,40 @@ public class FeedbackView extends ViewPart {
 			// std out logs
 			File fout = new File(dir, LogConstants.OUT_FILE);
 			long size = fout.length();
-			if (fout.exists() && size > 0 && size < 10000000) {
+			if (fout.exists() && size > 0 && size < FeedbackConstants.MAX_SIZE) {
 				File copyOut = new File(dir, "std_out_log.txt");
 				// copy file so the file sent is not being written of modified while the sending occurs (a malformed String Exception can occur on the server side)
 				FeedbackUtils.copyFile(fout, copyOut);
 				files.add(copyOut);
+			} else if (size >= FeedbackConstants.MAX_SIZE) {
+				throw new IllegalStateException("File is too big");
 			}
 			// std err logs
 			File ferr = new File(dir, LogConstants.ERR_FILE);
 			size = ferr.length();
-			if (ferr.exists() && size > 0 && size < 10000000) {
+			if (ferr.exists() && size > 0 && size < FeedbackConstants.MAX_SIZE) {
 				File copyErr = new File(dir, "std_err_log.txt");
 				FeedbackUtils.copyFile(ferr, copyErr);
 				files.add(copyErr);
+			} else if (size >= FeedbackConstants.MAX_SIZE) {
+				throw new IllegalStateException("File is too big");
 			}
 		} else {
 			// try to get the log file for module loads (/tmp/{user.name}-log.txt)
 			File linuxLog = new File(System.getProperty("java.io.tmpdir"), System.getProperty("user.name") + "-log.txt");
 			long size = linuxLog.length();
-			if (linuxLog.exists() && size > 0 && size < 10000000) {
+			if (linuxLog.exists() && size > 0 && size < FeedbackConstants.MAX_SIZE) {
 				files.add(linuxLog);
-			} else {
+			} else if (linuxLog.exists() && size >= FeedbackConstants.MAX_SIZE) {
+				throw new IllegalStateException("File is too big");
+			} else if(!linuxLog.exists()) {
 				// try to get the log file in user.home
 				linuxLog = new File(System.getProperty(LogConstants.USER_HOME_PROP), "dawnlog.html");
 				size = linuxLog.length();
-				if (linuxLog.exists() && size > 0 && size < 10000000) {
+				if (linuxLog.exists() && size > 0 && size < FeedbackConstants.MAX_SIZE) {
 					files.add(linuxLog);
+				} else if (size >= FeedbackConstants.MAX_SIZE) {
+					throw new IllegalStateException("File is too big");
 				}
 			}
 		}
