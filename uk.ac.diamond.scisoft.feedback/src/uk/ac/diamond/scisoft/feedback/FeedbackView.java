@@ -165,7 +165,13 @@ public class FeedbackView extends ViewPart {
 		tableViewer.setContentProvider(new AttachedFileContentProvider());
 		tableViewer.setLabelProvider(new AttachedFileLabelProvider());
 		tableViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		attachedFiles = new ArrayList<File>();
+		//add the log file to the input of the tableviewer
+		try {
+			attachedFiles = getLogFile();
+		} catch (Exception e1) {
+			attachedFiles = new ArrayList<File>();
+			attachLabel.setText(ATTACH_LABEL + ": Error attaching log file (" + e1.getMessage() + ")");
+		}
 		tableViewer.setInput(attachedFiles);
 		tableViewer.refresh();
 
@@ -205,14 +211,6 @@ public class FeedbackView extends ViewPart {
 
 		hookContextMenu();
 		contributeToActionBars();
-
-		//add the log file to the input of the tableviewer
-		try {
-			attachedFiles = getLogFile();
-		} catch (Exception e1) {
-			attachLabel.setText(ATTACH_LABEL + ": Error attaching log file (" + e1.getMessage() + ")");
-		}
-		tableViewer.refresh();
 	}
 
 	private List<Action> createEmailRadioActions() {
