@@ -55,7 +55,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -71,7 +73,7 @@ import uk.ac.diamond.scisoft.feedback.jobs.FeedbackJob;
 import uk.ac.diamond.scisoft.feedback.utils.FeedbackConstants;
 import uk.ac.diamond.scisoft.feedback.utils.FeedbackUtils;
 
-public class FeedbackView extends ViewPart {
+public class FeedbackView extends ViewPart implements IPartListener {
 
 	private static Logger logger = LoggerFactory.getLogger(FeedbackView.class);
 
@@ -165,13 +167,7 @@ public class FeedbackView extends ViewPart {
 		tableViewer.setContentProvider(new AttachedFileContentProvider());
 		tableViewer.setLabelProvider(new AttachedFileLabelProvider());
 		tableViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		//add the log file to the input of the tableviewer
-		try {
-			attachedFiles = getLogFile();
-		} catch (Exception e1) {
-			attachedFiles = new ArrayList<File>();
-			attachLabel.setText(ATTACH_LABEL + ": Error attaching log file (" + e1.getMessage() + ")");
-		}
+		attachedFiles = new ArrayList<File>();
 		tableViewer.setInput(attachedFiles);
 		tableViewer.refresh();
 
@@ -211,6 +207,7 @@ public class FeedbackView extends ViewPart {
 
 		hookContextMenu();
 		contributeToActionBars();
+		getSite().getPage().addPartListener(this);
 	}
 
 	private List<Action> createEmailRadioActions() {
@@ -351,7 +348,8 @@ public class FeedbackView extends ViewPart {
 						messageDialog.setMessage("The file is too big (>10MB)");
 						messageDialog.open();
 					} else {
-						attachedFiles.add(file);
+						if (!attachedFiles.contains(file))
+							attachedFiles.add(file);
 						tableViewer.refresh();
 					}
 				}
@@ -438,8 +436,7 @@ public class FeedbackView extends ViewPart {
 		};
 	}
 
-	private List<File> getLogFile() throws IOException {
-		List<File> files = new ArrayList<File>(); 
+	private void autoAttachLogFile(List<File> attachedFiles) throws IOException {
 		if (System.getProperty("os.name").startsWith("Windows")) {
 			File dir = new File(System.getProperty(LogConstants.USER_HOME_PROP), LogConstants.LOG_FOLDER);
 			// std out logs
@@ -448,8 +445,10 @@ public class FeedbackView extends ViewPart {
 			if (fout.exists() && size > 0 && size < FeedbackConstants.MAX_SIZE) {
 				File copyOut = new File(dir, "std_out_log.txt");
 				// copy file so the file sent is not being written of modified while the sending occurs (a malformed String Exception can occur on the server side)
-				FeedbackUtils.copyFile(fout, copyOut);
-				files.add(copyOut);
+				if (!attachedFiles.contains(copyOut)) {
+					FeedbackUtils.copyFile(fout, copyOut);
+					attachedFiles.add(copyOut);
+				}
 			} else if (size >= FeedbackConstants.MAX_SIZE) {
 				throw new IllegalStateException("File is too big");
 			}
@@ -458,31 +457,43 @@ public class FeedbackView extends ViewPart {
 			size = ferr.length();
 			if (ferr.exists() && size > 0 && size < FeedbackConstants.MAX_SIZE) {
 				File copyErr = new File(dir, "std_err_log.txt");
-				FeedbackUtils.copyFile(ferr, copyErr);
-				files.add(copyErr);
+				if (!attachedFiles.contains(copyErr)) {
+					FeedbackUtils.copyFile(ferr, copyErr);
+					attachedFiles.add(copyErr);
+				}
 			} else if (size >= FeedbackConstants.MAX_SIZE) {
 				throw new IllegalStateException("File is too big");
 			}
 		} else {
 			// try to get the log file for module loads (/tmp/{user.name}-log.txt)
-			File linuxLog = new File(System.getProperty("java.io.tmpdir"), System.getProperty("user.name") + "-log.txt");
+			String tmpDir = System.getProperty("java.io.tmpdir");
+			String userName = System.getProperty("user.name");
+			File linuxLog = new File(tmpDir, userName + "-log.txt");
 			long size = linuxLog.length();
 			if (linuxLog.exists() && size > 0 && size < FeedbackConstants.MAX_SIZE) {
-				files.add(linuxLog);
+				File copyLinuxLog = new File(tmpDir, userName + "-log-cpy.txt");
+				if (!attachedFiles.contains(copyLinuxLog)) {
+					FeedbackUtils.copyFile(linuxLog, copyLinuxLog);
+					attachedFiles.add(copyLinuxLog);
+				}
 			} else if (linuxLog.exists() && size >= FeedbackConstants.MAX_SIZE) {
 				throw new IllegalStateException("File is too big");
 			} else if(!linuxLog.exists()) {
 				// try to get the log file in user.home
 				linuxLog = new File(System.getProperty(LogConstants.USER_HOME_PROP), "dawnlog.html");
 				size = linuxLog.length();
-				if (linuxLog.exists() && size > 0 && size < FeedbackConstants.MAX_SIZE) {
-					files.add(linuxLog);
+				if (linuxLog.exists() && size > 0 && size < FeedbackConstants.MAX_SIZE && !attachedFiles.contains(linuxLog)) {
+					attachedFiles.add(linuxLog);
 				} else if (size >= FeedbackConstants.MAX_SIZE) {
 					throw new IllegalStateException("File is too big");
 				}
 			}
 		}
-		return files;
+	}
+
+	@Override
+	public void dispose() {
+		getSite().getPage().removePartListener(this);
 	}
 
 	/**
@@ -492,4 +503,39 @@ public class FeedbackView extends ViewPart {
 	public void setFocus() {
 		messageText.setFocus();
 	}
+
+	@Override
+	public void partActivated(IWorkbenchPart part) {
+		attachLogFile();
+	}
+
+	@Override
+	public void partBroughtToTop(IWorkbenchPart part) {
+		
+	}
+
+	@Override
+	public void partClosed(IWorkbenchPart part) {
+	}
+
+	@Override
+	public void partDeactivated(IWorkbenchPart part) {
+	}
+
+	@Override
+	public void partOpened(IWorkbenchPart part) {
+	}
+
+	private void attachLogFile() {
+		if (attachLabel != null && tableViewer != null) {
+			//add the log file to the input of the tableviewer
+			try {
+				autoAttachLogFile(attachedFiles);
+			} catch (Exception e1) {
+				attachLabel.setText(ATTACH_LABEL + ": Error attaching log file (" + e1.getMessage() + ")");
+			}
+			tableViewer.refresh();
+		}
+	}
+
 }
