@@ -66,7 +66,7 @@ public class AxisValuesTest {
 
 	@Test
 	public void testAxisValuesAbstractDataset() {
-		DoubleDataset dataset = DoubleDataset.arange(0.0, 100.0, 10.0);
+		DoubleDataset dataset = DoubleDataset.createRange(0.0, 100.0, 10.0);
 		AxisValues axis = new AxisValues(dataset);
 		assertEquals(90.0, axis.getMaxValue(),0.1);
 		assertEquals(90.0, axis.getMaxValue(),0.1);
@@ -103,7 +103,7 @@ public class AxisValuesTest {
 	@Test
 	public void testToDataset() {
 		AxisValues axis = setupClass(-5, 1, 10);
-		DoubleDataset dataset = DoubleDataset.arange(-5, 5, 1);
+		DoubleDataset dataset = DoubleDataset.createRange(-5, 5, 1);
 
 		try {
 			axis.toDataset().checkCompatibility(dataset);
@@ -159,7 +159,7 @@ public class AxisValuesTest {
 	public void testSetValuesIDataset() {
 		AxisValues axis = setupClass(-5, 1, 10);
 		
-		DoubleDataset dataset = DoubleDataset.arange(0.0, 100.0, 10.0);
+		DoubleDataset dataset = DoubleDataset.createRange(0.0, 100.0, 10.0);
 		axis.setValues(dataset);
 		assertEquals(90.0, axis.getMaxValue(),0.1);
 		assertEquals(0.0, axis.getMinValue(),0.1);

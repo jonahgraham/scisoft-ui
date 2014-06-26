@@ -71,7 +71,7 @@ public class PlotUtils {
 		if (yDataSets==null) {
 			ys = new ArrayList<AbstractDataset>(1);
 			ys.add(xDataSet);
-			x = DoubleDataset.arange(ys.get(0).getSize());
+			x = DoubleDataset.createRange(ys.get(0).getSize());
 		} else {
 			x  = xDataSet;
 			ys = yDataSets;
