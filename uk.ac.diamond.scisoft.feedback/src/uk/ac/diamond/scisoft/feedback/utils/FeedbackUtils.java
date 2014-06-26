@@ -43,15 +43,15 @@ public class FeedbackUtils {
 	}
 
 	/**
-	 * Copy file using java nio
+	 * Copy file using java nio, if file exists, it will overwrite it.
 	 * @param sourceFile
 	 * @param destFile
 	 * @throws IOException
 	 */
 	public static void copyFile(File sourceFile, File destFile) throws IOException {
-		if (!destFile.exists()) {
-			destFile.createNewFile();
-		}
+		if (destFile.exists())
+			destFile.delete();
+		destFile.createNewFile();
 
 		FileChannel source = null;
 		FileChannel destination = null;
