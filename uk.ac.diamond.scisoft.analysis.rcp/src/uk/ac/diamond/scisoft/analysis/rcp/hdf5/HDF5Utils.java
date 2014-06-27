@@ -43,6 +43,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 
 public class HDF5Utils {
+	
 	private static final Logger logger = LoggerFactory.getLogger(HDF5Utils.class);
 
 	/**
