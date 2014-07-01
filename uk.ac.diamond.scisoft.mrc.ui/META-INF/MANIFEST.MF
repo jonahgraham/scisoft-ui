@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: User Interface
+Bundle-SymbolicName: uk.ac.diamond.scisoft.mrc.ui;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: uk.ac.diamond.scisoft.mrc.ui.Activator
+Bundle-Vendor: DLS
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.dawnsci.commandserver.ui;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
