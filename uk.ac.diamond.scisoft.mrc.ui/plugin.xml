@@ -4,10 +4,10 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="uk.ac.diamond.scisoft.mrc.ui.MRCPerspective"
+            class="uk.ac.diamond.scisoft.mrc.ui.EMPerspective"
             icon="icons/magnifier.png"
-            id="uk.ac.diamond.scisoft.mrc.ui.MRCPerspective"
-            name="MRC">
+            id="uk.ac.diamond.scisoft.mrc.ui.emPerspective"
+            name="EM">
       </perspective>
    </extension>
 
