@@ -55,7 +55,7 @@ limitations under the License.
 
    <includes
          id="org.python.pydev.feature"
-         version="3.3.3.201401272249"/>
+         version="3.6.0.201406232321"/>
 
    <includes
          id="uk.ac.diamond.scisoft.core.feature"
