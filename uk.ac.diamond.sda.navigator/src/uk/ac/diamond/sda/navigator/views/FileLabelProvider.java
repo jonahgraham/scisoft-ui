@@ -101,6 +101,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		if (element instanceof String) return (String)element;
 		final Path node   = (Path)element;
 
+
 		try {
 			//if node is an hdf5 file, returns the file
 			Map<Integer, String> attr = getH5Attributes(node);
@@ -132,6 +133,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
 	
 	private Map<Path, Map<Integer, String>> attributes;
 
+	
 	private Map<Integer, String> getH5Attributes(Path node) throws Exception {
 		
 		if (Files.isDirectory(node))          return null;
