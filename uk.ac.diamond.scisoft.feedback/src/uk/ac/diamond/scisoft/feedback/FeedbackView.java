@@ -152,7 +152,7 @@ public class FeedbackView extends ViewPart implements IPartListener {
 		lblComment.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 		lblComment.setText("Comment");
 
-		messageText = new Text(content, SWT.BORDER | SWT.MULTI | SWT.WRAP);
+		messageText = new Text(content, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.minimumHeight = 200;
 		messageText.setLayoutData(gd);
