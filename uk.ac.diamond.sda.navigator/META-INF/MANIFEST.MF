@@ -30,7 +30,7 @@ Import-Package: org.dawb.common.services,
  org.eclipse.ui.texteditor,
  org.slf4j;version="[1.7.6,1.7.7)"
 Bundle-ClassPath: .
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Diamond Light Source
 Export-Package: uk.ac.diamond.sda.navigator.actions,
  uk.ac.diamond.sda.navigator.util,

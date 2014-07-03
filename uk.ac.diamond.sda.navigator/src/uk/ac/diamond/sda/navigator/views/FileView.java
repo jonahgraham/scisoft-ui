@@ -16,7 +16,11 @@
 
 package uk.ac.diamond.sda.navigator.views;
 
-import java.io.File;
+import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,6 +86,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 import uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferenceConstants;
+import uk.ac.diamond.sda.navigator.util.NIOUtils;
 import uk.ac.diamond.sda.navigator.views.FileContentProvider.FileSortType;
 import uk.ac.gda.util.OSUtils;
 
@@ -99,7 +104,7 @@ public class FileView extends ViewPart implements IFileView {
 	
 	private TreeViewer tree;
 
-	private File savedSelection;
+	private Path savedSelection;
 	private Text filePath;
 	
 	public FileView() {
@@ -117,7 +122,7 @@ public class FileView extends ViewPart implements IFileView {
 		if (path==null) path = System.getProperty("user.home");
 		
 		if (path!=null){
-			savedSelection = new File(path);
+			savedSelection = Paths.get(path);
 		}
 		
 	}
@@ -126,8 +131,8 @@ public class FileView extends ViewPart implements IFileView {
 	public void saveState(IMemento memento) {
 		
 		if (memento==null) return;
-		if ( getSelectedFile() != null ) {
-		    final String path = getSelectedFile().getAbsolutePath();
+		if ( getSelectedPath() != null ) {
+		    final String path = getSelectedPath().toAbsolutePath().toString();
 		    memento.putString("DIR", path);
 		}
 	}
@@ -138,8 +143,8 @@ public class FileView extends ViewPart implements IFileView {
 	 * @return String
 	 */
 	@Override
-	public File getSelectedFile() {
-		File sel = (File)((IStructuredSelection)tree.getSelection()).getFirstElement();
+	public Path getSelectedPath() {
+		Path sel = (Path)((IStructuredSelection)tree.getSelection()).getFirstElement();
 		if (sel==null) sel = savedSelection;
 		return sel;
 	}
@@ -149,14 +154,15 @@ public class FileView extends ViewPart implements IFileView {
 	 * 
 	 * @return String[]
 	 */
-	public String[] getSelectedFiles() {
+	public String[] getSelectedPaths() {
+		
 		Object[] objects = ((IStructuredSelection)tree.getSelection()).toArray();
 		if (tree.getSelection()==null || tree.getSelection().isEmpty()) 
 			objects = new Object[]{savedSelection};
 		
 		String absolutePaths [] = new String[objects.length];
 		for (int i=0; i < objects.length; i++) {
-			absolutePaths[i] = ((File) (objects[i])).getAbsolutePath();
+			absolutePaths[i] = ((Path) (objects[i])).toAbsolutePath().toString();
 		}
 		return absolutePaths;
 	}
@@ -176,14 +182,14 @@ public class FileView extends ViewPart implements IFileView {
 		fileLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 		try {
 			IFileIconService service = (IFileIconService)ServiceManager.getService(IFileIconService.class);
-			final Image       icon    = service.getIconForFile(OSUtils.isWindowsOS() ? new File("C:/Windows/") : new File("/"));
+			final Image       icon    = service.getIconForFile(OSUtils.isWindowsOS() ? "C:/Windows/" : "/");
 			fileLabel.setImage(icon);
 		} catch (Exception e) {
 			logger.error("Cannot get icon for system root!", e);
 		}
 		
 		this.filePath = new Text(top, SWT.BORDER);
-		if (savedSelection!=null) filePath.setText(savedSelection.getAbsolutePath());
+		if (savedSelection!=null) filePath.setText(savedSelection.toAbsolutePath().toString());
 		filePath.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		final FileContentProposalProvider   prov = new FileContentProposalProvider();
 		final TextContentAdapter         adapter = new TextContentAdapter();
@@ -248,11 +254,11 @@ public class FileView extends ViewPart implements IFileView {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				if (!updatingTextFromTreeSelections) return;
-				final File file = getSelectedFile();
-				if (file!=null &&  file.isDirectory()) {
+				final Path file = getSelectedPath();
+				if (file!=null &&  Files.isDirectory(file)) {
 					try {
 						ad.setEnabled(false);
-					    filePath.setText(file.getAbsolutePath());
+					    filePath.setText(file.toAbsolutePath().toString());
 					    filePath.setSelection(filePath.getText().length());
 					} finally {
 						ad.setEnabled(true);
@@ -318,8 +324,8 @@ public class FileView extends ViewPart implements IFileView {
 		dragSource.addDragListener(new DragSourceAdapter() {
 			@Override
 			public void dragSetData(DragSourceEvent event){
-				if (getSelectedFiles()==null) return;
-				event.data = getSelectedFiles();
+				if (getSelectedPaths()==null) return;
+				event.data = getSelectedPaths();
 			}
 		});
 		
@@ -350,18 +356,18 @@ public class FileView extends ViewPart implements IFileView {
 		addToolbar();
 
 		if (savedSelection!=null) {
-			if (savedSelection.exists()) {
+			if (savedSelection.toFile().exists()) {
 				tree.setSelection(new StructuredSelection(savedSelection));
-			} else if (savedSelection.getParentFile()!=null && savedSelection.getParentFile().exists()) {
+			} else if (savedSelection.getParent()!=null && savedSelection.getParent().toFile().exists()) {
 				// If file deleted, select parent.
-				tree.setSelection(new StructuredSelection(savedSelection.getParentFile()));
+				tree.setSelection(new StructuredSelection(savedSelection.getParent()));
 			}
 		}
 		
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				final TreePath path = new TreePath(new Object[]{File.listRoots()[0]});
+				final TreePath path = new TreePath(new Object[]{NIOUtils.getRoots().get(0)});
 				tree.setExpandedState(path, true);
 			}
 		});
@@ -389,17 +395,17 @@ public class FileView extends ViewPart implements IFileView {
 
 	@Override
 	public void refresh() {
-		final File     file     = getSelectedFile();
+		final Path     file     = getSelectedPath();
 		refresh(file);
 	}
 		
-	protected void refresh(File file) {
+	protected void refresh(Path file) {
 
 		final Object[] elements = file==null?this.tree.getExpandedElements():null;
 		final FileContentProvider fileCont = (FileContentProvider)tree.getContentProvider();
 		fileCont.clearAndStop();
 
-		tree.refresh(file!=null?file.getParentFile():tree.getInput());
+		tree.refresh(file!=null?file.getParent():tree.getInput());
 		
 		if (elements!=null) this.tree.setExpandedElements(elements);
 		if (file!=null)     {
@@ -409,10 +415,11 @@ public class FileView extends ViewPart implements IFileView {
 
 	private void createContent(boolean setItemCount) {
 		
-		if (setItemCount) tree.getTree().setItemCount(File.listRoots().length);
+		final List<Path> roots = NIOUtils.getRoots();
+		if (setItemCount) tree.getTree().setItemCount(roots.size());
 		tree.setContentProvider(new FileContentProvider(getViewSite().getActionBars().getStatusLineManager()));
-		if (File.listRoots().length==1) {
-			tree.setInput(File.listRoots()[0]);
+		if (roots.size()==1) {
+			tree.setInput(roots.get(0));
 		} else {
 		    tree.setInput("Root");
 		}
@@ -420,20 +427,22 @@ public class FileView extends ViewPart implements IFileView {
 	}
 
 	public void setSelectedFile(String path) {
-		final File file = new File(path);
+		final Path file = Paths.get(path);
 		setSelectedFile(file);
 	}
 	
-	public void setSelectedFile(final File file) {
-		if (file.exists()) {			
-			final List<File> segs = getSegments(file);
+	public void setSelectedFile(final Path file) {
+		if (Files.exists(file, NOFOLLOW_LINKS)) {	
+			
 			
 			final Job expandJob = new Job("Update tree expanded state") {
 				// Job needed because lazy tree - do not copy for all trees!	
 				// Required this funny way because tree is lazy
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
-					for (final File f : segs) {						
+					for (Path f : file) {
+						
+								
 						if (monitor.isCanceled()) break;
 						
 						int count = 0;
@@ -459,7 +468,7 @@ public class FileView extends ViewPart implements IFileView {
 					return Status.OK_STATUS;
 				}
 				
-				private void expand(final File f) {
+				private void expand(final Path f) {
 					Display.getDefault().syncExec(new Runnable() {
 						@Override
 						public void run() {
@@ -467,7 +476,7 @@ public class FileView extends ViewPart implements IFileView {
 						}
 					});
 				}
-				private boolean getExpandedState(final File f) {
+				private boolean getExpandedState(final Path f) {
 					final List<Boolean> res = new ArrayList<Boolean>(1);
 					Display.getDefault().syncExec(new Runnable() {
 						@Override
@@ -484,17 +493,6 @@ public class FileView extends ViewPart implements IFileView {
 			expandJob.setPriority(Job.INTERACTIVE);
 			expandJob.schedule();
 		}	
-	}
-
-	private List<File> getSegments(File file) {
-		final List<File> segs = new ArrayList<File>();
-		segs.add(file);
-		File par = file.getParentFile();
-		while(par!=null) {
-			segs.add(0, par);
-			par = par.getParentFile();
-		}
-		return segs;
 	}
 
 	private void createRightClickMenu() {
@@ -520,7 +518,7 @@ public class FileView extends ViewPart implements IFileView {
 		final Action dirsTop = new Action("Sort alphanumeric, directories at top.", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
-				final File selection = getSelectedFile();
+				final Path selection = getSelectedPath();
 				((FileContentProvider)tree.getContentProvider()).setSort(FileSortType.ALPHA_NUMERIC_DIRS_FIRST);
 				tree.refresh();
 				if (selection!=null)tree.setSelection(new StructuredSelection(selection));
@@ -535,7 +533,7 @@ public class FileView extends ViewPart implements IFileView {
 		final Action alpha = new Action("Alphanumeric sort for everything.", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
-				final File selection = getSelectedFile();
+				final Path selection = getSelectedPath();
 				((FileContentProvider)tree.getContentProvider()).setSort(FileSortType.ALPHA_NUMERIC);
 				tree.refresh();
 				if (selection!=null)tree.setSelection(new StructuredSelection(selection));
@@ -555,10 +553,10 @@ public class FileView extends ViewPart implements IFileView {
 
 	@Override
 	public void openSelectedFile() {
-		final File file = getSelectedFile();
+		final Path file = getSelectedPath();
 		if (file==null) return;
 		
-		if (file.isDirectory()) {
+		if (Files.isDirectory(file)) {
 			final IWorkbenchPage page = EclipseUtils.getActivePage();
 			if (page==null) return;
 			
@@ -570,13 +568,13 @@ public class FileView extends ViewPart implements IFileView {
 				return;
 			}
 			if (part != null && part instanceof ImageMonitorView) {
-			    ((ImageMonitorView)part).setDirectoryPath(file.getAbsolutePath());
+			    ((ImageMonitorView)part).setDirectoryPath(file.toAbsolutePath().toString());
 			}
 			
 		} else { // Open file
 			
 			try {
-				EclipseUtils.openExternalEditor(file.getAbsolutePath());
+				EclipseUtils.openExternalEditor(file.toAbsolutePath().toString());
 			} catch (PartInitException e) {
 				logger.error("Cannot open file "+file, e);
 			}

@@ -17,9 +17,10 @@
 package uk.ac.diamond.sda.navigator.views;
 
 import java.awt.Desktop;
-
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -36,15 +37,13 @@ public class ExplorerOSHandler extends AbstractHandler {
 		
 		final IFileView fileView = (IFileView)EclipseUtils.getActivePage().getActivePart();
 		
-		File fileObject;
+		Path fileObject = fileView.getSelectedPath();
 		
-		if (fileView.getSelectedFile().isDirectory()) {
-			fileObject = fileView.getSelectedFile();
-		} else {
-			fileObject = fileView.getSelectedFile().getParentFile();
+		if (!Files.isDirectory(fileObject)) {
+			fileObject = fileObject.getParent();
 		}
 		
-		final File finalFile = fileObject;
+		final Path path = fileObject;
 		Job openfile = new Job("open file") {
 			
 			@Override
@@ -56,12 +55,12 @@ public class ExplorerOSHandler extends AbstractHandler {
 					// when given a path deep into the C drive
 					//This is also why this is in a job
 					if (System.getProperty("os.name").toLowerCase().contains("win")) {
-						new ProcessBuilder("explorer.exe",finalFile.getAbsolutePath()).start();
+						new ProcessBuilder("explorer.exe",path.toAbsolutePath().toString()).start();
 						return Status.OK_STATUS;
 					}
 					
 					Desktop desktop = Desktop.getDesktop();
-					desktop.open(finalFile);
+					desktop.open(path.toFile());
 				} catch (IOException e) {
 					// do nothing
 				}

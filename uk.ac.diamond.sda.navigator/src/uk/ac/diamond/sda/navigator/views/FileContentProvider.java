@@ -17,8 +17,13 @@
 
 package uk.ac.diamond.sda.navigator.views;
 
-import java.io.File;
-import java.util.Arrays;
+import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
+
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -33,6 +38,8 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.ui.PlatformUI;
+
+import uk.ac.diamond.sda.navigator.util.NIOUtils;
 
 public class FileContentProvider implements ILazyTreeContentProvider {
 
@@ -60,13 +67,13 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	 * fast. 
 	 * NOTE Is there a better way of doing this.
 	 */
-	private Map<File, List<File>> cachedSorting;
+	private Map<Path, List<Path>> cachedSorting;
 	@SuppressWarnings("unused")
 	private IStatusLineManager statusManager;
 
 	public FileContentProvider(final IStatusLineManager statusManager) {
 		this.statusManager = statusManager;
-		this.cachedSorting = new WeakHashMap<File, List<File>>(89);
+		this.cachedSorting = new WeakHashMap<Path, List<Path>>(89);
 		this.elementQueue  = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
 		this.childQueue    = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
 	}
@@ -109,21 +116,21 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 			if (updateElementThread==null) updateElementThread = createUpdateThread(elementQueue, 9, "Update directory contents");
 			elementQueue.offerFirst(new ElementUpdateRequest(parent, index));
 		} else {
-			final File node = (File) parent;
-			final List<File> fa = getFileList(node);
+			final Path node = (Path) parent;
+			final List<Path> fa = getFileList(node);
 			updateElementInternal(node, index, fa);
 		}
 	}
 
-	public void updateElementInternal(Object parent, int index, List<File> fa) {
+	public void updateElementInternal(Object parent, int index, List<Path> fa) {
 		
 		
 		if (fa!=null && index < fa.size()) {
-			File element = fa.get(index);
+			Path element = fa.get(index);
 			treeViewer.replace(parent, index, element);
 			
 			// We correct when they expand, listFiles() could be slow.
-			if (element.isDirectory()) {
+			if (Files.isDirectory(element)) {
 				treeViewer.setChildCount(element, 1); // 1 for now
 				if (updateChildThread==null) updateChildThread = createUpdateThread(childQueue, 2, "Update child size");
 				childQueue.offerFirst(new ChildUpdateRequest(element, false)); // process size from queue
@@ -138,7 +145,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		
 		if (childQueue==null) return;
 		
-		if (element instanceof File && !((File)element).isDirectory()) {
+		if (element instanceof Path && !Files.isDirectory((Path)element)) {
 			treeViewer.setChildCount(element, 0);
 			return;
 		}
@@ -156,7 +163,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		
 		if (element==null) return;
 		
-		if (element instanceof String || ((element instanceof File) && ((File) element).isDirectory())) {
+		if (element instanceof Path && !Files.isDirectory((Path)element)) {
 			treeViewer.setChildCount(element, size);
 		} else {
 			treeViewer.setChildCount(element, 0);
@@ -165,39 +172,37 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	}
 
 
-	private List<File> getFileList(File node) {
+	private List<Path> getFileList(Path node) {
 		
-		if (!node.isDirectory()) return null;
+		if (!Files.isDirectory(node)) return null;
 		if (cachedSorting==null) return null;
-		
-		if (sort==FileSortType.ALPHA_NUMERIC) {
-			final File[] fa = node.listFiles();
-			if (fa==null) return null;
-			return Arrays.asList(fa);
-		}
-		
+				
 		if (cachedSorting.containsKey(node)) {
 			return cachedSorting.get(node);
 		}
 		
-		final List<File> sorted;
-		if (sort==FileSortType.ALPHA_NUMERIC) {
-			sorted = SortingUtils.getSortedFileList(node, false);
-		} else {
-			sorted = SortingUtils.getSortedFileList(node, true);
+		List<Path> sorted=null;
+		try {
+			if (sort==FileSortType.ALPHA_NUMERIC) {
+				sorted = SortingUtils.getSortedPathList(node, false);
+			} else {
+				sorted = SortingUtils.getSortedPathList(node, true);
+			}
+			cachedSorting.put(node, sorted);
+		} catch (IOException ne) {
+			cachedSorting.put(node, null);
 		}
-		cachedSorting.put(node, sorted);
 		return sorted;
 	}
 
 
 	@Override
 	public Object getParent(Object element) {
-		if (element==null || !(element instanceof File)) {
+		if (element==null || !(element instanceof Path)) {
 			return null;
 		}
-		final File node = ((File) element);
-		return node.getParentFile();
+		final Path node = ((Path) element);
+		return node.getParent();
 	}
 
 
@@ -295,11 +300,11 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 			try {
 				updateBusy(elementQueue, true);
 				
-				final List<File> fa;
+				final List<Path> fa;
 				if (getElement() instanceof String) {
-					fa = Arrays.asList(File.listRoots());
+					fa = NIOUtils.getRoots();
 				} else {
-					final File node = (File) getElement();
+					final Path node = (Path) getElement();
 					fa = getFileList(node);
 					
 				}
@@ -347,13 +352,19 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 				
 				if (updateBusyRequired) updateBusy(childQueue, true);
 				
-				//statusManager.setMessage("Reading "+((File)element).getName());
-				final Object[] fa = element instanceof File  
-						            ? ((File)element).list()// Only way speed up - use JNA and rely on unix command which has been tuned.
-						            : File.listRoots();
-      
-				final int    size = fa==null||fa.length<1 ? 0 : fa.length;
-
+				
+				int count = 0;
+				
+				if (element instanceof Path) {
+			        try (DirectoryStream<Path> ds = Files.newDirectoryStream((Path)element)) {
+			        	for (@SuppressWarnings("unused") Path path : ds) count+=1; // Faster way that File.list() in theory
+			        } catch (IOException ex) {}
+				} else {
+					for (@SuppressWarnings("unused")Path p : FileSystems.getDefault().getRootDirectories()) count+=1;
+				}
+				
+				final int size = count;
+		        
 				if (treeViewer.getControl().isDisposed()) return false;
 				treeViewer.getControl().getDisplay().syncExec(new Runnable() {
 					@Override
@@ -418,33 +429,6 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		thread.start();
 
 		return thread;
-	}
-	
-	/**
-	 * Method to find out if list() or listFiles() is faster
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		
-		final File dir = new File("E:/Data_Backup/ID22-ODA-Complete");
-		
-		long start, end;
-		@SuppressWarnings("unused")
-		Object[] fa;
-		
-		start = System.currentTimeMillis();
-		fa = dir.listFiles();
-		end = System.currentTimeMillis();		
-		System.out.print("Time to listFiles(): "+(end-start)+"\n");
-
-		start = System.currentTimeMillis();
-		fa = dir.list();
-		end = System.currentTimeMillis();		
-		System.out.print("Time to list(): "+(end-start)+"\n");
-
-		
-		
-
 	}
 
 }

@@ -199,6 +199,9 @@ public class NavigatorUtils {
 		return getHDF5ScanCommandOrTitle(fullpath, scanCmdName, h5File);
 	}
 
+	public static String getHDF5Title(String fullpath) {
+		return getHDF5ScanCommandOrTitle(fullpath, titleName, null);
+	}
 	/**
 	 * Method that returns the title of the nxs file being looked at.<br>
 	 * If there are more than one title, it returns the first one<br>
@@ -253,31 +256,6 @@ public class NavigatorUtils {
 			result = str == null ? result : str;
 		}
 		return result;
-	}
-
-	/**
-	 * Method that returns a title if the parameter is a nexus file, a comment if Ascii
-	 * @param file
-	 * @return a String
-	 */
-	public static String getComment(File file) {
-		return getHDF5Title(file.getAbsolutePath(), null);
-	}
-
-	/**
-	 * Method that returns a title if the parameter is a nexus file, a comment if Ascii
-	 * @param file
-	 * @param h5File
-	 * @return a String
-	 */
-	public static String getComment(File file, IHierarchicalDataFile h5File) {
-		String extension = FileUtils.getFileExtension(file);
-		if(extension.equals("hdf5") 
-				|| extension.equals("hdf")
-				|| extension.equals("h5")
-				|| extension.equals("nxs")) 
-			return getHDF5Title(file.getAbsolutePath(), h5File);
-		return "";
 	}
 
 }
