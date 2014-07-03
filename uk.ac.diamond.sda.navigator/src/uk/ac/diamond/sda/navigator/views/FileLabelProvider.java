@@ -88,52 +88,40 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		if (element instanceof String) return (String)element;
 		final File node   = (File)element;
 
+		String text = "";
+		IHierarchicalDataFile h5File = null;
 		//if node is an hdf5 file, returns the file
-		IHierarchicalDataFile h5File = getH5File(node);
+		h5File = getH5File(node);
 
-		switch(columnIndex) {
-		case 0:
-			return "".equals(node.getName())
-				   ? getRootLabel(node)
-				   : node.getName();
-		case 1:
-			return dateFormat.format(new Date(node.lastModified()));
-		case 2:
-			return node.isDirectory() ? "Directory" : FileUtils.getFileExtension(node);
-		case 3:
-			return formatSize(node.length());
-		case 4:
-			
-			String comment;
+		if(columnIndex == 0) {
+			text = "".equals(node.getName()) ? getRootLabel(node) : node.getName();
+		} else if (columnIndex == 1) {
+			text = dateFormat.format(new Date(node.lastModified()));
+		} else if (columnIndex == 2) {
+			text = node.isDirectory() ? "Directory" : FileUtils.getFileExtension(node);
+		} else if (columnIndex == 3) {
+			text = formatSize(node.length());
+		} else if (columnIndex == 4) {
 			if(!node.isDirectory() && showComment){
 				try {
-					comment = NavigatorUtils.getComment(node, h5File);
+					text = NavigatorUtils.getComment(node, h5File);
 				} catch (Exception e) {
 					e.printStackTrace();
-					comment = "N/A";
+					text = "N/A";
 				}
-			} else {
-				comment = "";
 			}
-			close(h5File);
-			return comment;
-		case 5:
-			String scanCmd;
+		} else if (columnIndex == 5) {
 			if(!node.isDirectory() && showScanCmd){
 				try {
-					scanCmd = NavigatorUtils.getHDF5ScanCommand(node.getAbsolutePath(), h5File);
+					text = NavigatorUtils.getHDF5ScanCommand(node.getAbsolutePath(), h5File);
 				} catch (Exception e) {
 					e.printStackTrace();
-					scanCmd = "N/A";
+					text = "N/A";
 				}
-			} else {
-				scanCmd = "";
 			}
-			close(h5File);
-			return scanCmd;
-		default:
-			return null;
 		}
+		close(h5File);
+		return text;
 	}
 
 	private IHierarchicalDataFile getH5File(File node) {
