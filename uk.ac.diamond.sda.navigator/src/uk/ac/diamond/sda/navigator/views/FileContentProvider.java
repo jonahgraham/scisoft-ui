@@ -17,16 +17,15 @@
 
 package uk.ac.diamond.sda.navigator.views;
 
-import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
-
 import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -64,16 +63,16 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 
 	/**
 	 * Caching seems to be needed to keep the path sorting
-	 * fast. 
-	 * NOTE Is there a better way of doing this.
+	 * fast. NOTE Is there a better way of doing this?
 	 */
-	private Map<Path, List<Path>> cachedSorting;
+	private Map<Path, SoftReference<List<Path>>> cachedSorting;
+	
 	@SuppressWarnings("unused")
 	private IStatusLineManager statusManager;
 
 	public FileContentProvider(final IStatusLineManager statusManager) {
 		this.statusManager = statusManager;
-		this.cachedSorting = new WeakHashMap<Path, List<Path>>(89);
+		this.cachedSorting = new HashMap<Path, SoftReference<List<Path>>>(89);
 		this.elementQueue  = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
 		this.childQueue    = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
 	}
@@ -163,7 +162,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		
 		if (element==null) return;
 		
-		if (element instanceof Path && !Files.isDirectory((Path)element)) {
+		if (element instanceof Path && Files.isDirectory((Path)element)) {
 			treeViewer.setChildCount(element, size);
 		} else {
 			treeViewer.setChildCount(element, 0);
@@ -178,7 +177,11 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		if (cachedSorting==null) return null;
 				
 		if (cachedSorting.containsKey(node)) {
-			return cachedSorting.get(node);
+			SoftReference<List<Path>> value = cachedSorting.get(node);
+			if (value==null) return null;
+			
+			List<Path> sorted = value.get();
+			if (sorted!=null) return sorted;
 		}
 		
 		List<Path> sorted=null;
@@ -188,7 +191,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 			} else {
 				sorted = SortingUtils.getSortedPathList(node, true);
 			}
-			cachedSorting.put(node, sorted);
+			cachedSorting.put(node, new SoftReference<List<Path>>(sorted));
 		} catch (IOException ne) {
 			cachedSorting.put(node, null);
 		}
@@ -356,9 +359,13 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 				int count = 0;
 				
 				if (element instanceof Path) {
-			        try (DirectoryStream<Path> ds = Files.newDirectoryStream((Path)element)) {
-			        	for (@SuppressWarnings("unused") Path path : ds) count+=1; // Faster way that File.list() in theory
-			        } catch (IOException ex) {}
+					if (Files.isDirectory((Path)element)) {
+				        try (DirectoryStream<Path> ds = Files.newDirectoryStream((Path)element)) {
+				        	for (@SuppressWarnings("unused") Path path : ds) count+=1; 
+				        	// Faster way than File.list() in theory
+				        	// see http://www.rgagnon.com/javadetails/java-get-directory-content-faster-with-many-files.html
+				        } catch (IOException ex) {}
+					}
 				} else {
 					for (@SuppressWarnings("unused")Path p : FileSystems.getDefault().getRootDirectories()) count+=1;
 				}

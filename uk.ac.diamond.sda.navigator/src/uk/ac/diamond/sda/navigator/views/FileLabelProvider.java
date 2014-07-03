@@ -16,21 +16,16 @@
 
 package uk.ac.diamond.sda.navigator.views;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 
 import org.dawb.common.services.IFileIconService;
 import org.dawb.common.services.ServiceManager;
 import org.dawb.common.util.io.FileUtils;
-import org.dawb.hdf5.H5Utils;
 import org.dawb.hdf5.HierarchicalDataFactory;
 import org.dawb.hdf5.IHierarchicalDataFile;
 import org.dawnsci.io.h5.H5Loader;
