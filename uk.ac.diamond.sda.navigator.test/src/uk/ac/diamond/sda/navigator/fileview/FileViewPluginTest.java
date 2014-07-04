@@ -20,6 +20,7 @@ package uk.ac.diamond.sda.navigator.fileview;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.nio.file.Path;
 
 import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.ui.IWorkbenchPage;
@@ -48,9 +49,11 @@ public class FileViewPluginTest {
 	@Test
 	public void testUserHome() throws Exception {
 		
-		final File selected = fileView.getSelectedFile();
+		final Path selected = fileView.getSelectedPath();
 		final File uhome = new File(System.getProperty("user.home"));
-		if (!selected.equals(uhome)) throw new Exception("Should select users home by default! "+selected);
+		if (!selected.toAbsolutePath().toString().equals(uhome.getAbsolutePath())) {
+			throw new Exception("Should select users home by default! "+selected);
+		}
 	}
 	
 	/**
