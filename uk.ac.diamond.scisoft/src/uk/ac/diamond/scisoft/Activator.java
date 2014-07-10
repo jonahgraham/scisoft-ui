@@ -16,11 +16,8 @@
 
 package uk.ac.diamond.scisoft;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -32,9 +29,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -56,9 +50,6 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 
-	// Used in log configuration file
-	private static final String LOG_FOLDER_PROP = "log.folder";
-
 	/**
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
@@ -67,72 +58,6 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		plugin = this;
 		bundleContext = context;
-
-		// First thing to do here is to try to set up the logging properly.
-		// during this, System.out will be used for logging
-		try {			
-			String logloc = System.getProperty(LOG_FOLDER_PROP);
-			if (logloc == null || "".equals(logloc)) {
-				System.out.println("Log folder property not set, setting this manually to a user sub-directory");
-				File tmpDirFile = new File(System.getProperty(LogConstants.USER_HOME_PROP), LogConstants.LOG_FOLDER);
-				if (tmpDirFile.exists() != true) {
-					tmpDirFile.mkdirs();
-				}
-
-				logloc = tmpDirFile.getCanonicalPath();
-				System.setProperty(LOG_FOLDER_PROP, logloc);
-			}
-
-			// Redirect standard out away from console as javaw swallows it
-			if (System.getProperty("os.name").startsWith("Windows")) {
-				final File fout = new File(logloc, LogConstants.OUT_FILE);
-				fout.mkdirs();
-				if (fout.exists()) fout.delete();
-				fout.createNewFile();
-				
-				final File ferr = new File(logloc, LogConstants.ERR_FILE);
-				if (ferr.exists()) ferr.delete();
-				ferr.createNewFile();
-
-				MultiOutputStream out = new MultiOutputStream(System.out, new BufferedOutputStream(new FileOutputStream(fout)));
-				MultiOutputStream err = new MultiOutputStream(System.err, new BufferedOutputStream(new FileOutputStream(ferr)));
-				
-				System.setOut(new PrintStream(out));
-				System.setErr(new PrintStream(err));
-			}
-
-			System.out.println(LOG_FOLDER_PROP + " java property set to '"+ logloc +"'");
-
-			System.out.println("Starting to configure Logger");
-			Object object = org.slf4j.LoggerFactory.getILoggerFactory();
-			LoggerContext loggerContext = (LoggerContext) object;
-			loggerContext.reset();
-			
-			System.out.println("Logger context reset");
-			
-			// now find the configuration file			
-			final File dir = getBundleLocation(PLUGIN_ID);
-			File logDir = new File(dir, "logging");
-			File file   = new File(logDir, "log_configuration.xml");
-			
-			if (file.exists()) {
-				System.out.println("Logging configuration file found at '"+file+"'");
-			} else {
-				System.out.println("Logging configuration file not found at '"+file+"'");
-			}
-
-			JoranConfigurator configurator = new JoranConfigurator();
-			configurator.setContext(loggerContext);
-			configurator.doConfigure(file);
-			
-			System.out.println("Logging configuration complete");
-			
-		} catch (Throwable e) {
-			System.out.println("Could not set up logging properly, logging to stdout for now, error follows");
-			e.printStackTrace();
-			LoggerContext loggerContext = (LoggerContext)org.slf4j.LoggerFactory.getILoggerFactory();
-			loggerContext.reset();
-		} 
 	}
 
 	public static File getBundleLocation(final String bundle_id) throws IOException {

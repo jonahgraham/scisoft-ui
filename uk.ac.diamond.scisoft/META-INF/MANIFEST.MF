@@ -16,7 +16,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: uk.ac.diamond.scisoft
 Bundle-Vendor: Diamond Light Source
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: .,
- jars/ch.qos.logback.classic_1.1.1.jar,
- jars/ch.qos.logback.core_1.1.1.jar,
- jars/slf4j.api_1.7.6.jar
+Bundle-ClassPath: .
+Import-Package: org.slf4j;version="1.7.6"
