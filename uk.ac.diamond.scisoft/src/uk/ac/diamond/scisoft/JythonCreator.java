@@ -117,6 +117,7 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.CBFlib",
 		"uk.ac.diamond.jama",
 		"uk.ac.diamond.scisoft.analysis",
+		"uk.ac.diamond.scisoft.diffraction.powder",
 		"uk.ac.diamond.scisoft.python",
 		"uk.ac.diamond.scisoft.spectroscopy",
 		"uk.ac.gda.common",
@@ -146,6 +147,7 @@ public class JythonCreator implements IStartup {
 	private final static String[] pluginKeys = {
 		"org.dawb.hdf5", // required for loading to work in client started from IDE
 		"uk.ac.diamond.scisoft.analysis",
+		"uk.ac.diamond.scisoft.diffraction.powder",
 		"uk.ac.diamond.scisoft.python",
 		"uk.ac.diamond.CBFlib",
 		"uk.ac.gda.common",
