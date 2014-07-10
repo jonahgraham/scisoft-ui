@@ -139,6 +139,7 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.org.apache.xmlrpc.common",
 		"uk.ac.diamond.org.apache.xmlrpc.server",
 		"com.thoughtworks.xstream",
+		"uk.ac.diamond.org.jscience4",
 	};
 	private static final String[] removedLibEndings = {
 		"pysrc",
