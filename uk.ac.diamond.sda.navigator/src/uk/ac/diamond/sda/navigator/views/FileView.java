@@ -84,11 +84,11 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.utils.OSUtils;
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 import uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferenceConstants;
 import uk.ac.diamond.sda.navigator.util.NIOUtils;
 import uk.ac.diamond.sda.navigator.views.FileContentProvider.FileSortType;
-import uk.ac.gda.util.OSUtils;
 
 /**
  * This class navigates a file system and remembers where you last left it. 

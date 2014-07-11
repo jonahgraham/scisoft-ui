@@ -27,6 +27,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.diamond.scisoft.analysis.utils.OSUtils;
 import uk.ac.diamond.sda.navigator.views.FileView;
 
 /**
@@ -64,7 +65,7 @@ public class FileViewPluginTest {
 	@Test
 	public void testSelectingSomeThings() throws Exception {
 		
-		final File root = uk.ac.gda.util.OSUtils.isWindowsOS() ? new File("C:/") : new File("/");
+		final File root = OSUtils.isWindowsOS() ? new File("C:/") : new File("/");
 		File selected = root;
 		
 		int count = 10;
