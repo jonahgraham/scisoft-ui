@@ -4,21 +4,6 @@
    <extension-point id="uk.ac.diamond.sda.meta.metadataPageRegister" name="Metadata Page Register" schema="schema/uk.ac.diamond.sda.meta.metadataPageRegister.exsd"/>
 
    <extension
-         point="org.eclipse.ui.views">
-      <category
-            name="Data Analysis - Metadata"
-            id="uk.ac.diamond.sda.meta.category">
-      </category>
-      <view
-            category="uk.ac.diamond.sda.meta.category"
-            class="uk.ac.diamond.sda.meta.views.MetadataPageView"
-            icon="icons/diffraction-meta.png"
-            id="uk.ac.diamond.sda.meta.MetadataPageView"
-            name="File Header"
-            restorable="true">
-      </view>
-   </extension>
-   <extension
          point="uk.ac.diamond.sda.meta.metadataPageRegister">
       <client
             class="uk.ac.diamond.sda.meta.page.DiffractionMetadataComposite"
