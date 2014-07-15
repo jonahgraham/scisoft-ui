@@ -29,12 +29,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.dawb.common.ui.util.DisplayUtils;
-import org.dawnsci.plotting.api.IPlottingSystem;
-import org.dawnsci.plotting.api.PlotType;
-import org.dawnsci.plotting.api.PlottingFactory;
-import org.dawnsci.plotting.api.axis.IAxis;
-import org.dawnsci.plotting.api.region.IRegion;
-import org.dawnsci.plotting.api.trace.ColorOption;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.PlotType;
+import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.dawnsci.plotting.api.axis.IAxis;
+import org.eclipse.dawnsci.plotting.api.region.IRegion;
+import org.eclipse.dawnsci.plotting.api.trace.ColorOption;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;

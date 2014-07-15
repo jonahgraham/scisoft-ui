@@ -18,11 +18,11 @@ package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
 import java.util.Collection;
 
-import org.dawnsci.plotting.api.IPlottingSystem;
-import org.dawnsci.plotting.api.PlottingFactory;
-import org.dawnsci.plotting.api.histogram.IPaletteService;
-import org.dawnsci.plotting.api.trace.IPaletteTrace;
-import org.dawnsci.plotting.api.trace.ITrace;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.dawnsci.plotting.api.histogram.IPaletteService;
+import org.eclipse.dawnsci.plotting.api.trace.IPaletteTrace;
+import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;

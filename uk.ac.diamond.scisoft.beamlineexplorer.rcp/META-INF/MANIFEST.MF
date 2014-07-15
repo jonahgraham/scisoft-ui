@@ -12,9 +12,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.navigator;bundle-version="3.5.101"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Import-Package: org.dawnsci.plotting.api,
- org.dawnsci.plotting.api.region,
- org.dawnsci.plotting.api.trace,
+Import-Package: org.eclipse.dawnsci.plotting.api,
+ org.eclipse.dawnsci.plotting.api.region,
+ org.eclipse.dawnsci.plotting.api.trace,
  org.eclipse.ui.intro.config,
  org.eclipse.ui.navigator.resources,
  org.slf4j;version="[1.7.6,1.7.7)",

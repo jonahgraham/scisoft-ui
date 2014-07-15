@@ -31,11 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;

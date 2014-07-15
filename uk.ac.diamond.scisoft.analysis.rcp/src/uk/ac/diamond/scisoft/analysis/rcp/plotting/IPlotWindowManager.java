@@ -16,7 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
-import org.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.ui.IWorkbenchPage;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.IPlotWindowManagerRMI;

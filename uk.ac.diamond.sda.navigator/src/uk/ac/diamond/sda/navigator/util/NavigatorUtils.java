@@ -26,8 +26,8 @@ import javax.swing.tree.TreeNode;
 import ncsa.hdf.object.Dataset;
 
 import org.dawb.common.util.io.FileUtils;
-import org.dawb.hdf5.HierarchicalDataFactory;
-import org.dawb.hdf5.IHierarchicalDataFile;
+import org.eclipse.dawnsci.hdf5.HierarchicalDataFactory;
+import org.eclipse.dawnsci.hdf5.IHierarchicalDataFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

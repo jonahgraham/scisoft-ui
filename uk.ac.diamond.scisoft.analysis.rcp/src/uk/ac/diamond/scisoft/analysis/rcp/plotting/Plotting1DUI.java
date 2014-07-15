@@ -25,12 +25,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.dawnsci.plotting.api.IPlottingSystem;
-import org.dawnsci.plotting.api.axis.IAxis;
-import org.dawnsci.plotting.api.trace.ILineTrace;
-import org.dawnsci.plotting.api.trace.ILineTrace.TraceType;
-import org.dawnsci.plotting.api.trace.ITrace;
 import org.dawnsci.plotting.util.ColorUtility;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.axis.IAxis;
+import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
+import org.eclipse.dawnsci.plotting.api.trace.ITrace;
+import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.TraceType;
 //import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;

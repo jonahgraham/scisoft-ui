@@ -20,7 +20,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import ncsa.hdf.object.HObject;
 
-import org.dawb.hdf5.editor.IH5DoubleClickSelectionProvider;
+import org.eclipse.dawnsci.hdf5.editor.IH5DoubleClickSelectionProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 

@@ -17,8 +17,8 @@
 package uk.ac.diamond.sda.navigator.actions;
 
 import org.dawb.common.services.ServiceManager;
-import org.dawnsci.slicing.api.data.ITransferableDataObject;
-import org.dawnsci.slicing.api.data.ITransferableDataService;
+import org.eclipse.dawnsci.slicing.api.data.ITransferableDataObject;
+import org.eclipse.dawnsci.slicing.api.data.ITransferableDataService;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;

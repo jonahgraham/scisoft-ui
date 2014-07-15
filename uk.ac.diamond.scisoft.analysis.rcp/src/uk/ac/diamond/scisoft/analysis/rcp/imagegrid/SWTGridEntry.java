@@ -19,8 +19,8 @@ package uk.ac.diamond.scisoft.analysis.rcp.imagegrid;
 import java.awt.Dimension;
 import java.io.IOException;
 
-import org.dawnsci.plotting.api.histogram.IPaletteService;
 import org.dawnsci.plotting.services.util.SWTImageUtils;
+import org.eclipse.dawnsci.plotting.api.histogram.IPaletteService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
