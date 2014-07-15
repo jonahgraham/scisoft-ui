@@ -60,51 +60,6 @@ public class Activator extends AbstractUIPlugin {
 		bundleContext = context;
 	}
 
-	public static File getBundleLocation(final String bundle_id) throws IOException {
-		
-        // Just in case...
-        final String eclipseDir = getEclipseHome();
-  
-        final File   plugins = new File(eclipseDir, "plugins");
-        if (plugins.exists()) {
-	        final File[] fa = plugins.listFiles();
-	        for (int i = 0; i < fa.length; i++) {
-				final File file = fa[i];
-				if (file.getName().equals(bundle_id)) return file;
-				if (file.getName().startsWith(bundle_id+"_")) return file;
-			}
-        }
-		final Bundle bundle = Platform.getBundle(PLUGIN_ID);
-		if (bundle != null)
-	        return FileLocator.getBundleFile(bundle);
-
-		ProtectionDomain pd = Activator.class.getProtectionDomain();
-		URL url = pd.getCodeSource().getLocation();
-		return new File(url.getFile());
-	}
-
-	/**
-	 * Gets eclipse home in debug and in deployed application mode.
-	 * @return eclipseHome
-	 */
-	public static String getEclipseHome() {
-		File hDirectory;
-		try {
-			URI u = new URI(System.getProperty("eclipse.home.location"));
-			hDirectory = new File(u);
-		} catch (URISyntaxException e) {
-			return null;
-		}
-
-		String path = hDirectory.getName();
-		if (path.equals("plugins") || path.equals("bundles")) {
-			path = hDirectory.getParentFile().getParentFile().getAbsolutePath();
-		} else{
-			path = hDirectory.getAbsolutePath();
-		}
-        return path;
-	}
-
 	/**
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
