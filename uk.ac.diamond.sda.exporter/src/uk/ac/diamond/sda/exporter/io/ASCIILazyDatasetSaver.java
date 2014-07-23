@@ -16,8 +16,9 @@
 
 package uk.ac.diamond.sda.exporter.io;
 
-import gda.analysis.io.IFileSaver;
-import gda.analysis.io.ScanFileHolderException;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IFileSaver;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -29,7 +30,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 
 /**
  * Example class for dumping multidimensional data and meta data
@@ -94,12 +94,12 @@ public class ASCIILazyDatasetSaver implements IFileSaver {
 	}
 
 	@SuppressWarnings("unused")
-	protected void writeMetadata(DataHolder dh) throws IOException {
+	protected void writeMetadata(IDataHolder dh) throws IOException {
 		// do nothing but can be overridden
 	}
 
 	@Override
-	public void saveFile(DataHolder dh) throws ScanFileHolderException {
+	public void saveFile(IDataHolder dh) throws ScanFileHolderException {
 		try {
 			out = new BufferedWriter(new FileWriter(fileName));
 

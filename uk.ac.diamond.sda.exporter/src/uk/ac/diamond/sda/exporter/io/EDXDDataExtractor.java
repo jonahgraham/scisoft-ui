@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.util.StringUtils;
 
@@ -66,7 +66,7 @@ public class EDXDDataExtractor {
 			}
 			fullPath = fullPath.substring(0, fullPath.length() - 4); // we replace the last 4 char by ""
 
-			final DataHolder dh = LoaderFactory.getData(dataFile.getLocation().toOSString());
+			final IDataHolder dh = LoaderFactory.getData(dataFile.getLocation().toOSString());
 			// , new ProgressMonitorWrapper(monitor));
 
 			createDATFile(dh, "anewDATFile.dat");
@@ -112,7 +112,7 @@ public class EDXDDataExtractor {
 		}
 	}
 
-	private static void createDATFile(DataHolder dh, String filename) {
+	private static void createDATFile(IDataHolder dh, String filename) {
 		try {
 //			ASCIILazyDatasetSaver asciiWriter = new ASCIILazyDatasetSaver(filename);
 //			asciiWriter.saveFile(dh);
