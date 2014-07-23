@@ -99,7 +99,7 @@ import uk.ac.diamond.sda.navigator.views.FileContentProvider.FileSortType;
  * It is lazy in loading the file tree.
  *
  */
-public class FileView extends ViewPart implements IFileView {
+public final class FileView extends ViewPart implements IFileView {
 
 	public static final String ID = "uk.ac.diamond.sda.navigator.views.FileView";
 	
