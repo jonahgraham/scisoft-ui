@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 /**
@@ -125,7 +125,7 @@ public class CsvWriter {
 				public void run(IProgressMonitor monitor)
 						throws InvocationTargetException, InterruptedException {
 					try {
-						final DataHolder dh = LoaderFactory.getData(dataFile
+						final IDataHolder dh = LoaderFactory.getData(dataFile
 								.getLocation().toOSString(),
 								new ProgressMonitorWrapper(monitor));
 						csv.create(getCVSStream(dh, dataSetNames, delimiter), true,
@@ -164,14 +164,14 @@ public class CsvWriter {
 		}
 	}
 
-	protected static InputStream getCVSStream(final DataHolder dh,
+	protected static InputStream getCVSStream(final IDataHolder dh,
 			final Object[] dataSetNames, String delimiter) throws Exception {
 
 		final Collection<?> requiredNames = dataSetNames != null ? Arrays
 				.asList(dataSetNames) : null;
 
 		final Map<String, ILazyDataset> sortedData = new TreeMap<String, ILazyDataset>();
-		sortedData.putAll(dh.getMap());
+		sortedData.putAll(dh.toLazyMap());
 		if (requiredNames != null)
 			sortedData.keySet().retainAll(requiredNames);
 
