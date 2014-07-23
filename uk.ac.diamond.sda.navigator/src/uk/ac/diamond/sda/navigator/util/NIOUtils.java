@@ -17,21 +17,26 @@
 package uk.ac.diamond.sda.navigator.util;
 
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 public class NIOUtils {
 
-	
+	private static List<Path> roots;
 	
 	public static final List<Path> getRoots() {
-		return createList(FileSystems.getDefault().getRootDirectories());
+		if (roots==null) roots = createList(FileSystems.getDefault().getRootDirectories());
+		return roots;
 	}
 	
 	private static final List<Path> createList(Iterable<Path> dirs) {
 		List<Path> ret = new ArrayList<Path>(3);
-		for (Path path : dirs) ret.add(path);
+		for (Path path : dirs) {
+			if (!Files.isReadable(path)) continue;
+			ret.add(path);
+		}
 		return ret;
 	}
 

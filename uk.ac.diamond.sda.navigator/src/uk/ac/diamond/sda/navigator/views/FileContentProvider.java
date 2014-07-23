@@ -164,10 +164,11 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		
 		if (element instanceof Path && Files.isDirectory((Path)element)) {
 			treeViewer.setChildCount(element, size);
+		} else if (element instanceof String){
+			treeViewer.setChildCount(element, NIOUtils.getRoots().size());
 		} else {
 			treeViewer.setChildCount(element, 0);
 		}
-		
 	}
 
 
@@ -367,7 +368,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 				        } catch (IOException ex) {}
 					}
 				} else {
-					for (@SuppressWarnings("unused")Path p : FileSystems.getDefault().getRootDirectories()) count+=1;
+					for (@SuppressWarnings("unused")Path p : NIOUtils.getRoots()) count+=1;
 				}
 				
 				final int size = count;

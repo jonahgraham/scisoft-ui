@@ -16,6 +16,7 @@
             id="uk.ac.diamond.sda.navigator.view"
             name="DAWN Navigator"/>
       <view
+            allowMultiple="false"
             category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.sda.navigator.views.FileView"
             icon="icons/folder.png"

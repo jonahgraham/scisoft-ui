@@ -39,6 +39,7 @@ import org.eclipse.swt.widgets.Display;
 import uk.ac.diamond.scisoft.analysis.utils.OSUtils;
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 import uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferenceConstants;
+import uk.ac.diamond.sda.navigator.util.NIOUtils;
 import uk.ac.diamond.sda.navigator.util.NavigatorUtils;
 
 public class FileLabelProvider extends ColumnLabelProvider {
@@ -103,10 +104,10 @@ public class FileLabelProvider extends ColumnLabelProvider {
 	
 			switch(columnIndex) {
 			case 0:
-				String name = node.getFileName().toString();
-				return "".equals(name)
-					   ? getRootLabel(node)
-					   : name;
+				String name = NIOUtils.getRoots().contains(node)
+				            ?  getRootLabel(node)
+				            : node.getFileName().toString();
+				return name;
 			case 1:
 				return dateFormat.format(Files.getLastModifiedTime(node).toMillis());
 			case 2:
