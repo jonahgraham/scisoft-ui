@@ -62,7 +62,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.ViewPart;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 
@@ -95,7 +95,7 @@ public class DatasetTableView extends ViewPart {
 	 * @param cols
 	 *            values for column header, can be null
 	 */
-	public void setData(AbstractDataset dataset, AbstractDataset rows, AbstractDataset cols) {
+	public void setData(IDataset dataset, IDataset rows, IDataset cols) {
 		if (dataset.getRank() != 2)
 			return;
 
@@ -190,7 +190,7 @@ class DatasetGridLayerStack extends DefaultGridLayer {
 	private boolean colsCustom = false;
 	
 
-	public DatasetGridLayerStack(AbstractDataset dataset, AbstractDataset rows, AbstractDataset cols) {
+	public DatasetGridLayerStack(IDataset dataset, IDataset rows, IDataset cols) {
 		super(true);
 		if (rows != null && rows.getName().startsWith(AbstractExplorer.DIM_PREFIX))
 			rows = null;
@@ -209,7 +209,7 @@ class DatasetGridLayerStack extends DefaultGridLayer {
 		configureFreeze(rowsCustom, colsCustom);
 	}
 
-	public void setData(AbstractDataset dataset, AbstractDataset rows, AbstractDataset cols) {
+	public void setData(IDataset dataset, IDataset rows, IDataset cols) {
 		if (rows != null && rows.getName().startsWith(AbstractExplorer.DIM_PREFIX))
 			rows = null;
 		rowsCustom = rows != null;
@@ -346,7 +346,7 @@ class DatasetColumnProvider implements IDataProvider {
 	 * @param columns
 	 * @param data
 	 */
-	public DatasetColumnProvider(int columns, AbstractDataset data) {
+	public DatasetColumnProvider(int columns, IDataset data) {
 		setData(columns, data);
 	}
 
@@ -363,7 +363,7 @@ class DatasetColumnProvider implements IDataProvider {
 	 * @param columns
 	 * @param data
 	 */
-	public void setData(int columns, AbstractDataset data) {
+	public void setData(int columns, IDataset data) {
 		ncol = columns;
 		off = data != null ? 1 : 0;
 		String header = data != null ? data.getName() : null;
@@ -416,7 +416,7 @@ class DatasetRowProvider implements IDataProvider {
 	 * @param rows
 	 * @param data
 	 */
-	public DatasetRowProvider(int rows, AbstractDataset data) {
+	public DatasetRowProvider(int rows, IDataset data) {
 		setData(rows, data);
 	}
 
@@ -424,7 +424,7 @@ class DatasetRowProvider implements IDataProvider {
 	 * @param rows
 	 * @param data
 	 */
-	public void setData(int rows, AbstractDataset data) {
+	public void setData(int rows, IDataset data) {
 		nrow = rows;
 		off = data != null ? 1 : 0;
 		header = data != null ? data.getName() : null;
@@ -453,9 +453,9 @@ class DatasetRowProvider implements IDataProvider {
 }
 
 class DatasetContentProvider implements IDataProvider {
-	AbstractDataset data;
-	AbstractDataset drow;
-	AbstractDataset dcol;
+	IDataset data;
+	IDataset drow;
+	IDataset dcol;
 	int[] shape;
 	private int roffset; // one if need to offset row items
 	private int coffset;
@@ -465,7 +465,7 @@ class DatasetContentProvider implements IDataProvider {
 	 * @param row
 	 * @param column
 	 */
-	public DatasetContentProvider(AbstractDataset dataset, AbstractDataset row, AbstractDataset column) {
+	public DatasetContentProvider(IDataset dataset, IDataset row, IDataset column) {
 		setData(dataset, row, column);
 	}
 
@@ -474,7 +474,7 @@ class DatasetContentProvider implements IDataProvider {
 	 * @param row
 	 * @param column
 	 */
-	public void setData(AbstractDataset dataset, AbstractDataset row, AbstractDataset column) {
+	public void setData(IDataset dataset, IDataset row, IDataset column) {
 		data = dataset;
 		drow = row;
 		dcol = column;
