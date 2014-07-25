@@ -60,9 +60,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHan
 import uk.ac.diamond.scisoft.analysis.rcp.views.ExamplePlotView;
 
 /**
- * Abstract Class used to implement PlotWindows that implement IObserver, IObservable
+ * Abstract Class used to implement PlotWindows that implement IObservable
  */
-public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObservable {
+public abstract class AbstractPlotWindow implements IPlotWindow, IObservable {
 
 	static private Logger logger = LoggerFactory.getLogger(AbstractPlotWindow.class);
 
@@ -662,11 +662,6 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObserver, IObs
 
 	public IPlottingSystem getPlottingSystem() {
 		return plottingSystem;
-	}
-
-	@Override
-	public void update(Object theObserved, Object changeCode) {
-
 	}
 
 	/**
