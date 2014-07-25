@@ -853,30 +853,6 @@ class PlotTab extends ATab {
 			}
 		}
 
-		boolean isSliced = false;
-		for (Slice s : slices) {
-			if (s != null && !s.isSliceComplete()) {
-				isSliced = true;
-				break;
-			}
-		}
-		if (isSliced) {
-			if (name.length() == 0 || "".equals(name)) {
-				name.append("Slice ");
-			}
-			StringBuilder t = new StringBuilder();
-			t.append('[');
-			for (int idx = 0; idx < slices.length; idx++) {
-				if (average != null && average[idx]) t.append('~');
-				Slice s = slices[idx];
-				t.append(s != null ? s.toString() : ':');
-				t.append(',');
-			}
-			t.deleteCharAt(t.length()-1);
-			t.append(']');
-			name.append(t.toString());
-		}
-
 		reorderedData.setName(name.toString());
 
 		return reorderedData;
