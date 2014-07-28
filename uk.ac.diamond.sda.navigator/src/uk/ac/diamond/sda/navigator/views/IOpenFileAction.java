@@ -14,30 +14,11 @@
  * limitations under the License.
  */
 
-package uk.ac.diamond.sda.navigator.util;
+package uk.ac.diamond.sda.navigator.views;
 
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
-public class NIOUtils {
+public interface IOpenFileAction {
 
-	private static List<Path> roots;
-	
-	public static final List<Path> getRoots() {
-		if (roots==null) roots = createList(FileSystems.getDefault().getRootDirectories());
-		return roots;
-	}
-	
-	private static final List<Path> createList(Iterable<Path> dirs) {
-		List<Path> ret = new ArrayList<Path>(3);
-		for (Path path : dirs) {
-			if (!Files.isReadable(path)) continue;
-			ret.add(path);
-		}
-		return ret;
-	}
-
+	void openFile(Path pathToFile);
 }

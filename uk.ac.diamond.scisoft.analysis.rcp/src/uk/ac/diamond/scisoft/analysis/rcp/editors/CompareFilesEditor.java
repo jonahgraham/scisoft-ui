@@ -116,6 +116,7 @@ import uk.ac.diamond.scisoft.analysis.io.ILazyLoader;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.diamond.scisoft.analysis.io.Utils;
+import uk.ac.diamond.scisoft.analysis.metadata.MetadataType;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
@@ -534,6 +535,19 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		@Override
 		public IMetaData getMetadata() throws Exception {
 			return metadata;
+		}
+		
+		@Override
+		public List<? extends MetadataType> getMetadata(
+				Class<? extends MetadataType> clazz) throws Exception {
+			if (IMetaData.class.isAssignableFrom(clazz)) {
+				ArrayList<IMetaData> result = new ArrayList<IMetaData>();
+				result.add(getMetadata());
+				return result;
+			}
+			throw new UnsupportedOperationException("getMetadata(clazz) does not currently support anything other than IMetadata");
+			// If it should only support this, simply return null here, otherwise implement the method fully
+			//return null;
 		}
 	}
 

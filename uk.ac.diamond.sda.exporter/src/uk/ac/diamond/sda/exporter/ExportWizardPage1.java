@@ -16,10 +16,8 @@
 package uk.ac.diamond.sda.exporter;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 import org.dawb.common.ui.monitor.ProgressMonitorWrapper;
 import org.dawb.common.ui.util.EclipseUtils;
@@ -42,7 +40,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
@@ -178,13 +176,12 @@ public class ExportWizardPage1 extends WizardPage {
 							}
 
 							// Clobber the memory!
-							final DataHolder holder = LoaderFactory.getData(
+							final IDataHolder holder = LoaderFactory.getData(
 									file.getLocation().toOSString(),
 									new ProgressMonitorWrapper(monitor));
-							final List<String> names = new ArrayList<String>(
-									holder.getMap().keySet());
-							Collections.sort(names);
-							setDataNames(names.toArray(new String[names.size()]));
+							final String[] names = holder.getNames();
+							Arrays.sort(names);
+							setDataNames(names);
 							return;
 
 						} catch (Exception ne) {

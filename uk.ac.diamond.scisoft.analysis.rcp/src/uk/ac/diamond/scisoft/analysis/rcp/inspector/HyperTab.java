@@ -38,7 +38,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
@@ -149,7 +150,7 @@ public class HyperTab extends PlotTab {
 
 		final int[] order = getOrder(daxes.size());
 		// FIXME: Image, surface and volume plots can't work with multidimensional axis data
-		final List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, average, order);
+		final List<Dataset> slicedAxes = sliceAxes(getChosenAxes(), slices, average, order);
 		
 		///
 		// --------- final AbstractDataset reorderedData = slicedAndReorderData(monitor, slices, average, order, null);
@@ -160,10 +161,12 @@ public class HyperTab extends PlotTab {
 				@Override
 				public void run() {
 					HyperView tableView = getHyperView();
+					List<IDataset> sAxes = new ArrayList<IDataset>();
+					sAxes.addAll(slicedAxes);
 					if (tableView == null)
 						return;
 
-					tableView.setData(dataset, slicedAxes,slices, order, hyperType);
+					tableView.setData(dataset, sAxes,slices, order, hyperType);
 				}
 			});
 			break;

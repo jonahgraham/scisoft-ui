@@ -30,8 +30,11 @@ import org.dawb.common.ui.menu.CheckableActionGroup;
 import org.dawb.common.ui.util.EclipseUtils;
 import org.dawb.common.ui.views.ImageMonitorView;
 import org.dawnsci.common.widgets.content.FileContentProposalProvider;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
@@ -96,7 +99,7 @@ import uk.ac.diamond.sda.navigator.views.FileContentProvider.FileSortType;
  * It is lazy in loading the file tree.
  *
  */
-public class FileView extends ViewPart implements IFileView {
+public final class FileView extends ViewPart implements IFileView {
 
 	public static final String ID = "uk.ac.diamond.sda.navigator.views.FileView";
 	
@@ -551,10 +554,21 @@ public class FileView extends ViewPart implements IFileView {
 	}
 
 
+	/**
+	 * Opens the file selected in the tree. If a openFile extension is active for this perspective
+	 * this is called instead to delegate opening the file.
+	 * 
+	 */
 	@Override
 	public void openSelectedFile() {
 		final Path file = getSelectedPath();
 		if (file==null) return;
+		
+		final IOpenFileAction action = getFirstPertinentAction();
+		if (action!=null) {
+			action.openFile(file);
+			return;
+		}
 		
 		if (Files.isDirectory(file)) {
 			final IWorkbenchPage page = EclipseUtils.getActivePage();
@@ -578,6 +592,25 @@ public class FileView extends ViewPart implements IFileView {
 			} catch (PartInitException e) {
 				logger.error("Cannot open file "+file, e);
 			}
+		}
+	}
+
+	private IOpenFileAction getFirstPertinentAction() {
+		
+		try {
+			IConfigurationElement[] eles = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.diamond.sda.navigator.openFile");
+			final String perspectiveId   = EclipseUtils.getPage().getPerspective().getId();
+			
+			for (IConfigurationElement e : eles) {
+				final String perspective = e.getAttribute("perspective");
+				if (perspectiveId.equals(perspective) || perspective==null) {
+					return (IOpenFileAction)e.createExecutableExtension("class");
+				}
+			}
+			return null;
+		} catch (CoreException coreEx) {
+			coreEx.printStackTrace();
+			return null;
 		}
 	}
 

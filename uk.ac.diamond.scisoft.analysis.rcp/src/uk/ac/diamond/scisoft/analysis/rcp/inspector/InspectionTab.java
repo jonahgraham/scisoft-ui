@@ -1,5 +1,5 @@
 /*-
- * Copyright 2014 Diamond Light Source Ltd.
+ * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.dawnsci.plotting.jreality.impl.DataSet3DPlot2DMulti;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
-import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
+import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -55,7 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
@@ -696,8 +696,8 @@ class PlotTab extends ATab {
 		}
 	}
 
-	protected List<AbstractDataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, boolean[] average, int[] order) {
-		List<AbstractDataset> slicedAxes = new ArrayList<AbstractDataset>();
+	protected List<Dataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, boolean[] average, int[] order) {
+		List<Dataset> slicedAxes = new ArrayList<Dataset>();
 
 		boolean[] used = getUsedDims();
 		for (int o : order) {
@@ -724,9 +724,9 @@ class PlotTab extends ATab {
 					}
 				}
 				
-				AbstractDataset slicedAxis = DatasetUtils.convertToAbstractDataset(axesData.getSlice(s));
+				Dataset slicedAxis = DatasetUtils.convertToDataset(axesData.getSlice(s));
 
-				AbstractDataset reorderdAxesData = DatasetUtils.transpose(slicedAxis, reorderAxesDims);
+				Dataset reorderdAxesData = DatasetUtils.transpose(slicedAxis, reorderAxesDims);
 //				reorderdAxesData.setName(axesData.getName());
 
 				reorderdAxesData.setName(c.getLongName());
@@ -738,10 +738,10 @@ class PlotTab extends ATab {
 		return slicedAxes;
 	}
 
-	protected AbstractDataset sliceData(IMonitor monitor, Slice[] slices) {
-		AbstractDataset slicedData = null;
+	protected Dataset sliceData(IMonitor monitor, Slice[] slices) {
+		Dataset slicedData = null;
 		try {
-			slicedData = DatasetUtils.convertToAbstractDataset(dataset.getSlice(monitor, slices));
+			slicedData = DatasetUtils.convertToDataset(dataset.getSlice(monitor, slices));
 		} catch (Exception e) {
 			logger.error("Problem getting slice of data: {}", e);
 			logger.error("Tried to get slices: {}", Arrays.toString(slices));
@@ -749,10 +749,10 @@ class PlotTab extends ATab {
 		return slicedData;
 	}
 
-	protected AbstractDataset sliceData(IMonitor monitor, int[] start, int[] stop, int[] step) {
-		AbstractDataset slicedData = null;
+	protected Dataset sliceData(IMonitor monitor, int[] start, int[] stop, int[] step) {
+		Dataset slicedData = null;
 		try {
-			slicedData = DatasetUtils.convertToAbstractDataset(dataset.getSlice(monitor, start, stop, step));
+			slicedData = DatasetUtils.convertToDataset(dataset.getSlice(monitor, start, stop, step));
 		} catch (Exception e) {
 			logger.error("Problem getting slice of data: {}", e);
 			logger.error("Tried to get slice: start={}, stop={}, step={}",
@@ -761,12 +761,12 @@ class PlotTab extends ATab {
 		return slicedData;
 	}
 
-	protected AbstractDataset slicedAndReorderData(IMonitor monitor, Slice[] slices, boolean[] average, int[] order, IMetaData meta) {
-		AbstractDataset reorderedData = null;
-		AbstractDataset slicedData = null;
+	protected Dataset slicedAndReorderData(IMonitor monitor, Slice[] slices, boolean[] average, int[] order, IMetaData meta) {
+		Dataset reorderedData = null;
+		Dataset slicedData = null;
 		
 		if (average != null) {
-			AbstractDataset averagedData = null;
+			Dataset averagedData = null;
 			List<Integer> axs = new ArrayList<Integer>();
 			int[] slicesShape = new int[slices.length];
 			int resDim = 0;
@@ -805,7 +805,7 @@ class PlotTab extends ATab {
 					}
 				}
 				
-				AbstractDataset tmpSlice = DatasetUtils.convertToAbstractDataset(dataset.getSlice(tmpSlices));
+				Dataset tmpSlice = DatasetUtils.convertToDataset(dataset.getSlice(tmpSlices));
 				if (meanAxis != -1) {
 					int[] tmpShape = tmpSlice.getShape();
 					tmpShape[meanAxis] = 1;
@@ -853,30 +853,6 @@ class PlotTab extends ATab {
 			}
 		}
 
-		boolean isSliced = false;
-		for (Slice s : slices) {
-			if (s != null && !s.isSliceComplete()) {
-				isSliced = true;
-				break;
-			}
-		}
-		if (isSliced) {
-			if (name.length() == 0 || "".equals(name)) {
-				name.append("Slice ");
-			}
-			StringBuilder t = new StringBuilder();
-			t.append('[');
-			for (int idx = 0; idx < slices.length; idx++) {
-				if (average != null && average[idx]) t.append('~');
-				Slice s = slices[idx];
-				t.append(s != null ? s.toString() : ':');
-				t.append(',');
-			}
-			t.deleteCharAt(t.length()-1);
-			t.append(']');
-			name.append(t.toString());
-		}
-
 		reorderedData.setName(name.toString());
 
 		return reorderedData;
@@ -890,8 +866,8 @@ class PlotTab extends ATab {
 		}
 	}
 
-	protected AbstractDataset make1DAxisSlice(List<AbstractDataset> slicedAxes, int dim) {
-		AbstractDataset axisSlice = slicedAxes.get(dim);
+	protected IDataset make1DAxisSlice(List<? extends IDataset> slicedAxes, int dim) {
+		IDataset axisSlice = slicedAxes.get(dim);
 		
 		// 2D plots can only handle 1D axis.
 		if (axisSlice.getRank() > 1) {
@@ -904,7 +880,7 @@ class PlotTab extends ATab {
 					sl[idx] = new Slice();
 			
 			logger.warn("2D plots can only handle 1D axis. Taking first slice from {} dataset", axisSlice.getName());
-			AbstractDataset d = axisSlice.getSlice(sl).squeeze();
+			IDataset d = axisSlice.getSlice(sl).squeeze();
 			if (d.getRank() == 0) {
 				d.setShape(1);
 			}
@@ -923,7 +899,7 @@ class PlotTab extends ATab {
 	 * @param rank
 	 * @return true if something wrong
 	 */
-	protected boolean isRankBad(AbstractDataset a, int rank) {
+	protected boolean isRankBad(Dataset a, int rank) {
 		if (a == null)
 			return true;
 		int r = a.getRank();
@@ -954,14 +930,14 @@ class PlotTab extends ATab {
 
 		int[] order = getOrder(daxes.size());
 		// FIXME: Image, surface and volume plots can't work with multidimensional axis data
-		List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, average, order);
+		List<? extends IDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, average, order);
 
 		if (itype == InspectorType.IMAGE || itype == InspectorType.SURFACE || itype == InspectorType.IMAGEXP  || itype == InspectorType.MULTIIMAGES) {
 			// note that the DataSet plotter's 2D image/surface mode is row-major
 			swapFirstTwoInOrder(order);
 		}
 
-		AbstractDataset reorderedData;
+		Dataset reorderedData;
 		IMetaData meta = null;
 		try {
 			meta = dataset.getMetadata();
@@ -1012,10 +988,10 @@ class PlotTab extends ATab {
 				return;
 			}
 
-			AbstractDataset zaxis = make1DAxisSlice(slicedAxes, 1);
-			AbstractDataset xaxisarray = slicedAxes.get(0);
+			IDataset zaxis = make1DAxisSlice(slicedAxes, 1);
+			IDataset xaxisarray = slicedAxes.get(0);
 
-			AbstractDataset[] xaxes = new AbstractDataset[lines];
+			IDataset[] xaxes = new IDataset[lines];
 			if (xaxisarray.getRank() == 1)
 				for (int i = 0; i < lines; i++)
 					xaxes[i] = xaxisarray;
@@ -1023,12 +999,12 @@ class PlotTab extends ATab {
 				for (int i = 0; i < lines; i++)
 					xaxes[i] = xaxisarray.getSlice(new int[] {0, i}, new int[] {dims[0], i+1}, null).squeeze();
 
-			AbstractDataset[] yaxes = new AbstractDataset[lines];
+			Dataset[] yaxes = new Dataset[lines];
 			String sName = slicedAxes.get(1).getName();
 			boolean isDimAxis = sName.startsWith(AbstractExplorer.DIM_PREFIX) || sName.equals(CompareFilesEditor.INDEX);
 			String dName = reorderedData.getName();
 			for (int i = 0; i < lines; i++) {
-				AbstractDataset slice = reorderedData.getSlice(new int[] {0, i}, new int[] {dims[0], i+1}, null);
+				Dataset slice = reorderedData.getSlice(new int[] {0, i}, new int[] {dims[0], i+1}, null);
 				slice.squeeze();
 				if (isDimAxis) {
 					slice.setName(String.format("%s[%d]", dName, i));
@@ -1065,8 +1041,8 @@ class PlotTab extends ATab {
 			}
 
 			try {
-				AbstractDataset xAxisSlice = make1DAxisSlice(slicedAxes, 0);
-				AbstractDataset yAxisSlice = make1DAxisSlice(slicedAxes, 1);
+				IDataset xAxisSlice = make1DAxisSlice(slicedAxes, 0);
+				IDataset yAxisSlice = make1DAxisSlice(slicedAxes, 1);
 				
 				if (itype == InspectorType.IMAGE)
 					SDAPlotter.imagePlot(PLOTNAME, xAxisSlice, yAxisSlice, reorderedData);
@@ -1192,13 +1168,13 @@ class PlotTab extends ATab {
 						start[o] = b;
 						stop[o] = b+1;
 					}
-					AbstractDataset slicedData = sliceData(monitor, start, stop, step);
+					Dataset slicedData = sliceData(monitor, start, stop, step);
 					if (slicedData == null)
 						return;
 //					System.err.printf("Pos %s; start %s; stop %s; step %s; ", Arrays.toString(pos), Arrays.toString(start), Arrays.toString(stop), Arrays.toString(step));
 //					System.err.printf("Shape %s\n", Arrays.toString(slicedData.getShape()));
 
-					AbstractDataset reorderedData = DatasetUtils.transpose(slicedData, order);
+					Dataset reorderedData = DatasetUtils.transpose(slicedData, order);
 
 					reorderedData.setName(slicedData.getName());
 					reorderedData.squeeze();
@@ -1242,7 +1218,7 @@ class PlotTab extends ATab {
 		}
 	}
 
-	private void pushMultipleImages(final IMonitor monitor, List<SliceProperty> sliceProperties, final Slice[] slices, List<AbstractDataset> slicedAxes, final int[] order) {
+	private void pushMultipleImages(final IMonitor monitor, List<SliceProperty> sliceProperties, final Slice[] slices, List<? extends IDataset> slicedAxes, final int[] order) {
 		// work out slicing result
 		int[] shape = dataset.getShape();
 		int smax = slices.length;
@@ -1270,8 +1246,8 @@ class PlotTab extends ATab {
 			return;
 		}
 
-		AbstractDataset yaxis = make1DAxisSlice(slicedAxes, 1);
-		AbstractDataset xaxis = make1DAxisSlice(slicedAxes, 0);
+		IDataset yaxis = make1DAxisSlice(slicedAxes, 1);
+		IDataset xaxis = make1DAxisSlice(slicedAxes, 0);
 
 		try {
 			Slice subSlice = subSlices[sliceAxis];
@@ -1282,11 +1258,11 @@ class PlotTab extends ATab {
 			IDataset[] images = new IDataset[nimages];
 			for (int i = 0; i < nimages; i++) {
 				subSlices[sliceAxis].setPosition(start + i);
-				AbstractDataset slicedData = sliceData(monitor, subSlices);
+				Dataset slicedData = sliceData(monitor, subSlices);
 				if (slicedData == null)
 					return;
 
-				AbstractDataset reorderedData = DatasetUtils.transpose(slicedData, order);
+				Dataset reorderedData = DatasetUtils.transpose(slicedData, order);
 
 				reorderedData.setName(slicedData.getName());
 				reorderedData.squeeze();
@@ -1331,14 +1307,14 @@ class DataTab extends PlotTab {
 		}
 
 		int[] order = getOrder(daxes.size());
-		final List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, average, order);
+		final List<? extends IDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, average, order);
 
 
 		if (itype == InspectorType.DATA2D) {
 			swapFirstTwoInOrder(order);
 		}
 
-		final AbstractDataset reorderedData = slicedAndReorderData(monitor, slices, average, order, null);
+		final Dataset reorderedData = slicedAndReorderData(monitor, slices, average, order, null);
 		if (reorderedData == null) return;
 		
 		reorderedData.setName(dataset.getName());
@@ -1351,7 +1327,7 @@ class DataTab extends PlotTab {
 			if (isRankBad(reorderedData, 2))
 				return;
 
-			final AbstractDataset rAxisSlice = make1DAxisSlice(slicedAxes, 0);
+			final IDataset rAxisSlice = make1DAxisSlice(slicedAxes, 0);
 
 			composite.getDisplay().asyncExec(new Runnable() {
 				@Override
@@ -1367,8 +1343,8 @@ class DataTab extends PlotTab {
 			if (isRankBad(reorderedData, 2))
 				return;
 
-			final AbstractDataset yAxisSlice = make1DAxisSlice(slicedAxes, 0);
-			final AbstractDataset xAxisSlice = make1DAxisSlice(slicedAxes, 1);
+			final IDataset yAxisSlice = make1DAxisSlice(slicedAxes, 0);
+			final IDataset xAxisSlice = make1DAxisSlice(slicedAxes, 1);
 
 			composite.getDisplay().asyncExec(new Runnable() {
 				@Override
@@ -1611,11 +1587,11 @@ class ScatterTab extends PlotTab {
 	}
 
 	@Override
-	protected List<AbstractDataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, boolean[] average, int[] order) {
+	protected List<Dataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, boolean[] average, int[] order) {
 		if (daxes.size() != 1)
 			return super.sliceAxes(axes, slices, average, order);
 
-		List<AbstractDataset> slicedAxes = new ArrayList<AbstractDataset>();
+		List<Dataset> slicedAxes = new ArrayList<Dataset>();
 		if (slices.length != 1) {
 			logger.error("No slices defined");
 			return null;
@@ -1624,7 +1600,7 @@ class ScatterTab extends PlotTab {
 		Slice s = slices[0];
 		if (s != null) {
 			for (AxisChoice a : axes) {
-				slicedAxes.add(DatasetUtils.convertToAbstractDataset(a.getValues().getSlice(s)));
+				slicedAxes.add(DatasetUtils.convertToDataset(a.getValues().getSlice(s)));
 			}
 		}
 
@@ -1648,15 +1624,15 @@ class ScatterTab extends PlotTab {
 		List<AxisChoice> axes = getChosenAxes();
 		int rank = daxes.size();
 		int[] order = getOrder(rank);
-		List<AbstractDataset> slicedAxes = sliceAxes(axes, slices, average, order);
+		List<Dataset> slicedAxes = sliceAxes(axes, slices, average, order);
 		if (slicedAxes == null) return;
 
 
-		AbstractDataset reorderedData = slicedAndReorderData(monitor, slices, average, order, null);
+		Dataset reorderedData = slicedAndReorderData(monitor, slices, average, order, null);
 		if (reorderedData == null) return;
 
 		// TODO cope with axis datasets that are >1 dimensions
-		AbstractDataset x;
+		Dataset x;
 		IDataset y;
 		switch (itype) {
 		case POINTS1D:
@@ -1692,7 +1668,7 @@ class ScatterTab extends PlotTab {
 					x = slicedAxes.get(0);
 					y = slicedAxes.get(1);
 				} else {
-					List<AbstractDataset> grid = DatasetUtils.meshGrid(slicedAxes.get(0), slicedAxes.get(1));
+					List<? extends Dataset> grid = DatasetUtils.meshGrid(slicedAxes.get(0), slicedAxes.get(1));
 					x = grid.get(0);
 					y = grid.get(1);
 				}
@@ -1701,7 +1677,7 @@ class ScatterTab extends PlotTab {
 					return;
 				}
 				try {
-					SDAPlotter.scatter2DPlot(PLOTNAME, x.flatten(), ((AbstractDataset) y).flatten(), reorderedData.flatten());
+					SDAPlotter.scatter2DPlot(PLOTNAME, x.flatten(), ((Dataset) y).flatten(), reorderedData.flatten());
 				} catch (Exception e) {
 					logger.error("Could not plot 2d points");
 					return;
@@ -1712,7 +1688,7 @@ class ScatterTab extends PlotTab {
 			if (!useData) { // TODO >1D dataset
 				x = slicedAxes.get(0).flatten();
 				y = slicedAxes.get(1).flatten();
-				AbstractDataset z = slicedAxes.get(2).flatten();
+				Dataset z = slicedAxes.get(2).flatten();
 				int length = Math.min(x.getSize(), y.getSize());
 				length = Math.min(length, z.getSize());
 				Slice slice = new Slice(length);
@@ -1725,12 +1701,12 @@ class ScatterTab extends PlotTab {
 				}
 			} else {
 				IDataset z;
-				x = DatasetUtils.convertToAbstractDataset(axes.get(0).getValues());
-				y = DatasetUtils.convertToAbstractDataset(axes.get(1).getValues());
-				z = DatasetUtils.convertToAbstractDataset(axes.get(2).getValues());
+				x = DatasetUtils.convertToDataset(axes.get(0).getValues());
+				y = DatasetUtils.convertToDataset(axes.get(1).getValues());
+				z = DatasetUtils.convertToDataset(axes.get(2).getValues());
 				if (reorderedData.getRank() == 1) {
 				} else {
-					List<AbstractDataset> grid = DatasetUtils.meshGrid(x, (AbstractDataset) y, (AbstractDataset) z);
+					List<? extends Dataset> grid = DatasetUtils.meshGrid(x, (Dataset) y, (Dataset) z);
 					x = grid.get(0);
 					y = grid.get(1);
 					z = grid.get(2);
@@ -1740,7 +1716,7 @@ class ScatterTab extends PlotTab {
 					return;
 				}
 				try {
-					SDAPlotter.scatter3DPlot(PLOTNAME, x.flatten(), ((AbstractDataset) y).flatten(), ((AbstractDataset) z).flatten(), reorderedData.flatten());
+					SDAPlotter.scatter3DPlot(PLOTNAME, x.flatten(), ((Dataset) y).flatten(), ((Dataset) z).flatten(), reorderedData.flatten());
 				} catch (Exception e) {
 					logger.error("Could not plot 3d points");
 					return;
