@@ -18,7 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.utils;
 
 import junit.framework.Assert;
 
-import org.dawnsci.plotting.jreality.util.JOGLGLSLShaderGenerator;
+import org.eclipse.dawnsci.plotting.api.jreality.util.JOGLGLSLShaderGenerator;
 import org.junit.Test;
 /**
  *
