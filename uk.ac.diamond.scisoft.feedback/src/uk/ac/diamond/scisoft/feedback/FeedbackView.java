@@ -17,7 +17,6 @@
 package uk.ac.diamond.scisoft.feedback;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -71,7 +70,6 @@ import uk.ac.diamond.scisoft.feedback.attachment.AttachedFileEditingSupport;
 import uk.ac.diamond.scisoft.feedback.attachment.AttachedFileLabelProvider;
 import uk.ac.diamond.scisoft.feedback.jobs.FeedbackJob;
 import uk.ac.diamond.scisoft.feedback.utils.FeedbackConstants;
-import uk.ac.diamond.scisoft.feedback.utils.FeedbackUtils;
 
 public class FeedbackView extends ViewPart implements IPartListener {
 
@@ -436,58 +434,18 @@ public class FeedbackView extends ViewPart implements IPartListener {
 		};
 	}
 
-	private void autoAttachLogFile(List<File> attachedFiles) throws IOException {
-		if (System.getProperty("os.name").startsWith("Windows")) {
-			File dir = new File(System.getProperty(LogConstants.USER_HOME_PROP), LogConstants.LOG_FOLDER);
-			// std out logs
-			File fout = new File(dir, LogConstants.OUT_FILE);
-			long size = fout.length();
-			if (fout.exists() && size > 0 && size < FeedbackConstants.MAX_SIZE) {
-				File copyOut = new File(dir, "std_out_log.txt");
-				// copy file so the file sent is not being written of modified while the sending occurs (a malformed String Exception can occur on the server side)
-				if (!attachedFiles.contains(copyOut)) {
-					FeedbackUtils.copyFile(fout, copyOut);
-					attachedFiles.add(copyOut);
-				}
-			} else if (size >= FeedbackConstants.MAX_SIZE) {
-				throw new IllegalStateException("File is too big");
+	private void autoAttachLogFile(List<File> attachedFiles) throws IllegalStateException {
+		String userhome = System.getProperty(LogConstants.USER_HOME_PROP);
+		File log = new File(userhome, LogConstants.DAWNLOG_HTML);
+		long size = log.length();
+		if (log.exists() && size > 0 && size < FeedbackConstants.MAX_SIZE) {
+			if (!attachedFiles.contains(log)) {
+				attachedFiles.add(log);
 			}
-			// std err logs
-			File ferr = new File(dir, LogConstants.ERR_FILE);
-			size = ferr.length();
-			if (ferr.exists() && size > 0 && size < FeedbackConstants.MAX_SIZE) {
-				File copyErr = new File(dir, "std_err_log.txt");
-				if (!attachedFiles.contains(copyErr)) {
-					FeedbackUtils.copyFile(ferr, copyErr);
-					attachedFiles.add(copyErr);
-				}
-			} else if (size >= FeedbackConstants.MAX_SIZE) {
-				throw new IllegalStateException("File is too big");
-			}
-		} else {
-			// try to get the log file for module loads (/tmp/{user.name}-log.txt)
-			String tmpDir = System.getProperty("java.io.tmpdir");
-			String userName = System.getProperty("user.name");
-			File linuxLog = new File(tmpDir, userName + "-log.txt");
-			long size = linuxLog.length();
-			if (linuxLog.exists() && size > 0 && size < FeedbackConstants.MAX_SIZE) {
-				File copyLinuxLog = new File(tmpDir, userName + "-log-cpy.txt");
-				if (!attachedFiles.contains(copyLinuxLog)) {
-					FeedbackUtils.copyFile(linuxLog, copyLinuxLog);
-					attachedFiles.add(copyLinuxLog);
-				}
-			} else if (linuxLog.exists() && size >= FeedbackConstants.MAX_SIZE) {
-				throw new IllegalStateException("File is too big");
-			} else if(!linuxLog.exists()) {
-				// try to get the log file in user.home
-				linuxLog = new File(System.getProperty(LogConstants.USER_HOME_PROP), "dawnlog.html");
-				size = linuxLog.length();
-				if (linuxLog.exists() && size > 0 && size < FeedbackConstants.MAX_SIZE && !attachedFiles.contains(linuxLog)) {
-					attachedFiles.add(linuxLog);
-				} else if (size >= FeedbackConstants.MAX_SIZE) {
-					throw new IllegalStateException("File is too big");
-				}
-			}
+		} else if (log.exists() && size >= FeedbackConstants.MAX_SIZE) {
+			throw new IllegalStateException("File is too big");
+		} else if(!log.exists()) {
+			throw new IllegalStateException("File does not exist");
 		}
 	}
 

@@ -29,6 +29,11 @@ public class LogConstants {
 	public static final String LOG_FOLDER = ".dawn";
 
 	/**
+	 * dawn error log
+	 */
+	public static final String DAWNLOG_HTML = "dawnlog.html";
+
+	/**
 	 * Standard output for Dawn
 	 */
 	public static final String OUT_FILE = "dawn_std_out.txt";
