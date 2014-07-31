@@ -101,6 +101,8 @@ public class DataWizardPage extends WizardPage implements KeyListener {
 		txtDirectory.setEnabled(true);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		txtDirectory.setLayoutData(gd);
+		txtDirectory.addKeyListener(this);
+
 
 		Button button = new Button(container, SWT.PUSH);
 		button.setText("Browse...");
@@ -182,6 +184,9 @@ public class DataWizardPage extends WizardPage implements KeyListener {
 			dialogChanged();
 		}
 		if (e.getSource().equals(txtFolder)) {
+			dialogChanged();
+		}
+		if (e.getSource().equals(txtDirectory)) {
 			dialogChanged();
 		}
 	}
