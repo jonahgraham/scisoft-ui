@@ -17,7 +17,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import org.dawb.common.ui.util.DisplayUtils;
-import org.dawnsci.common.widgets.gda.roi.ROIWidget;
+import org.dawnsci.plotting.roi.ROIWidget;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
