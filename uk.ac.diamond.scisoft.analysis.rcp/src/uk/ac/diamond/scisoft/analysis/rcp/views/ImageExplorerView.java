@@ -152,11 +152,22 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 
 	private boolean stopLoading = false;
 
+	private Job updateDirectory;
+
 	public ImageExplorerView() {
 		plotServer = PlotServerProvider.getPlotServer();
 		plotID = UUID.randomUUID();
 		logger.info("Image explorer view uuid: {}", plotID);
 		execSvc = Executors.newFixedThreadPool(2);
+
+		//initialise job
+		updateDirectory = new Job("Update directory") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				ImageExplorerDirectoryChooseAction.setImageFolder(dirPath, filter);
+				return Status.OK_STATUS;
+			}
+		};
 	}
 
 	/**
@@ -270,14 +281,6 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 
 		if (dirPath != null && dirPath.length() > 0) {
 			dirPath.trim();
-			final Job updateDirectory = new Job("Update directory") {
-
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					ImageExplorerDirectoryChooseAction.setImageFolder(dirPath, filter);
-					return Status.OK_STATUS;
-				}
-			};
 			updateDirectory.setUser(true);
 			updateDirectory.setPriority(Job.DECORATE);
 			updateDirectory.schedule(1000);
@@ -336,6 +339,10 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 					} else {
 						filter.add(ImageExplorerDirectoryChooseAction.LISTOFSUFFIX[number]);
 					}
+					// reload the directory
+					updateDirectory.setUser(true);
+					updateDirectory.setPriority(Job.DECORATE);
+					updateDirectory.schedule(1000);
 				}
 			};
 			imgExtensions[i].setText(ImageExplorerDirectoryChooseAction.LISTOFSUFFIX[i]);
