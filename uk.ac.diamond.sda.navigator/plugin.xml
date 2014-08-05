@@ -424,6 +424,13 @@
                style="push"
                tooltip="Refresh file tree">
          </command>
+         <command
+               commandId="uk.ac.diamond.sda.navigator.ReUseEditor"
+               icon="icons/clone_el.gif"
+               label="Re-use editor"
+               style="toggle"
+               tooltip="Enable/disable re-use editor">
+         </command>
       </menuContribution>
       <menuContribution
             allPopups="false"
