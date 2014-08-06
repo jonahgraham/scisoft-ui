@@ -848,7 +848,7 @@
             class="uk.ac.diamond.scisoft.analysis.rcp.wizards.DataWizard"
             icon="icons/project_reel.png"
             id="uk.ac.diamond.scisoft.analysis.rcp.wizards.DataWizard"
-            name="Data Project"
+            name="Data Project (linked to existing directory)"
             project="true">
       </wizard>
    </extension>
