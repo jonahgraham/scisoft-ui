@@ -32,6 +32,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -354,5 +355,10 @@ public class HDF5TreeView extends ViewPart implements IObserver {
 			}
 //			logger.warn("Could not process update of selected node: {}", fullname);
 		}
+	}
+
+	public void collapseAll() {
+		if (hdfxp != null && hdfxp.getTableTree().getViewer() instanceof TreeViewer)
+			((TreeViewer)hdfxp.getTableTree().getViewer()).collapseAll();
 	}
 }

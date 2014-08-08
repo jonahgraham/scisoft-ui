@@ -401,11 +401,22 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.clearPlottingSystem"
             name="Clear plot">
       </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.hdf5.CollapseAllHDF5TreeAction"
+            id="uk.ac.diamond.scisoft.analysis.rcp.hdf5TreeCollapseAll"
+            name="Collapse All">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.views.HDF5TreeView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.hdf5TreeCollapseAll"
+               icon="icons/CollapseAll.png"
+               label="Collapse All"
+               style="push">
+         </command>
          <command
                commandId="uk.ac.diamond.scisoft.analysis.rcp.LoadHDF5TreeAction"
                icon="icons/folder_page.png"
