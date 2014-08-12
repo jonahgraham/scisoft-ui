@@ -109,6 +109,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Maths;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.io.AbstractFileLoader;
 import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
@@ -1999,10 +2000,10 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 								accDataset.imultiply(tmpData);
 								break;
 							case MAX:
-								accDataset = DatasetUtils.maximum(tmpData, accDataset);
+								accDataset = Maths.maximum(tmpData, accDataset);
 								break;
 							case MIN:
-								accDataset = DatasetUtils.minimum(tmpData, accDataset);
+								accDataset = Maths.minimum(tmpData, accDataset);
 								break;
 							default:
 								break;
