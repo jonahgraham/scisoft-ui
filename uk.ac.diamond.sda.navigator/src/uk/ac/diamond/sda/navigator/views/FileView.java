@@ -394,6 +394,7 @@ public final class FileView extends ViewPart implements IFileView {
 	private void setColumnVisible(final int col, final int width, boolean isVis) {
 		if (this.tree==null || this.tree.getControl().isDisposed()) return;
 		tree.getTree().getColumn(col).setWidth(isVis?width:0);
+		tree.getTree().getColumn(col).setResizable(isVis);
 	}
 
 	@Override
