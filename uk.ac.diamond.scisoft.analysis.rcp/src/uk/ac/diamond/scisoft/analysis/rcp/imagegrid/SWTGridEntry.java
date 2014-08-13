@@ -34,7 +34,6 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
@@ -167,7 +166,7 @@ public class SWTGridEntry extends AbstractGridEntry {
 	@Override
 	public void createImage(final IDataset ids) {
 		
-		final AbstractDataset ds = DatasetUtils.convertToAbstractDataset(ids);
+		final Dataset ds = DatasetUtils.convertToDataset(ids);
 		
 		canvas.getDisplay().asyncExec(new Runnable() {
 			@Override
@@ -197,7 +196,7 @@ public class SWTGridEntry extends AbstractGridEntry {
 							} else {
 								if (ds instanceof RGBDataset) {
 									RGBDataset rgb = (RGBDataset) ds;
-									AbstractDataset c = rgb.createRedDataset(Dataset.INT16);
+									Dataset c = rgb.createRedDataset(Dataset.INT16);
 									double min = c.min().doubleValue();
 									double max = Stats.quantile(c, hiThreshold);
 									double t;
@@ -227,7 +226,7 @@ public class SWTGridEntry extends AbstractGridEntry {
 							if (loThreshold > 0) {
 								if (ds instanceof RGBDataset) {
 									RGBDataset rgb = (RGBDataset) ds;
-									AbstractDataset c = rgb.createRedDataset(Dataset.INT16);
+									Dataset c = rgb.createRedDataset(Dataset.INT16);
 									double min = Stats.quantile(c, loThreshold);
 									double max = c.max().doubleValue();
 									double t;
@@ -254,7 +253,7 @@ public class SWTGridEntry extends AbstractGridEntry {
 							} else {
 								if (ds instanceof RGBDataset) {
 									RGBDataset rgb = (RGBDataset) ds;
-									AbstractDataset c = rgb.createRedDataset(Dataset.INT16);
+									Dataset c = rgb.createRedDataset(Dataset.INT16);
 									double min = c.min().doubleValue();
 									double max = c.max().doubleValue();
 									double t;

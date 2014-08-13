@@ -48,7 +48,7 @@ import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
@@ -354,13 +354,13 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 
 			final ILazyDataset dataset = mappingViewData.getDataSet();
 			final int[] shape = dataset.getShape();
-			AbstractDataset slice = null;
+			Dataset slice = null;
 			int[] finalShape = null;
 			String xAxislabel = null;
 			DoubleDataset axisValues = null;
 			try {
 				if (dim1Selection) {
-					slice = (AbstractDataset) dataset.getSlice((IMonitor) null, new Slice(null), new Slice(stepper1Val,
+					slice = (Dataset) dataset.getSlice((IMonitor) null, new Slice(null), new Slice(stepper1Val,
 							stepper1Val + 1), new Slice(stepper2Val, stepper2Val + 1));
 					finalShape = new int[] { shape[0] };
 
@@ -370,7 +370,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 								new int[]{mappingViewData.getDimension1Values().length});
 					}
 				} else if (dim2Selection) {
-					slice = (AbstractDataset) dataset.getSlice((IMonitor) null,
+					slice = (Dataset) dataset.getSlice((IMonitor) null,
 							new Slice(stepper1Val, stepper1Val + 1), new Slice(null), new Slice(stepper2Val,
 									stepper2Val + 1));
 					finalShape = new int[] { shape[1] };
@@ -380,7 +380,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 								new int[]{mappingViewData.getDimension2Values().length});
 					}
 				} else if (dim3Selection) {
-					slice = (AbstractDataset) dataset.getSlice((IMonitor) null,
+					slice = (Dataset) dataset.getSlice((IMonitor) null,
 							new Slice(stepper1Val, stepper1Val + 1), new Slice(stepper2Val, stepper2Val + 1),
 							new Slice(null));
 
@@ -392,7 +392,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 					}
 				}
 				final int[] shapeToplot = finalShape;
-				final AbstractDataset sliceToPlot = slice;
+				final Dataset sliceToPlot = slice;
 				final String xAxisLabelToPlot = xAxislabel;
 
 				if (!display.isDisposed()) {

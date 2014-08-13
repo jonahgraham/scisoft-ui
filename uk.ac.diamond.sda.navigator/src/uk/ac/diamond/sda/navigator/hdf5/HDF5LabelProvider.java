@@ -24,7 +24,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.navigator.IDescriptionProvider;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Attribute;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Dataset;
@@ -53,7 +53,7 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 			}
 			//ILazyDataset data = dataset.getDataset();
 			// data
-			//if (data instanceof AbstractDataset) {
+			//if (data instanceof Dataset) {
 			return  new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/dataset.gif"));
 			//} else {
 			//	return new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/dataset.gif"));
@@ -152,9 +152,9 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 			// type
 			label += dataset.getTypeName()+" ";
 			// data
-			if (data instanceof AbstractDataset) {
+			if (data instanceof Dataset) {
 				// show a single value
-				label += ((AbstractDataset) data).getString(0)+" ";
+				label += ((Dataset) data).getString(0)+" ";
 			} else {
 				label += "Select to view";
 			}

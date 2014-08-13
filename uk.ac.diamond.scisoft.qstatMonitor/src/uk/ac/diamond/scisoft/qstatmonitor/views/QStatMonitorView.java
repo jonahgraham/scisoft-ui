@@ -27,7 +27,7 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.progress.UIJob;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
@@ -292,23 +292,23 @@ public class QStatMonitorView extends ViewPart {
 					.createFromList(timeList);
 			timeDataset.setName("Time (mins)");
 
-			AbstractDataset suspendedDataset = IntegerDataset
+			Dataset suspendedDataset = IntegerDataset
 					.createFromList(suspendedList);
 			suspendedDataset.setName("Suspended");
 
-			AbstractDataset queuedDataset = IntegerDataset
+			Dataset queuedDataset = IntegerDataset
 					.createFromList(queuedList);
 			queuedDataset.setName("Queued");
 
-			AbstractDataset runningDataset = IntegerDataset
+			Dataset runningDataset = IntegerDataset
 					.createFromList(runningList);
 			runningDataset.setName("Running");
 			
 					
-			AbstractDataset[] datasetArr = { suspendedDataset, queuedDataset,
+			Dataset[] datasetArr = { suspendedDataset, queuedDataset,
 					runningDataset};
 			
-			//ArrayList<AbstractDataset> list = new ArrayList<AbstractDataset>();
+			//ArrayList<Dataset> list = new ArrayList<Dataset>();
 			//list.add(suspendedDataset);
 			//list.add(queuedDataset);
 			//list.add(runningDataset);
@@ -316,7 +316,7 @@ public class QStatMonitorView extends ViewPart {
 			if (view != null) {
 				try {
 					SDAPlotter.plot("QStat Monitor Plot", timeDataset,	datasetArr);
-					//SDAPlotter.plot("QStat Monitor Plot", timeDataset,	list.toArray(new AbstractDataset[3]));
+					//SDAPlotter.plot("QStat Monitor Plot", timeDataset,	list.toArray(new Dataset[3]));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

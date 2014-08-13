@@ -69,7 +69,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
@@ -647,7 +647,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			}
 		}
 	};
-	private AbstractDataset currentSlice;
+	private Dataset currentSlice;
 
 	@Override
 	public void dispose() {
@@ -731,7 +731,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				int[] shape = dataset.getShape();
 
 				if (radio1) {
-					currentSlice = (AbstractDataset) dataset.getSlice(new Slice(scalerValue, scalerValue + 1),
+					currentSlice = (Dataset) dataset.getSlice(new Slice(scalerValue, scalerValue + 1),
 							new Slice(null), new Slice(null));
 					currentSlice.setShape(shape[1], shape[2]);
 
@@ -746,7 +746,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 					}
 				}
 				if (radio2) {
-					currentSlice = (AbstractDataset) dataset.getSlice(new Slice(null), new Slice(scalerValue,
+					currentSlice = (Dataset) dataset.getSlice(new Slice(null), new Slice(scalerValue,
 							scalerValue + 1), new Slice(null));
 					currentSlice.setShape(shape[0], shape[2]);
 
@@ -761,7 +761,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 					}
 				}
 				if (radio3) {
-					currentSlice = (AbstractDataset) dataset.getSlice(new Slice(null), new Slice(null), new Slice(
+					currentSlice = (Dataset) dataset.getSlice(new Slice(null), new Slice(null), new Slice(
 							scalerValue, scalerValue + 1));
 					currentSlice.setShape(shape[0], shape[1]);
 
@@ -802,7 +802,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 					yAxisValues = new AxisValues(mapping2DData.getDimension1Values());
 				}
 
-				currentSlice = (AbstractDataset) dataset.getSlice(new Slice(null), new Slice(null));
+				currentSlice = (Dataset) dataset.getSlice(new Slice(null), new Slice(null));
 			}
 
 			final String xLabel = xAxisLabel;
@@ -888,7 +888,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				slice = currentSlice;
 			}
 			if (btnFlipAxis.getSelection()) {
-				slice = ((AbstractDataset) slice).transpose();
+				slice = ((Dataset) slice).transpose();
 			}
 		} else {
 			slice = currentSlice;
@@ -1045,7 +1045,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			}
 			if (slice != null) {
 				if (btnFlipAxis.getSelection()) {
-					slice = ((AbstractDataset) slice).transpose();
+					slice = ((Dataset) slice).transpose();
 				}
 			}
 		} else if (mapping2DData != null) {

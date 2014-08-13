@@ -31,7 +31,7 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
@@ -57,8 +57,8 @@ public class PlotUtils {
 	 * @param xDataSet 
 	 * @param yDataSets 
 	 */
-	public static void create1DPlot(final AbstractDataset         xDataSet, 
-			                        final List<AbstractDataset>   yDataSets, 
+	public static void create1DPlot(final Dataset         xDataSet, 
+			                        final List<Dataset>   yDataSets, 
 			                        final PlotMode         plotMode, 
 			                        final AbstractPlotWindow       plotWindow, 
 			                        final IProgressMonitor monitor) {
@@ -66,10 +66,10 @@ public class PlotUtils {
 		if (xDataSet.getRank() != 1) return;
 
 		// We allow yDataSets to be null if they like.
-		final AbstractDataset x;
-		final List<AbstractDataset> ys;
+		final Dataset x;
+		final List<Dataset> ys;
 		if (yDataSets==null) {
-			ys = new ArrayList<AbstractDataset>(1);
+			ys = new ArrayList<Dataset>(1);
 			ys.add(xDataSet);
 			x = DoubleDataset.createRange(ys.get(0).getSize());
 		} else {
@@ -100,7 +100,7 @@ public class PlotUtils {
 					
 					// TODO use PM3D for z, currently hard codes something, in process of fixing.
 					if (PlotMode.PM3D==plotMode) {
-						final AbstractDataset z = new DoubleDataset(new double[]{-15,1,200});
+						final Dataset z = new DoubleDataset(new double[]{-15,1,200});
 						dataBean.addAxis(AxisMapBean.ZAXIS, z);
 					}
 
@@ -136,8 +136,8 @@ public class PlotUtils {
 	 * @param plotWindow
 	 * @param monitor
 	 */
-	public static void createPlot(final AbstractDataset       data,
-			                      final List<AbstractDataset> axes,
+	public static void createPlot(final Dataset       data,
+			                      final List<Dataset> axes,
 			                      final GuiPlotMode           mode, 
 			                      final AbstractPlotWindow    plotWindow, 
 			                      final IProgressMonitor monitor) {
@@ -185,7 +185,7 @@ public class PlotUtils {
 	}
 
 
-	private static Serializable getTitle(AbstractDataset x, List<AbstractDataset> ys, final boolean isFileName) {
+	private static Serializable getTitle(Dataset x, List<Dataset> ys, final boolean isFileName) {
 		
 		final StringBuilder buf = new StringBuilder();
 		buf.append("Plot of");

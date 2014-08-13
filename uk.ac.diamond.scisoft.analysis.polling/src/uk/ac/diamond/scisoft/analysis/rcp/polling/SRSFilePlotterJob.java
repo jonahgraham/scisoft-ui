@@ -19,7 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.polling;
 import java.util.ArrayList;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.CompoundDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
@@ -43,7 +43,7 @@ public class SRSFilePlotterJob extends FilenameReaderJob {
 		
 			for (String name : dataPlotNames) {				
 				
-				AbstractDataset[] acd = new AbstractDataset[] { holder.getDataset(getJobParameters().get("XAxis")), holder.getDataset(name.trim()) };
+				Dataset[] acd = new Dataset[] { holder.getDataset(getJobParameters().get("XAxis")), holder.getDataset(name.trim()) };
 				CompoundDataset cdd = DatasetUtils.cast(acd, acd[0].getDtype());
 				list.add(cdd);			
 			}

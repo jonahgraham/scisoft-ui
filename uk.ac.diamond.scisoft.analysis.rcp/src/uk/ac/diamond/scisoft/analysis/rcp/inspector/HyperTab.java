@@ -153,7 +153,7 @@ public class HyperTab extends PlotTab {
 		final List<Dataset> slicedAxes = sliceAxes(getChosenAxes(), slices, average, order);
 		
 		///
-		// --------- final AbstractDataset reorderedData = slicedAndReorderData(monitor, slices, average, order, null);
+		// --------- final Dataset reorderedData = slicedAndReorderData(monitor, slices, average, order, null);
 
 		switch (itype) {
 		case HYPER:

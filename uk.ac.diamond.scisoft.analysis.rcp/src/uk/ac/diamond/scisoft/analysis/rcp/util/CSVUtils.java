@@ -41,7 +41,7 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
@@ -190,7 +190,7 @@ public class CSVUtils {
 
 		final int xSize = dataset2d.getShape()[0];
 		final int ySize = dataset2d.getShape()[1];
-		final AbstractDataset adset = DatasetUtils.convertToAbstractDataset(dataset2d);
+		final Dataset adset = DatasetUtils.convertToDataset(dataset2d);
 		for (int y = 0; y < ySize; y++) {
 			for (int x = 0; x < xSize; x++) {
 				contents.append(adset.getDouble(x,y));
@@ -222,7 +222,7 @@ public class CSVUtils {
 				final String name = it.next();
 
 				final ILazyDataset set = sortedData.get(name);
-				final AbstractDataset adset = DatasetUtils.convertToAbstractDataset(set);
+				final Dataset adset = DatasetUtils.convertToDataset(set);
 				final String value = (i<set.getSize()) ? String.valueOf(adset.getDouble(i)) : " ";
 				contents.append(value);
 				if (it.hasNext()) contents.append(",");

@@ -28,7 +28,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
@@ -61,7 +61,7 @@ public class LightweightSRSDecorator extends LabelProvider implements ILightweig
 
 			for (int i = 0; i < data.size(); i++) {
 				ILazyDataset lazyData = data.getLazyDataset(i);
-				if (lazyData instanceof AbstractDataset)
+				if (lazyData instanceof Dataset)
 					properties.add(new SRSTreeData(names[i], data.getDataset(i).min().toString(), 
 							data.getDataset(i).max().toString(),
 							data.getDataset(i).elementClass().toString(), ifile));

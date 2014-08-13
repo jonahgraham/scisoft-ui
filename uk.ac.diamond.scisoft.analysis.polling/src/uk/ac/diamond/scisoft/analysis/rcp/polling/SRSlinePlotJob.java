@@ -19,7 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.polling;
 import java.util.ArrayList;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
 import uk.ac.diamond.sda.polling.jobs.FilenameReaderJob;
@@ -28,7 +28,7 @@ public class SRSlinePlotJob extends FilenameReaderJob {
 
 	public static final String PLOT_VIEW_NAME = "PlotViewName";
 
-	private void swapItems(int a, int b, AbstractDataset dataSet) {
+	private void swapItems(int a, int b, Dataset dataSet) {
 		Object temp = dataSet.getObject(a);
 		dataSet.set(dataSet.getObject(b), a);
 		dataSet.set(temp, b);
@@ -45,9 +45,9 @@ public class SRSlinePlotJob extends FilenameReaderJob {
 			// get all the data
 			String[] dataPlotNames = getJobParameters().get("YAxis").split(",");
 					
-			AbstractDataset xAxis = holder.getDataset(getJobParameters().get("XAxis"));			
+			Dataset xAxis = holder.getDataset(getJobParameters().get("XAxis"));			
 			
-			ArrayList<AbstractDataset> list = new ArrayList<AbstractDataset>();
+			ArrayList<Dataset> list = new ArrayList<Dataset>();
 		
 			for (String name : dataPlotNames) {					
 				list.add(holder.getDataset(name));
@@ -65,7 +65,7 @@ public class SRSlinePlotJob extends FilenameReaderJob {
 						sorted = false;
 						
 						swapItems(i, i+1, xAxis);
-						for (AbstractDataset abstractDataset : list) {
+						for (Dataset abstractDataset : list) {
 							swapItems(i, i+1, abstractDataset);
 						}						
 					}					
@@ -75,7 +75,7 @@ public class SRSlinePlotJob extends FilenameReaderJob {
 			
 			// plot the results
 			SDAPlotter.plot(getJobParameters().get(PLOT_VIEW_NAME),
-					xAxis,list.toArray(new AbstractDataset[0]));			
+					xAxis,list.toArray(new Dataset[0]));			
 			
 		} catch (Exception e) {
 			e.printStackTrace();

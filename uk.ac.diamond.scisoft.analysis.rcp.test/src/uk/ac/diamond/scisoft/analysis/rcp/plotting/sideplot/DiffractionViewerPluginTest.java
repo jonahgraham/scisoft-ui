@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.io.ADSCImageLoader;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -45,7 +45,7 @@ public class DiffractionViewerPluginTest {
 		final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
 		String TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
-		AbstractDataset data = new ADSCImageLoader(TestFileFolder + "ADSCImageTest/F6_1_001.img").loadFile()
+		Dataset data = new ADSCImageLoader(TestFileFolder + "ADSCImageTest/F6_1_001.img").loadFile()
 				.getDataset(0);
 		
 		

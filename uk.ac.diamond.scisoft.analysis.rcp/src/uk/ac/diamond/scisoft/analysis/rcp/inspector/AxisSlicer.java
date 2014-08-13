@@ -30,7 +30,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
@@ -53,7 +53,7 @@ public class AxisSlicer {
 	private SliceProperty slice;
 	private SliceProperty[] axisSlices;
 	private boolean mode;
-	private AbstractDataset adata;
+	private Dataset adata;
 	private ILazyDataset axisData;
 	private PropertyChangeListener listener;
 	private String name;
@@ -254,9 +254,9 @@ public class AxisSlicer {
 					p.addPropertyChangeListener(listener);
 				}
 			}
-			adata = DatasetUtils.convertToAbstractDataset(axisData.getSlice(s).squeeze());
+			adata = DatasetUtils.convertToDataset(axisData.getSlice(s).squeeze());
 		} else
-			adata = DatasetUtils.convertToAbstractDataset(axisData.getSlice());
+			adata = DatasetUtils.convertToDataset(axisData.getSlice());
 
 		if (adata.getRank() == 0)
 			adata.setShape(1);
