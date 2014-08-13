@@ -431,6 +431,20 @@
                style="toggle"
                tooltip="Enable/disable re-use editor">
          </command>
+         <separator
+               name="uk.ac.diamond.sda.navigator.separator4"
+               visible="true">
+         </separator>
+         <command
+               commandId="org.dawnsci.conversion.convertWizard"
+               icon="icons/convert.png"
+               label="Convert..."
+               style="push"
+               tooltip="Convert data to other formats">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
+         </command>
       </menuContribution>
       <menuContribution
             allPopups="false"
