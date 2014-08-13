@@ -19,7 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.views.plot;
 import java.util.List;
 import java.util.Map;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 
 public interface IPlotData {
 
@@ -33,12 +33,12 @@ public interface IPlotData {
 
 	public boolean isMulti();
 
-	public Map<String, ? extends AbstractDataset> getDataMap();
+	public Map<String, ? extends Dataset> getDataMap();
 
-	public AbstractDataset getDataSet();
+	public Dataset getDataSet();
 
 	public boolean isDataSetsValid();
 
-	public List<AbstractDataset> getDataSets();
+	public List<Dataset> getDataSets();
 
 }

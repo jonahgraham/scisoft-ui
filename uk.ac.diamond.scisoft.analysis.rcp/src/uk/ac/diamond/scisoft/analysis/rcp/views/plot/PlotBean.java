@@ -15,7 +15,7 @@ import java.util.Map;
 import org.dawb.common.util.list.PrimitiveArrayEncoder;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 /**
@@ -48,17 +48,17 @@ public class PlotBean {
 	 * 
 	 * @return h
 	 */
-	public Map<String, ? extends AbstractDataset> getDataSets() {
+	public Map<String, ? extends Dataset> getDataSets() {
 		if (data == null)
 			return null;
-		final Map<String, AbstractDataset> ret = new LinkedHashMap<String, AbstractDataset>(data.size());
+		final Map<String, Dataset> ret = new LinkedHashMap<String, Dataset>(data.size());
 		for (String name : data.keySet()) {
 			ret.put(name, new DoubleDataset(PrimitiveArrayEncoder.getDoubleArray(data.get(name))));
 		}
 		return ret;
 	}
 
-	public void setDataSets(final Map<String, ? extends AbstractDataset> ds) {
+	public void setDataSets(final Map<String, ? extends Dataset> ds) {
 		if (data == null)
 			data = new LinkedHashMap<String, String>(ds.size());
 		data.clear();

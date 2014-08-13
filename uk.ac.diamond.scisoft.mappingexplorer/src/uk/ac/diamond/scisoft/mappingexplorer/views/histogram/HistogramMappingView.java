@@ -21,12 +21,12 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.preferences.BasePlottingConstants;
 import org.eclipse.dawnsci.plotting.api.preferences.ToolbarConfigurationConstants;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
@@ -48,7 +48,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Histogram;
@@ -187,8 +187,8 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 
 				@Override
 				public void run() {
-					if (ds instanceof AbstractDataset) {
-						AbstractDataset ds1 = (AbstractDataset) ds;
+					if (ds instanceof Dataset) {
+						Dataset ds1 = (Dataset) ds;
 						int maxValue = ds1.max().intValue();
 						int minValue = ds1.min().intValue();
 
@@ -199,14 +199,14 @@ public class HistogramMappingView extends ViewPart implements IDatasetPlotterCon
 
 						histogram.setMinMax(minValue-1, maxValue+1);
 
-						List<AbstractDataset> evaluated = histogram.value(ds1);
-						AbstractDataset evaluatedDs = evaluated.get(0);
+						List<? extends Dataset> evaluated = histogram.value(ds1);
+						Dataset evaluatedDs = evaluated.get(0);
 						evaluatedDs.setName("HistogramDataSet");
 
 						
 						IDataset slice = null;
 						if (evaluated.size() > 1) {
-							AbstractDataset xData = evaluated.get(1);
+							Dataset xData = evaluated.get(1);
 							slice = xData.getSlice(new Slice(0, numBins, 1));
 						} else {
 							slice = evaluatedDs;

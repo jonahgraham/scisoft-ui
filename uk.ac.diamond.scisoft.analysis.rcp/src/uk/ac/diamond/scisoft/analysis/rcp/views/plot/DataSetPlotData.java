@@ -22,17 +22,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 
 public class DataSetPlotData implements IPlotData {
 
-	private Map<String, AbstractDataset> data;
+	private Map<String, Dataset> data;
 
 	private DataSetPlotData() {
-		this.data = new HashMap<String,AbstractDataset>(3);
+		this.data = new HashMap<String,Dataset>(3);
 	}
 	
-	public DataSetPlotData(String name, AbstractDataset value) {
+	public DataSetPlotData(String name, Dataset value) {
 		this();
 		data.put(name, value);
 	}
@@ -63,21 +63,21 @@ public class DataSetPlotData implements IPlotData {
 //	}
 
 	@Override
-	public Map<String, AbstractDataset> getDataMap() {
+	public Map<String, Dataset> getDataMap() {
 		return data;
 	}
 
 	@Override
-	public AbstractDataset getDataSet() {
+	public Dataset getDataSet() {
 		return data.values().iterator().next();
 	}
 
 	@Override
-	public List<AbstractDataset> getDataSets() {
-		Collection<AbstractDataset> values = data.values();
-		List<AbstractDataset> vector = new Vector<AbstractDataset>();
+	public List<Dataset> getDataSets() {
+		Collection<Dataset> values = data.values();
+		List<Dataset> vector = new Vector<Dataset>();
 		
-		for(AbstractDataset value : values){
+		for(Dataset value : values){
 			vector.add(value);
 		}
 		
@@ -87,7 +87,7 @@ public class DataSetPlotData implements IPlotData {
 	@Override
 	public boolean isDataSetValid() {
 		for (String name : data.keySet()) {
-			final AbstractDataset set = data.get(name);
+			final Dataset set = data.get(name);
 			if (set.containsInfs()) return false;
 			if (set.containsNans()) return false;
 		}

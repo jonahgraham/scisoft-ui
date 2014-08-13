@@ -21,7 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 
 /**
  * Class to wrap vertex data in Lists of Doubles (as they are generated)
@@ -70,12 +71,12 @@ public class PlotData implements IPlotData {
 	 * @return d
 	 */
 	@Override
-	public Map<String,AbstractDataset> getDataMap() {
-		final Map<String,AbstractDataset> ret = new LinkedHashMap<String,AbstractDataset>(data.size());
+	public Map<String,Dataset> getDataMap() {
+		final Map<String,Dataset> ret = new LinkedHashMap<String,Dataset>(data.size());
 		for (String name : data.keySet()) {
 			final List<Double> list = data.get(name);
 			if (!validateData(list)) continue;
-			ret.put(name, AbstractDataset.createFromList(list));
+			ret.put(name, DatasetFactory.createFromList(list));
 		}
 		return ret;
 	}
@@ -145,8 +146,8 @@ public class PlotData implements IPlotData {
 	 * @return s
 	 */
 	@Override
-	public AbstractDataset getDataSet() {
-		return AbstractDataset.createFromList(getData());
+	public Dataset getDataSet() {
+		return DatasetFactory.createFromList(getData());
 	}
 
 	/**
@@ -154,9 +155,9 @@ public class PlotData implements IPlotData {
 	 * @return s
 	 */
 	@Override
-	public List<AbstractDataset> getDataSets() {
-		final List<AbstractDataset> sets = new ArrayList<AbstractDataset>(this.data.size());
-		for (List<Double> s : data.values()) sets.add(AbstractDataset.createFromList(s));
+	public List<Dataset> getDataSets() {
+		final List<Dataset> sets = new ArrayList<Dataset>(this.data.size());
+		for (List<Double> s : data.values()) sets.add(DatasetFactory.createFromList(s));
 		return sets;
 	}
 
