@@ -29,7 +29,7 @@ import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.trace.IMulti2DTrace;
 import org.eclipse.swt.widgets.Display;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -57,9 +57,9 @@ public class Plotting2DMultiUI extends AbstractPlottingUI {
 				Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
 				if (plotData != null) {
 					Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
-//					final List<AbstractDataset> datasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
-					AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
-					AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
+//					final List<Dataset> datasets = Collections.synchronizedList(new LinkedList<Dataset>());
+					Dataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
+					Dataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
 					
 					plottingSystem.getSelectedYAxis().setTitle(yAxisValues.getName());
 					plottingSystem.getSelectedXAxis().setTitle(xAxisValues.getName());
@@ -68,7 +68,7 @@ public class Plotting2DMultiUI extends AbstractPlottingUI {
 					int i = 0;
 					while (iter.hasNext()) {
 						DataSetWithAxisInformation dataSetAxis = iter.next();
-						AbstractDataset data = dataSetAxis.getData();
+						Dataset data = dataSetAxis.getData();
 						datasets[i] = data;
 						i++;
 					}

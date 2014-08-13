@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -117,7 +117,7 @@ public class Plotting1DStackUI extends AbstractPlottingUI {
 
 				IDataset[] ys = new IDataset[n];
 				List<IDataset> axes = new ArrayList<IDataset>();
-				Map<String, AbstractDataset> axisData = dbPlot.getAxisData();
+				Map<String, Dataset> axisData = dbPlot.getAxisData();
 				for (int i = 0; i < n; i++) {
 					DataSetWithAxisInformation d = plotData.get(i);
 					ys[i] = d.getData();

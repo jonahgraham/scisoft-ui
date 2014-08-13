@@ -44,7 +44,7 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -86,11 +86,11 @@ public class Plotting2DUI extends AbstractPlottingUI {
 		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
 		if (plotData != null) {
 			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
-			final List<AbstractDataset> yDatasets = Collections
-					.synchronizedList(new LinkedList<AbstractDataset>());
+			final List<Dataset> yDatasets = Collections
+					.synchronizedList(new LinkedList<Dataset>());
 
-			final AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
-			final AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
+			final Dataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
+			final Dataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
 			List<IDataset> axes = Collections.synchronizedList(new LinkedList<IDataset>());
 
 			String xAxisName = "";
@@ -113,11 +113,11 @@ public class Plotting2DUI extends AbstractPlottingUI {
 
 			while (iter.hasNext()) {
 				DataSetWithAxisInformation dataSetAxis = iter.next();
-				AbstractDataset data = dataSetAxis.getData();
+				Dataset data = dataSetAxis.getData();
 				yDatasets.add(data);
 			}
 
-			AbstractDataset data = yDatasets.get(0);
+			Dataset data = yDatasets.get(0);
 			if (data != null) {
 
 				final Collection<ITrace> traces = plottingSystem.getTraces();

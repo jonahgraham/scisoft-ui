@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisOperation;
@@ -109,7 +109,7 @@ public class Plotting1DUI extends AbstractPlottingUI {
 						for (ITrace t : oldTraces) {
 							if (t instanceof ILineTrace) {
 								String oyn = t.getName();
-								AbstractDataset ox = (AbstractDataset)((ILineTrace) t).getXData();
+								Dataset ox = (Dataset)((ILineTrace) t).getXData();
 								String oxn = ox == null ? null : ox.getName();
 								if (oyn != null && oxn != null) {
 									for (DataSetWithAxisInformation d : plotData) {
@@ -144,12 +144,12 @@ public class Plotting1DUI extends AbstractPlottingUI {
 						if (t instanceof ILineTrace) {
 							boolean used = false;
 							String oyn = t.getName();
-							AbstractDataset x = (AbstractDataset)((ILineTrace) t).getXData();
+							Dataset x = (Dataset)((ILineTrace) t).getXData();
 							String oxn = x == null ? null : x.getName();
 							for (DataSetWithAxisInformation d : plotData) {
-								AbstractDataset ny = d.getData();
+								Dataset ny = d.getData();
 								String nyn = ny.getName();
-								AbstractDataset nx = dbPlot.getAxis(d.getAxisMap().getAxisID()[0]);
+								Dataset nx = dbPlot.getAxis(d.getAxisMap().getAxisID()[0]);
 								String nxn = nx.getName();
 								if (oyn != null && oyn.equals(nyn)) {
 									if (oxn != null && oxn.equals(nxn)) {
@@ -179,7 +179,7 @@ public class Plotting1DUI extends AbstractPlottingUI {
 //					plotColor = ColorUtility.getSwtColour(index > ColorUtility.getSize() ? idx++ : index);
 
 					List<IAxis> axes = plottingSystem.getAxes();
-					Map<String, AbstractDataset> axisData = dbPlot.getAxisData();
+					Map<String, Dataset> axisData = dbPlot.getAxisData();
 					int i = 0; // number of plots
 					boolean against = true;
 					IAxis firstAxis = null;
@@ -192,7 +192,7 @@ public class Plotting1DUI extends AbstractPlottingUI {
 						if (!isStringOK(an)) {
 							an = AxisMapBean.XAXIS;
 						}
-						AbstractDataset nx = axisData.get(id);
+						Dataset nx = axisData.get(id);
 						String n = nx.getName();
 						IAxis ax = findAxis(axes, an);
 						if (ax == null || ax.isYAxis()) {
@@ -229,7 +229,7 @@ public class Plotting1DUI extends AbstractPlottingUI {
 						}
 						plottingSystem.setSelectedYAxis(ay);
 
-						AbstractDataset ny = d.getData();
+						Dataset ny = d.getData();
 						yl.add(ny);
 						String nyn = ny.getName();
 						// set a name to the data if none

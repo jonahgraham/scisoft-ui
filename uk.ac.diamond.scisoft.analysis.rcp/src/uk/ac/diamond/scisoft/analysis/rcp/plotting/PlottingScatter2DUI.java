@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
@@ -56,17 +56,17 @@ public class PlottingScatter2DUI extends AbstractPlottingUI {
 				Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
 				if (plotData != null) {
 					Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
-					final List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+					final List<Dataset> yDatasets = Collections.synchronizedList(new LinkedList<Dataset>());
 
 					int counter = 0;
 
 					while (iter.hasNext()) {
 						DataSetWithAxisInformation dataSetAxis = iter.next();
-						AbstractDataset data = dataSetAxis.getData();
+						Dataset data = dataSetAxis.getData();
 						yDatasets.add(data);
 
-						AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS + Integer.toString(counter));
-						AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS + Integer.toString(counter));
+						Dataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS + Integer.toString(counter));
+						Dataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS + Integer.toString(counter));
 
 						plottingSystem.getSelectedYAxis().setTitle(yAxisValues.getName());
 						plottingSystem.getSelectedXAxis().setTitle(xAxisValues.getName());

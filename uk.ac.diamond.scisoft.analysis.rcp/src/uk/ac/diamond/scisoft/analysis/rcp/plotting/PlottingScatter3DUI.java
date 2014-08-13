@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -61,24 +61,24 @@ public class PlottingScatter3DUI extends AbstractPlottingUI {
 
 				final List<IDataset> datasets = Collections.synchronizedList(new LinkedList<IDataset>());
 
-				AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
-				AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
-				AbstractDataset zAxisValues = dbPlot.getAxis(AxisMapBean.ZAXIS);
+				Dataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
+				Dataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
+				Dataset zAxisValues = dbPlot.getAxis(AxisMapBean.ZAXIS);
 
 				if (xAxisValues != null && yAxisValues != null && zAxisValues != null) {
 					datasets.add(xAxisValues);
 					datasets.add(yAxisValues);
 					datasets.add(zAxisValues);
-					Map<String, AbstractDataset> axisData = dbPlot.getAxisData();
+					Map<String, Dataset> axisData = dbPlot.getAxisData();
 					ArrayList<IDataset> yl = new ArrayList<IDataset>();
 					String[] axesIDs = plotData.get(0).getAxisMap().getAxisID();
 					String id = axesIDs == null ? AxisMapBean.XAXIS :
 						plotData.get(0).getAxisMap().getAxisID()[0];
-					AbstractDataset nx = axisData.get(id);
+					Dataset nx = axisData.get(id);
 					List<IDataset> xDatasets = new ArrayList<IDataset>(1);
 					xDatasets.add(nx);
 					for (DataSetWithAxisInformation d : plotData) {
-						AbstractDataset ny = d.getData();
+						Dataset ny = d.getData();
 						yl.add(ny);
 					}
 					plottingSystem.createPlot1D(nx, datasets, null, null);

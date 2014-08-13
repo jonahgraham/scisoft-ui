@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
@@ -181,7 +181,7 @@ public class ThumbnailLoadService implements Runnable, IObserver {
 				while (iter.hasNext())
 				{
 					DataSetWithAxisInformation dsAxis = iter.next();
-					AbstractDataset ds = dsAxis.getData();
+					Dataset ds = dsAxis.getData();
 					if (ds.getName().equals(currentProcessEntry.getFilename()))
 					{
 						currentProcessEntry.createImage(ds);
