@@ -102,6 +102,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.AggregateDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
@@ -1395,11 +1396,11 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		ILazyDataset[] mvs = metavalues.toArray(new ILazyDataset[0]);
 		ILazyDataset mv = mvs[0];
 		ILazyDataset allMeta;
-		if (mv instanceof AbstractDataset && mv.getRank() == 1) { // concatenate 1D meta-values
-			AbstractDataset[] mva = new AbstractDataset[mvs.length];
+		if (mv instanceof Dataset && mv.getRank() == 1) { // concatenate 1D meta-values
+			Dataset[] mva = new Dataset[mvs.length];
 			for (int i = 0; i < mvs.length; i++) {
 				ILazyDataset m = mvs[i]; 
-				mva[i] = (m instanceof AbstractDataset) ? (AbstractDataset) m : DatasetUtils.convertToAbstractDataset(m);
+				mva[i] = (m instanceof Dataset) ? (Dataset) m : DatasetUtils.convertToDataset(m);
 			}
 			allMeta = DatasetUtils.concatenate(mva, 0);
 			allMeta.setName(mv.getName());
@@ -1587,7 +1588,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			if (mv instanceof ILazyDataset) {
 				return (ILazyDataset) mv;
 			}
-			return AbstractDataset.array(mv);
+			return DatasetFactory.createFromObject(mv);
 		}
 
 		public void setMetaValueAsIndex() {
@@ -1607,7 +1608,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				if (mv instanceof String) {
 					mv = Utils.parseValue((String) mv); // TODO parse common multiple values string
 					if (mv != null) {
-						AbstractDataset a = AbstractDataset.array(mv);
+						Dataset a = DatasetFactory.createFromObject(mv);
 						a.setName(key);
 						mv = a;
 					}
@@ -1752,7 +1753,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				if (mv instanceof String) {
 					mv = Utils.parseValue((String) mv); // TODO parse common multiple values string
 					if (mv != null) {
-						AbstractDataset a = AbstractDataset.array(mv);
+						Dataset a = DatasetFactory.createFromObject(mv);
 						a.setName(key);
 						mv = a;
 					}
@@ -1901,7 +1902,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			
 			@SuppressWarnings("unchecked")
 			@Override
-			public AbstractDataset getDataset(IMonitor mon, int[] shape, int[] start, int[] stop, int[] step)
+			public Dataset getDataset(IMonitor mon, int[] shape, int[] start, int[] stop, int[] step)
 					throws ScanFileHolderException {
 				
 				SymbolTable evalSymbolTable = eval.getSymbolTable();
@@ -1919,7 +1920,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					}
 				}
 				
-				AbstractDataset ds = AbstractDataset.zeros(sliceShape, Dataset.FLOAT64); 
+				Dataset ds = DatasetFactory.zeros(sliceShape, Dataset.FLOAT64); 
 				IndexIterator iter = ds.getIterator(true);
 				int[] idx = iter.getPos();
 				while (iter.hasNext()) {
@@ -1963,24 +1964,24 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					}
 
 					@Override
-					public AbstractDataset getDataset(IMonitor mon, int[] shape, int[] start, int[] stop, int[] step)
+					public Dataset getDataset(IMonitor mon, int[] shape, int[] start, int[] stop, int[] step)
 							throws ScanFileHolderException {
-						AbstractDataset accDataset = null;
+						Dataset accDataset = null;
 						for (int idx = 0; idx < dataList.size(); idx++) {
-							AbstractDataset tmpData = DatasetUtils.convertToAbstractDataset(dataList.get(idx).getSlice(
+							Dataset tmpData = DatasetUtils.convertToDataset(dataList.get(idx).getSlice(
 									start, stop, step));
 							if (accDataset == null) {
 								switch (mathOp) {
 								case ADD:
 								case AVR:
-									accDataset = AbstractDataset.zeros(tmpData.getShape(), tmpData.getDtype());
+									accDataset = DatasetFactory.zeros(tmpData.getShape(), tmpData.getDtype());
 									break;
 								case MUL:
-									accDataset = AbstractDataset.ones(tmpData.getShape(), tmpData.getDtype());
+									accDataset = DatasetFactory.ones(tmpData.getShape(), tmpData.getDtype());
 									break;
 								case MAX:
 								case MIN:
-									accDataset = AbstractDataset.zeros(tmpData.getShape(), tmpData.getDtype());
+									accDataset = DatasetFactory.zeros(tmpData.getShape(), tmpData.getDtype());
 									IndexIterator iter = accDataset.getIterator();
 									tmpData.fillDataset(accDataset, iter);
 									break;

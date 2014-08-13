@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.DoubleBuffer;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
@@ -77,7 +77,7 @@ public class ASCIILazyDatasetSaver implements IFileSaver {
 		}
 	}
 
-	private void writeDataset(String heading, AbstractDataset ds) throws IOException {
+	private void writeDataset(String heading, Dataset ds) throws IOException {
 		wl("Dataset," + heading + "," + ds.getName());
 		int[] shape = ds.getShape();
 		for (int d : shape) {
@@ -88,7 +88,7 @@ public class ASCIILazyDatasetSaver implements IFileSaver {
 		for (int i = 0; i < inner_shape.length; i++) {
 			inner_shape[i] = shape[(inner_shape.length - 1) - i];
 		}
-		double[] data = ((DoubleDataset) DatasetUtils.cast(ds, AbstractDataset.FLOAT64)).getData();
+		double[] data = ((DoubleDataset) DatasetUtils.cast(ds, Dataset.FLOAT64)).getData();
 		DoubleBuffer db = DoubleBuffer.wrap(data, 0, data.length);
 		writeData(inner_shape, db);
 	}
@@ -127,8 +127,8 @@ public class ASCIILazyDatasetSaver implements IFileSaver {
 		for (int i = 0; i < inner_shape.length; i++) {
 			inner_shape[i] = shape[(inner_shape.length - 1) - i];
 		}
-		//double[] data = ((DoubleDataset) DatasetUtils.cast(ds, AbstractDataset.FLOAT64)).getData();
-		double[] data = ((DoubleDataset) DatasetUtils.convertToAbstractDataset(ds).cast(AbstractDataset.FLOAT64)).getData();
+		//double[] data = ((DoubleDataset) DatasetUtils.cast(ds, Dataset.FLOAT64)).getData();
+		double[] data = ((DoubleDataset) DatasetUtils.convertToDataset(ds).cast(Dataset.FLOAT64)).getData();
 		DoubleBuffer db = DoubleBuffer.wrap(data, 0, data.length);
 		writeData(inner_shape, db);
 	}

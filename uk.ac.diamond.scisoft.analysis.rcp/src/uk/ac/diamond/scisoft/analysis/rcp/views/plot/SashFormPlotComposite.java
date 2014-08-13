@@ -44,7 +44,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 
 /**
@@ -64,7 +64,7 @@ public class SashFormPlotComposite implements PlotView{
 	protected final Composite left, right;
 	protected IPlottingSystem plottingsystem;
 	protected final SashForm sashForm;
-	protected AbstractDataset[] dataSets;
+	protected Dataset[] dataSets;
 	protected String xAxisLabel, yAxisLabel;
 	private SashForm rightSash;
 	private Text statusLabel;
@@ -142,7 +142,7 @@ public class SashFormPlotComposite implements PlotView{
 	public PlotBean getPlotBean() {
 		final PlotBean ret = new PlotBean();
 
-		final Map<String, AbstractDataset> d = new HashMap<String, AbstractDataset>(1);
+		final Map<String, Dataset> d = new HashMap<String, Dataset>(1);
 		if (dataSets != null) {
 			for (int i = 0; i < dataSets.length; i++) {
 				String name = "Plot " + i;
@@ -212,7 +212,7 @@ public class SashFormPlotComposite implements PlotView{
 		this.yAxisLabel = label;
 	}
 
-	public void setDataSets(AbstractDataset... dataSets) {
+	public void setDataSets(Dataset... dataSets) {
 		this.dataSets = dataSets;
 	}
 
@@ -273,7 +273,7 @@ public class SashFormPlotComposite implements PlotView{
 	public void plotData() {
 		plottingsystem.clear();
 		List<IDataset> ys = new ArrayList<IDataset>();
-		for (AbstractDataset ds : dataSets){
+		for (Dataset ds : dataSets){
 			ys.add(ds);
 		}
 		plottingsystem.createPlot1D(null, ys, null);
