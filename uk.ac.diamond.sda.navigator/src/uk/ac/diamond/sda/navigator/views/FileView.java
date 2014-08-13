@@ -310,7 +310,6 @@ public final class FileView extends ViewPart implements IFileView {
 			TreeColumn tCol = tVCol.getColumn();
 			tCol.setText(titles[i]);
 			tCol.setWidth(widths[i]);
-			tCol.setMoveable(true);
 			try {
 				tVCol.setLabelProvider(new FileLabelProvider(i));
 			} catch (Exception e1) {
@@ -395,6 +394,7 @@ public final class FileView extends ViewPart implements IFileView {
 		if (this.tree==null || this.tree.getControl().isDisposed()) return;
 		tree.getTree().getColumn(col).setWidth(isVis?width:0);
 		tree.getTree().getColumn(col).setResizable(isVis);
+		tree.getTree().getColumn(col).setMoveable(isVis);
 	}
 
 	@Override
