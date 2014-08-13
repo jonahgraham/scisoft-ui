@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Attribute;
@@ -221,7 +222,7 @@ public class HDF5Utils {
 							Integer intPrimary = Integer.parseInt(attr.getFirstElement());
 							choice.setPrimary(intPrimary);
 						} else {
-							AbstractDataset attrd = attr.getValue();
+							Dataset attrd = attr.getValue();
 							choice.setPrimary(attrd.getInt(0));
 						}
 					}
@@ -256,7 +257,7 @@ public class HDF5Utils {
 									}
 								}
 							} else {
-								AbstractDataset attrd = attr.getValue();
+								Dataset attrd = attr.getValue();
 								if (attrd.getSize() == ashape.length) {
 									intAxis = new int[attrd.getSize()];
 									IndexIterator it = attrd.getIterator();
@@ -384,7 +385,7 @@ public class HDF5Utils {
 			}
 
 			// add in an automatically generated axis with top order so it appears after primary axes
-			AbstractDataset axis = AbstractDataset.arange(len, Dataset.INT32);
+			Dataset axis = DatasetFactory.createRange(len, Dataset.INT32);
 			axis.setName(AbstractExplorer.DIM_PREFIX + (i + 1));
 			AxisChoice newChoice = new AxisChoice(axis);
 			newChoice.setAxisNumber(i);

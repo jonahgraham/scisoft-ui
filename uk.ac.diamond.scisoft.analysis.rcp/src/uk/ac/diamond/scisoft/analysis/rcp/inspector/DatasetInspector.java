@@ -53,9 +53,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.AggregateDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
@@ -604,7 +604,7 @@ public class DatasetInspector extends Composite {
 			if (aNum < rank) { // add auto-axes if necessary
 				for (int i = aNum; i < rank; i++) {
 					AxisSelection aSel = new AxisSelection(i, shape[i]);
-					AbstractDataset axis = AbstractDataset.arange(shape[i], Dataset.INT32);
+					Dataset axis = DatasetFactory.createRange(shape[i], Dataset.INT32);
 					axis.setName(AbstractExplorer.DIM_PREFIX + (i+1));
 					AxisChoice newChoice = new AxisChoice(axis);
 					newChoice.setAxisNumber(i);

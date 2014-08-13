@@ -31,8 +31,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ShowPlotViewHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ShowPlotViewMenu;
@@ -166,7 +166,7 @@ public class ShowPlotViewMenuPluginTest extends MultiPlotViewTestBase {
 	public void testItemPresentAfterAddingToPlotServer() throws Exception {
 		Assert.assertFalse(getShowPlotViewMenuContents().contains(
 				"My Test Plot 12" + ShowPlotViewHandler.IN_PLOT_SERVER_SUFFIX));
-		SDAPlotter.plot("My Test Plot 12", AbstractDataset.arange(100, Dataset.INT));
+		SDAPlotter.plot("My Test Plot 12", DatasetFactory.createRange(100, Dataset.INT));
 		Assert.assertTrue(getShowPlotViewMenuContents().contains(
 				"My Test Plot 12" + ShowPlotViewHandler.IN_PLOT_SERVER_SUFFIX));
 	}
@@ -174,7 +174,7 @@ public class ShowPlotViewMenuPluginTest extends MultiPlotViewTestBase {
 	@Test
 	public void openViewAfterAddingToPlotServer() throws Exception {
 		// Create a plot data to open with
-		SDAPlotter.plot(TEST_PLOT_NAME, AbstractDataset.arange(100, Dataset.INT));
+		SDAPlotter.plot(TEST_PLOT_NAME, DatasetFactory.createRange(100, Dataset.INT));
 
 		try {
 			Map<String, CommandContributionItem> contents = getShowPlotViewMenuContentsWithActions();
@@ -192,7 +192,7 @@ public class ShowPlotViewMenuPluginTest extends MultiPlotViewTestBase {
 
 	@Test
 	public void testItemPresentAfterDuplicatingPlot() throws Exception {
-		SDAPlotter.plot(TEST_PLOT_NAME, AbstractDataset.arange(100, Dataset.INT));
+		SDAPlotter.plot(TEST_PLOT_NAME, DatasetFactory.createRange(100, Dataset.INT));
 
 		String dupViewName = PlotWindow.getManager().openDuplicateView(null, TEST_PLOT_NAME);
 		Assert.assertFalse(TEST_PLOT_NAME.equals(dupViewName));
@@ -240,7 +240,7 @@ public class ShowPlotViewMenuPluginTest extends MultiPlotViewTestBase {
 					+ ShowPlotViewHandler.IN_PLOT_SERVER_SUFFIX));
 
 			// Plot entry 1
-			SDAPlotter.plot("Plot Updates Menu 1", AbstractDataset.arange(100, Dataset.INT));
+			SDAPlotter.plot("Plot Updates Menu 1", DatasetFactory.createRange(100, Dataset.INT));
 			Map<String, CommandContributionItem> actions = getShowPlotViewMenuContentsWithActions();
 
 			// make sure entry 1 is in the menu (and for good measure 2 isn't!)
@@ -248,7 +248,7 @@ public class ShowPlotViewMenuPluginTest extends MultiPlotViewTestBase {
 			Assert.assertFalse(actions.containsKey("Plot Updates Menu 2" + ShowPlotViewHandler.IN_PLOT_SERVER_SUFFIX));
 
 			// Plot entry 2
-			SDAPlotter.plot("Plot Updates Menu 2", AbstractDataset.arange(100, Dataset.INT));
+			SDAPlotter.plot("Plot Updates Menu 2", DatasetFactory.createRange(100, Dataset.INT));
 			// Now using the same menu as we created above, check that entry 2 is in the list
 			actions = refreshShowPlotViewMenuContentsWithActions();
 			Assert.assertTrue(actions.containsKey("Plot Updates Menu 1" + ShowPlotViewHandler.IN_PLOT_SERVER_SUFFIX));

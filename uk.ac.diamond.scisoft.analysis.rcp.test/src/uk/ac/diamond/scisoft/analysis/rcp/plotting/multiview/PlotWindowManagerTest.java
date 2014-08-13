@@ -32,8 +32,8 @@ import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.MockPlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
@@ -261,7 +261,7 @@ public class PlotWindowManagerTest {
 		guiBean.put(GuiParameters.ROIDATA, new LinearROI(10, 0.4));
 		plotServer.updateGui(plot1, guiBean);
 		DataBean dataBean = new DataBean();
-		dataBean.addAxis("X-Axis", AbstractDataset.arange(100, Dataset.INT));
+		dataBean.addAxis("X-Axis", DatasetFactory.createRange(100, Dataset.INT));
 		plotServer.setData(plot1, dataBean);
 
 		// duplicate plot 1
