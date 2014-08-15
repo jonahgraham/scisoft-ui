@@ -58,10 +58,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.GDADataNature;
  */
 
 public class DataWizard extends Wizard implements INewWizard {
+
 	private static final String DATA_WIZARD = "DataWizard";
-	public static final String DIALOG_SETTING_KEY_DIRECTORY = "directory";
-	public static final String DIALOG_SETTING_KEY_FOLDER = "folder";
-	public static final String DIALOG_SETTING_KEY_PROJECT = "project";
 	private static final Logger logger = LoggerFactory.getLogger(DataWizard.class);	
 	private DataWizardPage page;
 	private ISelection selection;
@@ -87,12 +85,6 @@ public class DataWizard extends Wizard implements INewWizard {
 	@Override
 	public void addPages() {
 		String prevProject = null , prevFolder = null, prevDirectory = null;
-		IDialogSettings  settings = getDialogSettings();
-		if( settings != null){
-			prevProject = settings.get(DIALOG_SETTING_KEY_PROJECT);
-			prevFolder = settings.get(DIALOG_SETTING_KEY_FOLDER);
-			prevDirectory = settings.get(DIALOG_SETTING_KEY_DIRECTORY);
-		}
 		if (defaultDataLocation!=null) {
 			prevDirectory = defaultDataLocation;
 		}
@@ -135,12 +127,6 @@ public class DataWizard extends Wizard implements INewWizard {
 			// NOTE: Used to use ErrorDialog here, it showed even when they cancelled normally.
 		}
 
-		IDialogSettings settings = getDialogSettings();
-		if( settings != null){
-			settings.put(DIALOG_SETTING_KEY_PROJECT, project);
-			settings.put(DIALOG_SETTING_KEY_FOLDER, folder);
-			settings.put(DIALOG_SETTING_KEY_DIRECTORY, directory);
-		}
 		return true;
 	}
 	
@@ -247,10 +233,5 @@ public class DataWizard extends Wizard implements INewWizard {
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		this.selection = selection;
-	}
-
-	public void setDataLocation(File selectedPath) {
-		this.defaultDataLocation = selectedPath.getAbsolutePath();
-		this.defaultFolderName   = selectedPath.getName();
 	}
 }

@@ -165,11 +165,6 @@ public class DataWizardPage extends WizardPage implements KeyListener {
 		return txtDirectory.getText();
 	}
 	
-
-	public void setDataLocation(String selectedPath) {
-		txtDirectory.setText(selectedPath);
-	}
-
 	public String getFolder() {
 		return txtFolder.getText();
 	}

@@ -65,14 +65,7 @@ public class DataWizardPluginTest {
 		}
 		if ( open == Window.OK){
 			PluginTestHelpers.delay(1000); //give time for project to be created
-			IDialogSettings settings = wizard.getDialogSettings();
-			final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 
-			final IProject project = root.getProject(settings.get(DataWizard.DIALOG_SETTING_KEY_PROJECT));
-			project.open(null);
-			IFolder folder = project.getFolder(settings.get(DataWizard.DIALOG_SETTING_KEY_FOLDER));
-			IPath location = folder.getLocation();
-			Assert.assertEquals(settings.get(DataWizard.DIALOG_SETTING_KEY_DIRECTORY),location.toString());
 		}
 	}
 }
