@@ -188,12 +188,6 @@
             name="DExplore">
       </perspective>
       <perspective
-            class="uk.ac.diamond.scisoft.analysis.rcp.DiffractionViewerPerspective"
-            icon="icons/diva.png"
-            id="uk.ac.diamond.scisoft.diffractionviewerperspective"
-            name="DIVA">
-      </perspective>
-      <perspective
             class="uk.ac.diamond.scisoft.analysis.rcp.JythonPerspective"
             icon="icons/jython.png"
             id="uk.ac.diamond.scisoft.jythonperspective"
@@ -907,31 +901,6 @@
    <extension
          point="org.eclipse.ui.cheatsheets.cheatSheetContent">
       <category
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
-            name="DIVA Tutorials">
-      </category>
-      <cheatsheet
-            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
-            composite="false"
-            contentFile="cheat/DiffractionViewerIntroduction.xml"
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.diffractionViewer"
-            name="Diffraction Viewer Introduction">
-      </cheatsheet>
-      <cheatsheet
-            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
-            composite="false"
-            contentFile="cheat/Calibrant.xml"
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divabeamCalibration"
-            name="Beam Centre Calibration">
-      </cheatsheet>
-      <cheatsheet
-            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
-            composite="false"
-            contentFile="cheat/DiffractionViewerLookAtDifractionData.xml"
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divalookatdata"
-            name="DIVA - Look at diffraction data">
-      </cheatsheet>
-      <category
             id="uk.ac.diamond.scisoft.analysis.rcp.pythoncategory"
             name="Python/Jython Scripting">
       </category>
@@ -1208,12 +1177,6 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.save.hdf5"
             name="Save As HDF5">
       </command>
-    </extension>
-    <extension
-          point="org.eclipse.dawnsci.hdf5.editor.double.click.listener">
-       <double_click_provider
-             class="uk.ac.diamond.scisoft.analysis.rcp.inspector.InspectorSelectionProvider">
-       </double_click_provider>
     </extension>
 
 
