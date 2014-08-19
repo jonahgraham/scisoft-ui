@@ -160,7 +160,7 @@ public class HDF5Utils {
 		if (eData != null && !AbstractDataset.areShapesCompatible(cData.getShape(), eData.getShape(), -1)) {
 			eData = null;
 		}
-		cData.setLazyErrors(eData);
+		cData.setError(eData);
 
 		// remove extraneous dimensions
 		cData.squeeze(true);
@@ -211,7 +211,7 @@ public class HDF5Utils {
 							eData.squeeze(true);
 
 						if (AbstractDataset.areShapesCompatible(ashape, eData.getShape(), -1)) {
-							a.setLazyErrors(eData);
+							a.setError(eData);
 						}
 					}
 
