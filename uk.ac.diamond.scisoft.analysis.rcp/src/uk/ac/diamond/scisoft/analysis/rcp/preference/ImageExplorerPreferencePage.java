@@ -103,7 +103,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 
 		Label lblLThreshold = new Label(comp, SWT.LEFT);
 		lblLThreshold.setText("Auto-contrast lower threshold (in %)");
-		spnAutoLoThreshold = new Spinner(comp, SWT.RIGHT);
+		spnAutoLoThreshold = new Spinner(comp, SWT.RIGHT | SWT.BORDER);
 		spnAutoLoThreshold.setMinimum(0);
 		spnAutoLoThreshold.setMaximum(99);
 		spnAutoLoThreshold.setIncrement(1);
@@ -122,7 +122,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 
 		Label lblHThreshold = new Label(comp, SWT.LEFT);
 		lblHThreshold.setText("Auto-contrast upper threshold (in %)");
-		spnAutoHiThreshold = new Spinner(comp, SWT.RIGHT);
+		spnAutoHiThreshold = new Spinner(comp, SWT.RIGHT | SWT.BORDER);
 		spnAutoHiThreshold.setMinimum(1);
 		spnAutoHiThreshold.setMaximum(100);
 		spnAutoHiThreshold.setIncrement(1);
@@ -141,7 +141,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 
 		Label lblWaitTime = new Label(comp, SWT.LEFT);
 		lblWaitTime.setText("Time delay for next image in play mode");
-		spnWaitTime = new Spinner(comp, SWT.RIGHT);
+		spnWaitTime = new Spinner(comp, SWT.RIGHT | SWT.BORDER);
 		spnWaitTime.setMinimum(150);
 		spnWaitTime.setMaximum(15000);
 		spnWaitTime.setIncrement(50);
@@ -161,7 +161,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 
 		Label lblSkipImages = new Label(comp, SWT.LEFT);
 		lblSkipImages.setText("Playback every");
-		spnSkipImages = new Spinner(comp, SWT.RIGHT);
+		spnSkipImages = new Spinner(comp, SWT.RIGHT | SWT.BORDER);
 		spnSkipImages.setMinimum(1);
 		spnSkipImages.setMaximum(100);
 		spnSkipImages.setIncrement(1);
