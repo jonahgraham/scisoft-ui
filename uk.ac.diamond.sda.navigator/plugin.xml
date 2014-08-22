@@ -398,6 +398,13 @@
                tooltip="Refresh file tree">
          </command>
          <command
+               commandId="uk.ac.diamond.sda.navigator.refreshdrives"
+               icon="icons/refreshAll.gif"
+               label="Refresh Drives"
+               style="push"
+               tooltip="Look for usb drives connected">
+         </command>
+         <command
                commandId="uk.ac.diamond.sda.navigator.collapseAll"
                icon="icons/CollapseAll.png"
                label="Collapse All"
@@ -501,6 +508,11 @@
             defaultHandler="uk.ac.diamond.sda.navigator.views.ShowPreferencesHandler"
             id="uk.ac.diamond.sda.navigator.showFileNavigatorPreferences"
             name="Show preferences">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.sda.navigator.views.RefreshDrivesHandler"
+            id="uk.ac.diamond.sda.navigator.refreshdrives"
+            name="Refresh Drives">
       </command>
    </extension>
    <extension

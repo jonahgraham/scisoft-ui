@@ -416,6 +416,13 @@ public final class FileView extends ViewPart implements IFileView {
 			setSelectedFile(file);
 		}
 	}
+	
+
+	public void refreshAll() {
+		NIOUtils.getRoots(true);
+		tree.refresh();
+	}
+
 
 	private void createContent(boolean setItemCount) {
 		

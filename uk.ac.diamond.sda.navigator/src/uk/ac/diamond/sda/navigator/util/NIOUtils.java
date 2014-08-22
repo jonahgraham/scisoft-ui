@@ -26,6 +26,11 @@ public class NIOUtils {
 
 	private static List<Path> roots;
 	
+	public static final List<Path> getRoots(boolean clearCache) {
+		if (clearCache) roots=null;
+		return getRoots();
+	}
+
 	public static final List<Path> getRoots() {
 		if (roots==null) roots = createList(FileSystems.getDefault().getRootDirectories());
 		return roots;
