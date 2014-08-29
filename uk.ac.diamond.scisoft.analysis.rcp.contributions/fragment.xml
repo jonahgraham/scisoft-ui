@@ -782,22 +782,6 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor"
-            default="false"
-            extensions="nxs, nexus"
-            icon="icons/nexus.png"
-            id="uk.ac.diamond.scisoft.analysis.rcp.editors.NexusTreeEditor"
-            name="NeXus Data Editor">
-      </editor>
-      <editor
-            class="uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor"
-            default="false"
-            extensions="h5, hdf5"
-            icon="icons/hdf.gif"
-            id="uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor"
-            name="HDF5 Data Editor">
-      </editor>
-      <editor
             class="uk.ac.diamond.scisoft.analysis.rcp.editors.ImageEditor"
             default="false"
             extensions="png, jpg, jpeg, tif, tiff, cbf, img, ciff, mccd, edf, pgm, osc, mar3450, pck3450, mrc"
