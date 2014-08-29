@@ -22,15 +22,14 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.TypedEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+
+import org.dawnsci.common.widgets.file.SelectorWidget;
 
 /**
  * The "New" wizard page allows setting the container for the new file as well as the file name. The page will only
@@ -39,12 +38,12 @@ import org.eclipse.swt.widgets.Text;
 
 public class DataWizardPage extends WizardPage implements KeyListener {
 
-	private Text txtDirectory;
 	private Text txtProject;
 	private Text txtFolder;
 	private final String initProject;
 	private final String initDirectory;
 	private final String initFolder;
+	private SelectorWidget directorySelector;
 
 	/**
 	 * Constructor for SampleNewWizardPage.
@@ -95,39 +94,18 @@ public class DataWizardPage extends WizardPage implements KeyListener {
 
 		Label label = new Label(container, SWT.NULL);
 		label.setText("&Directory:");
-		txtDirectory = new Text(container, SWT.BORDER);
-		txtDirectory.setText(initDirectory);
-		txtDirectory.setEditable(true);
-		txtDirectory.setEnabled(true);
-		gd = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		txtDirectory.setLayoutData(gd);
-		txtDirectory.addKeyListener(this);
-
-
-		Button button = new Button(container, SWT.PUSH);
-		button.setText("Browse...");
-		button.addSelectionListener(new SelectionAdapter() {
+		directorySelector = new SelectorWidget(container, true, false) {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				handleBrowse();
+			public void pathChanged(String path, TypedEvent event) {
+				dialogChanged();
 			}
-		});
+		};
+		directorySelector.setLabel("");
+		directorySelector.setText(initDirectory);
+
+		new Composite(container, SWT.NULL);
 		dialogChanged();
 		setControl(container);
-	}
-
-	/**
-	 * Uses the standard container selection dialog to choose the new value for the container field.
-	 */
-
-	private void handleBrowse() {
-		DirectoryDialog dirDialog = new DirectoryDialog(getShell(), SWT.OPEN);
-		dirDialog.setFilterPath(getDirectory());
-		final String filepath = dirDialog.open();
-		if (filepath != null) {
-			txtDirectory.setText(filepath);
-			dialogChanged();
-		}
 	}
 
 	/**
@@ -162,7 +140,7 @@ public class DataWizardPage extends WizardPage implements KeyListener {
 	}
 
 	public String getDirectory() {
-		return txtDirectory.getText();
+		return directorySelector.getText();
 	}
 	
 	public String getFolder() {
@@ -179,9 +157,6 @@ public class DataWizardPage extends WizardPage implements KeyListener {
 			dialogChanged();
 		}
 		if (e.getSource().equals(txtFolder)) {
-			dialogChanged();
-		}
-		if (e.getSource().equals(txtDirectory)) {
 			dialogChanged();
 		}
 	}
