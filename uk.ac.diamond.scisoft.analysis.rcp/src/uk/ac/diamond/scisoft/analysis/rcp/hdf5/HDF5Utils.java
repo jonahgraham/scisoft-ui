@@ -146,16 +146,19 @@ public class HDF5Utils {
 		// add errors
 		ILazyDataset eData = null;
 		String cName = cData.getName();
-		String eName = cName + NexusHDF5Loader.NX_ERRORS_SUFFIX;
-		if (!gNode.containsDataset(eName) && !cName.equals(link.getName())) {
-			eName = link.getName() + NexusHDF5Loader.NX_ERRORS_SUFFIX;
-		}
-		if (gNode.containsDataset(eName)) {
-			eData = gNode.getDataset(eName).getDataset();
-			eData.setName(eName);
-		} else if (gNode.containsDataset(NexusHDF5Loader.NX_ERRORS)) { // fall back
-			eData = gNode.getDataset(NexusHDF5Loader.NX_ERRORS).getDataset();
-			eData.setName(NexusHDF5Loader.NX_ERRORS);
+		String eName;
+		if (!NexusHDF5Loader.NX_ERRORS.equals(cName)) { 
+			eName = cName + NexusHDF5Loader.NX_ERRORS_SUFFIX;
+			if (!gNode.containsDataset(eName) && !cName.equals(link.getName())) {
+				eName = link.getName() + NexusHDF5Loader.NX_ERRORS_SUFFIX;
+			}
+			if (gNode.containsDataset(eName)) {
+				eData = gNode.getDataset(eName).getDataset();
+				eData.setName(eName);
+			} else if (gNode.containsDataset(NexusHDF5Loader.NX_ERRORS)) { // fall back
+				eData = gNode.getDataset(NexusHDF5Loader.NX_ERRORS).getDataset();
+				eData.setName(NexusHDF5Loader.NX_ERRORS);
+			}
 		}
 		if (eData != null && !AbstractDataset.areShapesCompatible(cData.getShape(), eData.getShape(), -1)) {
 			eData = null;
