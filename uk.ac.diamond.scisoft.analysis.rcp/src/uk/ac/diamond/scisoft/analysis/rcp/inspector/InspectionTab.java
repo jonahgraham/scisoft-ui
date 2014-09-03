@@ -796,7 +796,7 @@ class PlotTab extends ATab {
 				Slice[] tmpSlices = new Slice[slices.length];
 				for (int idx = 0; idx < ppos.length; idx++) {
 					if (axs.contains(idx)) {
-						tmpSlices[idx] = new Slice(slices[idx].getStart(), slices[idx].getStop(), slices[idx].getStep());
+						tmpSlices[idx] = slices[idx].clone();
 					} else {
 						Integer step = slices[idx].getStep();
 						Integer start = slices[idx].getStart() == null ? step*ppos[idx] : slices[idx].getStart() + step*ppos[idx];
@@ -837,18 +837,13 @@ class PlotTab extends ATab {
 		// ensures that file name appears in plot.
 		final StringBuilder name = new StringBuilder();
 		name.append(slicedData.getName());
-		NAME_APPEND: if (meta != null && meta.getFilePath() != null) {
-			try {
-				File file = new File(meta.getFilePath());
-				final String fname = file.getName();
-				if (name.toString().contains(fname) || fname.length()==0) break NAME_APPEND;
+		String path = meta == null ? null : meta.getFilePath();
+		if (path != null) {
+			File file = new File(path);
+			final String fname = file.getName();
+			if (fname.length() != 0 && !name.toString().contains(fname)) {
 				name.append(" (");
 				name.append(fname);
-				name.append(")");
-			} catch (Throwable ne) {
-				if (name.toString().contains(meta.getFilePath())) break NAME_APPEND;
-				name.append(" (");
-				name.append(meta.getFilePath());
 				name.append(")");
 			}
 		}
