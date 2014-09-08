@@ -65,7 +65,7 @@ public class AxisValuesTest {
 	}
 
 	@Test
-	public void testAxisValuesAbstractDataset() {
+	public void testAxisValuesDataset() {
 		DoubleDataset dataset = DoubleDataset.createRange(0.0, 100.0, 10.0);
 		AxisValues axis = new AxisValues(dataset);
 		assertEquals(90.0, axis.getMaxValue(),0.1);
