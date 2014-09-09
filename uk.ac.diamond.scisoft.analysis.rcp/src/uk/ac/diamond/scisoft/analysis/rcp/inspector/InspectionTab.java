@@ -765,8 +765,9 @@ class PlotTab extends ATab {
 		Dataset reorderedData = null;
 		Dataset slicedData = null;
 		
-		if (average != null) {
+		if (ArrayUtils.contains(average, true)) {
 			Dataset averagedData = null;
+			Dataset averagedError = null;
 			List<Integer> axs = new ArrayList<Integer>();
 			int[] slicesShape = new int[slices.length];
 			int resDim = 0;
@@ -778,9 +779,9 @@ class PlotTab extends ATab {
 						resDim++;
 				} 
 			}
-			
+
 			// For 1D data preload last averaged dimension into memory to reduce number of data slicing calls 
-			Integer meanAxis = -1;
+			int meanAxis = -1;
 			if (resDim == 1) {
 				meanAxis = slicesShape.length - 1;
 				while (meanAxis >= 0 && !average[meanAxis])
@@ -788,7 +789,7 @@ class PlotTab extends ATab {
 				if (meanAxis != -1)
 					axs.add(meanAxis);
 			}
-			
+
 			PositionIterator pitr = new PositionIterator(slicesShape, ArrayUtils.toPrimitive(axs.toArray(new Integer[0])));
 			int sliceIdx = 0;
 			while (pitr.hasNext()) {
@@ -806,21 +807,44 @@ class PlotTab extends ATab {
 				}
 				
 				Dataset tmpSlice = DatasetUtils.convertToDataset(dataset.getSlice(tmpSlices));
+				Dataset errSlice = tmpSlice.getErrorBuffer(); // TODO remove when done internally
+				tmpSlice.setError(null);
 				if (meanAxis != -1) {
 					int[] tmpShape = tmpSlice.getShape();
 					tmpShape[meanAxis] = 1;
 					tmpSlice = tmpSlice.mean(meanAxis);
 					tmpSlice.setShape(tmpShape);
+					if (errSlice != null) {
+						int[] errShape = errSlice.getShape();
+						if (errShape[meanAxis] > 1) {
+							errShape[meanAxis] = 1;
+							Dataset n = errSlice.count(meanAxis);
+							errSlice = errSlice.mean(meanAxis);
+							errSlice.idivide(n);
+							errSlice.setShape(errShape);
+						}
+					}
 				}
-				
+
 				if (averagedData != null)
 					averagedData.iadd(tmpSlice);
 				else
 					averagedData = tmpSlice;
+
+				if (errSlice != null) {
+					if (averagedError != null)
+						averagedError.iadd(errSlice);
+					else
+						averagedError = errSlice;
+				}
 				sliceIdx++;
 			}
-			if(averagedData == null) return null;
+			if (averagedData == null)
+				return null;
 			slicedData = averagedData.idivide(sliceIdx);
+			if (averagedError != null) {
+				slicedData.setErrorBuffer(averagedError.idivide(sliceIdx * sliceIdx));
+			}
 		} else {
 			slicedData = sliceData(monitor, slices);
 		}
