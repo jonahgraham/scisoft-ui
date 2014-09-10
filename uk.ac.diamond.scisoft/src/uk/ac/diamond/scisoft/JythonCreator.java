@@ -121,7 +121,7 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.scisoft.python",
 		"uk.ac.diamond.scisoft.spectroscopy",
 		"uk.ac.gda.common",
-		"org.dawb.hdf5", // fix to http://jira.diamond.ac.uk/browse/SCI-1467
+		"org.eclipse.dawnsci.hdf5", // fix to http://jira.diamond.ac.uk/browse/SCI-1467
 		"slf4j.api",
 		"jcl.over.slf4j",
 		"log4j.over.slf4j",
@@ -146,7 +146,7 @@ public class JythonCreator implements IStartup {
 		"classpath__" // includes __classpath__ and __pyclasspath__
 	};
 	private final static String[] pluginKeys = {
-		"org.dawb.hdf5", // required for loading to work in client started from IDE
+		"org.eclipse.dawnsci.hdf5", // required for loading to work in client started from IDE
 		"uk.ac.diamond.scisoft.analysis",
 		"uk.ac.diamond.scisoft.diffraction.powder",
 		"uk.ac.diamond.scisoft.python",
