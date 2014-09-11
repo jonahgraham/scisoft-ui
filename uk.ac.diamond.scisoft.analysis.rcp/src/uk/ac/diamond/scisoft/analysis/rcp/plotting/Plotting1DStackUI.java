@@ -112,7 +112,7 @@ public class Plotting1DStackUI extends AbstractPlottingUI {
 					trace = oldTrace;
 				} else {
 					plottingSystem.reset();
-					trace = plottingSystem.createLineStackTrace("Plots", n);
+					trace = plottingSystem.createLineStackTrace("Plots");
 				}
 
 				IDataset[] ys = new IDataset[n];
