@@ -118,6 +118,7 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.jama",
 		"uk.ac.diamond.ejml",
 		"uk.ac.diamond.ddogleg",
+		"org.apache.commons.lang",
 		"uk.ac.diamond.scisoft.analysis",
 		"uk.ac.diamond.scisoft.diffraction.powder",
 		"uk.ac.diamond.scisoft.python",
