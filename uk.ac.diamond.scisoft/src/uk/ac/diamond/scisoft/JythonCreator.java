@@ -116,6 +116,8 @@ public class JythonCreator implements IStartup {
 		"org.apache.commons.math", // includes math3
 		"uk.ac.diamond.CBFlib",
 		"uk.ac.diamond.jama",
+		"uk.ac.diamond.ejml",
+		"uk.ac.diamond.ddogleg",
 		"uk.ac.diamond.scisoft.analysis",
 		"uk.ac.diamond.scisoft.diffraction.powder",
 		"uk.ac.diamond.scisoft.python",
