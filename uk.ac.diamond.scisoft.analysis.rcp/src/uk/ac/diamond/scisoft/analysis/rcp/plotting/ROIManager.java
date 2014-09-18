@@ -19,6 +19,9 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 import java.util.Collection;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.ROIList;
+import org.eclipse.dawnsci.analysis.dataset.roi.ROIUtils;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
@@ -33,9 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
-import uk.ac.diamond.scisoft.analysis.roi.IROI;
-import uk.ac.diamond.scisoft.analysis.roi.ROIList;
-import uk.ac.diamond.scisoft.analysis.roi.ROIUtils;
 
 /**
  * Class to deal with interactions of regions and ROIs

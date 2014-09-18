@@ -18,8 +18,9 @@
 
 package extendedMetadata;
 
-import uk.ac.diamond.scisoft.analysis.metadata.IExtendedMetadata;
-import uk.ac.diamond.scisoft.analysis.metadata.IMetadata;
+import org.eclipse.dawnsci.analysis.api.metadata.IExtendedMetadata;
+import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
+
 import uk.ac.diamond.sda.meta.discriminator.IMetadataDiscriminator;
 
 public class ExtendedMetadataDiscriminator implements IMetadataDiscriminator {

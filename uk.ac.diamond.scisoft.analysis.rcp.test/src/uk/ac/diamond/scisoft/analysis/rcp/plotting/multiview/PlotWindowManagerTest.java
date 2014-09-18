@@ -23,6 +23,9 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
@@ -32,8 +35,6 @@ import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.MockPlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
@@ -43,7 +44,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.mock.MockAttribute;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.mock.MockConfigElem;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
-import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 
 /**
  * Test the PlotWindowManager as a unit.

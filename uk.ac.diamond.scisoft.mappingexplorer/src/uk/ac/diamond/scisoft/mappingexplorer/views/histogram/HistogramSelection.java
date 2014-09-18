@@ -3,9 +3,8 @@
  */
 package uk.ac.diamond.scisoft.mappingexplorer.views.histogram;
 
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.jface.viewers.ISelection;
-
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 
 /**
  * @author rsr31645

@@ -19,8 +19,9 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 
 
 public interface IMainPlot {

@@ -16,13 +16,13 @@
 
 package uk.ac.diamond.scisoft.analysis.utils;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.junit.Test;
 import org.python.core.PyFloat;
 import org.python.core.PyObjectDerived;
 import org.python.util.PythonInterpreter;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.python.JythonInterpreterUtils;
 
 public class JythonInterpreterUtilsTest {

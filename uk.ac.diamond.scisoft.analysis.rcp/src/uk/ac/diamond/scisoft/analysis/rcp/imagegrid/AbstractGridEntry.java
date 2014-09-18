@@ -16,7 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.imagegrid;
 
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 
 /**
  * An abstract entry for the ImageGridTable

@@ -18,7 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 
 import java.beans.PropertyChangeEvent;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Slice;
+import org.eclipse.dawnsci.analysis.api.dataset.Slice;
 
 /**
  * Represent slice used in GUI and model

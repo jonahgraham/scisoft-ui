@@ -16,8 +16,8 @@
 
 package uk.ac.diamond.sda.meta.discriminator;
 
-import uk.ac.diamond.scisoft.analysis.metadata.IDiffractionMetadata;
-import uk.ac.diamond.scisoft.analysis.metadata.IMetadata;
+import org.eclipse.dawnsci.analysis.api.metadata.IDiffractionMetadata;
+import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
 
 public class DiffractionMetadataDiscriminator implements IMetadataDiscriminator {
 

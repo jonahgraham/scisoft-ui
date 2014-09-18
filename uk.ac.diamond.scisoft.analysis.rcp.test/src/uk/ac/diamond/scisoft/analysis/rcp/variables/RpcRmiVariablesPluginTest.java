@@ -22,10 +22,10 @@ import junit.framework.Assert;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.variables.VariablesPlugin;
+import org.eclipse.dawnsci.analysis.api.RMIServerProvider;
 import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.AnalysisRpcServerProvider;
-import uk.ac.diamond.scisoft.analysis.RMIServerProvider;
 import uk.ac.diamond.scisoft.analysis.rpc.FlatteningService;
 
 /**

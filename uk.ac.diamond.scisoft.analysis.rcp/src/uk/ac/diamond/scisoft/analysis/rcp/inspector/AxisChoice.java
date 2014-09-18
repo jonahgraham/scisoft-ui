@@ -19,8 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 import java.util.Arrays;
 
 import org.apache.commons.lang.ArrayUtils;
-
-import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 
 /**
  * Class to hold a possible choice of axis for a dataset, the signal dataset, that is to be

@@ -16,6 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.explorers;
 
+import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
+import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -30,9 +32,6 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchPartSite;
-
-import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
-import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 
 /**
  * This is a template for data file explorers to fill out. A concrete subclass of this can be used in any (read-only) editor part,

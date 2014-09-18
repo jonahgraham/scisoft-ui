@@ -17,6 +17,8 @@
 package uk.ac.diamond.sda.navigator.actions;
 
 import org.dawb.common.services.ServiceManager;
+import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
+import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.slicing.api.data.ITransferableDataObject;
 import org.eclipse.dawnsci.slicing.api.data.ITransferableDataService;
 import org.eclipse.jface.action.Action;
@@ -27,9 +29,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
-import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.sda.navigator.srs.SRSTreeData;
 
 public class CopyTransferableDataAction extends Action {

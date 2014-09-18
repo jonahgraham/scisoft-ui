@@ -16,9 +16,8 @@
 
 package uk.ac.diamond.sda.meta.page;
 
+import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
 import org.eclipse.swt.widgets.Composite;
-
-import uk.ac.diamond.scisoft.analysis.metadata.IMetadata;
 
 public interface IMetadataPage {
 

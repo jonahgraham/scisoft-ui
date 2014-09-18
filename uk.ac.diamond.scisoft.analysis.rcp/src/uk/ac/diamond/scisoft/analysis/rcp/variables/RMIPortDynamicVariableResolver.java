@@ -19,8 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.variables;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.variables.IDynamicVariable;
 import org.eclipse.core.variables.IDynamicVariableResolver;
-
-import uk.ac.diamond.scisoft.analysis.RMIServerProvider;
+import org.eclipse.dawnsci.analysis.api.RMIServerProvider;
 
 public class RMIPortDynamicVariableResolver implements IDynamicVariableResolver {
 

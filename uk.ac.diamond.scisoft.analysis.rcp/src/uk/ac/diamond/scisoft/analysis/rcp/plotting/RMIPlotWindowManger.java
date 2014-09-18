@@ -18,11 +18,11 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import java.rmi.RemoteException;
 
+import org.eclipse.dawnsci.analysis.api.RMIClientProvider;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.RMIClientProvider;
 import uk.ac.diamond.scisoft.analysis.plotserver.IPlotWindowManagerRMI;
 
 /**

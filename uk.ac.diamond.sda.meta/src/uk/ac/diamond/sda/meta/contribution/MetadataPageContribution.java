@@ -23,11 +23,11 @@ import org.eclipse.core.runtime.IContributor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.spi.RegistryContributor;
+import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.metadata.IMetadata;
 import uk.ac.diamond.sda.meta.discriminator.IMetadataDiscriminator;
 import uk.ac.diamond.sda.meta.page.IMetadataPage;
 

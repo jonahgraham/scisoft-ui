@@ -20,9 +20,8 @@ package uk.ac.diamond.sda.navigator.decorator;
 
 import static org.junit.Assert.assertEquals;
 
+import org.eclipse.dawnsci.analysis.api.metadata.IExtendedMetadata;
 import org.junit.Test;
-
-import uk.ac.diamond.scisoft.analysis.metadata.IExtendedMetadata;
 
 
 

@@ -19,8 +19,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.monitor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-
-import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
+import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 
 
 /**

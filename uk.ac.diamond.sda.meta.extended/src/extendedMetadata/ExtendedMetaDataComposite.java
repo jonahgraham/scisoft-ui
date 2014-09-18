@@ -24,6 +24,8 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.dawnsci.analysis.api.metadata.IExtendedMetadata;
+import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -33,8 +35,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.progress.UIJob;
 
-import uk.ac.diamond.scisoft.analysis.metadata.IExtendedMetadata;
-import uk.ac.diamond.scisoft.analysis.metadata.IMetadata;
 import uk.ac.diamond.sda.meta.page.IMetadataPage;
 import uk.ac.diamond.sda.meta.views.MetadataTableView;
 

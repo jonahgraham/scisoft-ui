@@ -20,6 +20,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import ncsa.hdf.object.HObject;
 
+import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.hdf5.editor.IH5DoubleClickSelectionProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -27,7 +28,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5Utils;
 
 /**

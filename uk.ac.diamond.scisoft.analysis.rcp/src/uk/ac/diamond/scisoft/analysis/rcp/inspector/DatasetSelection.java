@@ -22,9 +22,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.jface.viewers.IStructuredSelection;
-
-import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 
 /**
  * Class to encapsulate selection of items for dataset inspector

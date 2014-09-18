@@ -17,7 +17,8 @@
  */
 package uk.ac.diamond.scisoft.mappingexplorer.views;
 
-import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
+
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
 
 /**

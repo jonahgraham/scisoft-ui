@@ -13,10 +13,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.dawb.common.util.list.PrimitiveArrayEncoder;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 /**
  * Stores information required to restore a plot. Should serialise to XML easily. Resolves plot data to primitive and

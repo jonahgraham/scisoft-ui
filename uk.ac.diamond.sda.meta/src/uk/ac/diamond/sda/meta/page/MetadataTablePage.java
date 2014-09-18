@@ -16,11 +16,11 @@
 
 package uk.ac.diamond.sda.meta.page;
 
+import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import uk.ac.diamond.scisoft.analysis.metadata.IMetadata;
 import uk.ac.diamond.sda.meta.views.MetadataTableView;
 
 public class MetadataTablePage implements IMetadataPage {
