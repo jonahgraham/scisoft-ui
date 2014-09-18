@@ -52,7 +52,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
@@ -242,7 +242,7 @@ public class TextDataExplorer extends AbstractExplorer implements ISelectionProv
 
 		if (data != null) {
 			if (display != null) {
-				final IMetaData meta = data.getMetadata();
+				final IMetadata meta = data.getMetadata();
 
 				display.asyncExec(new Runnable() {
 					
@@ -312,7 +312,7 @@ public class TextDataExplorer extends AbstractExplorer implements ISelectionProv
 		setSelection(datasetSelection);
 	}
 
-	private void addMenu(IMetaData meta) {
+	private void addMenu(IMetadata meta) {
 		// create context menu and handling
 		if (meta != null) {
 			Collection<String> names = null;

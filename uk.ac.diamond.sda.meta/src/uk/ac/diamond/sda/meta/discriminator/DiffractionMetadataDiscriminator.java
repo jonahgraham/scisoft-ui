@@ -17,7 +17,7 @@
 package uk.ac.diamond.sda.meta.discriminator;
 
 import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 
 public class DiffractionMetadataDiscriminator implements IMetadataDiscriminator {
 
@@ -26,7 +26,7 @@ public class DiffractionMetadataDiscriminator implements IMetadataDiscriminator 
 	}
 
 	@Override
-	public boolean isApplicableFor(IMetaData metadata) {
+	public boolean isApplicableFor(IMetadata metadata) {
 		if (metadata instanceof IDiffractionMetadata)
 			return true;
 		return false;

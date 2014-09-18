@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 public class LightweightSRSScanCmdDecorator extends LabelProvider implements ILightweightLabelDecorator {
@@ -107,7 +107,7 @@ public class LightweightSRSScanCmdDecorator extends LabelProvider implements ILi
 	private void srsMetaDataLoader(String fullpath) {
 		
 		try {
-			IMetaData metaDataTest=LoaderFactory.getMetaData(fullpath, null);
+			IMetadata metaDataTest=LoaderFactory.getMetaData(fullpath, null);
 			if(metaDataTest instanceof IExtendedMetadata)
 				metaData = (IExtendedMetadata)LoaderFactory.getMetaData(fullpath, null);
 			else{

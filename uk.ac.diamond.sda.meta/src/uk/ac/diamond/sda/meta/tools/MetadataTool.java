@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.sda.meta.Activator;
 import uk.ac.diamond.sda.meta.page.DiffractionMetadataComposite;
 import uk.ac.diamond.sda.meta.page.IDiffractionMetadataCompositeListener;
@@ -59,7 +59,7 @@ public class MetadataTool extends AbstractToolPage {
 			IDataset dataset = (IDataset)imageTrace.getData();
 			if (dataset != null) {
 				diffMetadataComp.setData(dataset);
-				IMetaData meta = dataset.getMetadata();
+				IMetadata meta = dataset.getMetadata();
 				if (meta != null)
 					diffMetadataComp.setMetaData(meta);
 			}

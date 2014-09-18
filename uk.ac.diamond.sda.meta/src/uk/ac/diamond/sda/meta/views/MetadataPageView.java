@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.io.ILoaderService;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.sda.meta.Activator;
 import uk.ac.diamond.sda.meta.contribution.MetadataPageContribution;
 import uk.ac.diamond.sda.meta.page.DiffractionMetadataComposite;
@@ -70,7 +70,7 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 
 	private static final Logger logger = LoggerFactory.getLogger(MetadataPageView.class);
 
-	private IMetaData meta;
+	private IMetadata meta;
 	private ArrayList<MetadataPageContribution> pagesRegister = new ArrayList<MetadataPageContribution>();
 
 	private HashMap<String, IMetadataPage> loadedPages = new HashMap<String, IMetadataPage>();
@@ -135,7 +135,7 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 		}
 	}
 
-	private void metadataChanged(final IMetaData meta) {
+	private void metadataChanged(final IMetadata meta) {
 		// this method should react to the different types of metadata
 		UIJob updateActionsForNewMetadata = new UIJob("Update for new metadata") {
 

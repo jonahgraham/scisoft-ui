@@ -18,7 +18,7 @@ package uk.ac.diamond.sda.meta.page;
 
 import org.eclipse.swt.widgets.Composite;
 
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 
 public interface IMetadataPage {
 
@@ -27,7 +27,7 @@ public interface IMetadataPage {
 	 * 
 	 * @param metadata
 	 */
-	public void setMetaData(IMetaData metadata);
+	public void setMetaData(IMetadata metadata);
 
 	/**
 	 * Each IMetadata Page should be capable of returning a composite containing the GUI elements

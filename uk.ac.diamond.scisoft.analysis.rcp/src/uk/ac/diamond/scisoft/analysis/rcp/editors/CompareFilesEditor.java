@@ -115,7 +115,7 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.io.AbstractFileLoader;
 import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.ILazyLoader;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.diamond.scisoft.analysis.io.Utils;
 import uk.ac.diamond.scisoft.analysis.metadata.MetadataType;
@@ -516,7 +516,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	}
 
 	private class FileSelection extends StructuredSelection implements IMetadataProvider {
-		private IMetaData metadata = null;
+		private IMetadata metadata = null;
 
 		public FileSelection(SelectedFile f) {
 			super(f.f);
@@ -535,14 +535,14 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 
 		@Override
-		public IMetaData getMetadata() throws Exception {
+		public IMetadata getMetadata() throws Exception {
 			return metadata;
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public <T extends MetadataType> List<T> getMetadata(Class<T> clazz) throws Exception {
-			if (IMetaData.class.isAssignableFrom(clazz)) {
+			if (IMetadata.class.isAssignableFrom(clazz)) {
 				List<T> result = new ArrayList<T>();
 				result.add((T) getMetadata());
 				return result;
@@ -1540,7 +1540,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		Object f;
 		IntegerDataset i;
 		List<ILazyDataset> d;
-		IMetaData m;
+		IMetadata m;
 		Serializable mv;
 		String variable;
 		List<AxisSelection> asl;

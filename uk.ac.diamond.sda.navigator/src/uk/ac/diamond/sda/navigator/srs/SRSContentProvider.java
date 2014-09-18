@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 /**
@@ -56,7 +56,7 @@ public class SRSContentProvider implements ITreeContentProvider, IResourceChange
 	private static StructuredViewer viewer;
 	protected static String fileName;
 	private DataHolder data;
-	private IMetaData metaData;
+	private IMetadata metaData;
 	private static final Logger logger = LoggerFactory.getLogger(SRSContentProvider.class);
 
 	/**
@@ -111,7 +111,7 @@ public class SRSContentProvider implements ITreeContentProvider, IResourceChange
 	 *            The IFile which contains the persisted model
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private synchronized IMetaData updateModel(IFile modelFile) {
+	private synchronized IMetadata updateModel(IFile modelFile) {
 		srsFileLoader(modelFile);
 
 		if (SRS_EXT.equals(modelFile.getFileExtension())) {

@@ -64,7 +64,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.AbstractFileLoader;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.scisoft.analysis.io.ImageStackLoader;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
@@ -264,7 +264,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 			addPlaceholderFolderStack();
 			
 			if (display != null) {
-				final IMetaData meta = data.getMetadata();
+				final IMetadata meta = data.getMetadata();
 
 				display.asyncExec(new Runnable() {
 					
@@ -410,7 +410,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 
 	private final static Pattern SPACES = Pattern.compile("\\s+");
 
-	private void addMenu(IMetaData meta) {
+	private void addMenu(IMetadata meta) {
 		// create context menu and handling
 		if (meta != null) {
 			Collection<String> names = null;

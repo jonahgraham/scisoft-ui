@@ -38,7 +38,7 @@ import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 
 /**
  * @author suchet + gerring
@@ -52,7 +52,7 @@ public class MetadataTableView extends ViewPart {
 
 	private static String filterText = "";
 	
-	private IMetaData meta;
+	private IMetadata meta;
 	private TableViewer table;
 
 	/**
@@ -210,7 +210,7 @@ public class MetadataTableView extends ViewPart {
 		}
 	}
 
-	public void setMeta(IMetaData meta) {
+	public void setMeta(IMetadata meta) {
 		this.meta = meta;
 		updateTable.schedule();
 	}

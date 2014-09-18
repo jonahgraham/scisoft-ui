@@ -16,7 +16,7 @@
 
 package uk.ac.diamond.sda.meta.discriminator;
 
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 
 public class MetadataDiscriminator implements IMetadataDiscriminator {
 
@@ -24,7 +24,7 @@ public class MetadataDiscriminator implements IMetadataDiscriminator {
 	}
 
 	@Override
-	public boolean isApplicableFor(IMetaData metadata) {
+	public boolean isApplicableFor(IMetadata metadata) {
 		return true;
 	}
 

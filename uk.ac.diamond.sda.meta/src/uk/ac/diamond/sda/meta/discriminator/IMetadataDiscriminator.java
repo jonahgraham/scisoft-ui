@@ -16,7 +16,7 @@
 
 package uk.ac.diamond.sda.meta.discriminator;
 
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 
 public interface IMetadataDiscriminator {
 
@@ -26,6 +26,6 @@ public interface IMetadataDiscriminator {
 	 * @param metadata
 	 * @return is the page can process the metadata
 	 */
-	public boolean isApplicableFor(IMetaData metadata);
+	public boolean isApplicableFor(IMetadata metadata);
 
 }

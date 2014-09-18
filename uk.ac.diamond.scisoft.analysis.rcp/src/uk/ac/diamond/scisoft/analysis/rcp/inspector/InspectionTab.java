@@ -62,7 +62,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.PositionIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.rcp.editors.CompareFilesEditor;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
@@ -761,7 +761,7 @@ class PlotTab extends ATab {
 		return slicedData;
 	}
 
-	protected Dataset slicedAndReorderData(IMonitor monitor, Slice[] slices, boolean[] average, int[] order, IMetaData meta) {
+	protected Dataset slicedAndReorderData(IMonitor monitor, Slice[] slices, boolean[] average, int[] order, IMetadata meta) {
 		Dataset reorderedData = null;
 		Dataset slicedData = null;
 		
@@ -957,7 +957,7 @@ class PlotTab extends ATab {
 		}
 
 		Dataset reorderedData;
-		IMetaData meta = null;
+		IMetadata meta = null;
 		try {
 			meta = dataset.getMetadata();
 		} catch (Exception e1) {

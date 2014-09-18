@@ -47,7 +47,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
 import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionCrystalEnvironment;
 import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 
 public class DiffractionMetadataComposite implements IMetadataPage {
 
@@ -73,7 +73,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 	private Composite content;
 	private double[] beam;
 	private IDataset dataset;
-	private IMetaData metadata;
+	private IMetadata metadata;
 	private DetectorProperties detprop;
 	private DetectorProperties oDetprop;
 	private DiffractionCrystalEnvironment diffenv;
@@ -722,7 +722,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 	}
 	
 	@Override
-	public void setMetaData(IMetaData metadata) {
+	public void setMetaData(IMetadata metadata) {
 		this.metadata = metadata;
 
 		if (metadata instanceof IDiffractionMetadata) {

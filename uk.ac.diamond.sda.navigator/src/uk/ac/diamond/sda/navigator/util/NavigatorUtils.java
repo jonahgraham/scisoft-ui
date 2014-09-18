@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 public class NavigatorUtils {
@@ -72,7 +72,7 @@ public class NavigatorUtils {
 		String result = "N/A";
 		IExtendedMetadata metaData = null;
 		try {
-			IMetaData metaDataTest=LoaderFactory.getMetaData(file.getAbsolutePath(), null);
+			IMetadata metaDataTest=LoaderFactory.getMetaData(file.getAbsolutePath(), null);
 			if(metaDataTest instanceof IExtendedMetadata){
 				metaData = (IExtendedMetadata)LoaderFactory.getMetaData(file.getAbsolutePath(), null);
 				if(metaData == null) return result;

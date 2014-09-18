@@ -19,7 +19,7 @@
 package extendedMetadata;
 
 import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.sda.meta.discriminator.IMetadataDiscriminator;
 
 public class ExtendedMetadataDiscriminator implements IMetadataDiscriminator {
@@ -29,7 +29,7 @@ public class ExtendedMetadataDiscriminator implements IMetadataDiscriminator {
 	}
 
 	@Override
-	public boolean isApplicableFor(IMetaData metadata) {
+	public boolean isApplicableFor(IMetadata metadata) {
 		if (metadata instanceof IExtendedMetadata)
 			return true;
 		return false;
