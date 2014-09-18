@@ -1701,7 +1701,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			return h != null;
 		}
 
-//		public void setMetadata(IMetaData metadata) {
+//		public void setMetadata(IMetadata metadata) {
 //			m = metadata;
 //		}
 

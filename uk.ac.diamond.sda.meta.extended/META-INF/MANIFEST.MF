@@ -7,7 +7,8 @@ Bundle-Activator: uk.ac.diamond.sda.meta.extended.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  uk.ac.diamond.sda.meta;bundle-version="[1.3.0,2.0.0)",
- org.apache.commons.io;bundle-version="[2.4.0,2.5.0)"
+ org.apache.commons.io;bundle-version="[2.4.0,2.5.0)",
+ uk.ac.diamond.scisoft.analysis.api
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: uk.ac.diamond.scisoft.analysis.io

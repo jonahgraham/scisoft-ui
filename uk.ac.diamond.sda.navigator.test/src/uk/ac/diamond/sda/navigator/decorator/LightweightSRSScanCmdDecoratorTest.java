@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
+import uk.ac.diamond.scisoft.analysis.metadata.IExtendedMetadata;
 
 
 

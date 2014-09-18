@@ -669,7 +669,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 //	@Override
 //	public void update(Object source, Object arg) {
 //		if (source instanceof IMetadataProvider) {
-//			IMetaData localMetadata;
+//			IMetadata localMetadata;
 //			try {
 //				localMetadata = ((IMetadataProvider) source).getMetadata();
 //				if (localMetadata instanceof IDiffractionMetadata) {
