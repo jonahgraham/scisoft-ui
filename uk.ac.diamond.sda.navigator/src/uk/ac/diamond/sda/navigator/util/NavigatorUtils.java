@@ -72,9 +72,9 @@ public class NavigatorUtils {
 		String result = "N/A";
 		IExtendedMetadata metaData = null;
 		try {
-			IMetadata metaDataTest=LoaderFactory.getMetaData(file.getAbsolutePath(), null);
+			IMetadata metaDataTest=LoaderFactory.getMetadata(file.getAbsolutePath(), null);
 			if(metaDataTest instanceof IExtendedMetadata){
-				metaData = (IExtendedMetadata)LoaderFactory.getMetaData(file.getAbsolutePath(), null);
+				metaData = (IExtendedMetadata)LoaderFactory.getMetadata(file.getAbsolutePath(), null);
 				if(metaData == null) return result;
 				result = metaData.getScanCommand();
 			}

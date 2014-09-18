@@ -98,7 +98,7 @@ public class SRSContentProvider implements ITreeContentProvider, IResourceChange
 
 		fileName = file.getLocation().toString();
 		try {
-			metaData = LoaderFactory.getMetaData(fileName, null);
+			metaData = LoaderFactory.getMetadata(fileName, null);
 		} catch (Exception ne) {
 			logger.error("Cannot open dat file", ne);
 		}

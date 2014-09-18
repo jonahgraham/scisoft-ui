@@ -106,9 +106,9 @@ public class LightweightSRSScanCmdDecorator extends LabelProvider implements ILi
 	private void srsMetaDataLoader(String fullpath) {
 		
 		try {
-			IMetadata metaDataTest=LoaderFactory.getMetaData(fullpath, null);
+			IMetadata metaDataTest=LoaderFactory.getMetadata(fullpath, null);
 			if(metaDataTest instanceof IExtendedMetadata)
-				metaData = (IExtendedMetadata)LoaderFactory.getMetaData(fullpath, null);
+				metaData = (IExtendedMetadata)LoaderFactory.getMetadata(fullpath, null);
 			else{
 				decorator=" * Scan Command: N/A";
 				logger.warn("Cannot decorate SRS decorator");
