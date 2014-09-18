@@ -38,7 +38,7 @@ import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.io.IMetadata;
+import uk.ac.diamond.scisoft.analysis.metadata.IMetadata;
 
 /**
  * @author suchet + gerring

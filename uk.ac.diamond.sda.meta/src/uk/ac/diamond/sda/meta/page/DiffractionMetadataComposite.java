@@ -46,8 +46,8 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
 import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionCrystalEnvironment;
-import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
-import uk.ac.diamond.scisoft.analysis.io.IMetadata;
+import uk.ac.diamond.scisoft.analysis.metadata.IDiffractionMetadata;
+import uk.ac.diamond.scisoft.analysis.metadata.IMetadata;
 
 public class DiffractionMetadataComposite implements IMetadataPage {
 

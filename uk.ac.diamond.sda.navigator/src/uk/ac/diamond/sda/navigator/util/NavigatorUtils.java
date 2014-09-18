@@ -31,9 +31,9 @@ import org.eclipse.dawnsci.hdf5.IHierarchicalDataFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
-import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
+import uk.ac.diamond.scisoft.analysis.metadata.IExtendedMetadata;
+import uk.ac.diamond.scisoft.analysis.metadata.IMetadata;
 
 public class NavigatorUtils {
 

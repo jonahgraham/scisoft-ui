@@ -18,8 +18,8 @@
 
 package extendedMetadata;
 
-import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
-import uk.ac.diamond.scisoft.analysis.io.IMetadata;
+import uk.ac.diamond.scisoft.analysis.metadata.IExtendedMetadata;
+import uk.ac.diamond.scisoft.analysis.metadata.IMetadata;
 import uk.ac.diamond.sda.meta.discriminator.IMetadataDiscriminator;
 
 public class ExtendedMetadataDiscriminator implements IMetadataDiscriminator {

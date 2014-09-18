@@ -19,6 +19,7 @@
 package extendedMetadata;
 
 import java.text.SimpleDateFormat;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -32,8 +33,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.progress.UIJob;
 import org.apache.commons.io.FileUtils;
 
-import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
-import uk.ac.diamond.scisoft.analysis.io.IMetadata;
+import uk.ac.diamond.scisoft.analysis.metadata.IExtendedMetadata;
+import uk.ac.diamond.scisoft.analysis.metadata.IMetadata;
 import uk.ac.diamond.sda.meta.page.IMetadataPage;
 import uk.ac.diamond.sda.meta.views.MetadataTableView;
 
