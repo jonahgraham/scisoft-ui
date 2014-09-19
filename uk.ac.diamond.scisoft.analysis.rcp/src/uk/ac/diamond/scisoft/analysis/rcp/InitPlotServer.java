@@ -9,6 +9,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp;
 
+import org.dawb.common.util.net.NetUtils;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.dawnsci.analysis.api.RMIServerProvider;
@@ -26,8 +27,6 @@ import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.AnalysisRpcAndRmiPreferencePage;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rpc.FlatteningService;
-
-import org.dawb.common.util.net.NetUtils;
 
 public class InitPlotServer implements IStartup, ServerPortListener{
 	

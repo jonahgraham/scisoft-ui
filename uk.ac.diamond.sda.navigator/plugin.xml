@@ -163,7 +163,7 @@
          </triggerPoints>
          <possibleChildren>
             <or>
-               <instanceof value="uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink"/>
+               <instanceof value="org.eclipse.dawnsci.hdf5.api.HDF5NodeLink"/>
             </or>
          </possibleChildren>
          <actionProvider
@@ -348,7 +348,7 @@
             state="false">
          <enablement>
             <objectClass
-               name="uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink">
+               name="org.eclipse.dawnsci.hdf5.api.HDF5NodeLink">
             </objectClass>
          </enablement>
          <description>

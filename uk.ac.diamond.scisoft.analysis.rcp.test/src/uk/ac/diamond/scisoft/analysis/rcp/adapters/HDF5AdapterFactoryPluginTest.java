@@ -9,14 +9,13 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.adapters;
 
+import org.eclipse.dawnsci.hdf5.api.HDF5File;
+import org.eclipse.dawnsci.hdf5.api.HDF5Node;
+import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
 import org.junit.Assert;
 import org.junit.Test;
 import org.python.pydev.shared_interactive_console.console.codegen.IScriptConsoleCodeGenerator;
 import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippetUtils;
-
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 
 /**
  * This test verifies that the adapter factory properly adapts HDF5 objects into {@link IScriptConsoleCodeGenerator}s

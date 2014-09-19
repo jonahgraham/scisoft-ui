@@ -11,7 +11,6 @@ package uk.ac.diamond.sda.navigator.decorator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;

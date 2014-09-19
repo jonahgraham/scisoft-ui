@@ -10,6 +10,11 @@ package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
 import java.util.Iterator;
 
+import org.eclipse.dawnsci.hdf5.api.HDF5Attribute;
+import org.eclipse.dawnsci.hdf5.api.HDF5Dataset;
+import org.eclipse.dawnsci.hdf5.api.HDF5Group;
+import org.eclipse.dawnsci.hdf5.api.HDF5Node;
+import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -29,12 +34,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Attribute;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Dataset;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Group;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 
 public class HDF5ValuePage extends Page  implements ISelectionListener, IPartListener {
 

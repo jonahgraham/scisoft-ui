@@ -17,13 +17,12 @@ import java.util.Date;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.viewers.LabelProvider;
-
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
+import org.eclipse.jface.viewers.LabelProvider;
 
 public class LightweightMetadataDecorator extends LabelProvider implements ILightweightLabelDecorator {
 

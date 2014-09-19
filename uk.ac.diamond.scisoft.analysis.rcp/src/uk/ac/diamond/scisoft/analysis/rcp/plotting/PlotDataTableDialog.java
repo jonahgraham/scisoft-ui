@@ -19,6 +19,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.dawb.common.ui.util.DialogUtils;
 import org.dawnsci.plotting.jreality.tool.PlotActionComplexEvent;
 import org.dawnsci.plotting.jreality.tool.SelectedWindow;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
@@ -42,8 +43,6 @@ import org.eclipse.swt.widgets.TableItem;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-
-import org.dawb.common.ui.util.DialogUtils;
 
 /**
  *

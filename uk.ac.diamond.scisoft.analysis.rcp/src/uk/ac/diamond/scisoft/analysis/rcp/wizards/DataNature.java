@@ -9,11 +9,10 @@
 package uk.ac.diamond.scisoft.analysis.rcp.wizards;
 
 import org.dawb.common.ui.project.XMLBuilder;
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
-
-import org.dawb.common.ui.util.EclipseUtils;
 
 public class DataNature implements IProjectNature {
 

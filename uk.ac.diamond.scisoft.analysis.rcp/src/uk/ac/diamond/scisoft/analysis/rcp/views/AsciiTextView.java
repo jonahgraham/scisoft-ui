@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
@@ -34,7 +35,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.handlers.AsciiMonitorAction;
 
 import com.swtdesigner.SWTResourceManager;
-import org.apache.commons.io.FileUtils;
 
 /**
  *

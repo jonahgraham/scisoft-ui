@@ -16,8 +16,8 @@ import org.eclipse.core.commands.State;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.internal.IPreferenceConstants;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 /**
  * Re-use Editor Command handler in the Project Explorer tool bar Enables the user to set on/off the re-use editor

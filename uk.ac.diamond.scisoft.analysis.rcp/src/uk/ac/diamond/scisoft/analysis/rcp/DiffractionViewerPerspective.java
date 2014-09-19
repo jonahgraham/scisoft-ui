@@ -9,9 +9,9 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp;
 
+import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IViewLayout;
 
 public class DiffractionViewerPerspective implements IPerspectiveFactory {

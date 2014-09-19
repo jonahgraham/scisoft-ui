@@ -12,10 +12,10 @@ package uk.ac.diamond.sda.navigator.decorator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.dawnsci.analysis.api.metadata.IExtendedMetadata;
 import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

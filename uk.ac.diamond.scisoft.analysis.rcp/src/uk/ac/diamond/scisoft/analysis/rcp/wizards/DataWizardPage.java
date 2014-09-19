@@ -9,6 +9,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.wizards;
 
+import org.dawnsci.common.widgets.file.SelectorWidget;
 import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.wizard.WizardPage;
@@ -21,8 +22,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-
-import org.dawnsci.common.widgets.file.SelectorWidget;
 
 /**
  * The "New" wizard page allows setting the container for the new file as well as the file name. The page will only

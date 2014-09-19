@@ -9,10 +9,10 @@
 
 package uk.ac.diamond.sda.navigator.actions;
 
-import org.eclipse.core.filesystem.EFS; 
+import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
-
 import org.eclipse.core.runtime.Path;
+import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -23,7 +23,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.ide.IDE;
 
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 
 public class OpenHDF5Action extends Action {
