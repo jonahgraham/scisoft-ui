@@ -24,6 +24,8 @@ import java.util.Arrays;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.dawnsci.hdf5.api.HDF5Group;
+import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -47,8 +49,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Group;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor;
 import uk.ac.diamond.scisoft.analysis.rcp.editors.NexusTreeEditor;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5TableTree;

@@ -20,11 +20,12 @@ package uk.ac.diamond.scisoft.mappingexplorer.test;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.dawnsci.hdf5.api.HDF5Group;
+import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -50,9 +51,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Group;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor;
 import uk.ac.diamond.scisoft.analysis.rcp.editors.NexusTreeEditor;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5TableTree;
