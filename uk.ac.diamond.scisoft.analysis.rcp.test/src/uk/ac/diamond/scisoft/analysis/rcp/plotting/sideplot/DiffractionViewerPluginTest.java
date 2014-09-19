@@ -21,7 +21,7 @@ import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.io.ADSCImageLoader;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
@@ -51,7 +51,7 @@ public class DiffractionViewerPluginTest {
 		
 		DataBean datab = new DataBean();
 		
-		DataSetWithAxisInformation dswai = new DataSetWithAxisInformation();
+		DatasetWithAxisInformation dswai = new DatasetWithAxisInformation();
 		AxisMapBean amb = new AxisMapBean();
 		dswai.setAxisMap(amb);
 		dswai.setData(data);

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 
@@ -61,7 +61,7 @@ public class Plotting1DStackUI extends AbstractPlottingUI {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				List<DataSetWithAxisInformation> plotData = dbPlot.getData();
+				List<DatasetWithAxisInformation> plotData = dbPlot.getData();
 				if (plotData == null)
 					return;
 
@@ -75,7 +75,7 @@ public class Plotting1DStackUI extends AbstractPlottingUI {
 				String xName = null;
 				Set<String> xNames = new HashSet<String>();
 				for (int i = 0; i < n; i++) {
-					DataSetWithAxisInformation d = plotData.get(i);
+					DatasetWithAxisInformation d = plotData.get(i);
 					xNames.add(d.getAxisMap().getAxisID()[0]);
 				}
 				if (xNames.size() == 1)
@@ -112,7 +112,7 @@ public class Plotting1DStackUI extends AbstractPlottingUI {
 				List<IDataset> axes = new ArrayList<IDataset>();
 				Map<String, Dataset> axisData = dbPlot.getAxisData();
 				for (int i = 0; i < n; i++) {
-					DataSetWithAxisInformation d = plotData.get(i);
+					DatasetWithAxisInformation d = plotData.get(i);
 					ys[i] = d.getData();
 					if (xName == null)
 						axes.add(axisData.get(d.getAxisMap().getAxisID()[0]));

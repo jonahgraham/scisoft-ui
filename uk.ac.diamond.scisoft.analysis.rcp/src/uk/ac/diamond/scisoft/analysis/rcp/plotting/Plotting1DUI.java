@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisOperation;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 
@@ -78,7 +78,7 @@ public class Plotting1DUI extends AbstractPlottingUI {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				List<DataSetWithAxisInformation> plotData = dbPlot.getData();
+				List<DatasetWithAxisInformation> plotData = dbPlot.getData();
 				if (plotData == null)
 					return;
 
@@ -105,7 +105,7 @@ public class Plotting1DUI extends AbstractPlottingUI {
 								Dataset ox = (Dataset)((ILineTrace) t).getXData();
 								String oxn = ox == null ? null : ox.getName();
 								if (oyn != null && oxn != null) {
-									for (DataSetWithAxisInformation d : plotData) {
+									for (DatasetWithAxisInformation d : plotData) {
 										String nyn = d.getData().getName();
 										String nxn = dbPlot.getAxis(d.getAxisMap().getAxisID()[0]).getName();
 										if (oyn.equals(nyn)) {
@@ -139,7 +139,7 @@ public class Plotting1DUI extends AbstractPlottingUI {
 							String oyn = t.getName();
 							Dataset x = (Dataset)((ILineTrace) t).getXData();
 							String oxn = x == null ? null : x.getName();
-							for (DataSetWithAxisInformation d : plotData) {
+							for (DatasetWithAxisInformation d : plotData) {
 								Dataset ny = d.getData();
 								String nyn = ny.getName();
 								Dataset nx = dbPlot.getAxis(d.getAxisMap().getAxisID()[0]);
@@ -177,7 +177,7 @@ public class Plotting1DUI extends AbstractPlottingUI {
 					boolean against = true;
 					IAxis firstAxis = null;
 					ArrayList<IDataset> yl = new ArrayList<IDataset>();
-					for (DataSetWithAxisInformation d : plotData) {
+					for (DatasetWithAxisInformation d : plotData) {
 						String[] names = d.getAxisMap().getAxisNames();
 						String id = d.getAxisMap().getAxisID()[0];
 						String an;

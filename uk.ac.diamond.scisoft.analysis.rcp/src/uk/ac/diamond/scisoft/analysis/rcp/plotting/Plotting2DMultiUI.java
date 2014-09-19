@@ -26,7 +26,7 @@ import org.eclipse.swt.widgets.Display;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 
 /**
  *
@@ -47,9 +47,9 @@ public class Plotting2DMultiUI extends AbstractPlottingUI {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
+				Collection<DatasetWithAxisInformation> plotData = dbPlot.getData();
 				if (plotData != null) {
-					Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
+					Iterator<DatasetWithAxisInformation> iter = plotData.iterator();
 //					final List<Dataset> datasets = Collections.synchronizedList(new LinkedList<Dataset>());
 					Dataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
 					Dataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
@@ -60,7 +60,7 @@ public class Plotting2DMultiUI extends AbstractPlottingUI {
 					IDataset[] datasets = new IDataset[plotData.size()];
 					int i = 0;
 					while (iter.hasNext()) {
-						DataSetWithAxisInformation dataSetAxis = iter.next();
+						DatasetWithAxisInformation dataSetAxis = iter.next();
 						Dataset data = dataSetAxis.getData();
 						datasets[i] = data;
 						i++;

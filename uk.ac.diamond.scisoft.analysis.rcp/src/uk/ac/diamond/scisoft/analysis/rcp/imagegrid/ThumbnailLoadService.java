@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.FileOperationBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
@@ -169,11 +169,11 @@ public class ThumbnailLoadService implements Runnable, IObserver {
 			DataBean dbPlot;
 			try {
 				dbPlot = plotServer.getData(viewName);
-				Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
-				Iterator<DataSetWithAxisInformation > iter = plotData.iterator();
+				Collection<DatasetWithAxisInformation> plotData = dbPlot.getData();
+				Iterator<DatasetWithAxisInformation > iter = plotData.iterator();
 				while (iter.hasNext())
 				{
-					DataSetWithAxisInformation dsAxis = iter.next();
+					DatasetWithAxisInformation dsAxis = iter.next();
 					Dataset ds = dsAxis.getData();
 					if (ds.getName().equals(currentProcessEntry.getFilename()))
 					{

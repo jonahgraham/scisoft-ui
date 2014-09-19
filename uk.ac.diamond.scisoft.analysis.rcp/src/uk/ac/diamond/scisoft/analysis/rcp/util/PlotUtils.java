@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBeanException;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
@@ -100,7 +100,7 @@ public class PlotUtils {
 					for (int i = 0; i < ys.size(); i++) {
 						// now add it to the plot data
 						try {
-							dataBean.addData(DataSetWithAxisInformation.createAxisDataSet(ys.get(i)));
+							dataBean.addData(DatasetWithAxisInformation.createAxisDataSet(ys.get(i)));
 							if (monitor!=null&&monitor.isCanceled()) return;
 						} catch (DataBeanException e) {
 							logger.error("Problem adding data to bean as axis key does not exist", e);
@@ -155,7 +155,7 @@ public class PlotUtils {
 					if (monitor!=null&&monitor.isCanceled()) return;
 
 					DataBean dataBean = new DataBean(mode);
-					DataSetWithAxisInformation axisData = new DataSetWithAxisInformation();
+					DatasetWithAxisInformation axisData = new DatasetWithAxisInformation();
 					AxisMapBean axisMapBean = new AxisMapBean();
 					
 					dataBean.addAxis(AxisMapBean.XAXIS, axes.get(0));

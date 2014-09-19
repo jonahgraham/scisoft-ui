@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 /**
  *
  */
@@ -46,15 +46,15 @@ public class PlottingScatter2DUI extends AbstractPlottingUI {
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
-				Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
+				Collection<DatasetWithAxisInformation> plotData = dbPlot.getData();
 				if (plotData != null) {
-					Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
+					Iterator<DatasetWithAxisInformation> iter = plotData.iterator();
 					final List<Dataset> yDatasets = Collections.synchronizedList(new LinkedList<Dataset>());
 
 					int counter = 0;
 
 					while (iter.hasNext()) {
-						DataSetWithAxisInformation dataSetAxis = iter.next();
+						DatasetWithAxisInformation dataSetAxis = iter.next();
 						Dataset data = dataSetAxis.getData();
 						yDatasets.add(data);
 

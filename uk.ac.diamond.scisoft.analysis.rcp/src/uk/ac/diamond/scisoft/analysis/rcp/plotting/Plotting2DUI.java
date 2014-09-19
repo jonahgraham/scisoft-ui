@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
@@ -76,9 +76,9 @@ public class Plotting2DUI extends AbstractPlottingUI {
 
 	@Override
 	public void processPlotUpdate(final DataBean dbPlot, boolean isUpdate) {
-		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
+		Collection<DatasetWithAxisInformation> plotData = dbPlot.getData();
 		if (plotData != null) {
-			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
+			Iterator<DatasetWithAxisInformation> iter = plotData.iterator();
 			final List<Dataset> yDatasets = Collections
 					.synchronizedList(new LinkedList<Dataset>());
 
@@ -105,7 +105,7 @@ public class Plotting2DUI extends AbstractPlottingUI {
 			}
 
 			while (iter.hasNext()) {
-				DataSetWithAxisInformation dataSetAxis = iter.next();
+				DatasetWithAxisInformation dataSetAxis = iter.next();
 				Dataset data = dataSetAxis.getData();
 				yDatasets.add(data);
 			}
