@@ -9,6 +9,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.actions;
 
+import org.dawnsci.python.rpc.action.InjectPyDevConsoleHandler;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;

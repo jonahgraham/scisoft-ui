@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.dawb.common.ui.util.DisplayUtils;
+import org.dawnsci.python.rpc.action.InjectPyDevConsole;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -49,7 +50,6 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ClearPlottingSystemAction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DuplicatePlotAction;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.views.ExamplePlotView;
 
 /**
@@ -298,37 +298,37 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObservable {
 	protected void addScriptingAction(){
 		if (openPyDevConsoleCCI == null) {
 			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow(), null, InjectPyDevConsoleHandler.COMMAND_ID,
+					.getActiveWorkbenchWindow(), null, InjectPyDevConsole.COMMAND_ID,
 					CommandContributionItem.STYLE_PUSH);
 			ccip.label = "Open New Plot Scripting";
 			ccip.icon = AnalysisRCPActivator.getImageDescriptor("icons/application_osx_terminal.png");
 			Map<String, String> params = new HashMap<String, String>();
-			params.put(InjectPyDevConsoleHandler.CREATE_NEW_CONSOLE_PARAM, Boolean.TRUE.toString());
-			params.put(InjectPyDevConsoleHandler.VIEW_NAME_PARAM, name);
-			params.put(InjectPyDevConsoleHandler.SETUP_SCISOFTPY_PARAM,
-					InjectPyDevConsoleHandler.SetupScisoftpy.ALWAYS.toString());
+			params.put(InjectPyDevConsole.CREATE_NEW_CONSOLE_PARAM, Boolean.TRUE.toString());
+			params.put(InjectPyDevConsole.VIEW_NAME_PARAM, name);
+			params.put(InjectPyDevConsole.SETUP_SCISOFTPY_PARAM,
+					InjectPyDevConsole.SetupScisoftpy.ALWAYS.toString());
 			ccip.parameters = params;
 			openPyDevConsoleCCI = new CommandContributionItem(ccip);
 		}
 
 		if (updateDefaultPlotCCI == null) {
 			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow(), null, InjectPyDevConsoleHandler.COMMAND_ID,
+					.getActiveWorkbenchWindow(), null, InjectPyDevConsole.COMMAND_ID,
 					CommandContributionItem.STYLE_PUSH);
 			ccip.label = "Set Current Plot As Scripting Default";
 			Map<String, String> params = new HashMap<String, String>();
-			params.put(InjectPyDevConsoleHandler.VIEW_NAME_PARAM, name);
+			params.put(InjectPyDevConsole.VIEW_NAME_PARAM, name);
 			ccip.parameters = params;
 			updateDefaultPlotCCI = new CommandContributionItem(ccip);
 		}
 
 		if (getPlotBeanCCI == null) {
 			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow(), null, InjectPyDevConsoleHandler.COMMAND_ID,
+					.getActiveWorkbenchWindow(), null, InjectPyDevConsole.COMMAND_ID,
 					CommandContributionItem.STYLE_PUSH);
 			ccip.label = "Get Plot Bean in Plot Scripting";
 			Map<String, String> params = new HashMap<String, String>();
-			params.put(InjectPyDevConsoleHandler.INJECT_COMMANDS_PARAM, "bean=dnp.plot.getbean('" + name + "')");
+			params.put(InjectPyDevConsole.INJECT_COMMANDS_PARAM, "bean=dnp.plot.getbean('" + name + "')");
 			ccip.parameters = params;
 			getPlotBeanCCI = new CommandContributionItem(ccip);
 		}
