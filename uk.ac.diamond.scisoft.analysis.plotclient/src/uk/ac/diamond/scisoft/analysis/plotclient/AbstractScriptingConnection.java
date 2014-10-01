@@ -47,9 +47,9 @@ import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 /**
  * Class for connecting a plotting system with the plot server.
  */
-public abstract class AbstractPlottingConnection implements IPlotWindow, IObservable {
+public abstract class AbstractScriptingConnection implements IPlotWindow, IObservable {
 	
-	static private Logger logger = LoggerFactory.getLogger(AbstractPlottingConnection.class);
+	static private Logger logger = LoggerFactory.getLogger(AbstractScriptingConnection.class);
 
 	protected IPlottingSystem plottingSystem;
 	protected String name;
@@ -71,7 +71,7 @@ public abstract class AbstractPlottingConnection implements IPlotWindow, IObserv
 	 * @param manager
 	 * @param name
 	 */
-	public AbstractPlottingConnection(IBeanScriptingManager manager, String name) {
+	public AbstractScriptingConnection(IBeanScriptingManager manager, String name) {
 		
 		this.manager = manager;
 		this.name = name;

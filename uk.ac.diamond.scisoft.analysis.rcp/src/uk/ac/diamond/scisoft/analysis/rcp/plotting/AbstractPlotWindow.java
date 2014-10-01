@@ -27,7 +27,7 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.plotclient.AbstractPlottingConnection;
+import uk.ac.diamond.scisoft.analysis.plotclient.AbstractScriptingConnection;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
@@ -40,7 +40,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DuplicatePlotAction;
  * Class creates and manages a plotting system for you.
  * 
  */
-public abstract class AbstractPlotWindow extends AbstractPlottingConnection {
+public abstract class AbstractPlotWindow extends AbstractScriptingConnection {
 
 	static private Logger logger = LoggerFactory.getLogger(AbstractPlotWindow.class);
 
