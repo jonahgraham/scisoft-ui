@@ -346,9 +346,13 @@ public abstract class AbstractPlottingConnection implements IPlotWindow, IObserv
 		
 		clearPlot(!GuiPlotMode.EMPTY.equals(getPreviousMode()));
 		
-		// TODO We keep making new plotUI - what happens to the old one?
-		// Should it be removed as an observable and what happens to any listeners
-		// it adds - these should be deactivated too no?
+		// TODO Baha check that this is ok - it seems to work and is
+		// better than creating infinitely many plotUIs and not disposing
+		// them, one would have imaggined...
+		if (plotUI != null) {
+			plotUI.deactivate(false);
+			plotUI.dispose();
+		}
 		if (plotMode.equals(GuiPlotMode.ONED)) {
 			plottingSystem.setPlotType(PlotType.XY);
 			plotUI = new Plotting1DUI(plottingSystem);
