@@ -17,7 +17,6 @@ import org.eclipse.ui.IWorkbenchPart;
 
 import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.plotclient.PlotWindowManager;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 
 /**
@@ -57,16 +56,6 @@ public class PlotWindow extends AbstractPlotWindow {
 			public void controlMoved(ControlEvent e) {
 			}
 		});
-	}
-
-	@Override
-	public GuiPlotMode getPlotMode() {
-		return GuiPlotMode.ONED;
-	}
-
-	@Override
-	public void createRegion() {
-		// do nothing
 	}
 
 }

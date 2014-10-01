@@ -48,9 +48,9 @@ import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 /**
  * Class for connecting a plotting system with the plot server.
  */
-public abstract class AbstractScriptingConnection implements IPlotWindow, IObservable {
+public class ScriptingConnection implements IObservable {
 	
-	static private Logger logger = LoggerFactory.getLogger(AbstractScriptingConnection.class);
+	static private Logger logger = LoggerFactory.getLogger(ScriptingConnection.class);
 
 	protected IPlottingSystem plottingSystem;
 	protected String name;
@@ -72,7 +72,7 @@ public abstract class AbstractScriptingConnection implements IPlotWindow, IObser
 	 * @param manager
 	 * @param name
 	 */
-	public AbstractScriptingConnection(String name) {
+	public ScriptingConnection(String name) {
 		
 		this(new BeanScriptingManagerImpl(PlotServerProvider.getPlotServer()), name);
 	}
@@ -82,7 +82,7 @@ public abstract class AbstractScriptingConnection implements IPlotWindow, IObser
 	 * @param manager
 	 * @param name
 	 */
-	public AbstractScriptingConnection(IBeanScriptingManager manager, String name) {
+	public ScriptingConnection(IBeanScriptingManager manager, String name) {
 		
 		this.manager = manager;
 		this.name = name;
@@ -122,7 +122,9 @@ public abstract class AbstractScriptingConnection implements IPlotWindow, IObser
 	 * Set the default plot mode
 	 * @return plotmode
 	 */
-	public abstract GuiPlotMode getPlotMode();
+	public GuiPlotMode getPlotMode() {
+		return PlotConnectionFactory.getPlotMode(plottingSystem);
+	}
 
 	/**
 	 * @return plot UI
@@ -147,7 +149,6 @@ public abstract class AbstractScriptingConnection implements IPlotWindow, IObser
 	 * Return the name of the Window
 	 * @return name
 	 */
-	@Override
 	public String getName() {
 		return name;
 	}
@@ -254,7 +255,9 @@ public abstract class AbstractScriptingConnection implements IPlotWindow, IObser
 	/**
 	 * Creates a region if needed
 	 */
-	abstract public void createRegion();
+	public void createRegion() {
+		
+	}
 
 	/**
 	 * Update the GuiBean
@@ -511,7 +514,6 @@ public abstract class AbstractScriptingConnection implements IPlotWindow, IObser
 	}
 
 	public void dispose() {
-		PlotWindowManager.getPrivateManager().unregisterPlotWindow(this);
 		if (plotConnection != null) {
 			plotConnection.deactivate(false);
 			plotConnection.dispose();

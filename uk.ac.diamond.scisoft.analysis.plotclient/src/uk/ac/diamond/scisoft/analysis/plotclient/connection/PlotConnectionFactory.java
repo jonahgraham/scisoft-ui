@@ -45,4 +45,31 @@ public class PlotConnectionFactory {
 		}
 		return plotUI;
 	}
+
+	public static GuiPlotMode getPlotMode(IPlottingSystem plottingSystem) {
+		
+		if (plottingSystem==null) return GuiPlotMode.ONED;
+		
+		final PlotType type = plottingSystem.getPlotType();
+		if (type == PlotType.XY) {
+			return GuiPlotMode.ONED;
+			
+		} else if (type==PlotType.XY_STACKED_3D) {
+			return GuiPlotMode.ONED_THREED;
+			
+		} else if (type == PlotType.IMAGE) {
+			return GuiPlotMode.TWOD;
+			
+		} else if (type == PlotType.SURFACE) {
+			return GuiPlotMode.SURF2D;
+			
+		} else if (type == PlotType.XY_SCATTER_3D) {
+			return GuiPlotMode.SCATTER3D;
+			
+		} else if (type == PlotType.MULTI_IMAGE) {
+			return GuiPlotMode.MULTI2D;
+		}
+		
+		return GuiPlotMode.ONED;
+	}
 }

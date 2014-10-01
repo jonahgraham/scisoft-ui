@@ -27,7 +27,9 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.plotclient.AbstractScriptingConnection;
+import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindow;
+import uk.ac.diamond.scisoft.analysis.plotclient.PlotWindowManager;
+import uk.ac.diamond.scisoft.analysis.plotclient.ScriptingConnection;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
@@ -40,7 +42,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DuplicatePlotAction;
  * Class creates and manages a plotting system for you.
  * 
  */
-public abstract class AbstractPlotWindow extends AbstractScriptingConnection {
+public abstract class AbstractPlotWindow extends ScriptingConnection implements IPlotWindow {
 
 	static private Logger logger = LoggerFactory.getLogger(AbstractPlotWindow.class);
 
@@ -230,5 +232,11 @@ public abstract class AbstractPlotWindow extends AbstractScriptingConnection {
 
 	public void setFocus() {
 		parentComp.setFocus();
+	}
+	
+	@Override
+	public void dispose() {
+		PlotWindowManager.getPrivateManager().unregisterPlotWindow(this);
+        super.dispose();
 	}
 }

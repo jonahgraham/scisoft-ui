@@ -46,7 +46,7 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 	private static final Logger logger = LoggerFactory.getLogger(BeanScriptingManagerImpl.class);
 	
 	private final PlotServer   server;
-	private AbstractScriptingConnection window;
+	private ScriptingConnection window;
 	private String             viewName = "Plot View";
 	private BlockingDeque<PlotEvent> queue;
 	private UUID               plotID;
@@ -80,11 +80,11 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 
 	}
 
-	public AbstractScriptingConnection getConnection() {
+	public ScriptingConnection getConnection() {
 		return window;
 	}
 
-	public void setConnection(AbstractScriptingConnection window) {
+	public void setConnection(ScriptingConnection window) {
 		this.window = window;
 		if (plotThread==null) start();
 	}
