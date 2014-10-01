@@ -50,7 +50,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.ExamplePlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlottingUI;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
 
 /**
  * Abstract Class from which PlotView and ROIProfilePlotView both extend 
@@ -200,8 +199,7 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 		parent.setLayout(new FillLayout());
 
 		final GuiBean bean = getGUIBean();
-		plotWindow = createPlotWindow(parent, (GuiPlotMode) bean.get(GuiParameters.PLOTMODE), this, getViewSite()
-				.getActionBars(), getSite().getPage(), plotViewName);
+		plotWindow = createPlotWindow(parent, this, getViewSite().getActionBars(), getSite().getPage(), plotViewName);
 		plotWindow.updatePlotMode(bean, false);
 
 		// plotConsumer.addIObserver(this);
@@ -226,7 +224,6 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 	 * @return AbstractPlotWindow
 	 */
 	public abstract AbstractPlotWindow createPlotWindow(Composite parent, 
-														GuiPlotMode plotMode, 
 														IGuiInfoManager manager,
 														IActionBars bars, 
 														IWorkbenchPage page, 

@@ -52,11 +52,10 @@ public class ROIProfilePlotView extends AbstractPlotView {
 
 	@Override
 	public AbstractPlotWindow createPlotWindow(Composite parent, 
-												GuiPlotMode plotMode, 
 												IGuiInfoManager manager,
 												IActionBars bars, 
 												IWorkbenchPage page, 
 												String name) {
-		return new ROIProfilePlotWindow(parent, plotMode, manager, bars, page, name);
+		return new ROIProfilePlotWindow(parent, manager, bars, page, name);
 	}
 }

@@ -56,13 +56,13 @@ public class ExamplePlotWindow extends AbstractPlotWindow {
 		return PlotWindowManager.getPrivateManager();
 	}
 
-	public ExamplePlotWindow(Composite parent, GuiPlotMode plotMode, IActionBars bars, IWorkbenchPage page, String name) {
-		this(parent, plotMode, null, bars, page, name);
+	public ExamplePlotWindow(Composite parent, IActionBars bars, IWorkbenchPage page, String name) {
+		this(parent, null, bars, page, name);
 	}
 
-	public ExamplePlotWindow(final Composite parent, GuiPlotMode plotMode, IGuiInfoManager manager,
+	public ExamplePlotWindow(final Composite parent, IGuiInfoManager manager,
 			                 IActionBars bars, IWorkbenchPage page, String name) {
-		super(parent, plotMode, manager, bars, page, name);
+		super(parent, manager, bars, page, name);
 		PlotWindowManager.getPrivateManager().registerPlotWindow(this);
 	}
 

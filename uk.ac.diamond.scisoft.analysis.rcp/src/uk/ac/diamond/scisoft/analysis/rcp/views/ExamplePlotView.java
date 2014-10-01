@@ -55,12 +55,11 @@ public class ExamplePlotView extends AbstractPlotView {
 
 	@Override
 	public AbstractPlotWindow createPlotWindow(Composite parent, 
-												GuiPlotMode plotMode, 
 												IGuiInfoManager manager,
 												IActionBars bars, 
 												IWorkbenchPage page, 
 												String name) {
-		return new ExamplePlotWindow(parent, plotMode, manager, bars, page, name);
+		return new ExamplePlotWindow(parent, manager, bars, page, name);
 	}
 
 }

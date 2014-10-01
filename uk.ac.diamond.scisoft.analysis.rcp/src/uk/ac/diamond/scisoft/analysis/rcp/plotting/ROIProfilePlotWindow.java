@@ -100,13 +100,13 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		return PlotWindowManager.getPrivateManager();
 	}
 
-	public ROIProfilePlotWindow(Composite parent, GuiPlotMode plotMode, IActionBars bars, IWorkbenchPage page, String name) {
-		this(parent, plotMode, null, bars, page, name);
+	public ROIProfilePlotWindow(Composite parent, IActionBars bars, IWorkbenchPage page, String name) {
+		this(parent, null, bars, page, name);
 	}
 
-	public ROIProfilePlotWindow(final Composite parent, GuiPlotMode plotMode, IGuiInfoManager manager,
+	public ROIProfilePlotWindow(final Composite parent, IGuiInfoManager manager,
 			                     IActionBars bars, IWorkbenchPage page, String name) {
-		super(parent, plotMode, manager, bars, page, name);
+		super(parent, manager, bars, page, name);
 		PlotWindowManager.getPrivateManager().registerPlotWindow(this);
 	}
 
