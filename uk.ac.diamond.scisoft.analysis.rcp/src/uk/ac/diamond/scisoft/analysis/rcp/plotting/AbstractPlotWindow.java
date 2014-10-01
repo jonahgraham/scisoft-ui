@@ -163,10 +163,7 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObservable {
 		if (!plottingSystem.isDisposed()) {
 			bars.getToolBarManager().removeAll();
 			bars.getMenuManager().removeAll();
-			for (Iterator<IRegion> iterator = plottingSystem.getRegions().iterator(); iterator.hasNext();) {
-				IRegion region = iterator.next();
-				plottingSystem.removeRegion(region);
-			}
+			plottingSystem.clearRegions();
 			plottingSystem.removeRegionListener(getRoiManager());
 			plottingSystem.removeTraceListener(getRoiManager().getTraceListener());
 			plottingSystem.dispose();

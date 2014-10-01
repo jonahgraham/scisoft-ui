@@ -240,10 +240,7 @@ public class Plotting2DUI extends AbstractPlottingUI {
 //				System.err.println("Should not be called!!!");
 				final Boolean clearAll = (Boolean) guiBean.remove(GuiParameters.ROICLEARALL);
 				if (clearAll != null && clearAll) {
-					final Collection<IRegion> regions = plottingSystem.getRegions();
-					for (IRegion r : regions) {
-						plottingSystem.removeRegion(r);
-					}
+					plottingSystem.clearRegions();
 				}
 
 				final IROI roi = (IROI) guiBean.get(GuiParameters.ROIDATA);
