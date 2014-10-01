@@ -22,6 +22,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -118,7 +119,7 @@ public class PlotWindowManagerTest {
 				windowManager.registerPlotWindow(new IPlotWindow() {
 
 					@Override
-					public IWorkbenchPage getPage() {
+					public IWorkbenchPart getPart() {
 						return null;
 					}
 

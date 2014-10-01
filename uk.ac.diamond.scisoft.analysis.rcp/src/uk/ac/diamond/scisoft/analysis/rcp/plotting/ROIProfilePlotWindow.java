@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
@@ -101,13 +101,13 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		return PlotWindowManager.getPrivateManager();
 	}
 
-	public ROIProfilePlotWindow(Composite parent, IActionBars bars, IWorkbenchPage page, String name) {
-		this(parent, null, bars, page, name);
+	public ROIProfilePlotWindow(Composite parent, IActionBars bars, IWorkbenchPart part, String name) {
+		this(parent, null, bars, part, name);
 	}
 
 	public ROIProfilePlotWindow(final Composite parent, IBeanScriptingManager manager,
-			                     IActionBars bars, IWorkbenchPage page, String name) {
-		super(parent, manager, bars, page, name);
+			                     IActionBars bars, IWorkbenchPart part, String name) {
+		super(parent, manager, bars, part, name);
 		PlotWindowManager.getPrivateManager().registerPlotWindow(this);
 	}
 

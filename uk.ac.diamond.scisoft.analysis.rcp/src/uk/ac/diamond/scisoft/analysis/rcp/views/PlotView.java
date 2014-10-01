@@ -11,7 +11,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.views;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
@@ -59,8 +59,8 @@ public class PlotView extends AbstractPlotView {
 	public AbstractPlotWindow createPlotWindow(Composite parent, 
 												IBeanScriptingManager manager,
 												IActionBars bars, 
-												IWorkbenchPage page, 
+												IWorkbenchPart part, 
 												String name) {
-		return new PlotWindow(parent, manager, bars, page, name);
+		return new PlotWindow(parent, manager, bars, part, name);
 	}
 }

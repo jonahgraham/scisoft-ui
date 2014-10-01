@@ -20,8 +20,7 @@ import org.eclipse.dawnsci.plotting.api.trace.ColorOption;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
@@ -49,7 +48,7 @@ public abstract class AbstractPlotWindow extends AbstractPlottingConnection {
 
 	protected Composite parentComp;
 	protected Composite plotSystemComposite;
-	private IWorkbenchPage page = null;
+	private IWorkbenchPart part = null;
 	protected IActionBars bars;
 
 	/**
@@ -69,16 +68,19 @@ public abstract class AbstractPlotWindow extends AbstractPlottingConnection {
 	 * @param parent
 	 * @param manager
 	 * @param bars
-	 * @param page
+	 * @param part
 	 * @param name
 	 */
-	public AbstractPlotWindow(final Composite parent, IBeanScriptingManager manager, IActionBars bars, 
-			                  IWorkbenchPage page, String name) {
+	public AbstractPlotWindow(final Composite       parent, 
+			                  IBeanScriptingManager manager, 
+			                  IActionBars           bars, 
+			                  IWorkbenchPart        part, 
+			                  String                name) {
 		
 		super(manager, name);
 		this.parentComp = parent;
 		this.bars = bars;
-		this.page = page;
+		this.part = part;
 		
 		createPlottingSystem(parent);
 	}
@@ -100,7 +102,7 @@ public abstract class AbstractPlotWindow extends AbstractPlottingConnection {
 		try {
 			IPlottingSystem system = PlottingFactory.createPlottingSystem();
 			system.setColorOption(ColorOption.NONE);
-			system.createPlotPart(composite, getName(), bars, PlotType.XY, (IViewPart) getGuiManager());
+			system.createPlotPart(composite, getName(), bars, PlotType.XY, part);
 			system.repaint();
 			system.addRegionListener(getRoiManager());
 			system.addTraceListener(getRoiManager().getTraceListener());
@@ -115,8 +117,8 @@ public abstract class AbstractPlotWindow extends AbstractPlottingConnection {
 	 * @return current page
 	 */
 	@Override
-	public IWorkbenchPage getPage() {
-		return page;
+	public IWorkbenchPart getPart() {
+		return part;
 	}
 
 	/**

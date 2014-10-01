@@ -168,7 +168,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 			if (page == null) {
 				IPlotWindow window = viewMap.get(viewName);
 				if (window != null) {
-					page = window.getPage();
+					page = window.getPart().getSite().getPage();
 				}
 			}
 
@@ -241,7 +241,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 				Collection<IPlotWindow> values = viewMap.values();
 				Iterator<IPlotWindow> iterator = values.iterator();
 				if (iterator.hasNext())
-					return iterator.next().getPage();
+					return iterator.next().getPart().getSite().getPage();
 				throw new NullPointerException("Unable to obtain a workbench page to open view from");
 			}
 		}

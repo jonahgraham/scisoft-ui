@@ -9,7 +9,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
-import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 
 public interface IPlotWindow {
 
@@ -17,7 +17,7 @@ public interface IPlotWindow {
 	 * Return current page.
 	 * @return current page
 	 */
-	public IWorkbenchPage getPage();
+	public IWorkbenchPart getPart();
 
 	/**
 	 * Return the name of the Window

@@ -26,7 +26,7 @@ import org.eclipse.dawnsci.plotting.api.views.ISettablePlotView;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +118,7 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 		parent.setLayout(new FillLayout());
 
 		final GuiBean bean = manager.getGUIBean();
-		plotWindow = createPlotWindow(parent, manager, getViewSite().getActionBars(), getSite().getPage(), manager.getViewName());
+		plotWindow = createPlotWindow(parent, manager, getViewSite().getActionBars(), this, manager.getViewName());
 		manager.setConnection(plotWindow);
 		plotWindow.updatePlotMode(bean, false);
 
@@ -146,7 +146,7 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 	public abstract AbstractPlotWindow createPlotWindow(Composite parent, 
 														IBeanScriptingManager manager,
 														IActionBars bars, 
-														IWorkbenchPage page, 
+														IWorkbenchPart part, 
 														String name);
 
 	@Override

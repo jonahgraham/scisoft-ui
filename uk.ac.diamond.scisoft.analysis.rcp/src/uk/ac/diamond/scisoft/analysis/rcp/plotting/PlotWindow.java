@@ -13,7 +13,7 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
@@ -34,12 +34,12 @@ public class PlotWindow extends AbstractPlotWindow {
 		return PlotWindowManager.getPrivateManager();
 	}
 
-	public PlotWindow(Composite parent, IActionBars bars, IWorkbenchPage page, String name) {
-		this(parent, null, bars, page, name);
+	public PlotWindow(Composite parent, IActionBars bars, IWorkbenchPart part, String name) {
+		this(parent, null, bars, part, name);
 	}
 
-	public PlotWindow(final Composite parent, IBeanScriptingManager manager, IActionBars bars, IWorkbenchPage page, String name) {
-		super(parent, manager, bars, page, name);
+	public PlotWindow(final Composite parent, IBeanScriptingManager manager, IActionBars bars, IWorkbenchPart part, String name) {
+		super(parent, manager, bars, part, name);
 		parentAddControlListener();
 		PlotWindowManager.getPrivateManager().registerPlotWindow(this);
 	}

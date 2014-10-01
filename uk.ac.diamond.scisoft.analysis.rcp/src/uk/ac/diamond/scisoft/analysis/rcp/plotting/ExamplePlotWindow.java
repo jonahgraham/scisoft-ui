@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,13 +57,13 @@ public class ExamplePlotWindow extends AbstractPlotWindow {
 		return PlotWindowManager.getPrivateManager();
 	}
 
-	public ExamplePlotWindow(Composite parent, IActionBars bars, IWorkbenchPage page, String name) {
-		this(parent, null, bars, page, name);
+	public ExamplePlotWindow(Composite parent, IActionBars bars, IWorkbenchPart part, String name) {
+		this(parent, null, bars, part, name);
 	}
 
 	public ExamplePlotWindow(final Composite parent, IBeanScriptingManager manager,
-			                 IActionBars bars, IWorkbenchPage page, String name) {
-		super(parent, manager, bars, page, name);
+			                 IActionBars bars, IWorkbenchPart part, String name) {
+		super(parent, manager, bars, part, name);
 		PlotWindowManager.getPrivateManager().registerPlotWindow(this);
 	}
 

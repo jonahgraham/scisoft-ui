@@ -11,9 +11,8 @@ package uk.ac.diamond.scisoft.analysis.rcp.views;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.ROIProfilePlotWindow;
@@ -54,8 +53,8 @@ public class ROIProfilePlotView extends AbstractPlotView {
 	public AbstractPlotWindow createPlotWindow(Composite parent, 
 												IBeanScriptingManager manager,
 												IActionBars bars, 
-												IWorkbenchPage page, 
+												IWorkbenchPart part, 
 												String name) {
-		return new ROIProfilePlotWindow(parent, manager, bars, page, name);
+		return new ROIProfilePlotWindow(parent, manager, bars, part, name);
 	}
 }

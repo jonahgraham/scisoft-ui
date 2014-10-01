@@ -65,12 +65,28 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 		this.queue = new LinkedBlockingDeque<PlotEvent>(25);
 		
 		this.dataObservers = Collections.synchronizedSet(new LinkedHashSet<IObserver>());
-		
+
+	}
+	
+
+	private Thread plotThread;
+	
+	private void start() {
+
 		// We have a thread which processes the queue
-		Thread plotThread = createPlotEventThread();
+		this.plotThread = createPlotEventThread();
 		plotThread.setDaemon(true);
 		plotThread.start();
 
+	}
+
+	public AbstractPlottingConnection getConnection() {
+		return window;
+	}
+
+	public void setConnection(AbstractPlottingConnection window) {
+		this.window = window;
+		if (plotThread!=null) start();
 	}
 
 	private Thread createPlotEventThread() {
@@ -267,15 +283,6 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 			logger.warn("Problem with updating plot server with GUI data");
 			e.printStackTrace();
 		}
-	}
-
-
-	public AbstractPlottingConnection getConnection() {
-		return window;
-	}
-
-	public void setConnection(AbstractPlottingConnection window) {
-		this.window = window;
 	}
 
 	public String getViewName() {
