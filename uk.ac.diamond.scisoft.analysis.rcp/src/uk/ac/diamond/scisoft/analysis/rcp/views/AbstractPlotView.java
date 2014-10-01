@@ -9,7 +9,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
-import gda.observable.IObservable;
 import gda.observable.IObserver;
 
 import java.io.Serializable;
@@ -17,8 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.BlockingDeque;
@@ -64,7 +61,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
  */
 public abstract class AbstractPlotView extends ViewPart implements ISettablePlotView,
 																   IObserver,
-																   IObservable,
 																   IGuiInfoManager,
 																   IUpdateNotificationListener,
 																   IPlottingContainer {
@@ -84,7 +80,6 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 	private UUID            plotID;
 
 	private Set<IObserver>   dataObservers = Collections.synchronizedSet(new LinkedHashSet<IObserver>());
-	private List<IObserver>  observers     = Collections.synchronizedList(new LinkedList<IObserver>());
 
 	private BlockingDeque<PlotEvent> queue;
 	private boolean                  isDisposed;
@@ -274,7 +269,6 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 		if (plotWindow != null) plotWindow.dispose();
 
 		getPlotServer().deleteIObserver(this);
-		deleteIObservers();
 		deleteDataObservers();
 	}
 
@@ -350,20 +344,6 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 		}
 	}
 
-	@Override
-	public void addIObserver(IObserver anIObserver) {
-		observers.add(anIObserver);
-	}
-
-	@Override
-	public void deleteIObserver(IObserver anIObserver) {
-		observers.remove(anIObserver);
-	}
-
-	@Override
-	public void deleteIObservers() {
-		observers.clear();
-	}
 
 	/**
 	 * Allow another observer to see plot data.
@@ -489,30 +469,26 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 	/**
 	 * @return plot UI
 	 */
-	public IPlottingUI getPlotUI() {
+	private IPlottingUI getPlotUI() {
 		return plotUI;
 	}
 
 	/**
 	 * @return id
 	 */
-	public String getId() {
+	private String getId() {
 		return id;
 	}
 
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public PlotServer getPlotServer() {
+	private PlotServer getPlotServer() {
 		return plotServer;
 	}
 
-	public void setPlotServer(PlotServer plotServer) {
+	private void setPlotServer(PlotServer plotServer) {
 		this.plotServer = plotServer;
 	}
 
-	public AbstractPlotWindow getPlotWindow() {
+	private AbstractPlotWindow getPlotWindow() {
 		return this.plotWindow;
 	}
 

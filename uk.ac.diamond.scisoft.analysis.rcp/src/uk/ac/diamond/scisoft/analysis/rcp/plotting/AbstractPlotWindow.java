@@ -15,7 +15,6 @@ import gda.observable.IObserver;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -507,6 +506,10 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObservable {
 			// custom axes can be initialised when plot is empty
 			clearPlot(!GuiPlotMode.EMPTY.equals(getPreviousMode()));
 		}
+		
+		// TODO We keep making new plotUI - what happens to the old one?
+		// Should it be removed as an observable and what happens to any listeners
+		// it adds - these should be deactivated too no?
 		if (plotMode.equals(GuiPlotMode.ONED)) {
 			plottingSystem.setPlotType(PlotType.XY);
 			plotUI = new Plotting1DUI(plottingSystem);
