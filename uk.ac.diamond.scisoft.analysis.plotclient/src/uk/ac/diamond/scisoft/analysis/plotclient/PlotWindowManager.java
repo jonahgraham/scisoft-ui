@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting;
+package uk.ac.diamond.scisoft.analysis.plotclient;
 
 import gda.observable.IIsBeingObserved;
 import gda.observable.IObservable;
@@ -40,13 +40,14 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.AnalysisRpcServerProvider;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
+import uk.ac.diamond.scisoft.analysis.plotclient.rpc.AnalysisRpcSyncExecDispatcher;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
-import uk.ac.diamond.scisoft.analysis.rcp.rpc.AnalysisRpcSyncExecDispatcher;
-import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.rpc.IAnalysisRpcHandler;
 
 public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBeingObserved {
+	
+	
 	static private Logger logger = LoggerFactory.getLogger(PlotWindowManager.class);
 
 	private static PlotWindowManager manager;
@@ -65,7 +66,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 
 			// register as an RMI service
 			try {
-				RMIServerProvider.getInstance().exportAndRegisterObject(AbstractPlotWindow.RMI_SERVICE_NAME,
+				RMIServerProvider.getInstance().exportAndRegisterObject(RMI_SERVICE_NAME,
 						new RMIPlotWindowManger());
 			} catch (Exception e) {
 				logger.warn("Unable to register PlotWindowManager for use over RMI - it might be disabled", e);
@@ -74,7 +75,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 			try {
 				// register as an RPC service
 				IAnalysisRpcHandler dispatcher = new AnalysisRpcSyncExecDispatcher(IPlotWindowManager.class, manager);
-				AnalysisRpcServerProvider.getInstance().addHandler(AbstractPlotWindow.RPC_SERVICE_NAME, dispatcher);
+				AnalysisRpcServerProvider.getInstance().addHandler(RPC_SERVICE_NAME, dispatcher);
 			} catch (Exception e) {
 				logger.warn("Not registered PlotWindowManager as RPC service - but might be disabled");
 			}
@@ -119,7 +120,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 						if (name.equals("view")) {
 							String className = config[k].getAttribute("class");
 							// if a PlotView
-							if (className.equals(PlotView.PLOTVIEW_PATH)) {
+							if (className.equals(PLOTVIEW_PATH)) {
 								plotViews.add(config[k]);
 							}
 						}
@@ -142,7 +143,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 			if (name.equals("view")) {
 				String className = config.getAttribute("class");
 				// if a PlotView
-				if (className.equals(PlotView.PLOTVIEW_PATH)) {
+				if (className.equals(PLOTVIEW_PATH)) {
 					knownPlotViews.put(config.getAttribute("name"), config.getAttribute("id"));
 				}
 			}
@@ -223,7 +224,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 		if (knownPlotViews.containsKey(viewName)) {
 			getPage(page).showView(knownPlotViews.get(viewName));
 		} else {
-			getPage(page).showView(PlotView.PLOT_VIEW_MULTIPLE_ID, viewName, IWorkbenchPage.VIEW_ACTIVATE);
+			getPage(page).showView(PLOT_VIEW_MULTIPLE_ID, viewName, IWorkbenchPage.VIEW_ACTIVATE);
 		}
 	}
 
@@ -299,7 +300,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 			try {
 				IViewReference[] viewReferences = getPage(page).getViewReferences();
 				for (IViewReference ref : viewReferences) {
-					if (PlotView.PLOT_VIEW_MULTIPLE_ID.equals(ref.getId())) {
+					if (PLOT_VIEW_MULTIPLE_ID.equals(ref.getId())) {
 						views.add(ref.getSecondaryId());
 					}
 				}
@@ -327,7 +328,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 	private void addDefaultPlotViews(Set<String> views) {
 		Set<String> keys = knownPlotViews.keySet();
 		for (String key : keys) {
-			if (knownPlotViews.get(key).startsWith(PlotView.ID)) {
+			if (knownPlotViews.get(key).startsWith(ID)) {
 				views.add(key);
 			}
 		}

@@ -55,6 +55,9 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
+import uk.ac.diamond.scisoft.analysis.plotclient.PlotWindowManager;
+import uk.ac.diamond.scisoft.analysis.plotclient.connection.PlotConnectionFactory;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
@@ -447,14 +450,14 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 				try {
 					GuiPlotMode oldMode = getPreviousMode();
 					if (plotMode.equals(GuiPlotMode.ONED) && oldMode != GuiPlotMode.ONED) {
-						plotUI = new Plotting1DUI(plottingSystem);
+						plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
 						setPreviousMode(GuiPlotMode.ONED);
 					} else if (plotMode.equals(GuiPlotMode.TWOD) && oldMode != GuiPlotMode.TWOD) {
-						plotUI = new Plotting2DUI(getRoiManager(), plottingSystem);
+						plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
 						addToggleActions();
 						setPreviousMode(GuiPlotMode.TWOD);
 					} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && oldMode != GuiPlotMode.SCATTER2D) {
-						plotUI = new PlottingScatter2DUI(plottingSystem);
+						plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
 						setPreviousMode(GuiPlotMode.SCATTER2D);
 					} else if (plotMode.equals(GuiPlotMode.EMPTY) && oldMode != GuiPlotMode.EMPTY) {
 						clearPlot();
@@ -495,7 +498,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			}
 
 			if (bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST)) {
-				plotUI.processGUIUpdate(bean);
+				plotConnection.processGUIUpdate(bean);
 			}
 		}
 	}
@@ -503,9 +506,9 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	@Override
 	public void dispose() {
 		PlotWindowManager.getPrivateManager().unregisterPlotWindow(this);
-		if (plotUI != null) {
-			plotUI.deactivate(false);
-			plotUI.dispose();
+		if (plotConnection != null) {
+			plotConnection.deactivate(false);
+			plotConnection.dispose();
 		}
 		try {
 			plottingSystem.getActionBars().getToolBarManager().remove(plotEdgeACI);
@@ -525,7 +528,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			logger.debug("Cannot clean up plotter!", ne);
 		}
 		deleteIObservers();
-		plotUI = null;
+		plotConnection = null;
 		System.gc();
 	}
 }

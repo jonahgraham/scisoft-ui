@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting;
+package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -20,7 +20,7 @@ import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.PointStyle;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.TraceType;
-import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 /**
  *
  */
-class PlottingScatter2DUI extends AbstractPlottingUI {
+class PlottingScatter2DUI extends AbstractPlotConnection {
 
 	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingScatter2DUI";
 	private IPlottingSystem plottingSystem;
@@ -68,7 +68,7 @@ class PlottingScatter2DUI extends AbstractPlottingUI {
 							plottingSystem.clear();
 						ILineTrace scatterPlotPoints = plottingSystem.createLineTrace(yAxisValues.getName());
 						scatterPlotPoints.setTraceType(TraceType.POINT);
-						scatterPlotPoints.setTraceColor(ColorConstants.blue);
+						scatterPlotPoints.setTraceColor(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
 						scatterPlotPoints.setPointStyle(PointStyle.FILLED_CIRCLE);
 						scatterPlotPoints.setPointSize(6);
 						scatterPlotPoints.setName(xAxisValues.getName());

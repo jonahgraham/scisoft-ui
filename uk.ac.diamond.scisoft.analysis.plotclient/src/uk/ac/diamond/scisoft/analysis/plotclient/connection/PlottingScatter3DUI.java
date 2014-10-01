@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting;
+package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +29,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 /**
  *
  */
-class PlottingScatter3DUI extends AbstractPlottingUI {
+class PlottingScatter3DUI extends AbstractPlotConnection {
 
 	private Logger logger = LoggerFactory.getLogger(PlottingScatter3DUI.class);
 

@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting;
+package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +35,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
  * Class to create a 3D Stack plotting
  * TODO: correctly set axes name
  */
-class Plotting1DStackUI extends AbstractPlottingUI {
+class Plotting1DStackUI extends AbstractPlotConnection {
 
 	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.Plotting1DStackUI";
 	private static final Logger logger = LoggerFactory.getLogger(Plotting1DStackUI.class);

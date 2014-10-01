@@ -27,6 +27,7 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.plotclient.AbstractPlottingConnection;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
@@ -42,9 +43,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DuplicatePlotAction;
 public abstract class AbstractPlotWindow extends AbstractPlottingConnection {
 
 	static private Logger logger = LoggerFactory.getLogger(AbstractPlotWindow.class);
-
-	public static final String RPC_SERVICE_NAME = "PlotWindowManager";
-	public static final String RMI_SERVICE_NAME = "RMIPlotWindowManager";
 
 	protected Composite parentComp;
 	protected Composite plotSystemComposite;

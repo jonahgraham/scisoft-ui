@@ -35,9 +35,9 @@ import org.eclipse.ui.views.IViewDescriptor;
 import org.eclipse.ui.views.IViewRegistry;
 
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindowManager;
+import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
+import uk.ac.diamond.scisoft.analysis.plotclient.PlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ShowPlotViewHandler.ShowPlotViewParameterValues;
-import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 
 /**
  * Contribution for Show Plot View submenu. Contains a list of all items that
@@ -151,7 +151,7 @@ public class ShowPlotViewMenu extends ContributionItem {
 	private CommandContributionItemParameter getItem(Entry<String, String> entry) {
 		if (imageDescriptor == null) {
 			IViewRegistry reg = PlatformUI.getWorkbench().getViewRegistry();
-			IViewDescriptor desc = reg.find(PlotView.PLOT_VIEW_MULTIPLE_ID);
+			IViewDescriptor desc = reg.find(IPlotWindowManager.PLOT_VIEW_MULTIPLE_ID);
 			imageDescriptor = desc.getImageDescriptor();
 		}
 

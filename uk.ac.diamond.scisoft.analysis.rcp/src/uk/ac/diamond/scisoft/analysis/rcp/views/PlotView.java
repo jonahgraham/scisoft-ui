@@ -13,6 +13,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPart;
 
+import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
@@ -23,19 +24,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
  */
 public class PlotView extends AbstractPlotView {
 
-	/**
-	 * The extension point ID for 3rd party contribution
-	 */
-	public static final String ID = "uk.ac.diamond.scisoft.analysis.rcp.plotView";
-	/**
-	 * The specific point ID for the plot view that can be opened multiple times
-	 */
-	public static final String PLOT_VIEW_MULTIPLE_ID = "uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple";
-
-	/**
-	 * The full path of the PlotView class
-	 */
-	public static final String PLOTVIEW_PATH = "uk.ac.diamond.scisoft.analysis.rcp.views.PlotView";
+	public static final String ID = IPlotWindowManager.ID;
 
 	/**
 	 * Default Constructor of the plot view

@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting;
+package uk.ac.diamond.scisoft.analysis.plotclient;
 
 import java.rmi.RemoteException;
 
@@ -41,7 +41,7 @@ public class RMIPlotWindowManger implements IPlotWindowManagerRMI {
 	public static IPlotWindowManagerRMI getManager() {
 		try {
 			if (manager == null) {
-				manager = (IPlotWindowManagerRMI) RMIClientProvider.getInstance().lookup(null, AbstractPlotWindow.RMI_SERVICE_NAME);
+				manager = (IPlotWindowManagerRMI) RMIClientProvider.getInstance().lookup(null, IPlotWindowManager.RMI_SERVICE_NAME);
 			}
 			return manager;
 		} catch (Exception e) {
@@ -68,7 +68,7 @@ public class RMIPlotWindowManger implements IPlotWindowManagerRMI {
 				@Override
 				public void run() {
 					try {
-						ret[0] = PlotWindow.getManager().openDuplicateView(null, viewName);
+						ret[0] = PlotWindowManager.getPrivateManager().openDuplicateView(null, viewName);
 					} catch (Exception e) {
 						exp[0] = e;
 					}
@@ -95,7 +95,7 @@ public class RMIPlotWindowManger implements IPlotWindowManagerRMI {
 				@Override
 				public void run() {
 					try {
-						ret[0] = PlotWindow.getManager().openView(null, viewName);
+						ret[0] = PlotWindowManager.getPrivateManager().openView(null, viewName);
 					} catch (Exception e) {
 						exp[0] = e;
 					}
@@ -122,7 +122,7 @@ public class RMIPlotWindowManger implements IPlotWindowManagerRMI {
 				@Override
 				public void run() {
 					try {
-						ret[0] = PlotWindow.getManager().getOpenViews();
+						ret[0] = PlotWindowManager.getPrivateManager().getOpenViews();
 					} catch (Exception e) {
 						exp[0] = e;
 					}

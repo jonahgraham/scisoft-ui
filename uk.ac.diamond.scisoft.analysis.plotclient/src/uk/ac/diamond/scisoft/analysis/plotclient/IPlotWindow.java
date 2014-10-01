@@ -7,14 +7,22 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting;
+package uk.ac.diamond.scisoft.analysis.plotclient;
 
-/**
- * This listener is a simple interface just to be notified when a Data update
- * has been fully processed
- */
-public interface IUpdateNotificationListener {
+import org.eclipse.ui.IWorkbenchPart;
 
-	public void updateProcessed();
-	
+public interface IPlotWindow {
+
+	/**
+	 * Return current page.
+	 * @return current page
+	 */
+	public IWorkbenchPart getPart();
+
+	/**
+	 * Return the name of the Window
+	 * @return name
+	 */
+	public String getName();
+
 }

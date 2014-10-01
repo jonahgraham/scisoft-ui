@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.rpc;
+package uk.ac.diamond.scisoft.analysis.plotclient.rpc;
 
 import java.lang.reflect.Method;
 

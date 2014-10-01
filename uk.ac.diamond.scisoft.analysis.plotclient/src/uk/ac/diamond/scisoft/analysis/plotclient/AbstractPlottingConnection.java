@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting;
+package uk.ac.diamond.scisoft.analysis.plotclient;
 
 import gda.observable.IObservable;
 import gda.observable.IObserver;
@@ -26,7 +26,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.dawb.common.ui.util.DisplayUtils;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
@@ -34,6 +33,9 @@ import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.plotclient.connection.AbstractPlotConnection;
+import uk.ac.diamond.scisoft.analysis.plotclient.connection.IPlotConnection;
+import uk.ac.diamond.scisoft.analysis.plotclient.connection.PlotConnectionFactory;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisOperation;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
@@ -59,7 +61,7 @@ public abstract class AbstractPlottingConnection implements IPlotWindow, IObserv
 	protected DataBean myBeanMemory;
 	protected ROIManager roiManager;
 
-	protected IPlottingUI plotUI = null;
+	protected IPlotConnection plotConnection = null;
 	private boolean isUpdatePlot = false;
 
 	private GuiPlotMode previousMode;
@@ -106,8 +108,8 @@ public abstract class AbstractPlottingConnection implements IPlotWindow, IObserv
 	/**
 	 * @return plot UI
 	 */
-	public IPlottingUI getPlotUI() {
-		return plotUI;
+	public IPlotConnection getPlotUI() {
+		return plotConnection;
 	}
 
 	/**
@@ -222,7 +224,7 @@ public abstract class AbstractPlottingConnection implements IPlotWindow, IObserv
 		try {
 			doBlock();
 			// Now plot the data as standard
-			plotUI.processPlotUpdate(dbPlot, isUpdatePlot());
+			plotConnection.processPlotUpdate(dbPlot, isUpdatePlot());
 			setDataBean(dbPlot);
 			createRegion();
 		} finally {
@@ -261,7 +263,7 @@ public abstract class AbstractPlottingConnection implements IPlotWindow, IObserv
 			try {
 				// lock ROI manager
 				getRoiManager().acquireLock();
-				plotUI.processGUIUpdate(bean);
+				plotConnection.processGUIUpdate(bean);
 			} finally {
 				// release ROI manager
 				getRoiManager().releaseLock();
@@ -349,32 +351,15 @@ public abstract class AbstractPlottingConnection implements IPlotWindow, IObserv
 		// TODO Baha check that this is ok - it seems to work and is
 		// better than creating infinitely many plotUIs and not disposing
 		// them, one would have imaggined...
-		if (plotUI != null) {
-			plotUI.deactivate(false);
-			plotUI.dispose();
+		if (plotConnection != null) {
+			plotConnection.deactivate(false);
+			plotConnection.dispose();
 		}
-		if (plotMode.equals(GuiPlotMode.ONED)) {
-			plottingSystem.setPlotType(PlotType.XY);
-			plotUI = new Plotting1DUI(plottingSystem);
-		} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
-			plottingSystem.setPlotType(PlotType.XY_STACKED_3D);
-			plotUI = new Plotting1DStackUI(plottingSystem);
-		} else if (plotMode.equals(GuiPlotMode.TWOD)) {
-			plottingSystem.setPlotType(PlotType.IMAGE);
-			plotUI = new Plotting2DUI(getRoiManager(), plottingSystem);
-		} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
-			plottingSystem.setPlotType(PlotType.SURFACE);
-			plotUI = new Plotting2DUI(getRoiManager(), plottingSystem);
-		} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
-//			plottingSystem.setPlotType(PlotType.SCATTER2D);
-			plotUI = new PlottingScatter2DUI(plottingSystem);
-		} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
-			plottingSystem.setPlotType(PlotType.XY_SCATTER_3D);
-			plotUI = new PlottingScatter3DUI(plottingSystem);
-		} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
-			plottingSystem.setPlotType(PlotType.MULTI_IMAGE);
-			plotUI = new Plotting2DMultiUI(plottingSystem);
-		} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
+
+		this.plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
+		if (plotConnection!=null) ((AbstractPlotConnection)plotConnection).setManager(getRoiManager());
+		
+		if (plotMode.equals(GuiPlotMode.EMPTY)) {
 			resetAxes();
 		}
 		setVisibleByPlotType(plottingSystem.getPlotType());
@@ -508,9 +493,9 @@ public abstract class AbstractPlottingConnection implements IPlotWindow, IObserv
 
 	public void dispose() {
 		PlotWindowManager.getPrivateManager().unregisterPlotWindow(this);
-		if (plotUI != null) {
-			plotUI.deactivate(false);
-			plotUI.dispose();
+		if (plotConnection != null) {
+			plotConnection.deactivate(false);
+			plotConnection.dispose();
 		}
 		try {
 			if (plottingSystem != null){//&& !plottingSystem.isDisposed()) {
@@ -521,7 +506,7 @@ public abstract class AbstractPlottingConnection implements IPlotWindow, IObserv
 			logger.debug("Cannot clean up plotter!", ne);
 		}
 		deleteIObservers();
-		plotUI = null;
+		plotConnection = null;
 		System.gc();
 	}
 }

@@ -16,11 +16,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
+import uk.ac.diamond.scisoft.analysis.plotclient.PlotWindowManager;
+import uk.ac.diamond.scisoft.analysis.plotclient.RMIPlotWindowManger;
 import uk.ac.diamond.scisoft.analysis.plotserver.IPlotWindowManagerRMI;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindowManager;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.RMIPlotWindowManger;
 
 /**
  * Integration test for {@link PlotWindowManager}, also tests {@link RMIPlotWindowManger} and PlotWindowManager over

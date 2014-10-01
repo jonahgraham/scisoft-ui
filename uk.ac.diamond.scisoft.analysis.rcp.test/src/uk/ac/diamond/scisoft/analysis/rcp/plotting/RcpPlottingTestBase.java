@@ -30,10 +30,10 @@ import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.PlotService;
 import uk.ac.diamond.scisoft.analysis.PlotServiceProvider;
 import uk.ac.diamond.scisoft.analysis.PythonHelper;
+import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 //import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
-import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 //import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
 
 abstract public class RcpPlottingTestBase {
@@ -42,7 +42,7 @@ abstract public class RcpPlottingTestBase {
 	// and clear out the plot server contents of data
 	private static final Set<String> viewIDsToClose = new HashSet<String>();
 	static {
-		viewIDsToClose.add(PlotView.PLOT_VIEW_MULTIPLE_ID);
+		viewIDsToClose.add(IPlotWindowManager.PLOT_VIEW_MULTIPLE_ID);
 		// DatasetPlotter and Sideplot are deprecated
 		// viewIDsToClose.add(SidePlotView.ID);
 		// viewIDsToClose.add(HistogramView.ID);

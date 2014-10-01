@@ -17,7 +17,7 @@ import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.PlatformUI;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotWindowManager;
+import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.RcpPlottingTestBase;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
@@ -36,7 +36,7 @@ abstract public class MultiPlotViewTestBase extends RcpPlottingTestBase {
 		IViewReference[] viewReferences = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 				.getViewReferences();
 		for (IViewReference ref : viewReferences) {
-			if (PlotView.PLOT_VIEW_MULTIPLE_ID.equals(ref.getId())) {
+			if (IPlotWindowManager.PLOT_VIEW_MULTIPLE_ID.equals(ref.getId())) {
 				if (plotViewName.equals(ref.getSecondaryId())) {
 					return true;
 				}
@@ -53,7 +53,7 @@ abstract public class MultiPlotViewTestBase extends RcpPlottingTestBase {
 		IViewReference[] viewReferences = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 				.getViewReferences();
 		for (IViewReference ref : viewReferences) {
-			if (PlotView.PLOT_VIEW_MULTIPLE_ID.equals(ref.getId())) {
+			if (IPlotWindowManager.PLOT_VIEW_MULTIPLE_ID.equals(ref.getId())) {
 				set.add(ref.getSecondaryId());
 			}
 		}

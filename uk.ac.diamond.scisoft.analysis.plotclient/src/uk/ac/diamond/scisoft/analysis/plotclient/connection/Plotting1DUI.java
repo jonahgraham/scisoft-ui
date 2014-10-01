@@ -7,14 +7,13 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting;
+package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.dawnsci.plotting.util.ColorUtility;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
@@ -38,7 +37,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
  * Class to create a 1D plotting
  * 
  */
-class Plotting1DUI extends AbstractPlottingUI {
+class Plotting1DUI extends AbstractPlotConnection {
 
 	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.Plotting1DUI";
 	private static final Logger logger = LoggerFactory.getLogger(Plotting1DUI.class);
@@ -162,8 +161,7 @@ class Plotting1DUI extends AbstractPlottingUI {
 				} else {
 					// increment the colour
 //					int index = traces;
-					if (idx > ColorUtility.getSize())
-						idx = 0;
+					if (idx > 15) idx = 0; // There are 15 default colours.
 //					plotColor = ColorUtility.getSwtColour(index > ColorUtility.getSize() ? idx++ : index);
 
 					List<IAxis> axes = plottingSystem.getAxes();

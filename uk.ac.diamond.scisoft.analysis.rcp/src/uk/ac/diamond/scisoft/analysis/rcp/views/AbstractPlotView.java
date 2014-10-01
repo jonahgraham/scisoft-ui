@@ -33,15 +33,15 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.IPeak;
+import uk.ac.diamond.scisoft.analysis.plotclient.BeanScriptingManagerImpl;
+import uk.ac.diamond.scisoft.analysis.plotclient.PlotEvent;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.BeanScriptingManagerImpl;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.ExamplePlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotEvent;
 
 /**
  * Abstract Class from which PlotView and ROIProfilePlotView both extend 

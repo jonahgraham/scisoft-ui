@@ -14,8 +14,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+import uk.ac.diamond.scisoft.analysis.plotclient.RMIPlotWindowManger;
 import uk.ac.diamond.scisoft.analysis.plotserver.IPlotWindowManagerRMI;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.RMIPlotWindowManger;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.MultiPlotViewTestBase.ThreadRunner.ThreadRunnable;
 
 /**

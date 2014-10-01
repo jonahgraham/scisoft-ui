@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting;
+package uk.ac.diamond.scisoft.analysis.plotclient;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.ui.IWorkbenchPage;
@@ -32,6 +32,24 @@ import uk.ac.diamond.scisoft.analysis.plotserver.IPlotWindowManagerRMI;
  * @see IPlotWindowManagerRMI
  */
 public interface IPlotWindowManager {
+
+	/**
+	 * The full path of the PlotView class
+	 */
+	public static final String PLOTVIEW_PATH = "uk.ac.diamond.scisoft.analysis.rcp.views.PlotView";
+
+	/**
+	 * The extension point ID for 3rd party contribution
+	 */
+	public static final String ID = "uk.ac.diamond.scisoft.analysis.rcp.plotView";
+	/**
+	 * The specific point ID for the plot view that can be opened multiple times
+	 */
+	public static final String PLOT_VIEW_MULTIPLE_ID = "uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple";
+
+	
+	public static final String RPC_SERVICE_NAME = "PlotWindowManager";
+	public static final String RMI_SERVICE_NAME = "RMIPlotWindowManager";
 
 	/**
 	 * Create and open a view with a new unique name and fill the view's GuiBean and DataBean with a copy of viewName's

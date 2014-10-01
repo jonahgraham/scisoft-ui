@@ -29,12 +29,13 @@ import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.MockPlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
+import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindow;
+import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
+import uk.ac.diamond.scisoft.analysis.plotclient.PlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.mock.MockAttribute;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.mock.MockConfigElem;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
@@ -81,12 +82,12 @@ public class PlotWindowManagerTest {
 	public void testPlotManagerCreation2() {
 		List<IConfigurationElement> configElements = new ArrayList<IConfigurationElement>();
 		MockConfigElem config1 = new MockConfigElem("view");
-		config1.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));
+		config1.addAttribute(new MockAttribute("class", IPlotWindowManager.PLOTVIEW_PATH));
 		config1.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 1"));
 		config1.addAttribute(new MockAttribute("name", "Plot 1"));
 
 		MockConfigElem config2 = new MockConfigElem("view");
-		config2.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));
+		config2.addAttribute(new MockAttribute("class", IPlotWindowManager.PLOTVIEW_PATH));
 		config2.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 2"));
 		config2.addAttribute(new MockAttribute("name", "Plot 2"));
 
@@ -151,7 +152,7 @@ public class PlotWindowManagerTest {
 			lastShowedView[0] = null;
 			String newView = plotWindowManager.openView(page, null);
 			Assert.assertFalse(knownNames.contains(newView));
-			Assert.assertEquals(PlotView.PLOT_VIEW_MULTIPLE_ID + ":" + newView, lastShowedView[0]);
+			Assert.assertEquals(IPlotWindowManager.PLOT_VIEW_MULTIPLE_ID + ":" + newView, lastShowedView[0]);
 			knownNames.add(newView);
 		}
 	}
@@ -172,7 +173,7 @@ public class PlotWindowManagerTest {
 			lastShowedView[0] = null;
 			String newView = plotWindowManager.openDuplicateView(page, "Plot");
 			Assert.assertFalse(knownNames.contains(newView));
-			Assert.assertEquals(PlotView.PLOT_VIEW_MULTIPLE_ID + ":" + newView, lastShowedView[0]);
+			Assert.assertEquals(IPlotWindowManager.PLOT_VIEW_MULTIPLE_ID + ":" + newView, lastShowedView[0]);
 			knownNames.add(newView);
 		}
 	}
@@ -181,12 +182,12 @@ public class PlotWindowManagerTest {
 	public void testCreateUniqueNameNoClashWithGlobalViews() {
 		List<IConfigurationElement> configElements = new ArrayList<IConfigurationElement>();
 		MockConfigElem config1 = new MockConfigElem("view");
-		config1.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));
+		config1.addAttribute(new MockAttribute("class", IPlotWindowManager.PLOTVIEW_PATH));
 		config1.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 1"));
 		config1.addAttribute(new MockAttribute("name", "Plot 1"));
 
 		MockConfigElem config2 = new MockConfigElem("view");
-		config2.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));
+		config2.addAttribute(new MockAttribute("class", IPlotWindowManager.PLOTVIEW_PATH));
 		config2.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 2"));
 		config2.addAttribute(new MockAttribute("name", "Plot 2"));
 
@@ -202,7 +203,7 @@ public class PlotWindowManagerTest {
 			lastShowedView[0] = null;
 			String newView = plotWindowManager.openView(page, null);
 			Assert.assertFalse(knownNames.contains(newView));
-			Assert.assertEquals(PlotView.PLOT_VIEW_MULTIPLE_ID + ":" + newView, lastShowedView[0]);
+			Assert.assertEquals(IPlotWindowManager.PLOT_VIEW_MULTIPLE_ID + ":" + newView, lastShowedView[0]);
 			knownNames.add(newView);
 		}
 	}
@@ -214,7 +215,7 @@ public class PlotWindowManagerTest {
 	public void testOpensPlotView() {
 		List<IConfigurationElement> configElements = new ArrayList<IConfigurationElement>();
 		MockConfigElem config1 = new MockConfigElem("view");
-		config1.addAttribute(new MockAttribute("class", PlotView.PLOTVIEW_PATH));
+		config1.addAttribute(new MockAttribute("class", IPlotWindowManager.PLOTVIEW_PATH));
 		config1.addAttribute(new MockAttribute("id", MOCK_ID + "Plot 1"));
 		config1.addAttribute(new MockAttribute("name", "Plot 1"));
 
@@ -232,7 +233,7 @@ public class PlotWindowManagerTest {
 		lastShowedView[0] = null;
 		String plot5 = plotWindowManager.openView(page, "Plot 5");
 		Assert.assertEquals("Plot 5", plot5);
-		Assert.assertEquals(PlotView.PLOT_VIEW_MULTIPLE_ID + ":" + "Plot 5", lastShowedView[0]);
+		Assert.assertEquals(IPlotWindowManager.PLOT_VIEW_MULTIPLE_ID + ":" + "Plot 5", lastShowedView[0]);
 	}
 
 	@Test
@@ -250,7 +251,7 @@ public class PlotWindowManagerTest {
 		lastShowedView[0] = null;
 		String plot1 = plotWindowManager.openView(page, "Plot 1");
 		Assert.assertEquals("Plot 1", plot1);
-		Assert.assertEquals(PlotView.PLOT_VIEW_MULTIPLE_ID + ":" + "Plot 1", lastShowedView[0]);
+		Assert.assertEquals(IPlotWindowManager.PLOT_VIEW_MULTIPLE_ID + ":" + "Plot 1", lastShowedView[0]);
 		GuiBean guiBean = new GuiBean();
 		guiBean.put(GuiParameters.ROIDATA, new LinearROI(10, 0.4));
 		plotServer.updateGui(plot1, guiBean);
@@ -262,7 +263,7 @@ public class PlotWindowManagerTest {
 		lastShowedView[0] = null;
 		String plot1Dup = plotWindowManager.openDuplicateView(page, "Plot 1");
 		Assert.assertFalse("Plot 1".equals(plot1Dup)); // it should be a duplicate with a new name!
-		Assert.assertEquals(PlotView.PLOT_VIEW_MULTIPLE_ID + ":" + plot1Dup, lastShowedView[0]);
+		Assert.assertEquals(IPlotWindowManager.PLOT_VIEW_MULTIPLE_ID + ":" + plot1Dup, lastShowedView[0]);
 
 		// now make sure plotserver has duplicated info
 		DataBean dataBeanDup = plotServer.getData(plot1Dup);

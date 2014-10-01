@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting;
+package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,7 +27,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 /**
  *
  */
-class Plotting2DMultiUI extends AbstractPlottingUI {
+class Plotting2DMultiUI extends AbstractPlotConnection {
 
 	private IPlottingSystem plottingSystem;
 

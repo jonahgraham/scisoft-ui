@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting;
+package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 
 import gda.observable.IObserver;
 
@@ -20,7 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.dawb.common.ui.Activator;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
@@ -39,27 +39,26 @@ import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.plotclient.Activator;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
-import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 
 /**
  * Class to create the a 2D/image plotting
  */
-class Plotting2DUI extends AbstractPlottingUI {
+class Plotting2DUI extends AbstractPlotConnection {
 
 	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.Plotting2DUI";
 
 	private IPlottingSystem plottingSystem;
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
-	private ROIManager manager;
 	private IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
 
 	private static final Logger logger = LoggerFactory.getLogger(Plotting2DUI.class);
@@ -69,8 +68,7 @@ class Plotting2DUI extends AbstractPlottingUI {
 	 * @param roiManager
 	 * @param plotter
 	 */
-	public Plotting2DUI(ROIManager roiManager, final IPlottingSystem plotter) {
-		manager = roiManager;
+	public Plotting2DUI(final IPlottingSystem plotter) {
 		plottingSystem = plotter;
 	}
 
@@ -185,29 +183,33 @@ class Plotting2DUI extends AbstractPlottingUI {
 	
 	private void setPaletteUnsafe(IPaletteTrace image) {
 		
+		
+		// TODO This is probably no longer needed as the preference is being stored in a way
+		// likely not to work with the plotting system. 
+		
 		if (image == null) return;
-		IPreferenceStore store = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		IPreferenceStore store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "uk.ac.diamond.scisoft.analysis.rcp");
 
 		// check colour scheme in if image trace is in a live plot
 		String paletteName = image.getPaletteName();
-		String livePlot = store.getString(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW);
+		String livePlot = store.getString("imageExplorer.playbackView");
 		if (plottingSystem.getPlotName().equals(livePlot)) {
-			String savedLivePlotPalette = store.getString(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
+			String savedLivePlotPalette = store.getString("imageExplorer.colourMap");
 			if (paletteName != null && !paletteName.equals(savedLivePlotPalette)) {
 				image.setPaletteData(pservice.getDirectPaletteData(savedLivePlotPalette));
-				image.setPaletteName(store.getString(PreferenceConstants.IMAGEEXPLORER_COLOURMAP));
-				store.setValue(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, savedLivePlotPalette);
+				image.setPaletteName(store.getString("imageExplorer.colourMap"));
+				store.setValue("imageExplorer.colourMap", savedLivePlotPalette);
 			}
 		} else {
-			if (paletteName != null && !paletteName.equals(store.getString(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP))) {
-				String savedPlotViewPalette = store.getString(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
+			if (paletteName != null && !paletteName.equals(store.getString("plotView.plot2DcolourMap"))) {
+				String savedPlotViewPalette = store.getString("plotView.plot2DcolourMap");
 				try {
 					image.setPaletteData(pservice.getDirectPaletteData(savedPlotViewPalette));
 					image.setPaletteName(savedPlotViewPalette);
-					store.setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, savedPlotViewPalette);
+					store.setValue("plotView.plot2DcolourMap", savedPlotViewPalette);
 				} catch (Throwable ne) {
 					// Leave palette as is and set PLOT_VIEW_PLOT2D_COLOURMAP back to grey.
-					store.setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, "Grey Scale");
+					store.setValue("plotView.plot2DcolourMap", "Grey Scale");
 				}
 			}
 		}

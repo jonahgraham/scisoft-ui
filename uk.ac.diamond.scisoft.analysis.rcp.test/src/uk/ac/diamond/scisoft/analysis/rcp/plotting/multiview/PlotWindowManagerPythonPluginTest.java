@@ -15,7 +15,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import uk.ac.diamond.scisoft.analysis.PythonHelper;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotWindowManager;
+import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.MultiPlotViewTestBase.ThreadRunner.ThreadRunnable;
 
 /**

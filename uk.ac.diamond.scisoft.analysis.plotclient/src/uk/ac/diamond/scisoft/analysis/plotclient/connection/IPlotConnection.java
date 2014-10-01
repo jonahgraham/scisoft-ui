@@ -7,10 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting;
-
-import org.dawnsci.plotting.jreality.tool.AreaSelectEventListener;
-import org.dawnsci.plotting.jreality.tool.PlotActionEventListener;
+package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
@@ -18,7 +15,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 /**
  * Generic interface for Plotting UI attached to different Plotters
  */
-interface IPlottingUI extends PlotActionEventListener, AreaSelectEventListener {
+public interface IPlotConnection {
 
 	/**
 	 * Process a plot update

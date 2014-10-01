@@ -25,10 +25,10 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.PlotService;
+import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
+import uk.ac.diamond.scisoft.analysis.plotclient.PlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 
 public class ShowPlotViewHandler extends AbstractHandler {
@@ -71,9 +71,9 @@ public class ShowPlotViewHandler extends AbstractHandler {
 		 * <p>
 		 * The list of legal values is made up of the following sources:
 		 * <ul>
-		 * <li>All of the Plot Views that have been activated and registered themselves with {@link PlotWindowManager#registerPlotWindow(uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotWindow)}</li>
-		 * <li>All views in the view registry whose ID starts with {@link PlotView#ID}</li>
-		 * <li>All the view references whose primary ID is {@link PlotView#PLOT_VIEW_MULTIPLE_ID}</li>
+		 * <li>All of the Plot Views that have been activated and registered themselves PlotWindowManager</li>
+		 * <li>All views in the view registry whose ID starts with {@link IPlotWindowManager#ID}</li>
+		 * <li>All the view references whose primary ID is {@link IPlotWindowManager#PLOT_VIEW_MULTIPLE_ID}</li>
 		 * <li>All Gui Names from {@link PlotService#getGuiNames()}. These are suffixed with {@link ShowPlotViewHandler#IN_PLOT_SERVER_SUFFIX}
 		 * <li>A <code>null</code> value for a option to open a new unique view name.
 		 * </ul>

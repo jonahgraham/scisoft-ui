@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Plot Client
+Bundle-SymbolicName: uk.ac.diamond.scisoft.analysis.plotclient
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: DLS
+Require-Bundle: org.eclipse.ui;bundle-version="3.8.2",
+ uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0",
+ uk.ac.diamond.scisoft.analysis.xmlrpc;bundle-version="1.0.0",
+ org.eclipse.dawnsci.plotting.api;bundle-version="1.2.0",
+ org.eclipse.dawnsci.analysis.api;bundle-version="1.0.0",
+ org.eclipse.dawnsci.analysis.dataset;bundle-version="1.0.0",
+ org.eclipse.core.runtime;bundle-version="3.8.0",
+ uk.ac.gda.common;bundle-version="1.2.0"
+Export-Package: uk.ac.diamond.scisoft.analysis.plotclient,
+ uk.ac.diamond.scisoft.analysis.plotclient.connection,
+ uk.ac.diamond.scisoft.analysis.plotclient.rpc
+Import-Package: org.slf4j;version="1.7.6"
+Bundle-Activator: uk.ac.diamond.scisoft.analysis.plotclient.Activator

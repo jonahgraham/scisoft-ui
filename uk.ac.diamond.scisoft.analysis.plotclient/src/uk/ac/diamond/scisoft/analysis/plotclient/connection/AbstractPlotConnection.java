@@ -7,16 +7,16 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting;
+package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 
-import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
-import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
-
+import uk.ac.diamond.scisoft.analysis.plotclient.ROIManager;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 
-abstract class AbstractPlottingUI implements IPlottingUI {
+public class AbstractPlotConnection implements IPlotConnection {
 
+	protected ROIManager manager;
+	
 	@Override
 	public void deactivate(boolean leaveSidePlotOpen) {
 	}
@@ -37,12 +37,12 @@ abstract class AbstractPlottingUI implements IPlottingUI {
 	public void processPlotUpdate(DataBean dbPlot, boolean isUpdate) {
 	}
 
-	@Override
-	public void areaSelected(AreaSelectEvent event) {
+	public ROIManager getManager() {
+		return manager;
 	}
 
-	@Override
-	public void plotActionPerformed(PlotActionEvent event) {
+	public void setManager(ROIManager manager) {
+		this.manager = manager;
 	}
 
 }
