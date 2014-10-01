@@ -45,16 +45,21 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 	
 	private static final Logger logger = LoggerFactory.getLogger(BeanScriptingManagerImpl.class);
 	
-	private final PlotServer   server;
+	private final PlotServer    server;
 	private ScriptingConnection window;
-	private String             viewName = "Plot View";
+	private String              viewName;
 	private BlockingDeque<PlotEvent> queue;
-	private UUID               plotID;
+	private UUID                plotID;
 
 	private Set<IObserver>   dataObservers;
 
 	public BeanScriptingManagerImpl(PlotServer server) {
-		
+	    this(server, "Plot View");	
+	}
+	
+	BeanScriptingManagerImpl(PlotServer server, String viewName) {
+
+		this.viewName = viewName;
 		this.plotID = UUID.randomUUID();
 		logger.info("Plot view uuid: {}", plotID);
 
@@ -226,7 +231,7 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 		return getGUIBean();
 	}
 
-	public GuiBean getGUIBean() {
+	private GuiBean getGUIBean() {
 		GuiBean guiBean = null;
 		try {
 			guiBean = getPlotServer().getGuiState(viewName);

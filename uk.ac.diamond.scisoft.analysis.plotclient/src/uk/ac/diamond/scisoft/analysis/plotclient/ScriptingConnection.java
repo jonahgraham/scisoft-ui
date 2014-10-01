@@ -73,8 +73,7 @@ public class ScriptingConnection implements IObservable {
 	 * @param name
 	 */
 	public ScriptingConnection(String name) {
-		
-		this(new BeanScriptingManagerImpl(PlotServerProvider.getPlotServer()), name);
+		this(new BeanScriptingManagerImpl(PlotServerProvider.getPlotServer(), name), name);
 	}
 
 	/**
@@ -110,7 +109,18 @@ public class ScriptingConnection implements IObservable {
 		
 		
 		if (manager instanceof BeanScriptingManagerImpl) {
-			((BeanScriptingManagerImpl)manager).setConnection(this);
+			
+			BeanScriptingManagerImpl man = (BeanScriptingManagerImpl)manager;
+			man.setConnection(this);
+			
+			GuiBean bean = manager.getGUIInfo();
+			updatePlotMode(bean, false);
+			
+			final PlotEvent evt = new PlotEvent();
+			evt.setDataBeanAvailable(name);
+			evt.setStashedGuiBean(manager.getGUIInfo());
+			man.offer(evt);
+
 		}
 
 		GuiPlotMode plotMode = getPlotMode();

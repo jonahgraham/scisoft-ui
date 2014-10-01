@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.IPeak;
 import uk.ac.diamond.scisoft.analysis.plotclient.BeanScriptingManagerImpl;
-import uk.ac.diamond.scisoft.analysis.plotclient.PlotEvent;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
@@ -116,15 +115,7 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 		// plotConsumer = new PlotConsumer(plotServer, plotViewName, this);
 		parent.setLayout(new FillLayout());
 
-		final GuiBean bean = manager.getGUIBean();
 		plotWindow = createPlotWindow(parent, manager, getViewSite().getActionBars(), this, manager.getViewName());
-		plotWindow.updatePlotMode(bean, false);
-
-		// plotConsumer.addIObserver(this);
-		final PlotEvent evt = new PlotEvent();
-		evt.setDataBeanAvailable(manager.getViewName());
-		evt.setStashedGuiBean(bean);
-		manager.offer(evt);
 
 		//catch any errors from addTool and ignore so view is always created cleanly
 		try {
