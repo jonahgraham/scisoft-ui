@@ -168,7 +168,7 @@ public abstract class AbstractPlottingConnection implements IPlotWindow, IObserv
 		return observers;
 	}
 
-	protected void notifyUpdateFinished() {
+	public void notifyUpdateFinished() {
 		if (notifyListener != null)
 			notifyListener.updateProcessed();
 	}
