@@ -31,7 +31,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 /**
  *
  */
-public class PlottingScatter2DUI extends AbstractPlottingUI {
+class PlottingScatter2DUI extends AbstractPlottingUI {
 
 	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingScatter2DUI";
 	private IPlottingSystem plottingSystem;

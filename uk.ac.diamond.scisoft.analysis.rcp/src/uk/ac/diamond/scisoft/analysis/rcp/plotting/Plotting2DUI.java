@@ -53,7 +53,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 /**
  * Class to create the a 2D/image plotting
  */
-public class Plotting2DUI extends AbstractPlottingUI {
+class Plotting2DUI extends AbstractPlottingUI {
 
 	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.Plotting2DUI";
 

@@ -38,7 +38,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
  * Class to create a 1D plotting
  * 
  */
-public class Plotting1DUI extends AbstractPlottingUI {
+class Plotting1DUI extends AbstractPlottingUI {
 
 	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.Plotting1DUI";
 	private static final Logger logger = LoggerFactory.getLogger(Plotting1DUI.class);

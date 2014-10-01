@@ -29,7 +29,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 /**
  *
  */
-public class PlottingScatter3DUI extends AbstractPlottingUI {
+class PlottingScatter3DUI extends AbstractPlottingUI {
 
 	private Logger logger = LoggerFactory.getLogger(PlottingScatter3DUI.class);
 

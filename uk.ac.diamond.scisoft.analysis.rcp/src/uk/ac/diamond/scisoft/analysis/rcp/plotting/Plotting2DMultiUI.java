@@ -9,13 +9,9 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
-import gda.observable.IObserver;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
@@ -31,7 +27,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 /**
  *
  */
-public class Plotting2DMultiUI extends AbstractPlottingUI {
+class Plotting2DMultiUI extends AbstractPlottingUI {
 
 	private IPlottingSystem plottingSystem;
 

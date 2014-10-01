@@ -9,15 +9,13 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
-import gda.observable.IObserver;
-
 import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
 import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 
-public abstract class AbstractPlottingUI implements IPlottingUI {
+abstract class AbstractPlottingUI implements IPlottingUI {
 
 	@Override
 	public void deactivate(boolean leaveSidePlotOpen) {

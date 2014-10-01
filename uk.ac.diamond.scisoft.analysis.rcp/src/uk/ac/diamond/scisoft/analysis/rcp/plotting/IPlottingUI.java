@@ -18,7 +18,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 /**
  * Generic interface for Plotting UI attached to different Plotters
  */
-public interface IPlottingUI extends PlotActionEventListener, AreaSelectEventListener {
+interface IPlottingUI extends PlotActionEventListener, AreaSelectEventListener {
 
 	/**
 	 * Process a plot update
