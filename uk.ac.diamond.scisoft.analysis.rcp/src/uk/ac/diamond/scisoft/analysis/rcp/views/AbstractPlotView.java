@@ -87,7 +87,6 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 
 	private void init() {
 		this.manager = new BeanScriptingManagerImpl(PlotServerProvider.getPlotServer());
-		
 	}
 
 

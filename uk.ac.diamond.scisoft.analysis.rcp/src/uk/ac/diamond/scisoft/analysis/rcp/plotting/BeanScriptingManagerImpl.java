@@ -86,7 +86,7 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 
 	public void setConnection(AbstractPlottingConnection window) {
 		this.window = window;
-		if (plotThread!=null) start();
+		if (plotThread==null) start();
 	}
 
 	private Thread createPlotEventThread() {
