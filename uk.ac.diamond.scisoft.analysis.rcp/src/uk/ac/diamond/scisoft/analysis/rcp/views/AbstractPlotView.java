@@ -118,7 +118,6 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 
 		final GuiBean bean = manager.getGUIBean();
 		plotWindow = createPlotWindow(parent, manager, getViewSite().getActionBars(), this, manager.getViewName());
-		manager.setConnection(plotWindow);
 		plotWindow.updatePlotMode(bean, false);
 
 		// plotConsumer.addIObserver(this);

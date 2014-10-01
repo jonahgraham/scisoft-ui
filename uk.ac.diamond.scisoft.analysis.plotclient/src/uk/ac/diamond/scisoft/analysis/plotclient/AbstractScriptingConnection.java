@@ -33,6 +33,7 @@ import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.plotclient.connection.AbstractPlotConnection;
 import uk.ac.diamond.scisoft.analysis.plotclient.connection.IPlotConnection;
 import uk.ac.diamond.scisoft.analysis.plotclient.connection.PlotConnectionFactory;
@@ -71,6 +72,16 @@ public abstract class AbstractScriptingConnection implements IPlotWindow, IObser
 	 * @param manager
 	 * @param name
 	 */
+	public AbstractScriptingConnection(String name) {
+		
+		this(new BeanScriptingManagerImpl(PlotServerProvider.getPlotServer()), name);
+	}
+
+	/**
+	 * 
+	 * @param manager
+	 * @param name
+	 */
 	public AbstractScriptingConnection(IBeanScriptingManager manager, String name) {
 		
 		this.manager = manager;
@@ -88,12 +99,20 @@ public abstract class AbstractScriptingConnection implements IPlotWindow, IObser
 	
 	/**
 	 * Call to set the plotting system to which we will connect.
+	 * 
+	 * This must be called!
+	 * 
 	 * @param system
 	 */
 	public void setPlottingSystem(IPlottingSystem system) {
 		
 		this.plottingSystem = system;
 		
+		
+		if (manager instanceof BeanScriptingManagerImpl) {
+			((BeanScriptingManagerImpl)manager).setConnection(this);
+		}
+
 		GuiPlotMode plotMode = getPlotMode();
 		changePlotMode(plotMode == null ? GuiPlotMode.ONED : plotMode);
 	}
