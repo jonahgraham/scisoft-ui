@@ -85,22 +85,4 @@ public class Plotting2DMultiUI extends AbstractPlottingUI {
 	public void deactivate(boolean leaveSidePlotOpen) {
 		
 	}
-
-	private List<IObserver> observers = 
-			Collections.synchronizedList(new LinkedList<IObserver>());
-
-	@Override
-	public void addIObserver(IObserver anIObserver) {
-		observers.add(anIObserver);
-	}
-
-	@Override
-	public void deleteIObserver(IObserver anIObserver) {
-		observers.remove(anIObserver);
-	}
-
-	@Override
-	public void deleteIObservers() {
-		observers.clear();
-	}
 }

@@ -47,15 +47,4 @@ public abstract class AbstractPlottingUI implements IPlottingUI {
 	public void plotActionPerformed(PlotActionEvent event) {
 	}
 
-	@Override
-	public void deleteIObservers() {
-	}
-
-	@Override
-	public void addIObserver(IObserver observer) {
-	}
-
-	@Override
-	public void deleteIObserver(IObserver observer) {
-	}
 }

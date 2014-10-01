@@ -214,21 +214,6 @@ public class Plotting2DUI extends AbstractPlottingUI {
 	}
 
 	@Override
-	public void addIObserver(IObserver anIObserver) {
-		observers.add(anIObserver);
-	}
-
-	@Override
-	public void deleteIObserver(IObserver anIObserver) {
-		observers.remove(anIObserver);
-	}
-
-	@Override
-	public void deleteIObservers() {
-		observers.clear();
-	}
-
-	@Override
 	public void processGUIUpdate(final GuiBean guiBean) {
 		
 		logger.debug("There is a guiBean update: {}", guiBean);

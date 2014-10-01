@@ -9,8 +9,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
-import gda.observable.IObservable;
-
 import org.dawnsci.plotting.jreality.tool.AreaSelectEventListener;
 import org.dawnsci.plotting.jreality.tool.PlotActionEventListener;
 
@@ -20,7 +18,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 /**
  * Generic interface for Plotting UI attached to different Plotters
  */
-public interface IPlottingUI extends IObservable, PlotActionEventListener, AreaSelectEventListener {
+public interface IPlottingUI extends PlotActionEventListener, AreaSelectEventListener {
 
 	/**
 	 * Process a plot update

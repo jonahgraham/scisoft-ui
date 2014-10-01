@@ -9,13 +9,9 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
-import gda.observable.IObserver;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,8 +41,6 @@ public class Plotting1DStackUI extends AbstractPlottingUI {
 	private static final Logger logger = LoggerFactory.getLogger(Plotting1DStackUI.class);
 
 	private IPlottingSystem plottingSystem;
-	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
-
 	/**
 	 * Constructor of a plotting 1D 3D stack
 	 * @param plottingSystem plotting system
@@ -134,18 +128,4 @@ public class Plotting1DStackUI extends AbstractPlottingUI {
 		});
 	}
 
-	@Override
-	public void addIObserver(IObserver anIObserver) {
-		observers.add(anIObserver);
-	}
-
-	@Override
-	public void deleteIObserver(IObserver anIObserver) {
-		observers.remove(anIObserver);
-	}
-
-	@Override
-	public void deleteIObservers() {
-		observers.removeAll(observers);
-	}
 }

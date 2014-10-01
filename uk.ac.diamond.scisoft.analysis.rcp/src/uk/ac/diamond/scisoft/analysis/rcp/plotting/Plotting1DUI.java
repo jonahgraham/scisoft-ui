@@ -9,12 +9,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
-import gda.observable.IObserver;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +45,6 @@ public class Plotting1DUI extends AbstractPlottingUI {
 	private static final int LEGEND_LIMIT = 5; // maximum number of lines for legend otherwise it is not shown
 
 	private IPlottingSystem plottingSystem;
-	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
 
 	/**
 	 * Color idx
@@ -275,18 +270,4 @@ public class Plotting1DUI extends AbstractPlottingUI {
 		return null;
 	}
 
-	@Override
-	public void addIObserver(IObserver anIObserver) {
-		observers.add(anIObserver);
-	}
-
-	@Override
-	public void deleteIObserver(IObserver anIObserver) {
-		observers.remove(anIObserver);
-	}
-
-	@Override
-	public void deleteIObservers() {
-		observers.removeAll(observers);
-	}
 }
