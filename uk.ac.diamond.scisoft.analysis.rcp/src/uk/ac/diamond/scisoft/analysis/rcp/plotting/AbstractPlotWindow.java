@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
-import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
+import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ClearPlottingSystemAction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DuplicatePlotAction;
@@ -72,7 +72,7 @@ public abstract class AbstractPlotWindow extends AbstractPlottingConnection {
 	 * @param page
 	 * @param name
 	 */
-	public AbstractPlotWindow(final Composite parent, IGuiInfoManager manager, IActionBars bars, 
+	public AbstractPlotWindow(final Composite parent, IBeanScriptingManager manager, IActionBars bars, 
 			                  IWorkbenchPage page, String name) {
 		
 		super(manager, name);

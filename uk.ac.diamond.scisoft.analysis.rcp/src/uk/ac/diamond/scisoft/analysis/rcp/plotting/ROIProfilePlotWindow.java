@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
-import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
+import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 
 /**
@@ -105,7 +105,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		this(parent, null, bars, page, name);
 	}
 
-	public ROIProfilePlotWindow(final Composite parent, IGuiInfoManager manager,
+	public ROIProfilePlotWindow(final Composite parent, IBeanScriptingManager manager,
 			                     IActionBars bars, IWorkbenchPage page, String name) {
 		super(parent, manager, bars, page, name);
 		PlotWindowManager.getPrivateManager().registerPlotWindow(this);

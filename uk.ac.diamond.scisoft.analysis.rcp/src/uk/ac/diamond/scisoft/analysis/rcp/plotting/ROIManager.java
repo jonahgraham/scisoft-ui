@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
-import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
+import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 
 /**
  * Class to deal with interactions of regions and ROIs
@@ -38,12 +38,12 @@ public class ROIManager implements IROIListener, IRegionListener {
 	private static Logger logger = LoggerFactory.getLogger(ROIManager.class);
 
 	private IROI roi;
-	private IGuiInfoManager server; // usually plot window
+	private IBeanScriptingManager server; // usually plot window
 	private String plotName;
 	private IPlottingSystem plottingSystem;
 	private ReentrantLock lock;
 
-	public ROIManager(IGuiInfoManager guiManager, String plotName) {
+	public ROIManager(IBeanScriptingManager guiManager, String plotName) {
 		server = guiManager;
 		this.plotName = plotName;
 		lock = new ReentrantLock();

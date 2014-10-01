@@ -39,7 +39,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
-import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
+import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 
 
 /**
@@ -53,7 +53,7 @@ public abstract class AbstractPlottingConnection implements IPlotWindow, IObserv
 	protected String name;
 
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
-	private IGuiInfoManager manager = null;
+	private IBeanScriptingManager manager = null;
 	private IUpdateNotificationListener notifyListener = null;
 	
 	protected DataBean myBeanMemory;
@@ -69,7 +69,7 @@ public abstract class AbstractPlottingConnection implements IPlotWindow, IObserv
 	 * @param manager
 	 * @param name
 	 */
-	public AbstractPlottingConnection(IGuiInfoManager manager, String name) {
+	public AbstractPlottingConnection(IBeanScriptingManager manager, String name) {
 		
 		this.manager = manager;
 		this.name = name;
@@ -135,7 +135,7 @@ public abstract class AbstractPlottingConnection implements IPlotWindow, IObserv
 	 * Returns the IGuiInfoManager of the window
 	 * @return manager
 	 */
-	protected IGuiInfoManager getGuiManager() {
+	protected IBeanScriptingManager getGuiManager() {
 		return manager;
 	}
 

@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
-import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
+import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.views.ExamplePlotView;
 
 /**
@@ -61,7 +61,7 @@ public class ExamplePlotWindow extends AbstractPlotWindow {
 		this(parent, null, bars, page, name);
 	}
 
-	public ExamplePlotWindow(final Composite parent, IGuiInfoManager manager,
+	public ExamplePlotWindow(final Composite parent, IBeanScriptingManager manager,
 			                 IActionBars bars, IWorkbenchPage page, String name) {
 		super(parent, manager, bars, page, name);
 		PlotWindowManager.getPrivateManager().registerPlotWindow(this);

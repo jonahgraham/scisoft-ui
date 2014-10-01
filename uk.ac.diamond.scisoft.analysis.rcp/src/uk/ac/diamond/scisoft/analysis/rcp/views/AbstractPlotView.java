@@ -46,7 +46,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
-import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
+import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.ExamplePlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlottingUI;
@@ -59,7 +59,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlottingUI;
  */
 public abstract class AbstractPlotView extends ViewPart implements ISettablePlotView,
 																   IObserver,
-																   IGuiInfoManager {
+																   IBeanScriptingManager {
 
 	// Adding in some logging to help with getting this running
 	private static final Logger logger = LoggerFactory.getLogger(AbstractPlotView.class);
@@ -224,7 +224,7 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 	 * @return AbstractPlotWindow
 	 */
 	public abstract AbstractPlotWindow createPlotWindow(Composite parent, 
-														IGuiInfoManager manager,
+														IBeanScriptingManager manager,
 														IActionBars bars, 
 														IWorkbenchPage page, 
 														String name);
