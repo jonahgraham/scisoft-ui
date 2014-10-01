@@ -34,12 +34,11 @@ public class PlotWindow extends AbstractPlotWindow {
 	}
 
 	public PlotWindow(Composite parent, GuiPlotMode plotMode, IActionBars bars, IWorkbenchPage page, String name) {
-		this(parent, plotMode, null, null, bars, page, name);
+		this(parent, plotMode, null, bars, page, name);
 	}
 
-	public PlotWindow(final Composite parent, GuiPlotMode plotMode, IGuiInfoManager manager,
-			IUpdateNotificationListener notifyListener, IActionBars bars, IWorkbenchPage page, String name) {
-		super(parent, plotMode, manager, notifyListener, bars, page, name);
+	public PlotWindow(final Composite parent, GuiPlotMode plotMode, IGuiInfoManager manager, IActionBars bars, IWorkbenchPage page, String name) {
+		super(parent, plotMode, manager, bars, page, name);
 		parentAddControlListener();
 		PlotWindowManager.getPrivateManager().registerPlotWindow(this);
 	}

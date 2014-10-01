@@ -16,7 +16,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 
 /**
@@ -61,10 +60,9 @@ public class PlotView extends AbstractPlotView {
 	public AbstractPlotWindow createPlotWindow(Composite parent, 
 												GuiPlotMode plotMode, 
 												IGuiInfoManager manager,
-												IUpdateNotificationListener notifyListener, 
 												IActionBars bars, 
 												IWorkbenchPage page, 
 												String name) {
-		return new PlotWindow(parent, plotMode, manager, notifyListener, bars, page, name);
+		return new PlotWindow(parent, plotMode, manager, bars, page, name);
 	}
 }

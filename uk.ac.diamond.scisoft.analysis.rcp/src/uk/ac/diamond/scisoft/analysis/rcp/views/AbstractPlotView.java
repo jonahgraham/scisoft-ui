@@ -60,8 +60,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
  */
 public abstract class AbstractPlotView extends ViewPart implements ISettablePlotView,
 																   IObserver,
-																   IGuiInfoManager,
-																   IUpdateNotificationListener {
+																   IGuiInfoManager {
 
 	// Adding in some logging to help with getting this running
 	private static final Logger logger = LoggerFactory.getLogger(AbstractPlotView.class);
@@ -201,7 +200,7 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 		parent.setLayout(new FillLayout());
 
 		final GuiBean bean = getGUIBean();
-		plotWindow = createPlotWindow(parent, (GuiPlotMode) bean.get(GuiParameters.PLOTMODE), this, this, getViewSite()
+		plotWindow = createPlotWindow(parent, (GuiPlotMode) bean.get(GuiParameters.PLOTMODE), this, getViewSite()
 				.getActionBars(), getSite().getPage(), plotViewName);
 		plotWindow.updatePlotMode(bean, false);
 
@@ -229,7 +228,6 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 	public abstract AbstractPlotWindow createPlotWindow(Composite parent, 
 														GuiPlotMode plotMode, 
 														IGuiInfoManager manager,
-														IUpdateNotificationListener notifyListener, 
 														IActionBars bars, 
 														IWorkbenchPage page, 
 														String name);
@@ -456,11 +454,6 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 
 	public String getPlotViewName() {
 		return plotViewName;
-	}
-
-	@Override
-	public void updateProcessed() {
-		// do nothing
 	}
 
 	/**

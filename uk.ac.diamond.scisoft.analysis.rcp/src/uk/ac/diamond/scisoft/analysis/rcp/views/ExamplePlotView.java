@@ -17,7 +17,6 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.ExamplePlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
 
 /**
  * Plot View Example<br>
@@ -58,11 +57,10 @@ public class ExamplePlotView extends AbstractPlotView {
 	public AbstractPlotWindow createPlotWindow(Composite parent, 
 												GuiPlotMode plotMode, 
 												IGuiInfoManager manager,
-												IUpdateNotificationListener notifyListener, 
 												IActionBars bars, 
 												IWorkbenchPage page, 
 												String name) {
-		return new ExamplePlotWindow(parent, plotMode, manager, notifyListener, bars, page, name);
+		return new ExamplePlotWindow(parent, plotMode, manager, bars, page, name);
 	}
 
 }

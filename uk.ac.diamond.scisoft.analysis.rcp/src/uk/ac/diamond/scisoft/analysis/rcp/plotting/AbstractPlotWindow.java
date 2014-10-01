@@ -96,17 +96,14 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObservable {
 	 * Constructor
 	 * @param parent
 	 * @param manager
-	 * @param notifyListener
 	 * @param bars
 	 * @param page
 	 * @param name
 	 */
-	public AbstractPlotWindow(final Composite parent, GuiPlotMode plotMode, IGuiInfoManager manager,
-			IUpdateNotificationListener notifyListener, IActionBars bars, 
+	public AbstractPlotWindow(final Composite parent, GuiPlotMode plotMode, IGuiInfoManager manager, IActionBars bars, 
 			IWorkbenchPage page, String name) {
 		this.parentComp = parent;
 		this.manager = manager;
-		this.notifyListener = notifyListener;
 		this.bars = bars;
 		this.page = page;
 		this.name = name;
@@ -115,6 +112,15 @@ public abstract class AbstractPlotWindow implements IPlotWindow, IObservable {
 
 		changePlotMode(plotMode == null ? GuiPlotMode.ONED : plotMode, true);
 	}
+	
+	/**
+	 * Set to null not to recieve updates
+	 * @param listener
+	 */
+	public void setNotifyListener(IUpdateNotificationListener listener) {
+		this.notifyListener = listener;
+	}
+
 
 	/**
 	 * Create the IPlottingSystem and other controls if necessary<br>
