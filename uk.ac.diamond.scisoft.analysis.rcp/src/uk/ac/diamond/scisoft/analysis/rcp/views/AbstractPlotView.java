@@ -26,7 +26,6 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.dawnsci.plotting.api.IPlottingContainer;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPage;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
@@ -62,8 +61,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
 public abstract class AbstractPlotView extends ViewPart implements ISettablePlotView,
 																   IObserver,
 																   IGuiInfoManager,
-																   IUpdateNotificationListener,
-																   IPlottingContainer {
+																   IUpdateNotificationListener {
 
 	// Adding in some logging to help with getting this running
 	private static final Logger logger = LoggerFactory.getLogger(AbstractPlotView.class);
@@ -303,7 +301,6 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 		plotWindow.processGUIUpdate(bean);
 	}
 
-	@Override
 	public IPlottingSystem getPlottingSystem() {
 		return plotWindow.getPlottingSystem();
 	}
