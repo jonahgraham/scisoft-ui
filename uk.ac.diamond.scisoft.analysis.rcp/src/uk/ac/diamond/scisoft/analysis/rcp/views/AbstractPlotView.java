@@ -488,7 +488,7 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 		this.plotServer = plotServer;
 	}
 
-	private AbstractPlotWindow getPlotWindow() {
+	public AbstractPlotWindow getPlotWindow() {
 		return this.plotWindow;
 	}
 
