@@ -39,6 +39,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
+import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
 
 
 /**

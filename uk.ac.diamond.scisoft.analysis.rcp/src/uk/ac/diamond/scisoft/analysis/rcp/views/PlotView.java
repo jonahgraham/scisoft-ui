@@ -13,8 +13,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 
+import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 
 /**

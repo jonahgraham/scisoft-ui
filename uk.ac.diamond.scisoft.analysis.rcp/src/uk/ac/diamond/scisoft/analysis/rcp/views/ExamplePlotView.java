@@ -14,9 +14,9 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
+import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.ExamplePlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
 
 /**
  * Plot View Example<br>

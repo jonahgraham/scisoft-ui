@@ -58,6 +58,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
+import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 
 /**

@@ -16,6 +16,7 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
+import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
 
 /**
  * Actual PlotWindow that can be used inside a View- or EditorPart

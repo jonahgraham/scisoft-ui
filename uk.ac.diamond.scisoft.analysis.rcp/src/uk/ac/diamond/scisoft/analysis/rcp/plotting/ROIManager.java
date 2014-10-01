@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
+import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
 
 /**
  * Class to deal with interactions of regions and ROIs
