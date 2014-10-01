@@ -7,11 +7,11 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.views;
+package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 
-class PlotEvent {
+public class PlotEvent {
 
 	private GuiBean guiBean;
 	private GuiBean stashedGuiBean;

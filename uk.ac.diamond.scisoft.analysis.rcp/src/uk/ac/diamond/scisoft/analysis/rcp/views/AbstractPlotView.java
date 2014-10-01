@@ -13,13 +13,6 @@ import gda.observable.IObserver;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -38,18 +31,17 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.IPeak;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
 import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.BeanScriptingManagerImpl;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.ExamplePlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlottingUI;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotEvent;
 
 /**
  * Abstract Class from which PlotView and ROIProfilePlotView both extend 
@@ -57,9 +49,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlottingUI;
  * it is the replacement of the Data Vector panel inside the new RCP framework
  * (different from uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView)
  */
-public abstract class AbstractPlotView extends ViewPart implements ISettablePlotView,
-																   IObserver,
-																   IBeanScriptingManager {
+public abstract class AbstractPlotView extends ViewPart implements ISettablePlotView {
 
 	// Adding in some logging to help with getting this running
 	private static final Logger logger = LoggerFactory.getLogger(AbstractPlotView.class);
@@ -69,16 +59,10 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 	 */
 	protected String        id;
 	protected AbstractPlotWindow plotWindow;
-	protected String        plotViewName = "Plot View";
 
-	private PlotServer      plotServer;
-	private IPlottingUI         plotUI;
-	private UUID            plotID;
-
-	private Set<IObserver>   dataObservers = Collections.synchronizedSet(new LinkedHashSet<IObserver>());
-
-	private BlockingDeque<PlotEvent> queue;
 	private boolean                  isDisposed;
+	
+	protected BeanScriptingManagerImpl manager;
 
 	/**
 	 * Default Constructor of the plot view
@@ -102,75 +86,10 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 	}
 
 	private void init() {
-		plotID = UUID.randomUUID();
-		logger.info("Plot view uuid: {}", plotID);
-		setPlotServer(PlotServerProvider.getPlotServer());
-		getPlotServer().addIObserver(this);
+		this.manager = new BeanScriptingManagerImpl(PlotServerProvider.getPlotServer());
 		
-		// Blocking queue to which we add plot update events.
-		this.queue = new LinkedBlockingDeque<PlotEvent>(25);
-		
-		// We have a thread which processes the queue
-		Thread plotThread = createPlotEventThread();
-		plotThread.setDaemon(true);
-		plotThread.start();
 	}
 
-	private Thread createPlotEventThread() {
-		return new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (!isDisposed()) {
-					try {
-						PlotEvent event = queue.take();
-						if (event.getStashedGuiBean()==null && event.getGuiBean()==null) {
-							// This event is not of interest
-							continue;
-						}
-						
-						GuiBean bean = event.getStashedGuiBean();
-						String beanLocation = event.getDataBeanAvailable();
-	
-						// if there is a stashedGUIBean to update then do that update first
-						if (bean != null) {
-							event.setStashedGuiBean(null);
-							if (plotWindow != null)
-								plotWindow.processGUIUpdate(bean);
-						}
-	
-						// once the guiBean has been sorted out, see if there is any need to update the dataBean
-						if (beanLocation != null) {
-							event.setDataBeanAvailable(null);
-							try {
-								final DataBean dataBean;
-								dataBean = getPlotServer().getData(beanLocation);
-	
-								if (dataBean == null) continue;
-	
-								// update the GUI if needed
-								GuiBean guiBean = event.getGuiBean();
-								if (guiBean == null) guiBean = new GuiBean();
-
-								// do not add plot mode as this is done in plot window
-								if (dataBean.getGuiParameters() != null) {
-									guiBean.merge(dataBean.getGuiParameters());
-								}
-								if (plotWindow != null) {
-									plotWindow.processPlotUpdate(dataBean);
-								}
-								notifyDataObservers(dataBean);
-							} catch (Exception e) {
-								logger.error("There has been an issue retrieving the databean from the plotserver", e);
-							}
-						}
-					} catch (Throwable ne) {
-						logger.debug("Exception raised in plot server job");
-						continue; // We still keep going until the part is disposed
-					}
-				}
-			}
-		}, "Plot View Update Daemon '"+plotID+"'");
-	}
 
 	protected boolean isDisposed() {
 		return isDisposed;
@@ -182,31 +101,32 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 			// process extension configuration
 			logger.info("ID: {}", getId());
 			final PlotViewConfig config = new PlotViewConfig(id);
-			plotViewName = config.getName();
+			manager.setViewName(config.getName());
 			setPartName(config.getName());
 		} else {
 			// default to the view name
-			plotViewName = getViewSite().getRegisteredName();
+			manager.setViewName( getViewSite().getRegisteredName() );
 			String secondaryId = getViewSite().getSecondaryId();
 			if (secondaryId != null) {
-				plotViewName = secondaryId;
-				setPartName(plotViewName);
+				manager.setViewName(secondaryId);
+				setPartName(secondaryId);
 			}
 		}
-		logger.info("View name is {}", plotViewName);
+		logger.info("View name is {}", manager.getViewName());
 
 		// plotConsumer = new PlotConsumer(plotServer, plotViewName, this);
 		parent.setLayout(new FillLayout());
 
-		final GuiBean bean = getGUIBean();
-		plotWindow = createPlotWindow(parent, this, getViewSite().getActionBars(), getSite().getPage(), plotViewName);
+		final GuiBean bean = manager.getGUIBean();
+		plotWindow = createPlotWindow(parent, manager, getViewSite().getActionBars(), getSite().getPage(), manager.getViewName());
+		manager.setConnection(plotWindow);
 		plotWindow.updatePlotMode(bean, false);
 
 		// plotConsumer.addIObserver(this);
 		final PlotEvent evt = new PlotEvent();
-		evt.setDataBeanAvailable(plotViewName);
+		evt.setDataBeanAvailable(manager.getViewName());
 		evt.setStashedGuiBean(bean);
-		offer(evt);
+		manager.offer(evt);
 
 		//catch any errors from addTool and ignore so view is always created cleanly
 		try {
@@ -256,32 +176,13 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 	public void dispose() {
 		
 		this.isDisposed = true;
-		queue.clear();
-		queue.add(new PlotEvent());
 				
 		if (plotWindow != null) plotWindow.dispose();
+		if (manager    !=null)  manager.dispose();
 
-		getPlotServer().deleteIObserver(this);
 		deleteDataObservers();
 	}
 
-	/**
-	 * Tries to put plot event into queue or 
-	 * drops some events from the queue
-	 * 
-	 * TODO dropping of events should be done if
-	 * the event is a plot update. Region events
-	 * should never be dropped.
-	 * 
-	 * @param evt
-	 */
-	private synchronized void offer(PlotEvent evt) {
-		if (queue.offer(evt)) return;
-		queue.remove(); // drop the head - TODO FIXME not region events!
-		if (!queue.offer(evt)) {
-			throw new RuntimeException("Cannot offer plot events to queue!");
-		}
-	}
 
 	public void updatePlotMode(GuiPlotMode mode) {
 		plotWindow.updatePlotMode(mode, true);
@@ -300,43 +201,6 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 		return plotWindow.getPlottingSystem();
 	}
 
-	@Override
-	public void update(Object theObserved, Object changeCode) {
-		
-		if (changeCode instanceof String && changeCode.equals(plotViewName)) {
-			logger.debug("Getting a plot data update for {}; thd {}",  plotViewName, Thread.currentThread().getId());
-			GuiBean     guiBean = getGUIBean();
-			final PlotEvent evt = new PlotEvent();
-			evt.setDataBeanAvailable(plotViewName);
-			evt.setGuiBean(guiBean);
-			offer(evt);
-			
-		} else if (changeCode instanceof GuiUpdate) {
-			GuiUpdate gu = (GuiUpdate) changeCode;
-			if (gu.getGuiName().contains(plotViewName)) {
-				
-				GuiBean        bean = gu.getGuiData();
-				final PlotEvent evt = new PlotEvent();
-				GuiBean     guiBean = getGUIBean();
-				
-				UUID id = (UUID) bean.get(GuiParameters.PLOTID);
-				if (id == null || plotID.compareTo(id) != 0) { // filter out own beans
-					logger.debug("Getting a plot gui update for {}; thd {}; bean {}", new Object[] {plotViewName, Thread.currentThread().getId(), bean});
-					if (guiBean == null) {
-						guiBean = bean.copy(); // cache a local copy
-					} else {
-						guiBean.merge(bean); // or merge it
-					}
-					guiBean.remove(GuiParameters.ROICLEARALL); // this parameter must not persist
-					evt.setStashedGuiBean(bean);
-					evt.setGuiBean(guiBean);
-					offer(evt);
-				}
-			}
-		}
-	}
-
-
 	/**
 	 * Allow another observer to see plot data.
 	 * <p>
@@ -345,7 +209,7 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 	 * @param observer
 	 */
 	public void addDataObserver(IObserver observer) {
-		dataObservers.add(observer);
+		manager.addDataObserver(observer);
 	}
 
 	/**
@@ -354,86 +218,20 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 	 * @param observer
 	 */
 	public void deleteDataObserver(IObserver observer) {
-		dataObservers.remove(observer);
+		manager.deleteDataObserver(observer);
 	}
 
 	/**
 	 * Remove all data observers
 	 */
 	public void deleteDataObservers() {
-		dataObservers.clear();
+		manager.deleteDataObservers();
 	}
 
 	public void notifyDataObservers(DataBean bean) {
-		Iterator<IObserver> iter = dataObservers.iterator();
-		while (iter.hasNext()) {
-			IObserver ob = iter.next();
-			ob.update(this, bean);
-		}
+		manager.notifyDataObservers(bean);
 	}
 
-	/**
-	 * Get gui information from plot server
-	 */
-	@Override
-	public GuiBean getGUIInfo() {
-		return getGUIBean();
-	}
-
-	private GuiBean getGUIBean() {
-		GuiBean guiBean = null;
-		try {
-			guiBean = getPlotServer().getGuiState(plotViewName);
-		} catch (Exception e) {
-			logger.warn("Problem with getting GUI data from plot server");
-		}
-		if (guiBean == null) {
-			logger.error("This should not happen!");
-			guiBean = new GuiBean();
-		}
-		return guiBean;
-	}
-
-	/**
-	 * Push GUI information back to plot server
-	 * 
-	 * @param key
-	 * @param value
-	 */
-	@Override
-	public void putGUIInfo(GuiParameters key, Serializable value) {
-		GuiBean guiBean = getGUIBean();
-
-		guiBean.put(key, value);
-
-		sendGUIInfo(guiBean);
-	}
-
-	/**
-	 * Remove GUI information from plot server
-	 * 
-	 * @param key
-	 */
-	@Override
-	public void removeGUIInfo(GuiParameters key) {
-		GuiBean guiBean = getGUIBean();
-
-		guiBean.remove(key);
-
-		sendGUIInfo(guiBean);
-	}
-
-	@Override
-	public void sendGUIInfo(GuiBean guiBean) {
-		guiBean.put(GuiParameters.PLOTID, plotID); // put plotID in bean
-
-		try {
-			getPlotServer().updateGui(plotViewName, guiBean);
-		} catch (Exception e) {
-			logger.warn("Problem with updating plot server with GUI data");
-			e.printStackTrace();
-		}
-	}
 
 	@Override
 	public void updateData(Serializable data, Class<?> clazz) {
@@ -441,23 +239,16 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 			ArrayList<?> list = (ArrayList<?>) data;
 			if (clazz.getName().equals(IPeak.class.getName())) {
 				if (list.isEmpty()) {
-					this.removeGUIInfo(GuiParameters.FITTEDPEAKS);
+					manager.removeGUIInfo(GuiParameters.FITTEDPEAKS);
 				} else {
-					this.putGUIInfo(GuiParameters.FITTEDPEAKS, list);
+					manager.putGUIInfo(GuiParameters.FITTEDPEAKS, list);
 				}
 			}
 		}
 	}
 
 	public String getPlotViewName() {
-		return plotViewName;
-	}
-
-	/**
-	 * @return plot UI
-	 */
-	private IPlottingUI getPlotUI() {
-		return plotUI;
+		return manager.getViewName();
 	}
 
 	/**
@@ -465,14 +256,6 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 	 */
 	private String getId() {
 		return id;
-	}
-
-	private PlotServer getPlotServer() {
-		return plotServer;
-	}
-
-	private void setPlotServer(PlotServer plotServer) {
-		this.plotServer = plotServer;
 	}
 
 	public AbstractPlotWindow getPlotWindow() {
