@@ -30,6 +30,7 @@ import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.region.IRegion;
+import org.eclipse.dawnsci.plotting.api.trace.ITraceListener.Stub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +85,7 @@ public class ScriptingConnection implements IObservable {
 	public ScriptingConnection(IBeanScriptingManager manager, String name) {
 		
 		this.manager = manager;
-		this.name = name;
+		this.name    = name;
 		roiManager = new ROIManager(manager, name);
 	}
 	
@@ -105,14 +106,18 @@ public class ScriptingConnection implements IObservable {
 	 */
 	public void setPlottingSystem(IPlottingSystem system) {
 		
+		if (plottingSystem!=null) throw new IllegalArgumentException("The plotting system has already been set!");
+		
 		this.plottingSystem = system;
 		
+		system.addRegionListener(getRoiManager());
+		system.addTraceListener(getRoiManager().getTraceListener());
 		
 		if (manager instanceof BeanScriptingManagerImpl) {
 			
 			BeanScriptingManagerImpl man = (BeanScriptingManagerImpl)manager;
 			man.setConnection(this);
-			
+							
 			GuiBean bean = manager.getGUIInfo();
 			updatePlotMode(bean, false);
 			
@@ -524,20 +529,20 @@ public class ScriptingConnection implements IObservable {
 	}
 
 	public void dispose() {
+		
 		if (plotConnection != null) {
 			plotConnection.deactivate(false);
 			plotConnection.dispose();
 		}
 		try {
-			if (plottingSystem != null){//&& !plottingSystem.isDisposed()) {
+			if (plottingSystem != null && !plottingSystem.isDisposed()) {
+				plottingSystem.removeTraceListener(getRoiManager().getTraceListener());
 				plottingSystem.removeRegionListener(getRoiManager());
-				plottingSystem.dispose();
 			}
 		} catch (Exception ne) {
 			logger.debug("Cannot clean up plotter!", ne);
 		}
 		deleteIObservers();
 		plotConnection = null;
-		System.gc();
 	}
 }

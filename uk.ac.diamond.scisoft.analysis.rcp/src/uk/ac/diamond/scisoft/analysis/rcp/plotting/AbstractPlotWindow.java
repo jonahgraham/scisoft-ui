@@ -104,8 +104,6 @@ public abstract class AbstractPlotWindow extends ScriptingConnection implements 
 			system.setColorOption(ColorOption.NONE);
 			system.createPlotPart(composite, getName(), bars, PlotType.XY, part);
 			system.repaint();
-			system.addRegionListener(getRoiManager());
-			system.addTraceListener(getRoiManager().getTraceListener());
 			setPlottingSystem(system);
 		} catch (Exception e) {
 			logger.error("Cannot locate any plotting System!", e);

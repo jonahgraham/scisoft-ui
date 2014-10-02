@@ -9,8 +9,6 @@
 
 package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 
-import gda.observable.IObserver;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -58,7 +56,6 @@ class Plotting2DUI extends AbstractPlotConnection {
 	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.Plotting2DUI";
 
 	private IPlottingSystem plottingSystem;
-	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
 	private IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
 
 	private static final Logger logger = LoggerFactory.getLogger(Plotting2DUI.class);

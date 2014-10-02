@@ -43,18 +43,19 @@ public class ROIManager implements IROIListener, IRegionListener {
 	private IPlottingSystem plottingSystem;
 	private ReentrantLock lock;
 
-	public ROIManager(IBeanScriptingManager guiManager, String plotName) {
+	ROIManager(IBeanScriptingManager guiManager, String plotName) {
 		server = guiManager;
 		this.plotName = plotName;
 		lock = new ReentrantLock();
 	}
 
+	private ITraceListener traceListener;
 	/**
 	 * Return the Trace Listener to be added to the PlottingSystem
 	 * @return ITraceListener
 	 */
 	public ITraceListener getTraceListener() {
-		return new ITraceListener.Stub() {
+		if (traceListener==null) traceListener = new ITraceListener.Stub() {
 			@Override
 			public void traceUpdated(TraceEvent evt) {
 				addCurrentROI(true, true);
@@ -65,6 +66,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 				addCurrentROI(true, true);
 			}
 		};
+		return traceListener;
 	}
 
 	private IPlottingSystem getPlottingSystem() {
