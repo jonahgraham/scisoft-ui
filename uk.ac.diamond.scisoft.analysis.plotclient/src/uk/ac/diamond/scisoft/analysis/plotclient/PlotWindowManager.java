@@ -210,8 +210,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 	@Override
 	public String openView(IWorkbenchPage page, String viewName) {
 		try {
-			if (viewName == null)
-				viewName = getUniqueName("Plot 0", page);
+			if (viewName == null) viewName = getUniqueName("Plot 0", page);
 			openViewInternal(page, viewName);
 			return viewName;
 		} catch (PartInitException e) {
