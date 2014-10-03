@@ -12,9 +12,8 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "uk.ac.diamond.scisoft.analysis.plotclient";
 
 	// The shared instance
-	private static Activator plugin;
-
-	private BundleContext context;
+	private static Activator     plugin;
+	private static BundleContext context;
 	
 	/**
 	 * The constructor
@@ -26,9 +25,9 @@ public class Activator extends AbstractUIPlugin {
 	 * (non-Javadoc)
 	 * @see org.eclipse.core.runtime.Plugins#start(org.osgi.framework.BundleContext)
 	 */
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		this.context = context;
+	public void start(BundleContext c) throws Exception {
+		super.start(c);
+		context = c;
 		plugin = this;
 	}
 
@@ -36,10 +35,10 @@ public class Activator extends AbstractUIPlugin {
 	 * (non-Javadoc)
 	 * @see org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
 	 */
-	public void stop(BundleContext context) throws Exception {
+	public void stop(BundleContext c) throws Exception {
 		plugin = null;
-		this.context = null;
-		super.stop(context);
+		context = null;
+		super.stop(c);
 	}
 
 	/**
@@ -66,10 +65,10 @@ public class Activator extends AbstractUIPlugin {
 	 * @return
 	 */
 	public static Object getService(Class<?> clazz) {
-		if (plugin.context==null) return null;
-		ServiceReference<?> ref = plugin.context.getServiceReference(clazz);
+		if (context==null) return null;
+		ServiceReference<?> ref = context.getServiceReference(clazz);
 		if (ref==null) return null;
-		return plugin.context.getService(ref);
+		return context.getService(ref);
 	}
 
 }
