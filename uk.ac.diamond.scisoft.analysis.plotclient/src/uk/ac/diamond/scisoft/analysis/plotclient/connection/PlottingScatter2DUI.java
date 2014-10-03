@@ -32,8 +32,6 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
  *
  */
 class PlottingScatter2DUI extends AbstractPlotConnection {
-
-	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingScatter2DUI";
 	private IPlottingSystem plottingSystem;
 	private Logger logger = LoggerFactory.getLogger(PlottingScatter2DUI.class);
 

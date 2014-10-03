@@ -52,9 +52,6 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
  * Class to create the a 2D/image plotting
  */
 class Plotting2DUI extends AbstractPlotConnection {
-
-	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.Plotting2DUI";
-
 	private IPlottingSystem plottingSystem;
 	private IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
 

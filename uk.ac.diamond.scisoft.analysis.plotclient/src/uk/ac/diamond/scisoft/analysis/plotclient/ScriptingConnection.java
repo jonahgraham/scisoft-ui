@@ -30,7 +30,6 @@ import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.region.IRegion;
-import org.eclipse.dawnsci.plotting.api.trace.ITraceListener.Stub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +89,7 @@ public class ScriptingConnection implements IObservable {
 	}
 	
 	/**
-	 * Set to null not to recieve updates
+	 * Set to null not to receive updates
 	 * @param listener
 	 */
 	public void setNotifyListener(IUpdateNotificationListener listener) {
@@ -169,7 +168,7 @@ public class ScriptingConnection implements IObservable {
 	}
 
 	/**
-	 * Returns the IGuiInfoManager of the window
+	 * Returns the IBeanScriptingManager of the window
 	 * @return manager
 	 */
 	protected IBeanScriptingManager getGuiManager() {

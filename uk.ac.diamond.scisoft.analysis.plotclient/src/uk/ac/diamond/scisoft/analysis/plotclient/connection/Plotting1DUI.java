@@ -38,19 +38,17 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
  * 
  */
 class Plotting1DUI extends AbstractPlotConnection {
-
-	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.Plotting1DUI";
 	private static final Logger logger = LoggerFactory.getLogger(Plotting1DUI.class);
 	private static final int LEGEND_LIMIT = 5; // maximum number of lines for legend otherwise it is not shown
 
 	private IPlottingSystem plottingSystem;
 
 	/**
-	 * Color idx
+	 * Colour idx
 	 */
 	private int idx;
 	/**
-	 * trace color
+	 * trace colour
 	 */
 //	private Color plotColor;
 

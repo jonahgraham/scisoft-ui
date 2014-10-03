@@ -13,10 +13,10 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 public class PlotConnectionFactory {
 
 	/**
-	 * Get the connection whilst sheilding the concrete implementation.
+	 * Get the connection whilst shielding the concrete implementation
 	 * @param plotMode
 	 * @param plottingSystem
-	 * @return
+	 * @return connection
 	 */
 	public static AbstractPlotConnection getConnection(GuiPlotMode plotMode, IPlottingSystem plottingSystem) {
 		
