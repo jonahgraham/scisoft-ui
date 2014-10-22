@@ -48,8 +48,8 @@ public interface IPlotWindowManager {
 	public static final String PLOT_VIEW_MULTIPLE_ID = "uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple";
 
 	
-	public static final String RPC_SERVICE_NAME = "PlotWindowManager";
-	public static final String RMI_SERVICE_NAME = "RMIPlotWindowManager";
+	public static final String RPC_WINDOW_SERVICE_NAME = "PlotWindowManager";
+	public static final String RMI_WINDOW_SERVICE_NAME = "RMIPlotWindowManager";
 
 	/**
 	 * Create and open a view with a new unique name and fill the view's GuiBean and DataBean with a copy of viewName's

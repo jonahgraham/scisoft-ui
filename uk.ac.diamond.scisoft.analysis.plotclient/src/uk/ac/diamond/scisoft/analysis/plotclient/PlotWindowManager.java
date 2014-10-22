@@ -66,7 +66,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 
 			// register as an RMI service
 			try {
-				RMIServerProvider.getInstance().exportAndRegisterObject(RMI_SERVICE_NAME,
+				RMIServerProvider.getInstance().exportAndRegisterObject(RMI_WINDOW_SERVICE_NAME,
 						new RMIPlotWindowManger());
 			} catch (Exception e) {
 				logger.warn("Unable to register PlotWindowManager for use over RMI - it might be disabled", e);
@@ -75,7 +75,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 			try {
 				// register as an RPC service
 				IAnalysisRpcHandler dispatcher = new AnalysisRpcSyncExecDispatcher(IPlotWindowManager.class, manager);
-				AnalysisRpcServerProvider.getInstance().addHandler(RPC_SERVICE_NAME, dispatcher);
+				AnalysisRpcServerProvider.getInstance().addHandler(RPC_WINDOW_SERVICE_NAME, dispatcher);
 			} catch (Exception e) {
 				logger.warn("Not registered PlotWindowManager as RPC service - but might be disabled");
 			}
