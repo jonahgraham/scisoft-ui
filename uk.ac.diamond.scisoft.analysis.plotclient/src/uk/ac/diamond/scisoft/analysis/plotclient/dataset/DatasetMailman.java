@@ -103,11 +103,11 @@ public class DatasetMailman implements IDatasetMailman, Remote {
 	private ListenerList listeners;
 
 	@Override
-	public void send(Map<String, IDataset> data) {
+	public void send(String datasetName, Map<String, IDataset> data) {
 		
 		if (listeners==null) return;
 		
-		final DataMailEvent evt = new DataMailEvent(this, data);
+		final DataMailEvent evt = new DataMailEvent(this, datasetName, data);
 		for (Object listener : listeners.getListeners()) {
 			((IDataMailListener)listener).mailReceived(evt);
 		}

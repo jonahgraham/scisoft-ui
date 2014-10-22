@@ -30,7 +30,7 @@ public interface IDatasetMailman {
 	 * Send some data from python to java
 	 * @param data
 	 */
-	public void send(Map<String, IDataset> data);
+	public void send(String datasetName, Map<String, IDataset> data);
 	
 	/**
 	 * Get some data or null if the data does not exist.
