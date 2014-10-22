@@ -35,7 +35,7 @@ public class PlotWindowManagerRPCPluginTest extends PlotWindowManagerPluginTestA
 			@Override
 			public String openView(IWorkbenchPage page, String viewName) {
 				try {
-					return (String) AnalysisRpcClientProvider.getInstance().request(IPlotWindowManager.RPC_SERVICE_NAME,
+					return (String) AnalysisRpcClientProvider.getInstance().request(IPlotWindowManager.RPC_WINDOW_SERVICE_NAME,
 							"openView", null, viewName);
 				} catch (AnalysisRpcException e) {
 					throw new RuntimeException(e);
@@ -45,7 +45,7 @@ public class PlotWindowManagerRPCPluginTest extends PlotWindowManagerPluginTestA
 			@Override
 			public String openDuplicateView(IWorkbenchPage page, String viewName) {
 				try {
-					return (String) AnalysisRpcClientProvider.getInstance().request(IPlotWindowManager.RPC_SERVICE_NAME,
+					return (String) AnalysisRpcClientProvider.getInstance().request(IPlotWindowManager.RPC_WINDOW_SERVICE_NAME,
 							"openDuplicateView", null, viewName);
 				} catch (AnalysisRpcException e) {
 					throw new RuntimeException(e);
@@ -55,7 +55,7 @@ public class PlotWindowManagerRPCPluginTest extends PlotWindowManagerPluginTestA
 			@Override
 			public String[] getOpenViews() {
 				try {
-					return (String[]) AnalysisRpcClientProvider.getInstance().request(IPlotWindowManager.RPC_SERVICE_NAME,
+					return (String[]) AnalysisRpcClientProvider.getInstance().request(IPlotWindowManager.RPC_WINDOW_SERVICE_NAME,
 							"getOpenViews");
 				} catch (AnalysisRpcException e) {
 					throw new RuntimeException(e);
