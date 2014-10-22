@@ -70,11 +70,22 @@ public class DatasetMailman implements IDatasetMailman, Remote {
 		}
 	}
 	
+	/**
+	 * This is what you call in the Java code to get the mailman and
+	 * add a listener to it which is notified of datasets being sent
+	 * from Python.
+	 * 
+	 * @return
+	 */
 	public static IDatasetMailman getLocalManager() {
 		if (manager==null) init();
 		return manager;
 	}
 
+	/**
+	 * This is used from Jython do not call it from the Java code.
+	 * @return
+	 */
 	public static IDatasetMailman getRemoteManager() {
 		try {
 			return (DatasetMailman) RMIClientProvider.getInstance().lookup(null, RMI_DATASET_SERVICE_NAME);
