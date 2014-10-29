@@ -23,6 +23,8 @@ import org.dawb.common.ui.monitor.ProgressMonitorWrapper;
 import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
+import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ISelection;
@@ -40,8 +42,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 /**
@@ -162,7 +162,7 @@ public class ExportWizardPage1 extends WizardPage {
 
 							// Attempt to use meta data, save memory
 							final IFile file = (IFile) o;
-							final IMetaData meta = LoaderFactory.getMetaData(
+							final IMetadata meta = LoaderFactory.getMetadata(
 									file.getLocation().toOSString(),
 									new ProgressMonitorWrapper(monitor));
 							if (meta != null) {
