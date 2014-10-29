@@ -20,6 +20,11 @@ package uk.ac.diamond.scisoft.mappingexplorer.views.twod;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.Slice;
@@ -45,11 +50,6 @@ import org.eclipse.dawnsci.plotting.api.tool.ToolChangeEvent;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.dawnsci.plotting.api.trace.ITraceListener;
 import org.eclipse.dawnsci.plotting.api.trace.TraceEvent;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.jface.viewers.ISelection;
@@ -210,9 +210,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 					if (!plottingSystem.getTraces().isEmpty()) {
 						ITrace trace = plottingSystem.getTraces().iterator().next();
 						IDataset datasetFromTrace = trace.getData();
-						double intensityValue = datasetFromTrace.getDouble(new int[] { yPoint, xPoint });
-
-						lblIntensityValue.setText(Double.toString(intensityValue));
+						lblIntensityValue.setText(datasetFromTrace.getString(yPoint, xPoint));
 
 					}
 				}
