@@ -458,7 +458,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				cell.setText(String.valueOf(sf.getIndex()));
 			} else {
 				cell.setText(sf.toString());
-				if (!sf.hasMetaValue()) {
+				if (!sf.hasMetadataValue()) {
 					colour = display.getSystemColor(SWT.COLOR_YELLOW);
 				}
 			}
@@ -1140,10 +1140,10 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			List<List<AxisSelection>> axesList = new ArrayList<List<AxisSelection>>();
 
 			for (SelectedFile f : fileList) {
-				if (f.doUse() && f.hasData() && f.hasMetaValue()) {
+				if (f.doUse() && f.hasData() && f.hasMetadataValue()) {
 					f.setDataOK(true); // blindly set okay (check later)
-					dataList.addAll(f.getData());
-					metaList.add(f.getMetaValue());
+					dataList.addAll(f.getDataset());
+					metaList.add(f.getMetadataValue());
 					axesList.add(new ArrayList<AxisSelection>(f.getAxisSelections()));
 				}
 			}
@@ -1171,7 +1171,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			final int axis = extend ? 0 : -1;
 			for (int k = fileList.size() - 1; k >= 0 && j > 0; k--) {
 				SelectedFile f = fileList.get(k);
-				if (f.doUse() && f.hasData() && f.hasMetaValue()) {
+				if (f.doUse() && f.hasData() && f.hasMetadataValue()) {
 					boolean ok = AbstractDataset.areShapesCompatible(s, shapes[j], axis);
 					f.setDataOK(ok);
 					if (!ok) {
@@ -1187,11 +1187,11 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			for (SelectedNode expr : expressionList) {
 				if (expr.doUse() && expr.hasData()) {
 					expr.setDataOK(true); // blindly set okay (check later)
-					List<ILazyDataset> exprData = expr.getData();
+					List<ILazyDataset> exprData = expr.getDataset();
 					dataList.addAll(exprData);
 					Iterator<ILazyDataset> itr = exprData.iterator();
 					while (itr.hasNext()) {
-						metaList.add(expr.getMetaValue());
+						metaList.add(expr.getMetadataValue());
 						axesList.add(new ArrayList<AxisSelection>(expr.getAxisSelections()));
 						itr.next();
 					}
@@ -1227,10 +1227,10 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	 */
 	private void setMetaValuesAsIndexes() {
 		for (SelectedFile f : fileList) {
-			f.setMetaValueAsIndex();
+			f.setMetadataValueAsIndex();
 		}
 		for (SelectedNode expr : expressionList) {
-			expr.setMetaValueAsIndex();
+			expr.setMetadataValueAsIndex();
 		}
 	}
 
@@ -1249,7 +1249,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					continue;
 				}
 			}
-			f.setMetaValue(key);
+			f.setMetadataValue(key);
 		}
 	}
 
@@ -1269,7 +1269,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					continue;
 				}
 			}
-			f.setData(key);
+			f.setDataset(key);
 		}
 	}
 
@@ -1284,7 +1284,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			laxes.add(as.clone());
 
 		for (SelectedObject f : selectedList) {
-			if (f.doUse() && f.hasData() && (useRowIndexAsValue || f.hasMetaValue())) {
+			if (f.doUse() && f.hasData() && (useRowIndexAsValue || f.hasMetadataValue())) {
 				if (isFirst) {
 					isFirst = false;
 					f.setAxisSelections(laxes);
@@ -1562,7 +1562,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			return d != null;
 		}
 
-		public boolean hasMetaValue() {
+		public boolean hasMetadataValue() {
 			return hasMV;
 		}
 
@@ -1570,11 +1570,11 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			return m != null;
 		}
 
-		public List<ILazyDataset> getData() {
+		public List<ILazyDataset> getDataset() {
 			return d;
 		}
 
-		public ILazyDataset getMetaValue() {
+		public ILazyDataset getMetadataValue() {
 			if (!hasMV) {
 				return null;
 			}
@@ -1584,13 +1584,13 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			return DatasetFactory.createFromObject(mv);
 		}
 
-		public void setMetaValueAsIndex() {
+		public void setMetadataValueAsIndex() {
 			hasMV = true;
 			mv = i;
 		}
 
 		@SuppressWarnings("unused")
-		public void setMetaValue(String key) {
+		public void setMetadataValue(String key) {
 			if (m == null) {
 				hasMV = false;
 				return;
@@ -1707,7 +1707,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			}
 		}
 
-		public void setData(String key) {
+		public void setDataset(String key) {
 			if (h.contains(key)) {
 				d = new ArrayList<ILazyDataset>();
 				d.add(h.getLazyDataset(key));
@@ -1725,7 +1725,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			}
 		}
 
-//		public void resetData() {
+//		public void resetDataset() {
 //			d = null;
 //		}
 
@@ -1735,7 +1735,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 
 		@Override
-		public void setMetaValue(String key) {
+		public void setMetadataValue(String key) {
 			if (m == null) {
 				hasMV = false;
 				return;
@@ -1941,7 +1941,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			
 			final List<ILazyDataset> dataList = new ArrayList<ILazyDataset>();
 			for (SelectedObject obj : varMap.getDatasets()) {
-				dataList.addAll(obj.getData());
+				dataList.addAll(obj.getDataset());
 			}
 			
 			switch (mathOp) {
@@ -2019,7 +2019,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		
 		@SuppressWarnings("unchecked")
 		@Override
-		public List<ILazyDataset> getData() {
+		public List<ILazyDataset> getDataset() {
 			// Generate all combinations of datasets assigned to variables
 			List<String> varNameList = new ArrayList<String>(symbolTable.keySet());
 			Map<String, List<ILazyDataset>> varMap = new HashMap<String, List<ILazyDataset>>();
@@ -2074,9 +2074,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 						return null;
 					}
 					if (tmpShape == null) {
-						tmpShape = sf.getData().get(0).getShape();	// All datasets should be the same shape 
+						tmpShape = sf.getDataset().get(0).getShape();	// All datasets should be the same shape 
 					} else {
-						if (!AbstractDataset.areShapesCompatible(tmpShape, sf.getData().get(0).getShape(), -1)) {
+						if (!AbstractDataset.areShapesCompatible(tmpShape, sf.getDataset().get(0).getShape(), -1)) {
 							return null;
 						}
 					}
