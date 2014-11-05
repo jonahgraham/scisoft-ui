@@ -13,13 +13,13 @@ import java.util.Iterator;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
-import org.eclipse.dawnsci.hdf5.api.HDF5Attribute;
-import org.eclipse.dawnsci.hdf5.api.HDF5Dataset;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.SymbolicNode;
 import org.eclipse.dawnsci.hdf5.api.HDF5File;
-import org.eclipse.dawnsci.hdf5.api.HDF5Group;
-import org.eclipse.dawnsci.hdf5.api.HDF5Node;
-import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
-import org.eclipse.dawnsci.hdf5.api.HDF5SymLink;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILazyTreeContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -120,11 +120,11 @@ public class HDF5TableTree extends Composite {
 					ITreeSelection sel = (ITreeSelection) tViewer.getSelection();
 					Object obj = sel.getFirstElement();
 					boolean enable = false;
-					if (obj instanceof HDF5NodeLink) {
-						HDF5NodeLink link = (HDF5NodeLink) obj;
-						enable = link.isDestinationADataset() && !((HDF5Dataset) link.getDestination()).isString();
-					} else if (obj instanceof HDF5Attribute) {
-						enable = !((HDF5Attribute) obj).isString();
+					if (obj instanceof NodeLink) {
+						NodeLink link = (NodeLink) obj;
+						enable = link.isDestinationData() && !((DataNode) link.getDestination()).isString();
+					} else if (obj instanceof Attribute) {
+						enable = !((Attribute) obj).isString();
 					}
 
 					for (MenuItem m : treeMenu.getItems()) {
@@ -184,12 +184,12 @@ public class HDF5TableTree extends Composite {
 
 	public static int countChildren(Object element, TreeFilter filter) {
 		int count = 0;
-		if (element instanceof HDF5Attribute) {
+		if (element instanceof Attribute) {
 			return 0;
 		}
 
-		if (element instanceof HDF5NodeLink) {
-			HDF5Node node = ((HDF5NodeLink) element).getDestination();
+		if (element instanceof NodeLink) {
+			Node node = ((NodeLink) element).getDestination();
 
 			Iterator<String> iter = node.getAttributeNameIterator();
 			while (iter.hasNext()) {
@@ -197,8 +197,8 @@ public class HDF5TableTree extends Composite {
 					count++;
 			}
 
-			if (node instanceof HDF5Group) {
-				HDF5Group group = (HDF5Group) node;
+			if (node instanceof GroupNode) {
+				GroupNode group = (GroupNode) node;
 				Iterator<String> nIter = group.getNodeNameIterator();
 				while (nIter.hasNext()) {
 					if (filter.select(nIter.next()))
@@ -206,7 +206,7 @@ public class HDF5TableTree extends Composite {
 				}
 			}
 
-			if (node instanceof HDF5Dataset) {
+			if (node instanceof DataNode) {
 				// do nothing?
 			}
 
@@ -218,7 +218,7 @@ public class HDF5TableTree extends Composite {
 	/**
 	 * @param tree given by a node link
 	 */
-	public void setInput(HDF5NodeLink tree) {
+	public void setInput(NodeLink tree) {
 		if (tViewer != null && tViewer.getContentProvider() != null) {
 		    tViewer.setInput(tree);
 //		    TODO decide whether this is needed
@@ -275,11 +275,11 @@ class HDF5LazyContentProvider implements ILazyTreeContentProvider {
 
 	@Override
 	public Object getParent(Object element) {
-		if (element == null || !(element instanceof HDF5NodeLink)) {
+		if (element == null || !(element instanceof NodeLink)) {
 			return null;
 		}
 
-		HDF5Node node = ((HDF5NodeLink) element).getSource();
+		Node node = ((NodeLink) element).getSource();
 		if (node == null)
 			return element;
 		return node;
@@ -295,13 +295,13 @@ class HDF5LazyContentProvider implements ILazyTreeContentProvider {
 
 	@Override
 	public void updateElement(Object parent, final int index) {
-		if (parent instanceof HDF5Attribute) {
+		if (parent instanceof Attribute) {
 			return;
 		}
 
-		assert parent instanceof HDF5NodeLink : "Not an attribute or a link";
+		assert parent instanceof NodeLink : "Not an attribute or a link";
 
-		HDF5Node pNode = ((HDF5NodeLink) parent).getDestination();
+		Node pNode = ((NodeLink) parent).getDestination();
 
 		int count = 0;
 		Iterator<String> iter = pNode.getAttributeNameIterator();
@@ -309,7 +309,7 @@ class HDF5LazyContentProvider implements ILazyTreeContentProvider {
 			String name = iter.next();
 			if (filter.select(name)) {
 				if (index == count) {
-					HDF5Attribute a = pNode.getAttribute(name);
+					Attribute a = pNode.getAttribute(name);
 					viewer.replace(parent, index, a);
 					updateChildCount(a, -1);
 					return;
@@ -318,13 +318,13 @@ class HDF5LazyContentProvider implements ILazyTreeContentProvider {
 			}
 		}
 
-		if (pNode instanceof HDF5Group) {
-			for (HDF5NodeLink link : (HDF5Group) pNode) {
-				if (link.isDestinationASymLink()) {
-					HDF5SymLink slink = (HDF5SymLink) link.getDestination();
+		if (pNode instanceof GroupNode) {
+			for (NodeLink link : (GroupNode) pNode) {
+				if (link.isDestinationSymbolic()) {
+					SymbolicNode slink = (SymbolicNode) link.getDestination();
 					link = slink.getNodeLink();
 				}
-				if (link.isDestinationAGroup()) {
+				if (link.isDestinationGroup()) {
 					String name = link.getName();
 					if (filter.select(name)) {
 						if (index == count) {
@@ -337,12 +337,12 @@ class HDF5LazyContentProvider implements ILazyTreeContentProvider {
 				}
 			}
 
-			for (HDF5NodeLink link : (HDF5Group) pNode) {
-				if (link.isDestinationASymLink()) {
-					HDF5SymLink slink = (HDF5SymLink) link.getDestination();
+			for (NodeLink link : (GroupNode) pNode) {
+				if (link.isDestinationSymbolic()) {
+					SymbolicNode slink = (SymbolicNode) link.getDestination();
 					link = slink.getNodeLink();
 				}
-				if (link.isDestinationADataset()) {
+				if (link.isDestinationData()) {
 					String name = link.getName();
 					if (filter.select(name)) {
 						if (index == count) {
@@ -355,7 +355,7 @@ class HDF5LazyContentProvider implements ILazyTreeContentProvider {
 				}
 			}
 
-		} else if (pNode instanceof HDF5Dataset) {
+		} else if (pNode instanceof DataNode) {
 			// do nothing
 		}
 	}
@@ -382,8 +382,8 @@ class HDF5LabelProvider implements ITableLabelProvider {
 	public String getColumnText(Object element, int columnIndex) {
 		String msg = "";
 
-		if (element instanceof HDF5Attribute) {
-			HDF5Attribute attr = (HDF5Attribute) element;
+		if (element instanceof Attribute) {
+			Attribute attr = (Attribute) element;
 			switch (columnIndex) {
 			case 0: // name
 				msg = attr.getName();
@@ -411,23 +411,23 @@ class HDF5LabelProvider implements ITableLabelProvider {
 			return msg;
 		}
 
-		assert element instanceof HDF5NodeLink : "Not an attribute or a link";
+		assert element instanceof NodeLink : "Not an attribute or a link";
 
-		HDF5NodeLink link = (HDF5NodeLink) element;
-		HDF5Node node = link.getDestination();
+		NodeLink link = (NodeLink) element;
+		Node node = link.getDestination();
 
 		switch (columnIndex) {
 		case 0: // name
 			msg = link.getName();
 			break;
 		case 1: // class
-			HDF5Attribute attr = node.getAttribute(HDF5File.NXCLASS);
+			Attribute attr = node.getAttribute(HDF5File.NXCLASS);
 			msg = attr != null ? attr.getFirstElement() : "Group";
 			break;
 		}
 
-		if (node instanceof HDF5Dataset) {
-			HDF5Dataset dataset = (HDF5Dataset) node;
+		if (node instanceof DataNode) {
+			DataNode dataset = (DataNode) node;
 
 			if (columnIndex == 1) { // class
 				return "SDS";
@@ -476,7 +476,7 @@ class HDF5LabelProvider implements ITableLabelProvider {
 					// show a single value
 					msg = data.getRank() == 0 ? ((IDataset) data).getString() :
 						((IDataset) data).getString(0);
-					HDF5Attribute units = dataset.getAttribute("units");
+					Attribute units = dataset.getAttribute("units");
 					if (units != null && units.isString()) {
 						msg += " " + units.getFirstElement();
 					}
@@ -484,7 +484,7 @@ class HDF5LabelProvider implements ITableLabelProvider {
 					msg = "none available as dataset is zero-sized";
 				} else if (data.getSize() == 1) {
 					msg = data.getSlice().getString(0);
-					HDF5Attribute units = dataset.getAttribute("units");
+					Attribute units = dataset.getAttribute("units");
 					if (units != null && units.isString()) {
 						msg += " " + units.getFirstElement();
 					}

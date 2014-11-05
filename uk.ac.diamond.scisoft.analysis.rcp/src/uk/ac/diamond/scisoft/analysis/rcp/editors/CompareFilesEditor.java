@@ -40,6 +40,7 @@ import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
 import org.eclipse.dawnsci.analysis.api.metadata.MetadataType;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.AggregateDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
@@ -49,7 +50,6 @@ import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
 import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Maths;
-import org.eclipse.dawnsci.hdf5.api.HDF5Node;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
@@ -1115,7 +1115,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			String node;
 			if (currentDatasetSelection instanceof HDF5Selection) {
 				name = ((HDF5Selection) currentDatasetSelection).getNode();
-				node = name.substring(0, name.lastIndexOf(HDF5Node.SEPARATOR)+1);
+				node = name.substring(0, name.lastIndexOf(Node.SEPARATOR)+1);
 			} else {
 				name = currentDatasetSelection.getFirstElement().getName();
 				int i = name.indexOf(AbstractFileLoader.FILEPATH_DATASET_SEPARATOR);

@@ -24,8 +24,8 @@ import java.util.Arrays;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.dawnsci.hdf5.api.HDF5Group;
-import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -128,7 +128,7 @@ public class ColourMappingViewPluginTest {
 		PluginTestHelpers.delay(2000);
 		if (editor instanceof HDF5TreeEditor) {
 			HDF5TreeEditor hdf5treeed = (HDF5TreeEditor) editor;
-			HDF5NodeLink link = getElement05(hdf5treeed);
+			NodeLink link = getElement05(hdf5treeed);
 
 			HDF5TableTree tableTree = hdf5treeed.getHDF5TreeExplorer().getTableTree();
 			tableTree.expandAll();
@@ -141,7 +141,7 @@ public class ColourMappingViewPluginTest {
 			event.x = 82;
 			event.y = 165;
 			event.type = SWT.MouseDoubleClick;
-			link = ((HDF5Group) link.getDestination()).iterator().next();
+			link = ((GroupNode) link.getDestination()).iterator().next();
 			tableTree.setSelection(new StructuredSelection(link));
 			// Simulate the mouse double click on the tree viewer in the HDF5TreeEditor
 			((TreeViewer) tableTree.getViewer()).getTree().notifyListeners(SWT.MouseDoubleClick, event);
@@ -173,17 +173,17 @@ public class ColourMappingViewPluginTest {
 
 	/**
 	 * @param hdf5treeed
-	 * @return HDF5NodeLink
+	 * @return NodeLink
 	 */
-	protected HDF5NodeLink getElement05(HDF5TreeEditor hdf5treeed) {
+	protected NodeLink getElement05(HDF5TreeEditor hdf5treeed) {
 		return hdf5treeed.getHDF5Tree().findNodeLink("/entry1/EDXD_Element_05");
 	}
 
 	/**
 	 * @param hdf5treeed
-	 * @return HDF5NodeLink
+	 * @return NodeLink
 	 */
-	protected HDF5NodeLink getElement05Duma(HDF5TreeEditor hdf5treeed) {
+	protected NodeLink getElement05Duma(HDF5TreeEditor hdf5treeed) {
 		return hdf5treeed.getHDF5Tree().findNodeLink("/entry1/EDXD_Element_05/dum_a");
 	}
 

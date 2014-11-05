@@ -9,9 +9,12 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.adapters;
 
-import org.eclipse.dawnsci.hdf5.api.HDF5File;
-import org.eclipse.dawnsci.hdf5.api.HDF5Node;
-import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
+import org.eclipse.dawnsci.analysis.tree.impl.DataNodeImpl;
+import org.eclipse.dawnsci.analysis.tree.impl.NodeLinkImpl;
+import org.eclipse.dawnsci.analysis.tree.impl.TreeFileImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.python.pydev.shared_interactive_console.console.codegen.IScriptConsoleCodeGenerator;
@@ -24,10 +27,10 @@ import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippet
  */
 public class HDF5AdapterFactoryPluginTest {
 
-	private HDF5NodeLink createNodeLink() {
-		HDF5File file = new HDF5File(123456, "/my/filename/here");
-		HDF5Node node = new HDF5Node(234566);
-		HDF5NodeLink hdf5NodeLink = new HDF5NodeLink(file, "/path", "/name", null, node);
+	private NodeLink createNodeLink() {
+		TreeFile file = new TreeFileImpl(123456, "/my/filename/here");
+		Node node = new DataNodeImpl(234566);
+		NodeLink hdf5NodeLink = new NodeLinkImpl(file, "/path", "/name", null, node);
 		return hdf5NodeLink;
 	}
 

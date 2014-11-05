@@ -15,18 +15,22 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.metadata.Metadata;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
+import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
-import org.eclipse.dawnsci.hdf5.api.HDF5Attribute;
-import org.eclipse.dawnsci.hdf5.api.HDF5Dataset;
 import org.eclipse.dawnsci.hdf5.api.HDF5File;
-import org.eclipse.dawnsci.hdf5.api.HDF5Group;
-import org.eclipse.dawnsci.hdf5.api.HDF5Node;
-import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,36 +51,36 @@ public class HDF5Utils {
 	 * @param isAxisFortranOrder in most cases, this should be set to true
 	 * @return HDF5 selection
 	 */
-	public static HDF5Selection createDatasetSelection(HDF5NodeLink link, final boolean isAxisFortranOrder) {
+	public static HDF5Selection createDatasetSelection(NodeLink link, final boolean isAxisFortranOrder) {
 		// two cases: axis and primary or axes
 		// iterate through each child to find axes and primary attributes
-		HDF5Node node = link.getDestination();
+		Node node = link.getDestination();
 		List<AxisChoice> choices = new ArrayList<AxisChoice>();
-		HDF5Group gNode = null;
-		HDF5Dataset dNode = null;
+		GroupNode gNode = null;
+		DataNode dNode = null;
 
 		// see if chosen node is a NXdata class
-		HDF5Attribute stringAttr = node.getAttribute(HDF5File.NXCLASS);
+		Attribute stringAttr = node.getAttribute(HDF5File.NXCLASS);
 		String nxClass = stringAttr != null ? stringAttr.getFirstElement() : null;
 		if (nxClass == null || nxClass.equals(NexusHDF5Loader.SDS)) {
-			if (!(node instanceof HDF5Dataset))
+			if (!(node instanceof DataNode))
 				return null;
 
-			dNode = (HDF5Dataset) node;
+			dNode = (DataNode) node;
 			if (!dNode.isSupported())
 				return null;
 
-			gNode = (HDF5Group) link.getSource(); // before hunting for axes
+			gNode = (GroupNode) link.getSource(); // before hunting for axes
 		} else if (nxClass.equals(NexusHDF5Loader.NX_DATA)) {
-			assert node instanceof HDF5Group;
-			gNode = (HDF5Group) node;
+			assert node instanceof GroupNode;
+			gNode = (GroupNode) node;
 			// check if group has signal attribute (is this official?)
 			if (gNode.containsAttribute(NexusHDF5Loader.NX_SIGNAL)) {
-				HDF5Attribute a = gNode.getAttribute(NexusHDF5Loader.NX_SIGNAL);
+				Attribute a = gNode.getAttribute(NexusHDF5Loader.NX_SIGNAL);
 				if (a.isString()) {
 					String n = a.getFirstElement();
-					if (gNode.containsDataset(n)) {
-						dNode = gNode.getDataset(n);						
+					if (gNode.containsDataNode(n)) {
+						dNode = gNode.getDataNode(n);						
 					} else {
 						logger.warn("Signal attribute in group points to a missing dataset called {}", n);
 					}
@@ -87,9 +91,9 @@ public class HDF5Utils {
 
 			if (dNode == null) {
 				// find data (@signal=1)
-				for (HDF5NodeLink l : gNode) {
-					if (l.isDestinationADataset()) {
-						dNode = (HDF5Dataset) l.getDestination();
+				for (NodeLink l : gNode) {
+					if (l.isDestinationData()) {
+						dNode = (DataNode) l.getDestination();
 						if (dNode.containsAttribute(NexusHDF5Loader.NX_SIGNAL) && dNode.getAttribute(NexusHDF5Loader.NX_SIGNAL).getFirstElement().equals("1")
 								&& dNode.isSupported()) {
 							link = l;
@@ -100,9 +104,9 @@ public class HDF5Utils {
 				}
 			}
 
-			if (dNode == null && gNode.containsDataset(NexusHDF5Loader.DATA)) {
+			if (dNode == null && gNode.containsDataNode(NexusHDF5Loader.DATA)) {
 				// fallback to "data" when no signal attribute is found
-				dNode = gNode.getDataset(NexusHDF5Loader.DATA);
+				dNode = gNode.getDataNode(NexusHDF5Loader.DATA);
 			}
 		}
 
@@ -129,11 +133,15 @@ public class HDF5Utils {
 
 		// Fix to http://jira.diamond.ac.uk/browse/DAWNSCI-333. We put the path in the meta
 		// data in order to put a title containing the file in the plot.
-		if (link.getFile() != null && link.getFile().getFilename() != null) {
-			final Metadata meta = new Metadata();
-			meta.setFilePath(link.getFile().getFilename());
-			cData.setMetadata(meta);
+		Tree tree = link.getTree();
+		if (tree != null && tree instanceof TreeFile) {
+			String name = ((TreeFile) tree).getFilename();
+			if (name != null) {
+				final Metadata meta = new Metadata();
+				meta.setFilePath(name);
+				cData.setMetadata(meta);
 			// TODO Maybe	dNode.getAttributeNameIterator()
+			}
 		}
 
 		// add errors
@@ -142,14 +150,14 @@ public class HDF5Utils {
 		String eName;
 		if (!NexusHDF5Loader.NX_ERRORS.equals(cName)) { 
 			eName = cName + NexusHDF5Loader.NX_ERRORS_SUFFIX;
-			if (!gNode.containsDataset(eName) && !cName.equals(link.getName())) {
+			if (!gNode.containsDataNode(eName) && !cName.equals(link.getName())) {
 				eName = link.getName() + NexusHDF5Loader.NX_ERRORS_SUFFIX;
 			}
-			if (gNode.containsDataset(eName)) {
-				eData = gNode.getDataset(eName).getDataset();
+			if (gNode.containsDataNode(eName)) {
+				eData = gNode.getDataNode(eName).getDataset();
 				eData.setName(eName);
-			} else if (gNode.containsDataset(NexusHDF5Loader.NX_ERRORS)) { // fall back
-				eData = gNode.getDataset(NexusHDF5Loader.NX_ERRORS).getDataset();
+			} else if (gNode.containsDataNode(NexusHDF5Loader.NX_ERRORS)) { // fall back
+				eData = gNode.getDataNode(NexusHDF5Loader.NX_ERRORS).getDataset();
 				eData.setName(NexusHDF5Loader.NX_ERRORS);
 			}
 		}
@@ -166,9 +174,9 @@ public class HDF5Utils {
 		int rank = shape.length;
 
 		// scan children for SDS as possible axes (could be referenced by @axes)
-		for (HDF5NodeLink l : gNode) {
-			if (l.isDestinationADataset()) {
-				HDF5Dataset d = (HDF5Dataset) l.getDestination();
+		for (NodeLink l : gNode) {
+			if (l.isDestinationData()) {
+				DataNode d = (DataNode) l.getDestination();
 				if (!d.isSupported() || d.isString() || dNode == d)
 					continue;
 				if (d.containsAttribute(NexusHDF5Loader.NX_SIGNAL) && d.getAttribute(NexusHDF5Loader.NX_SIGNAL).getFirstElement().equals("1"))
@@ -197,11 +205,11 @@ public class HDF5Utils {
 					if (cName == null)
 						cName = l.getName();
 					eName = cName + NexusHDF5Loader.NX_ERRORS_SUFFIX;
-					if (!gNode.containsDataset(eName) && !cName.equals(l.getName())) {
+					if (!gNode.containsDataNode(eName) && !cName.equals(l.getName())) {
 						eName = l.getName() + NexusHDF5Loader.NX_ERRORS_SUFFIX;
 					}
-					if (gNode.containsDataset(eName)) {
-						eData = gNode.getDataset(eName).getDataset();
+					if (gNode.containsDataNode(eName)) {
+						eData = gNode.getDataNode(eName).getDataset();
 						eData.setName(eName);
 						if (s.length != 0) // don't make a 0D dataset
 							eData.squeeze(true);
@@ -211,20 +219,20 @@ public class HDF5Utils {
 						}
 					}
 
-					HDF5Attribute attr;
+					Attribute attr;
 					attr = d.getAttribute(NexusHDF5Loader.NX_PRIMARY);
 					if (attr != null) {
 						if (attr.isString()) {
 							Integer intPrimary = Integer.parseInt(attr.getFirstElement());
 							choice.setPrimary(intPrimary);
 						} else {
-							Dataset attrd = attr.getValue();
+							IDataset attrd = attr.getValue();
 							choice.setPrimary(attrd.getInt(0));
 						}
 					}
 
 					int[] intAxis = null;
-					HDF5Attribute attrLabel = null;
+					Attribute attrLabel = null;
 					String indAttr = l.getName() + NexusHDF5Loader.NX_INDICES_SUFFIX;
 					if (gNode.containsAttribute(indAttr)) {
 						// deal with index mapping from @*_indices
@@ -253,7 +261,7 @@ public class HDF5Utils {
 									}
 								}
 							} else {
-								Dataset attrd = attr.getValue();
+								Dataset attrd = DatasetUtils.convertToDataset(attr.getValue());
 								if (attrd.getSize() == ashape.length) {
 									intAxis = new int[attrd.getSize()];
 									IndexIterator it = attrd.getIterator();
@@ -331,7 +339,7 @@ public class HDF5Utils {
 		}
 
 		List<String> aNames = new ArrayList<String>();
-		HDF5Attribute axesAttr = dNode.getAttribute(NexusHDF5Loader.NX_AXES);
+		Attribute axesAttr = dNode.getAttribute(NexusHDF5Loader.NX_AXES);
 		if (axesAttr == null) { // cope with @axes being in group
 			axesAttr = gNode.getAttribute(NexusHDF5Loader.NX_AXES);
 			if (axesAttr != null)
@@ -393,7 +401,8 @@ public class HDF5Utils {
 			if (shape[shape.length - 2] > 1) // only set image type in this case
 				itype = InspectorType.IMAGE;
 		}
-		return new HDF5Selection(itype, link.getFile().getFilename(), link.getFullName(), axes, cData);
+		tree = link.getTree();
+		return new HDF5Selection(itype, tree instanceof TreeFile ? ((TreeFile) tree).getFilename() : null, link.getFullName(), axes, cData);
 	}
 
 	private static String[] parseString(String s) {

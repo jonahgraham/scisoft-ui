@@ -12,12 +12,13 @@ package uk.ac.diamond.sda.navigator.hdf5;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.dawnsci.hdf5.api.HDF5Attribute;
-import org.eclipse.dawnsci.hdf5.api.HDF5Dataset;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.hdf5.api.HDF5File;
-import org.eclipse.dawnsci.hdf5.api.HDF5Group;
-import org.eclipse.dawnsci.hdf5.api.HDF5Node;
-import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 	private HDF5Loader loader;
 	private String fileName;
 	private IFile modelFile;
-	private HDF5File hdf5Tree;
+	private TreeFile hdf5Tree;
 	private static final Object[] NO_CHILDREN = new Object[0];
 	private static final Logger logger = LoggerFactory.getLogger(HDF5ContentProvider.class);
 
@@ -50,22 +51,22 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 		
 			if (H5_EXT.equals(modelFile.getFileExtension())||HDF5_EXT.equals(modelFile.getFileExtension())||NXS_EXT.equals(modelFile.getFileExtension())) {
 				loadHDF5Data(modelFile);
-				HDF5Group pNode = hdf5Tree.getGroup();
+				GroupNode pNode = hdf5Tree.getGroupNode();
 
 				children = new Object[pNode.getNumberOfNodelinks()];
 				int count = 0;
-				for (HDF5NodeLink link : pNode) {
+				for (NodeLink link : pNode) {
 					children[count] = link;
 					count++;
 				}
 				return children;
 			}
 		}
-		if (parent instanceof HDF5Attribute) {
+		if (parent instanceof Attribute) {
 			return null;
 		}
-		assert parent instanceof HDF5NodeLink : "Not an attribute or a link";
-		HDF5Node pNode = ((HDF5NodeLink) parent).getDestination();
+		assert parent instanceof NodeLink : "Not an attribute or a link";
+		Node pNode = ((NodeLink) parent).getDestination();
 		
 		int count = 0;
 		Iterator<String> iter = pNode.getAttributeNameIterator();
@@ -74,14 +75,14 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 		while (iter.hasNext()) {
 			String name = iter.next();
 			if (treeFilter.select(name)) {
-				HDF5Attribute a = pNode.getAttribute(name);
+				Attribute a = pNode.getAttribute(name);
 				children[count] = a;
 				count++;
 			}
 		}
-		if (pNode instanceof HDF5Group) {
-			for (HDF5NodeLink link : (HDF5Group) pNode) {
-				if (link.isDestinationAGroup()) {
+		if (pNode instanceof GroupNode) {
+			for (NodeLink link : (GroupNode) pNode) {
+				if (link.isDestinationGroup()) {
 					String name = link.getName();
 					if (treeFilter.select(name)) {
 						children[count] = link;
@@ -89,8 +90,8 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 					}
 				}
 			}
-			for (HDF5NodeLink link : (HDF5Group) pNode) {
-				if (link.isDestinationADataset()) {
+			for (NodeLink link : (GroupNode) pNode) {
+				if (link.isDestinationData()) {
 					String name = link.getName();
 					if (treeFilter.select(name)) {
 						children[count] = link;
@@ -99,7 +100,7 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 				}
 			}
 
-		} else if (pNode instanceof HDF5Dataset) {
+		} else if (pNode instanceof DataNode) {
 			// do nothing
 		}
 		return children;
@@ -112,17 +113,17 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 
 	@Override
 	public boolean hasChildren(Object element) {
-		if((element instanceof HDF5NodeLink) && ((countChildren(element, treeFilter) > 0)) || (element instanceof IFile))
+		if((element instanceof NodeLink) && ((countChildren(element, treeFilter) > 0)) || (element instanceof IFile))
 			return true;
 		return false;
 	}
 
 	@Override
 	public Object getParent(Object element) {
-		if (element == null || !(element instanceof HDF5NodeLink)) {
+		if (element == null || !(element instanceof NodeLink)) {
 			return null;
 		}
-		HDF5Node node = ((HDF5NodeLink) element).getSource();
+		Node node = ((NodeLink) element).getSource();
 		if (node == null)
 			return element;
 		return node;
@@ -160,25 +161,25 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 
 	public static int countChildren(Object element, TreeFilter filter) {
 		int count = 0;
-		if (element instanceof HDF5Attribute) {
+		if (element instanceof Attribute) {
 			return 0;
 		}
-		if (element instanceof HDF5NodeLink) {
-			HDF5Node node = ((HDF5NodeLink) element).getDestination();
+		if (element instanceof NodeLink) {
+			Node node = ((NodeLink) element).getDestination();
 			Iterator<String> iter = node.getAttributeNameIterator();
 			while (iter.hasNext()) {
 				if (filter.select(iter.next()))
 					count++;
 			}
-			if (node instanceof HDF5Group) {
-				HDF5Group group = (HDF5Group) node;
+			if (node instanceof GroupNode) {
+				GroupNode group = (GroupNode) node;
 				Iterator<String> nIter = group.getNodeNameIterator();
 				while (nIter.hasNext()) {
 					if (filter.select(nIter.next()))
 						count++;
 				}
 			}
-			if (node instanceof HDF5Dataset) {
+			if (node instanceof DataNode) {
 				// do nothing?
 			}
 		}
