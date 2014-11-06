@@ -10,11 +10,11 @@ package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
 import java.util.Iterator;
 
-import org.eclipse.dawnsci.hdf5.api.HDF5Attribute;
-import org.eclipse.dawnsci.hdf5.api.HDF5Dataset;
-import org.eclipse.dawnsci.hdf5.api.HDF5Group;
-import org.eclipse.dawnsci.hdf5.api.HDF5Node;
-import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -166,8 +166,8 @@ public class HDF5ValuePage extends Page  implements ISelectionListener, IPartLis
 
 	public void updateObjectSelection(Object sel) {
 		
-		if (sel instanceof HDF5NodeLink) {
-			final HDF5NodeLink node = (HDF5NodeLink)sel;
+		if (sel instanceof NodeLink) {
+			final NodeLink node = (NodeLink)sel;
 			createH5Value(node);
  		} 
 //		else if (sel instanceof H5Path) { // Might be nexus part.
@@ -190,10 +190,10 @@ public class HDF5ValuePage extends Page  implements ISelectionListener, IPartLis
 //		}
 	}
 	
-	private void createH5Value(HDF5NodeLink ob) {
+	private void createH5Value(NodeLink ob) {
 		
-		if (ob.isDestinationADataset()) {
-			final HDF5Dataset  set   = (HDF5Dataset)ob.getDestination();
+		if (ob.isDestinationData()) {
+			final DataNode  set   = (DataNode)ob.getDestination();
 			
 			final StringBuilder buf = new StringBuilder();
 			label.setText("Dataset name of '"+ob.getName()+"' value:");
@@ -201,8 +201,8 @@ public class HDF5ValuePage extends Page  implements ISelectionListener, IPartLis
 			appendAttributes(set, buf);
 			sourceViewer.getTextWidget().setText(buf.toString());
 			
-		} if (ob.isDestinationAGroup()) {
-			final HDF5Group  grp   = (HDF5Group)ob.getDestination();
+		} if (ob.isDestinationGroup()) {
+			final GroupNode  grp   = (GroupNode)ob.getDestination();
 			label.setText("Group name of '"+ob.getName()+"' children:");
 			
 			final StringBuilder buf = new StringBuilder();
@@ -224,10 +224,10 @@ public class HDF5ValuePage extends Page  implements ISelectionListener, IPartLis
 		}
 	}
 	
-	private void appendAttributes(HDF5Node set, StringBuilder buf) {
+	private void appendAttributes(Node set, StringBuilder buf) {
 		buf.append("\n\nAttributes:\n");
-		for (Iterator<HDF5Attribute> it = set.getAttributeIterator(); it.hasNext(); ) {
-			final HDF5Attribute attribute = it.next();
+		for (Iterator<? extends Attribute> it = set.getAttributeIterator(); it.hasNext(); ) {
+			final Attribute attribute = it.next();
 			buf.append(attribute.getName());
 			buf.append(" = ");
 			buf.append(attribute.getValue().toString());
