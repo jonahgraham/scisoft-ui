@@ -19,6 +19,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
 
+import uk.ac.diamond.scisoft.analysis.axis.AxisChoice;
+
 /**
  * Class to hold a list of axis names and dataset from which an axis can be selected
  */
