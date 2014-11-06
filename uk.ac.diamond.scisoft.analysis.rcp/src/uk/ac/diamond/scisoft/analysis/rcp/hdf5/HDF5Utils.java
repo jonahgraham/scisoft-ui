@@ -30,7 +30,6 @@ import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
-import org.eclipse.dawnsci.hdf5.api.HDF5File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +59,7 @@ public class HDF5Utils {
 		DataNode dNode = null;
 
 		// see if chosen node is a NXdata class
-		Attribute stringAttr = node.getAttribute(HDF5File.NXCLASS);
+		Attribute stringAttr = node.getAttribute(NexusHDF5Loader.NX_CLASS);
 		String nxClass = stringAttr != null ? stringAttr.getFirstElement() : null;
 		if (nxClass == null || nxClass.equals(NexusHDF5Loader.SDS)) {
 			if (!(node instanceof DataNode))

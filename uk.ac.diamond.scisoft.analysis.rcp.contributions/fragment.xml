@@ -980,14 +980,14 @@
    <extension
          point="org.eclipse.core.runtime.adapters">
       <factory
-            adaptableType="org.eclipse.dawnsci.hdf5.api.HDF5NodeLink"
+            adaptableType="org.eclipse.dawnsci.analysis.api.tree.NodeLink"
             class="uk.ac.diamond.scisoft.analysis.rcp.adapters.HDF5AdapterFactory">
          <adapter
                type="org.python.pydev.shared_interactive_console.console.codegen.IScriptConsoleCodeGenerator">
          </adapter>
       </factory>
       <factory
-            adaptableType="org.eclipse.dawnsci.hdf5.api.HDF5Attribute"
+            adaptableType="org.eclipse.dawnsci.analysis.api.tree.Attribute"
             class="uk.ac.diamond.scisoft.analysis.rcp.adapters.HDF5AdapterFactory">
          <adapter
                type="org.python.pydev.shared_interactive_console.console.codegen.IScriptConsoleCodeGenerator">
