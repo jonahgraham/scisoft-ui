@@ -111,8 +111,7 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.ejml",
 		"uk.ac.diamond.ddogleg",
 		"org.apache.commons.lang",
-		"org.eclipse.dawnsci.analysis.api",
-		"org.eclipse.dawnsci.analysis.dataset",
+		"org.eclipse.dawnsci.analysis", // includes api, dataset, tree, etc
 		"uk.ac.diamond.scisoft.analysis",
 		"uk.ac.diamond.scisoft.diffraction.powder",
 		"uk.ac.diamond.scisoft.python",
@@ -144,8 +143,7 @@ public class JythonCreator implements IStartup {
 	};
 	private final static String[] pluginKeys = {
 		"org.eclipse.dawnsci.hdf5", // required for loading to work in client started from IDE
-		"org.eclipse.dawnsci.analysis.api",
-		"org.eclipse.dawnsci.analysis.dataset",
+		"org.eclipse.dawnsci.analysis", // includes api, dataset, tree, etc
 		"uk.ac.diamond.scisoft.analysis",
 		"uk.ac.diamond.scisoft.diffraction.powder",
 		"uk.ac.diamond.scisoft.python",
