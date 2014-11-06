@@ -13,8 +13,9 @@ import java.io.File;
 
 import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.dawnsci.hdf5.api.HDF5File;
-import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
+import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.viewers.IContentProvider;
@@ -160,10 +161,10 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 		return hdfxp;
 	}
 	
-	public HDF5File getHDF5Tree() {
+	public Tree getHDF5Tree() {
 		if (hdfxp == null)
 			return null;
-		return hdfxp.getHDF5Tree();
+		return hdfxp.getTree();
 	}
 
 	/**
@@ -189,9 +190,13 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 					if (!selection.isEmpty()) {
 						final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
 						final Object element = structuredSelection.getFirstElement();
-						if (element instanceof HDF5NodeLink) {
-							HDF5NodeLink link = (HDF5NodeLink) element;
-							String[] tmp = link.getFile().getFilename().split("/");
+						if (element instanceof NodeLink) {
+							NodeLink link = (NodeLink) element;
+							Tree tree = link.getTree();
+							if (!(tree instanceof TreeFile))
+								return;
+
+							String[] tmp = ((TreeFile) tree).getFilename().split("/");
 							String filename="";
 							if (tmp.length>0)
 								filename = tmp[tmp.length-1];
@@ -219,7 +224,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 		selectionService.removeSelectionListener(selectionListener);
 	}
 
-	public void update(final IWorkbenchPart original, final HDF5NodeLink link, IStructuredSelection structuredSelection) {
+	public void update(final IWorkbenchPart original, final NodeLink link, IStructuredSelection structuredSelection) {
 
 		// Make Display to wait until current focus event is finish, and then execute new focus event
 		Display.getDefault().asyncExec(new Runnable() {

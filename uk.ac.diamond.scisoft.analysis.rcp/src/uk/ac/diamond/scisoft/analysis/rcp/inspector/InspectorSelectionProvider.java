@@ -14,7 +14,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import ncsa.hdf.object.HObject;
 
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
-import org.eclipse.dawnsci.hdf5.api.HDF5File;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
 import org.eclipse.dawnsci.hdf5.editor.IH5DoubleClickSelectionProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -50,8 +51,8 @@ public class InspectorSelectionProvider implements IH5DoubleClickSelectionProvid
 	    final HObject linkPath = (HObject)dNode.getUserObject();
 	    
 	    HDF5Loader   loader = new HDF5Loader(filePath);
-	    HDF5File     tree   = loader.loadTree(new IMonitor.Stub());	    
-	    HDF5NodeLink link   = tree.findNodeLink(linkPath.getFullName());
+	    Tree     tree   = loader.loadTree(new IMonitor.Stub());	    
+	    NodeLink link   = tree.findNodeLink(linkPath.getFullName());
 		return HDF5Utils.createDatasetSelection(link, true);
 	}
 

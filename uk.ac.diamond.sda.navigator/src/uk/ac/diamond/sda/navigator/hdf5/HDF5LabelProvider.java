@@ -11,12 +11,12 @@ package uk.ac.diamond.sda.navigator.hdf5;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.hdf5.api.HDF5Attribute;
-import org.eclipse.dawnsci.hdf5.api.HDF5Dataset;
 import org.eclipse.dawnsci.hdf5.api.HDF5File;
-import org.eclipse.dawnsci.hdf5.api.HDF5Node;
-import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
 import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -33,13 +33,13 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 	
 	@Override
 	public Image getImage(Object element) {	
-		if (element instanceof HDF5Attribute) {
+		if (element instanceof Attribute) {
 			return  new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/dataset.gif"));
 		}		
-		HDF5NodeLink link = (HDF5NodeLink) element;
-		HDF5Node node = link.getDestination();
-		if (node instanceof HDF5Dataset) {
-			HDF5Dataset dataset = (HDF5Dataset) node;
+		NodeLink link = (NodeLink) element;
+		Node node = link.getDestination();
+		if (node instanceof DataNode) {
+			DataNode dataset = (DataNode) node;
 			if (dataset.isString()) {
 				return new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/text.gif"));
 			}
@@ -56,7 +56,7 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 
 	@Override
 	public String getText(Object element) {
-		return (element instanceof HDF5Attribute)==true ? ((HDF5Attribute) element).getName()+" ":((HDF5NodeLink) element).getName()+" ";
+		return (element instanceof Attribute)==true ? ((Attribute) element).getName()+" ":((NodeLink) element).getName()+" ";
 	}
 
 	@Override
@@ -66,18 +66,18 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 			IFile file = (IFile) element;
 			return file.getName() + " " + file.getFullPath();
 		}
-		if (element instanceof HDF5Attribute) {
-			HDF5Attribute attr = (HDF5Attribute) element;
+		if (element instanceof Attribute) {
+			Attribute attr = (Attribute) element;
 			// name
 			msg = attr.getName();
 			return msg;
 		}
-		assert element instanceof HDF5NodeLink : "Not an attribute or a link";
-		HDF5NodeLink link = (HDF5NodeLink) element;
-		HDF5Node node = link.getDestination();
+		assert element instanceof NodeLink : "Not an attribute or a link";
+		NodeLink link = (NodeLink) element;
+		Node node = link.getDestination();
 		msg = link.getName();
-		if (node instanceof HDF5Dataset) {
-			HDF5Dataset dataset = (HDF5Dataset) node;
+		if (node instanceof DataNode) {
+			DataNode dataset = (DataNode) node;
 			if (!dataset.isSupported()) {
 				return "Not supported";
 			}
@@ -93,8 +93,8 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 	@Override
 	public String decorateText(String label, Object element) {
 
-		if (element instanceof HDF5Attribute) {
-			HDF5Attribute attr = (HDF5Attribute) element;
+		if (element instanceof Attribute) {
+			Attribute attr = (Attribute) element;
 			// class
 			label += ("Attr ");
 			// dimensions
@@ -111,16 +111,16 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 			label += attr.getSize() == 1 ? attr.getFirstElement() +" " : attr.toString()+" ";
 			return label;
 		}
-		assert element instanceof HDF5NodeLink : "Not an attribute or a link";
-		HDF5NodeLink link = (HDF5NodeLink) element;
-		HDF5Node node = link.getDestination();
+		assert element instanceof NodeLink : "Not an attribute or a link";
+		NodeLink link = (NodeLink) element;
+		Node node = link.getDestination();
 		// class
-		HDF5Attribute attr = node.getAttribute(HDF5File.NXCLASS);
+		Attribute attr = node.getAttribute(HDF5File.NXCLASS);
 		if(attr!=null)
 			label += attr.getFirstElement()+" ";
 		//label += attr.getFirstElement()+" ";
-		if (node instanceof HDF5Dataset) {
-			HDF5Dataset dataset = (HDF5Dataset) node;
+		if (node instanceof DataNode) {
+			DataNode dataset = (DataNode) node;
 			// class
 			label+="SDS ";
 			if (dataset.isString()) {

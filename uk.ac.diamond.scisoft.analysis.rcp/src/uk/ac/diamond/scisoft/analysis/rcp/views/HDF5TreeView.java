@@ -20,7 +20,7 @@ import java.util.UUID;
 import org.dawb.common.ui.monitor.ProgressMonitorWrapper;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
-import org.eclipse.dawnsci.hdf5.api.HDF5File;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -317,7 +317,7 @@ public class HDF5TreeView extends ViewPart implements IObserver {
 		}
 
 		// grab first metadata tree
-		List<HDF5File> htList = bean.getHDF5Trees();
+		List<Tree> htList = bean.getTrees();
 		if (htList == null) {
 			logger.warn("Plot server did not push a list of trees");
 			return;
@@ -326,7 +326,7 @@ public class HDF5TreeView extends ViewPart implements IObserver {
 			logger.warn("Plot server pushed an empty list of trees");
 			return;
 		}
-		hdfxp.setHDF5Tree(htList.get(0));
+		hdfxp.setTree(htList.get(0));
 	}
 
 	/**

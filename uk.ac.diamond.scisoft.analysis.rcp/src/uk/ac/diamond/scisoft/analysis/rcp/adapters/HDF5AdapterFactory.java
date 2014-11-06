@@ -10,8 +10,10 @@
 package uk.ac.diamond.scisoft.analysis.rcp.adapters;
 
 import org.eclipse.core.runtime.IAdapterFactory;
-import org.eclipse.dawnsci.hdf5.api.HDF5Attribute;
-import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
+import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.python.pydev.shared_interactive_console.console.codegen.IScriptConsoleCodeGenerator;
 import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippetUtils;
 
@@ -21,15 +23,19 @@ public class HDF5AdapterFactory implements IAdapterFactory {
 	@Override
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		if (adapterType == IScriptConsoleCodeGenerator.class) {
-			if (adaptableObject instanceof HDF5NodeLink) {
-				final HDF5NodeLink hdf5NodeLink = (HDF5NodeLink) adaptableObject;
+			if (adaptableObject instanceof NodeLink) {
+				final NodeLink nodeLink = (NodeLink) adaptableObject;
+				final Tree tree = nodeLink.getTree();
+				if (!(tree instanceof TreeFile))
+					return null;
+
 				return new IScriptConsoleCodeGenerator() {
 
 					@Override
 					public String getPyCode() {
 						return "dnp.io.load("
-								+ PythonSnippetUtils.getSingleQuotedString(hdf5NodeLink.getFile().getFilename()) + ")["
-								+ PythonSnippetUtils.getSingleQuotedString(hdf5NodeLink.getFullName()) + "]";
+								+ PythonSnippetUtils.getSingleQuotedString(((TreeFile) tree).getFilename()) + ")["
+								+ PythonSnippetUtils.getSingleQuotedString(nodeLink.getFullName()) + "]";
 					}
 
 					@Override
@@ -37,15 +43,19 @@ public class HDF5AdapterFactory implements IAdapterFactory {
 						return true;
 					}
 				};
-			} else if (adaptableObject instanceof HDF5Attribute) {
-				final HDF5Attribute hdf5Attribute = (HDF5Attribute) adaptableObject;
+			} else if (adaptableObject instanceof Attribute) {
+				final Attribute attribute = (Attribute) adaptableObject;
+				final Tree tree = attribute.getTree();
+				if (!(tree instanceof TreeFile))
+					return null;
+
 				return new IScriptConsoleCodeGenerator() {
 
 					@Override
 					public String getPyCode() {
-						String filename = hdf5Attribute.getHDF5File().getFilename();
+						String filename = ((TreeFile) tree).getFilename();
 						return "dnp.io.load(" + PythonSnippetUtils.getSingleQuotedString(filename) + ")["
-								+ PythonSnippetUtils.getSingleQuotedString(hdf5Attribute.getFullName()) + "]";
+								+ PythonSnippetUtils.getSingleQuotedString(attribute.getFullName()) + "]";
 					}
 
 					@Override

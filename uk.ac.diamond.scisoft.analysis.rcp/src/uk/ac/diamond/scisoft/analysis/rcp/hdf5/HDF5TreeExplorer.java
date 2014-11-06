@@ -15,11 +15,11 @@ import java.util.Set;
 import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
-import org.eclipse.dawnsci.hdf5.api.HDF5Attribute;
-import org.eclipse.dawnsci.hdf5.api.HDF5Dataset;
-import org.eclipse.dawnsci.hdf5.api.HDF5File;
-import org.eclipse.dawnsci.hdf5.api.HDF5Node;
-import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -56,7 +56,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView;
 public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProvider {
 	private static final Logger logger = LoggerFactory.getLogger(HDF5TreeExplorer.class);
 
-	HDF5File tree = null;
+	Tree tree = null;
 	private HDF5TableTree tableTree = null;
 	private Display display;
 
@@ -116,7 +116,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	 * Select a node and populate a selection object
 	 * @param link node link
 	 */
-	public void selectHDF5Node(HDF5NodeLink link) {
+	public void selectHDF5Node(NodeLink link) {
 		selectHDF5Node(link, null);
 	}
 
@@ -125,7 +125,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	 * @param link node link
 	 * @param type
 	 */
-	public void selectHDF5Node(HDF5NodeLink link, InspectorType type) {
+	public void selectHDF5Node(NodeLink link, InspectorType type) {
 		if (link == null)
 			return;
 
@@ -159,7 +159,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	 * @param type
 	 */
 	public void selectHDF5Node(String path, InspectorType type) {
-		HDF5NodeLink link = tree.findNodeLink(path);
+		NodeLink link = tree.findNodeLink(path);
 
 		if (link != null) {
 			selectHDF5Node(link, type);
@@ -176,10 +176,10 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			if (selection != null) {
 				Object obj = selection.getFirstElement();
 				String metaName = null;
-				if (obj instanceof HDF5NodeLink) {
-					metaName = ((HDF5NodeLink) obj).getFullName();
-				} else if (obj instanceof HDF5Attribute) {
-					metaName = ((HDF5Attribute) obj).getFullName();
+				if (obj instanceof NodeLink) {
+					metaName = ((NodeLink) obj).getFullName();
+				} else if (obj instanceof Attribute) {
+					metaName = ((Attribute) obj).getFullName();
 				}
 				if (metaName != null) {
 					SelectionChangedEvent ce = new SelectionChangedEvent(this, new MetadataSelection(metaName));
@@ -208,8 +208,8 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 		try {
 			// check if selection is valid for plotting
-			if (selection != null && selection.getFirstElement() instanceof HDF5NodeLink) {
-				HDF5NodeLink link = (HDF5NodeLink) selection.getFirstElement();
+			if (selection != null && selection.getFirstElement() instanceof NodeLink) {
+				NodeLink link = (NodeLink) selection.getFirstElement();
 				selectHDF5Node(link);
 			}
 		} catch (Exception e) {
@@ -241,12 +241,12 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		}
 	}
 
-	private boolean processTextNode(HDF5NodeLink link) {
-		HDF5Node node = link.getDestination();
-		if (!(node instanceof HDF5Dataset))
+	private boolean processTextNode(NodeLink link) {
+		Node node = link.getDestination();
+		if (!(node instanceof DataNode))
 			return false;
 
-		HDF5Dataset dataset = (HDF5Dataset) node;
+		DataNode dataset = (DataNode) node;
 		if (!dataset.isString())
 			return false;
 
@@ -297,7 +297,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
 		loader = new HDF5Loader(fileName);
 		loader.setAsyncLoad(true);
-		final HDF5File ltree = loader.loadTree(mon);
+		final Tree ltree = loader.loadTree(mon);
 		if (ltree != null) {
 			setFilename(fileName);
 
@@ -335,11 +335,19 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	/**
 	 * @return loaded tree or null
 	 */
-	public HDF5File getHDF5Tree() {
+	public Tree getTree() {
 		return tree;
 	}
 
-	public void setHDF5Tree(HDF5File htree) {
+	public Tree getHDF5Tree() {
+		return getTree();
+	}
+
+	public void setHDF5Tree(Tree htree) {
+		setTree(htree);
+	}
+
+	public void setTree(Tree htree) {
 		if (htree == null)
 			return;
 
