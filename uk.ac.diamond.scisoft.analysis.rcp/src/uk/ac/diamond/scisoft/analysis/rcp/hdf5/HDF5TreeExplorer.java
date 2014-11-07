@@ -314,7 +314,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 						}
 					}
 					refreshTree();
-					holder = HDF5Loader.createDataHolder(ltree, true);
+					holder = loader.createDataHolder(ltree, true);
 				}
 			}).start();
 		}
