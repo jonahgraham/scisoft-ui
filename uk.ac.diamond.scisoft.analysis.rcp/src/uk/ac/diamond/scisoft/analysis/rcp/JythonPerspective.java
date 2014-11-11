@@ -42,7 +42,7 @@ public class JythonPerspective implements IPerspectiveFactory {
 		IFolderLayout bottomLayout = layout.createFolder("bottom", IPageLayout.BOTTOM, 0.6f, editorArea);
 		bottomLayout.addView(IConsoleConstants.ID_CONSOLE_VIEW);
 		bottomLayout.addView(IPageLayout.ID_OUTLINE);
-		bottomLayout.addView("uk.ac.diamond.sda.meta.MetadataPageView");
+		bottomLayout.addView("org.dawb.common.ui.views.headerTableView");
 		
 		// Finaly add all the Pydev actions as are required for running stuff etc.
 		(new PythonPerspectiveFactory()).defineActions(layout);
