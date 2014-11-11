@@ -191,7 +191,7 @@
             class="uk.ac.diamond.scisoft.analysis.rcp.JythonPerspective"
             icon="icons/jython.png"
             id="uk.ac.diamond.scisoft.jythonperspective"
-            name="Interactive Python">
+            name="Python">
       </perspective>
    </extension>
    <extension
