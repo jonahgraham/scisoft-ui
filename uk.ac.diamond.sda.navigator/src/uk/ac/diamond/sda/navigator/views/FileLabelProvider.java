@@ -95,26 +95,39 @@ public class FileLabelProvider extends ColumnLabelProvider {
 			//if node is an hdf5 file, returns the file
 			Map<Integer, String> attr = getH5Attributes(node);
 	
+			String ret;
 			switch(columnIndex) {
 			case 0:
 				String name = NIOUtils.getRoots().contains(node)
 				            ?  getRootLabel(node)
 				            : node.getFileName().toString();
-				return name;
+				ret = name;
+				break;
 			case 1:
-				return dateFormat.format(Files.getLastModifiedTime(node).toMillis());
+				ret = dateFormat.format(Files.getLastModifiedTime(node).toMillis());
+				break;
 			case 2:
-				return Files.isDirectory(node) ? "Directory" : FileUtils.getFileExtension(node.getFileName().toString());
+				ret = Files.isDirectory(node) ? "Directory" : FileUtils.getFileExtension(node.getFileName().toString());
+			    break;
 			case 3:
-				return formatSize(Files.size(node));
+				ret = formatSize(Files.size(node));
+				break;
 			case 4:
-				return attr!=null&&showComment ? attr.get(4) : null;
+				ret = attr!=null&&showComment ? attr.get(4) : null;
+				break;
 			case 5:
-				return attr!=null&&showScanCmd ? attr.get(5) : null;
+				ret = attr!=null&&showScanCmd ? attr.get(5) : null;
+				break;
 			default:
-				return null;
+				ret = null;
 			
 			}
+			
+			if (ret!=null && ret.startsWith("(\\\\Data.diamond.ac.uk\\")) {
+				ret = ret.substring("(\\\\Data.diamond.ac.uk\\".length(), ret.length()-1);
+			}
+			return ret;
+			
 		} catch (Exception ne) {
 			return ne.getMessage();
 		}
