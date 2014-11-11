@@ -90,7 +90,9 @@ public class DatasetMailman implements IDatasetMailman, Remote {
 		try {
 			return (DatasetMailman) RMIClientProvider.getInstance().lookup(null, RMI_DATASET_SERVICE_NAME);
 		} catch (Exception e) {
-			logger.error("Unable to obtain IPlotWindowManagerRMI manager", e);
+			// It will not work in Jython if this exception is thrown. However people are not using this in
+			// Jython at the moment...?
+			//logger.error("Unable to obtain IPlotWindowManagerRMI manager", e);
 			return manager;
 		}
 	}
