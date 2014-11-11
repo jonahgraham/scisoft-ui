@@ -29,8 +29,14 @@ public class JythonPerspective implements IPerspectiveFactory {
 		navigatorLayout.addView("org.python.pydev.navigator.view");
 		navigatorLayout.addView("uk.ac.diamond.sda.navigator.views.FileView");
 
-		// add plot 1 to the left
-		layout.addView("uk.ac.diamond.scisoft.analysis.rcp.plotView1", IPageLayout.RIGHT, 0.6f, editorArea);
+		// add plot and debug to the left
+		IFolderLayout debugLayout = layout.createFolder("debug", IPageLayout.RIGHT, 0.6f, editorArea);
+		debugLayout.addView("org.eclipse.debug.ui.VariableView");
+		debugLayout.addView("org.eclipse.debug.ui.ExpressionView");
+		debugLayout.addView("org.eclipse.debug.ui.DebugView");
+		
+		IFolderLayout plotLayout = layout.createFolder("plot", IPageLayout.BOTTOM, 0.3f, "debug");
+		plotLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.plotView1");
 		
 		// add the console and the outline to the bottom
 		IFolderLayout bottomLayout = layout.createFolder("bottom", IPageLayout.BOTTOM, 0.6f, editorArea);
