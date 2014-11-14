@@ -474,6 +474,8 @@ public class ScriptingConnection implements IObservable {
 	 */
 	protected void setVisibleByPlotType(PlotType type) {
 		Collection<IRegion> regions = plottingSystem.getRegions();
+		if (regions == null)
+			return;
 		for (IRegion iRegion : regions) {
 			iRegion.setVisible(iRegion.getPlotType().equals(type));
 		}
