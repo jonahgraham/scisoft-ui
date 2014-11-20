@@ -255,14 +255,16 @@ public class ScriptingConnection implements IObservable {
 		if (dbPlot.getGuiParameters() != null) {
 			processGUIUpdate(dbPlot.getGuiParameters());
 		}
-		try {
-			doBlock();
-			// Now plot the data as standard
-			plotConnection.processPlotUpdate(dbPlot, isUpdatePlot());
-			setDataBean(dbPlot);
-			createRegion();
-		} finally {
-			undoBlock();
+		if (plotConnection != null) {
+			try {
+				doBlock();
+				// Now plot the data as standard
+				plotConnection.processPlotUpdate(dbPlot, isUpdatePlot());
+				setDataBean(dbPlot);
+				createRegion();
+			} finally {
+				undoBlock();
+			}
 		}
 	}
 
@@ -295,7 +297,7 @@ public class ScriptingConnection implements IObservable {
 			}
 		}
 
-		if (bean.containsKey(GuiParameters.ROICLEARALL) || bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST)) {
+		if (plotConnection != null && (bean.containsKey(GuiParameters.ROICLEARALL) || bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST))) {
 			try {
 				// lock ROI manager
 				getRoiManager().acquireLock();
