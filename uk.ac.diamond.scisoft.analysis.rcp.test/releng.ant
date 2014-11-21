@@ -15,7 +15,7 @@
 
 	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/test-common.ant" />
 	<target name="junit-tests" depends="set-test-base-DAWN">
-		<property name="uk.ac.diamond.jython.location" value="${workspace.git.loc}/diamond-jython.git/uk.ac.diamond.jython" />  <!-- required by JythonInterpreterUtils in uk.ac.diamond.scisoft.analysis.rcp -->
+		<property name="uk.ac.diamond.jython.location" value="${workspace.git.loc}/diamond-jython.git/uk.ac.diamond.jython" />  <!-- required by uk.ac.diamond.jython/src/uk/ac/diamond/jython/util/JythonPath.java -->
 		<junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1024m">
 			<formatter type="xml" />
 			<classpath>
@@ -24,6 +24,7 @@
 				<pathelement location="${plugin.basedir}/bin" />
 				<pathelement location="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/logging" />  <!-- to pick up logback-test.xml -->
 				<pathelement location="${workspace.git.loc}/dawn-eclipse.git/org.eclipse.dawnsci.analysis.api/bin" />
+				<pathelement location="${workspace.git.loc}/diamond-jython.git/uk.ac.diamond.jython/bin" />
 				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
 				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/jars/*" />
 				<pathelement location="${workspace.git.loc}/dawn-eclipse.git/org.eclipse.dawnsci.analysis.dataset/bin" />
