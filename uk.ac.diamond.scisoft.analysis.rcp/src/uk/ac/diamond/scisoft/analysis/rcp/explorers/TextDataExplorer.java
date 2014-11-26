@@ -224,14 +224,14 @@ public class TextDataExplorer extends AbstractExplorer implements ISelectionProv
 		if (fileName == this.fileName)
 			return data;
 
-		return LoaderFactory.getData(fileName, true, mon);
+		return LoaderFactory.getData(fileName, true, false, true, mon);
 	}
 
 	@Override
 	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
 		this.fileName = fileName;
 
-		data = LoaderFactory.getData(fileName, true, mon);
+		data = LoaderFactory.getData(fileName, true, false, true, mon);
 
 		if (data != null) {
 			if (display != null) {

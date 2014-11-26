@@ -239,14 +239,14 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		if (fileName == this.fileName)
 			return data;
 
-		return LoaderFactory.getData(fileName, mon);
+		return LoaderFactory.getData(fileName, true, false, true, mon);
 	}
 
 	@Override
 	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
 		this.fileName = fileName;
 
-		IDataHolder loadedData = LoaderFactory.getData(fileName, mon);
+		IDataHolder loadedData = LoaderFactory.getData(fileName, true, false, true, mon);
 		data = new DataHolder();
 		if (loadedData != null) {
 			for (String name : loadedData.getNames()) {
