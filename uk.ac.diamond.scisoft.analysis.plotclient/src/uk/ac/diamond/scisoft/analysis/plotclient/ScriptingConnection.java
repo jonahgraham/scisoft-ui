@@ -255,16 +255,14 @@ public class ScriptingConnection implements IObservable {
 		if (dbPlot.getGuiParameters() != null) {
 			processGUIUpdate(dbPlot.getGuiParameters());
 		}
-		if (plotConnection != null) {
-			try {
-				doBlock();
-				// Now plot the data as standard
-				plotConnection.processPlotUpdate(dbPlot, isUpdatePlot());
-				setDataBean(dbPlot);
-				createRegion();
-			} finally {
-				undoBlock();
-			}
+		try {
+			doBlock();
+			// Now plot the data as standard
+			plotConnection.processPlotUpdate(dbPlot, isUpdatePlot());
+			setDataBean(dbPlot);
+			createRegion();
+		} finally {
+			undoBlock();
 		}
 	}
 
