@@ -52,6 +52,8 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.jython.util.JythonPath;
+
 public class JythonCreator implements IStartup {
 
 	private static Logger logger = LoggerFactory.getLogger(JythonCreator.class);
@@ -151,9 +153,9 @@ public class JythonCreator implements IStartup {
 		"uk.ac.gda.common",
 		"ncsa.hdf"
 	};
-	private static String[] extraPlugins = null;
+	private static Set<String> extraPlugins = null;
 
-	private void initialiseInterpreter(IProgressMonitor monitor) throws CoreException {
+	private void initialiseInterpreter(IProgressMonitor monitor) throws Exception {
 		/*
 		 * The layout of plugins can vary between where a built product and
 		 * a product run from Ellipse:
@@ -213,7 +215,8 @@ public class JythonCreator implements IStartup {
 				javaPath = "java";
 			}
 
-			String executable = new File(getInterpreterDirectory(pluginsDir, isRunningInEclipse), "jython.jar").getAbsolutePath();
+			// TODO Replace jython.jar with JythonPath.getJythonExecutableName()
+			String executable = new File(JythonPath.getInterpreterDirectory(), "jython.jar").getAbsolutePath();
 			if (!(new File(executable)).exists()) { 
 				logger.error("Failed to find jython jar at all");
 				return;
@@ -288,8 +291,14 @@ public class JythonCreator implements IStartup {
 			if (service != null) {
 				List<String> plugins = service.getPlugins();
 				logger.debug("Extra plugins: {}", plugins);
-				extraPlugins = plugins.toArray(new String[0]);
+				extraPlugins = new HashSet<String>(plugins);
 			}
+
+// TODO
+//#############################################################
+//
+//			//Get Jython paths for DAWN libs
+//			pyPaths.addAll(JythonPath.assembleJyPaths(pluginsDir, extraPlugins, isRunningInEclipse));
 
 			// Defines all third party libs that can be used in scripts.
 			logger.debug("Adding files to python path");
@@ -645,7 +654,7 @@ public class JythonCreator implements IStartup {
 		return isRequired(file, keys, null);
 	}
 
-	private static boolean isRequired(File file, String[] keys, String[] extraKeys) {
+	private static boolean isRequired(File file, String[] keys, Set<String> extraKeys) {
 		String filename = file.getName();
 //		logger.debug("Jar/dir found: {}", filename);
 		for (String key : keys) {
