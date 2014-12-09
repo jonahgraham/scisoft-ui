@@ -153,8 +153,7 @@ public class JythonCreator implements IStartup {
 				javaPath = "java";
 			}
 
-			// TODO Replace jython.jar with JythonPath.getJythonExecutableName()
-			String executable = new File(JythonPath.getInterpreterDirectory(), "jython.jar").getAbsolutePath();
+			String executable = new File(JythonPath.getInterpreterDirectory(), JythonPath.getJythonExecutableName()).getAbsolutePath();
 			if (!(new File(executable)).exists()) { 
 				logger.error("Failed to find jython jar at all");
 				return;
@@ -232,79 +231,10 @@ public class JythonCreator implements IStartup {
 				extraPlugins = new HashSet<String>(plugins);
 			}
 
-// TODO
-//#############################################################
-//
-//			//Get Jython paths for DAWN libs
+			//Get Jython paths for DAWN libs
 			pyPaths.addAll(JythonPath.assembleJyPaths(pluginsDir, extraPlugins, isRunningInEclipse));
 			//Also need allPluginsDirs for later parts
 			final List<File> allPluginDirs = JythonPath.findDirs(pluginsDir, extraPlugins, isRunningInEclipse);
-//
-//			// Defines all third party libs that can be used in scripts.
-//			logger.debug("Adding files to python path");
-//			final List<File> allJars = findJars(pluginsDir);
-//			for (File file : allJars) {
-//				if (pyPaths.add(file.getAbsolutePath())) {
-//					logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
-//				}
-//			}
-//
-//			final List<File> allPluginDirs = JythonPath.findDirs(pluginsDir, extraPlugins, isRunningInEclipse);
-//
-//			logger.debug("All Jars prepared");
-//
-//			if (isRunningInEclipse) {
-//				// ok checking for items inside the tp directory
-//				File wsDir = pluginsDir;
-//				if (!new File(wsDir, "tp").isDirectory()) {
-//					String ws = wsDir.getName();
-//					int i = ws.indexOf(GIT_SUFFIX);
-//					if (i >= 0) {
-//						wsDir = new File(wsDir.getParentFile(), ws.substring(0, i));
-//					}
-//				}
-//				final File wsPluginsDir = new File(wsDir, "plugins");
-//				if (wsPluginsDir.isDirectory()) {
-//					allPluginDirs.addAll(JythonPath.findDirs(wsPluginsDir, extraPlugins, isRunningInEclipse));
-//				}
-//				wsDir = new File(wsDir, "tp");
-//				if (wsDir.isDirectory()) {
-//					wsDir = new File(wsDir, "plugins");
-//					final List<File> tJars = findJars(wsDir);
-//					for (File file : tJars) {
-//						if (pyPaths.add(file.getAbsolutePath())) {
-//							logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
-//						}
-//					}
-//				}
-//
-//				// add plugins and ScisoftPy package
-//				for (File file: allPluginDirs) {
-//					File b = new File(file, "bin");
-//					if (b.isDirectory()) {
-//						if (pyPaths.add(b.getAbsolutePath())) {
-//							logger.debug("Adding dir to python path: {} ", b.getAbsolutePath());
-//						}
-//					} 
-//					// also check for internal jars
-//					final List<File> tJars = findJars(file);
-//					for (File j : tJars) {
-//						if (pyPaths.add(j.getAbsolutePath())) {
-//							logger.debug("Adding jar file to python path : {} ", j.getAbsolutePath());
-//						}
-//					}
-//				}
-//			} else {
-//				// and add all unjarred folders
-//				for (File file: allPluginDirs) {
-//					if (pyPaths.add(file.getAbsolutePath())) {
-//						logger.debug("Adding dir to python path: {} ", file.getAbsolutePath());
-//					}
-//				}
-//			}
-//
-//#################################################
-//
 
 			Set<String> removals = new HashSet<String>();
 			for (String s : info.libs) {
