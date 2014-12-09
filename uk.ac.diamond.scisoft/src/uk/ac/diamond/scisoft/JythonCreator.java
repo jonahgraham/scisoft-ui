@@ -11,7 +11,6 @@ package uk.ac.diamond.scisoft;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -24,8 +23,6 @@ import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -34,7 +31,6 @@ import org.eclipse.dawnsci.analysis.api.io.ILoaderFactoryExtensionService;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
-import org.osgi.framework.Bundle;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -78,7 +74,6 @@ public class JythonCreator implements IStartup {
 	}
 
 
-	private static final String JYTHON_BUNDLE = "uk.ac.diamond.jython";
 	private static final String JYTHON_VERSION = "2.5";
 
 	/**
@@ -86,73 +81,16 @@ public class JythonCreator implements IStartup {
 	 */
 	public static final String INTERPRETER_NAME = "Jython" + JYTHON_VERSION;
 
-	private static String JYTHON_DIR = "jython" + JYTHON_VERSION;
-	private static final String GIT_REPO_ENDING = ".git";
-	private static final String GIT_SUFFIX = "_git";
-
 	/**
 	 * Boolean to set to true if running jython scripts that utilise ScisoftPy in IDE
 	 */
 	public static final String RUN_IN_ECLIPSE = "run.in.eclipse";
 
-	private static final String[] blackListedJarDirs = {
-		"uk.ac.gda.libs",
-		"ch.qos.logback.eclipse",
-		"ch.qos.logback.beagle",
-		"org.dawb.workbench.jmx",
-		GIT_REPO_ENDING,
-		JYTHON_DIR
-		};
-	private static final String[] requiredJars = {
-		"org.python.pydev",
-		"cbflib-0.9",
-		"org.apache.commons.codec",
-		"org.apache.commons.math", // includes math3
-		"uk.ac.diamond.CBFlib",
-		"uk.ac.diamond.jama",
-		"com.googlecode.efficient-java-matrix-library",
-		"org.ddogleg",
-		"org.apache.commons.lang",
-		"org.eclipse.dawnsci.analysis", // includes api, dataset, tree, etc
-		"uk.ac.diamond.scisoft.analysis",
-		"uk.ac.diamond.scisoft.diffraction.powder",
-		"uk.ac.diamond.scisoft.python",
-		"uk.ac.diamond.scisoft.spectroscopy",
-		"uk.ac.gda.common",
-		"org.eclipse.dawnsci.hdf5", // fix to http://jira.diamond.ac.uk/browse/SCI-1467
-		"slf4j.api",
-		"jcl.over.slf4j",
-		"log4j.over.slf4j",
-		"ch.qos.logback.core",
-		"ch.qos.logback.classic",
-		"com.springsource.org.apache.commons",
-		"com.springsource.javax.media.jai.core",
-		"com.springsource.javax.media.jai.codec",
-		"jtransforms",
-		"jai_imageio",
-		"it.tidalwave.imageio.raw",
-		"javax.vecmath",
-		"uk.ac.diamond.org.apache.ws.commons.util",
-		"uk.ac.diamond.org.apache.xmlrpc.client",
-		"uk.ac.diamond.org.apache.xmlrpc.common",
-		"uk.ac.diamond.org.apache.xmlrpc.server",
-		"com.thoughtworks.xstream",
-		"uk.ac.diamond.org.jscience4",
-	};
 	private static final String[] removedLibEndings = {
 		"pysrc",
 		"classpath__" // includes __classpath__ and __pyclasspath__
 	};
-	private final static String[] pluginKeys = {
-		"org.eclipse.dawnsci.hdf5", // required for loading to work in client started from IDE
-		"org.eclipse.dawnsci.analysis", // includes api, dataset, tree, etc
-		"uk.ac.diamond.scisoft.analysis",
-		"uk.ac.diamond.scisoft.diffraction.powder",
-		"uk.ac.diamond.scisoft.python",
-		"uk.ac.diamond.CBFlib",
-		"uk.ac.gda.common",
-		"ncsa.hdf"
-	};
+
 	private static Set<String> extraPlugins = null;
 
 	private void initialiseInterpreter(IProgressMonitor monitor) throws Exception {
@@ -513,79 +451,6 @@ public class JythonCreator implements IStartup {
 		}
 	}
 	
-//	/**
-//	 * @return directory where plugins live (defined as parent of current bundle)
-//	 */
-//	private File getPluginsDirectory(boolean isRunningInEclipse) {
-//		Bundle b = Platform.getBundle(Activator.PLUGIN_ID);
-//		logger.debug("Bundle: {}", b);
-//		try {
-//			File f = FileLocator.getBundleFile(b).getParentFile();
-//			logger.debug("Bundle location: {}", f.getAbsolutePath());
-//	
-//			if (isRunningInEclipse) {
-//				File gitws = f.getParentFile();
-//				return gitws;
-//			}
-//	
-//			return f;
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		return null;
-//	}
-
-//	private File getInterpreterDirectory(File pluginsDir, boolean isRunningInEclipse) {
-//		if (isRunningInEclipse) {
-//			for (File g : pluginsDir.listFiles()) { // git repositories
-//				if (g.isDirectory() && g.getName().endsWith(GIT_REPO_ENDING)) {
-//					for (File p : g.listFiles()) { // projects
-//						if (p.getName().startsWith(JYTHON_BUNDLE)) {
-//							File d = new File(p, JYTHON_DIR);
-//							return d;
-//						}
-//					}
-//				}
-//			}
-//		} else {
-//			for (File p : pluginsDir.listFiles()) { // plugins
-//				if (p.getName().startsWith(JYTHON_BUNDLE)) {
-//					File d = new File(p, JYTHON_DIR);
-//					return d;
-//				}
-//			}
-//
-//		}
-//		logger.error("Could not find a directory for {}:", JYTHON_BUNDLE);
-//		logger.error("\tEither you are running in Eclipse and need to add -D{}=true in the run configuration VM arguments", RUN_IN_ECLIPSE);
-//		logger.error("\tor there was a problem with the product build.");
-//		return null;
-//	}
-
-//	/**
-//	 * Method returns recursively all the jars found in a directory (apart from Jython directory)
-//	 * 
-//	 * @return list of jar Files
-//	 */
-////	public static final List<File> findJars(File directory) {
-//		final List<File> libs = new ArrayList<File>();
-//	
-//		if (directory.isDirectory()) {
-//			for (File f : directory.listFiles()) {
-//				final String name = f.getName();
-//				// if the file is a jar, then add it
-//				if (name.endsWith(".jar")) {
-//					if (isRequired(f, requiredJars, extraPlugins)) {
-//						libs.add(f);
-//					}
-//				} else if (f.isDirectory() && !isRequired(f, blackListedJarDirs)) {
-//					libs.addAll(findJars(f));
-//				}
-//			}
-//		}
-//	
-//		return libs;
-//	}
 
 	private static void logPaths(String pathname, String paths) {
 		if (paths == null)
@@ -595,81 +460,5 @@ public class JythonCreator implements IStartup {
 			logger.debug("\t{}", p);
 	}
 
-//	/**
-//	 * Method returns path to directories
-//	 * 
-//	 * @return list of directories
-//	 */
-//	private List<File> findDirs(File directory, boolean isRunningInEclipse) {
-//
-//		// ok we get the plugins directory here, so we need to explore a bit further for git
-//		final List<File> plugins = new ArrayList<File>();
-//
-//		if (isRunningInEclipse) {
-//			// get down to the git checkouts
-//			// only do this if we are running inside Eclipse
-//			List<File> dirs = new ArrayList<File>();
-//
-//			for (File d : directory.listFiles()) {
-//				if (d.isDirectory()) {
-//					String n = d.getName();
-//					if (n.endsWith(GIT_REPO_ENDING)) {
-//						dirs.add(d);
-//					} else if (n.equals("scisoft")) { // old source layout
-//						for (File f : d.listFiles()) {
-//							if (f.isDirectory()) {
-//								if (f.getName().endsWith(GIT_REPO_ENDING)) {
-//									logger.debug("Adding scisoft directory {}", f);
-//									dirs.add(f);
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}
-//
-//			for (File f : dirs) {
-//				for (File p : f.listFiles()) {
-//					if (p.isDirectory()) {
-//						if (isRequired(p, pluginKeys, extraPlugins)) {
-//							logger.debug("Adding plugin directory {}", p);
-//							plugins.add(p);
-//						}
-//					}
-//				}
-//			}
-//		} else {
-//			// get the basic plugins directory
-//			if (directory.isDirectory()) {
-//				for (File f : directory.listFiles()) {
-//					if (f.isDirectory()) {
-//						if (isRequired(f, pluginKeys, extraPlugins)) {
-//							logger.debug("Adding plugin directory {}", f);
-//							plugins.add(f);
-//						}
-//					}
-//				}
-//			}
-//		}
-//
-//		return plugins;
-//	}
 
-//	private static boolean isRequired(File file, String[] keys) {
-//		return isRequired(file, keys, null);
-//	}
-
-//	private static boolean isRequired(File file, String[] keys, Set<String> extraKeys) {
-//		String filename = file.getName();
-////		logger.debug("Jar/dir found: {}", filename);
-//		for (String key : keys) {
-//			if (filename.startsWith(key)) return true;
-//		}
-//		if (extraKeys != null) {
-//			for (String key : extraKeys) {
-//				if (filename.startsWith(key)) return true;
-//			}
-//		}
-//		return false;
-//	}
 }
