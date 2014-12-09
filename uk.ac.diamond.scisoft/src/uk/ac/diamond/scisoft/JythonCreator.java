@@ -177,7 +177,7 @@ public class JythonCreator implements IStartup {
 		// Horrible Hack warning: This code is copied from parts of Pydev to set up the interpreter and save it.
 		{
 
-			File pluginsDir = getPluginsDirectory(isRunningInEclipse); // plugins or git workspace directory
+			File pluginsDir = JythonPath.getPluginsDirectory(isRunningInEclipse); // plugins or git workspace directory
 			if (pluginsDir == null) {
 				logger.error("Failed to find plugins directory!");
 				return;
@@ -298,70 +298,75 @@ public class JythonCreator implements IStartup {
 //#############################################################
 //
 //			//Get Jython paths for DAWN libs
-//			pyPaths.addAll(JythonPath.assembleJyPaths(pluginsDir, extraPlugins, isRunningInEclipse));
-
-			// Defines all third party libs that can be used in scripts.
-			logger.debug("Adding files to python path");
-			final List<File> allJars = findJars(pluginsDir);
-			for (File file : allJars) {
-				if (pyPaths.add(file.getAbsolutePath())) {
-					logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
-				}
-			}
-
-			final List<File> allPluginDirs = findDirs(pluginsDir, isRunningInEclipse);
-
-			logger.debug("All Jars prepared");
-
-			if (isRunningInEclipse) {
-				// ok checking for items inside the tp directory
-				File wsDir = pluginsDir;
-				if (!new File(wsDir, "tp").isDirectory()) {
-					String ws = wsDir.getName();
-					int i = ws.indexOf(GIT_SUFFIX);
-					if (i >= 0) {
-						wsDir = new File(wsDir.getParentFile(), ws.substring(0, i));
-					}
-				}
-				final File wsPluginsDir = new File(wsDir, "plugins");
-				if (wsPluginsDir.isDirectory()) {
-					allPluginDirs.addAll(findDirs(wsPluginsDir, isRunningInEclipse));
-				}
-				wsDir = new File(wsDir, "tp");
-				if (wsDir.isDirectory()) {
-					wsDir = new File(wsDir, "plugins");
-					final List<File> tJars = findJars(wsDir);
-					for (File file : tJars) {
-						if (pyPaths.add(file.getAbsolutePath())) {
-							logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
-						}
-					}
-				}
-
-				// add plugins and ScisoftPy package
-				for (File file: allPluginDirs) {
-					File b = new File(file, "bin");
-					if (b.isDirectory()) {
-						if (pyPaths.add(b.getAbsolutePath())) {
-							logger.debug("Adding dir to python path: {} ", b.getAbsolutePath());
-						}
-					} 
-					// also check for internal jars
-					final List<File> tJars = findJars(file);
-					for (File j : tJars) {
-						if (pyPaths.add(j.getAbsolutePath())) {
-							logger.debug("Adding jar file to python path : {} ", j.getAbsolutePath());
-						}
-					}
-				}
-			} else {
-				// and add all unjarred folders
-				for (File file: allPluginDirs) {
-					if (pyPaths.add(file.getAbsolutePath())) {
-						logger.debug("Adding dir to python path: {} ", file.getAbsolutePath());
-					}
-				}
-			}
+			pyPaths.addAll(JythonPath.assembleJyPaths(pluginsDir, extraPlugins, isRunningInEclipse));
+			//Also need allPluginsDirs for later parts
+			final List<File> allPluginDirs = JythonPath.findDirs(pluginsDir, extraPlugins, isRunningInEclipse);
+//
+//			// Defines all third party libs that can be used in scripts.
+//			logger.debug("Adding files to python path");
+//			final List<File> allJars = findJars(pluginsDir);
+//			for (File file : allJars) {
+//				if (pyPaths.add(file.getAbsolutePath())) {
+//					logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
+//				}
+//			}
+//
+//			final List<File> allPluginDirs = JythonPath.findDirs(pluginsDir, extraPlugins, isRunningInEclipse);
+//
+//			logger.debug("All Jars prepared");
+//
+//			if (isRunningInEclipse) {
+//				// ok checking for items inside the tp directory
+//				File wsDir = pluginsDir;
+//				if (!new File(wsDir, "tp").isDirectory()) {
+//					String ws = wsDir.getName();
+//					int i = ws.indexOf(GIT_SUFFIX);
+//					if (i >= 0) {
+//						wsDir = new File(wsDir.getParentFile(), ws.substring(0, i));
+//					}
+//				}
+//				final File wsPluginsDir = new File(wsDir, "plugins");
+//				if (wsPluginsDir.isDirectory()) {
+//					allPluginDirs.addAll(JythonPath.findDirs(wsPluginsDir, extraPlugins, isRunningInEclipse));
+//				}
+//				wsDir = new File(wsDir, "tp");
+//				if (wsDir.isDirectory()) {
+//					wsDir = new File(wsDir, "plugins");
+//					final List<File> tJars = findJars(wsDir);
+//					for (File file : tJars) {
+//						if (pyPaths.add(file.getAbsolutePath())) {
+//							logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
+//						}
+//					}
+//				}
+//
+//				// add plugins and ScisoftPy package
+//				for (File file: allPluginDirs) {
+//					File b = new File(file, "bin");
+//					if (b.isDirectory()) {
+//						if (pyPaths.add(b.getAbsolutePath())) {
+//							logger.debug("Adding dir to python path: {} ", b.getAbsolutePath());
+//						}
+//					} 
+//					// also check for internal jars
+//					final List<File> tJars = findJars(file);
+//					for (File j : tJars) {
+//						if (pyPaths.add(j.getAbsolutePath())) {
+//							logger.debug("Adding jar file to python path : {} ", j.getAbsolutePath());
+//						}
+//					}
+//				}
+//			} else {
+//				// and add all unjarred folders
+//				for (File file: allPluginDirs) {
+//					if (pyPaths.add(file.getAbsolutePath())) {
+//						logger.debug("Adding dir to python path: {} ", file.getAbsolutePath());
+//					}
+//				}
+//			}
+//
+//#################################################
+//
 
 			Set<String> removals = new HashSet<String>();
 			for (String s : info.libs) {
@@ -508,79 +513,79 @@ public class JythonCreator implements IStartup {
 		}
 	}
 	
-	/**
-	 * @return directory where plugins live (defined as parent of current bundle)
-	 */
-	private File getPluginsDirectory(boolean isRunningInEclipse) {
-		Bundle b = Platform.getBundle(Activator.PLUGIN_ID);
-		logger.debug("Bundle: {}", b);
-		try {
-			File f = FileLocator.getBundleFile(b).getParentFile();
-			logger.debug("Bundle location: {}", f.getAbsolutePath());
-	
-			if (isRunningInEclipse) {
-				File gitws = f.getParentFile();
-				return gitws;
-			}
-	
-			return f;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+//	/**
+//	 * @return directory where plugins live (defined as parent of current bundle)
+//	 */
+//	private File getPluginsDirectory(boolean isRunningInEclipse) {
+//		Bundle b = Platform.getBundle(Activator.PLUGIN_ID);
+//		logger.debug("Bundle: {}", b);
+//		try {
+//			File f = FileLocator.getBundleFile(b).getParentFile();
+//			logger.debug("Bundle location: {}", f.getAbsolutePath());
+//	
+//			if (isRunningInEclipse) {
+//				File gitws = f.getParentFile();
+//				return gitws;
+//			}
+//	
+//			return f;
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
 
-	private File getInterpreterDirectory(File pluginsDir, boolean isRunningInEclipse) {
-		if (isRunningInEclipse) {
-			for (File g : pluginsDir.listFiles()) { // git repositories
-				if (g.isDirectory() && g.getName().endsWith(GIT_REPO_ENDING)) {
-					for (File p : g.listFiles()) { // projects
-						if (p.getName().startsWith(JYTHON_BUNDLE)) {
-							File d = new File(p, JYTHON_DIR);
-							return d;
-						}
-					}
-				}
-			}
-		} else {
-			for (File p : pluginsDir.listFiles()) { // plugins
-				if (p.getName().startsWith(JYTHON_BUNDLE)) {
-					File d = new File(p, JYTHON_DIR);
-					return d;
-				}
-			}
+//	private File getInterpreterDirectory(File pluginsDir, boolean isRunningInEclipse) {
+//		if (isRunningInEclipse) {
+//			for (File g : pluginsDir.listFiles()) { // git repositories
+//				if (g.isDirectory() && g.getName().endsWith(GIT_REPO_ENDING)) {
+//					for (File p : g.listFiles()) { // projects
+//						if (p.getName().startsWith(JYTHON_BUNDLE)) {
+//							File d = new File(p, JYTHON_DIR);
+//							return d;
+//						}
+//					}
+//				}
+//			}
+//		} else {
+//			for (File p : pluginsDir.listFiles()) { // plugins
+//				if (p.getName().startsWith(JYTHON_BUNDLE)) {
+//					File d = new File(p, JYTHON_DIR);
+//					return d;
+//				}
+//			}
+//
+//		}
+//		logger.error("Could not find a directory for {}:", JYTHON_BUNDLE);
+//		logger.error("\tEither you are running in Eclipse and need to add -D{}=true in the run configuration VM arguments", RUN_IN_ECLIPSE);
+//		logger.error("\tor there was a problem with the product build.");
+//		return null;
+//	}
 
-		}
-		logger.error("Could not find a directory for {}:", JYTHON_BUNDLE);
-		logger.error("\tEither you are running in Eclipse and need to add -D{}=true in the run configuration VM arguments", RUN_IN_ECLIPSE);
-		logger.error("\tor there was a problem with the product build.");
-		return null;
-	}
-
-	/**
-	 * Method returns recursively all the jars found in a directory (apart from Jython directory)
-	 * 
-	 * @return list of jar Files
-	 */
-	public static final List<File> findJars(File directory) {
-		final List<File> libs = new ArrayList<File>();
-	
-		if (directory.isDirectory()) {
-			for (File f : directory.listFiles()) {
-				final String name = f.getName();
-				// if the file is a jar, then add it
-				if (name.endsWith(".jar")) {
-					if (isRequired(f, requiredJars, extraPlugins)) {
-						libs.add(f);
-					}
-				} else if (f.isDirectory() && !isRequired(f, blackListedJarDirs)) {
-					libs.addAll(findJars(f));
-				}
-			}
-		}
-	
-		return libs;
-	}
+//	/**
+//	 * Method returns recursively all the jars found in a directory (apart from Jython directory)
+//	 * 
+//	 * @return list of jar Files
+//	 */
+////	public static final List<File> findJars(File directory) {
+//		final List<File> libs = new ArrayList<File>();
+//	
+//		if (directory.isDirectory()) {
+//			for (File f : directory.listFiles()) {
+//				final String name = f.getName();
+//				// if the file is a jar, then add it
+//				if (name.endsWith(".jar")) {
+//					if (isRequired(f, requiredJars, extraPlugins)) {
+//						libs.add(f);
+//					}
+//				} else if (f.isDirectory() && !isRequired(f, blackListedJarDirs)) {
+//					libs.addAll(findJars(f));
+//				}
+//			}
+//		}
+//	
+//		return libs;
+//	}
 
 	private static void logPaths(String pathname, String paths) {
 		if (paths == null)
@@ -590,81 +595,81 @@ public class JythonCreator implements IStartup {
 			logger.debug("\t{}", p);
 	}
 
-	/**
-	 * Method returns path to directories
-	 * 
-	 * @return list of directories
-	 */
-	private List<File> findDirs(File directory, boolean isRunningInEclipse) {
+//	/**
+//	 * Method returns path to directories
+//	 * 
+//	 * @return list of directories
+//	 */
+//	private List<File> findDirs(File directory, boolean isRunningInEclipse) {
+//
+//		// ok we get the plugins directory here, so we need to explore a bit further for git
+//		final List<File> plugins = new ArrayList<File>();
+//
+//		if (isRunningInEclipse) {
+//			// get down to the git checkouts
+//			// only do this if we are running inside Eclipse
+//			List<File> dirs = new ArrayList<File>();
+//
+//			for (File d : directory.listFiles()) {
+//				if (d.isDirectory()) {
+//					String n = d.getName();
+//					if (n.endsWith(GIT_REPO_ENDING)) {
+//						dirs.add(d);
+//					} else if (n.equals("scisoft")) { // old source layout
+//						for (File f : d.listFiles()) {
+//							if (f.isDirectory()) {
+//								if (f.getName().endsWith(GIT_REPO_ENDING)) {
+//									logger.debug("Adding scisoft directory {}", f);
+//									dirs.add(f);
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+//
+//			for (File f : dirs) {
+//				for (File p : f.listFiles()) {
+//					if (p.isDirectory()) {
+//						if (isRequired(p, pluginKeys, extraPlugins)) {
+//							logger.debug("Adding plugin directory {}", p);
+//							plugins.add(p);
+//						}
+//					}
+//				}
+//			}
+//		} else {
+//			// get the basic plugins directory
+//			if (directory.isDirectory()) {
+//				for (File f : directory.listFiles()) {
+//					if (f.isDirectory()) {
+//						if (isRequired(f, pluginKeys, extraPlugins)) {
+//							logger.debug("Adding plugin directory {}", f);
+//							plugins.add(f);
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		return plugins;
+//	}
 
-		// ok we get the plugins directory here, so we need to explore a bit further for git
-		final List<File> plugins = new ArrayList<File>();
+//	private static boolean isRequired(File file, String[] keys) {
+//		return isRequired(file, keys, null);
+//	}
 
-		if (isRunningInEclipse) {
-			// get down to the git checkouts
-			// only do this if we are running inside Eclipse
-			List<File> dirs = new ArrayList<File>();
-
-			for (File d : directory.listFiles()) {
-				if (d.isDirectory()) {
-					String n = d.getName();
-					if (n.endsWith(GIT_REPO_ENDING)) {
-						dirs.add(d);
-					} else if (n.equals("scisoft")) { // old source layout
-						for (File f : d.listFiles()) {
-							if (f.isDirectory()) {
-								if (f.getName().endsWith(GIT_REPO_ENDING)) {
-									logger.debug("Adding scisoft directory {}", f);
-									dirs.add(f);
-								}
-							}
-						}
-					}
-				}
-			}
-
-			for (File f : dirs) {
-				for (File p : f.listFiles()) {
-					if (p.isDirectory()) {
-						if (isRequired(p, pluginKeys, extraPlugins)) {
-							logger.debug("Adding plugin directory {}", p);
-							plugins.add(p);
-						}
-					}
-				}
-			}
-		} else {
-			// get the basic plugins directory
-			if (directory.isDirectory()) {
-				for (File f : directory.listFiles()) {
-					if (f.isDirectory()) {
-						if (isRequired(f, pluginKeys, extraPlugins)) {
-							logger.debug("Adding plugin directory {}", f);
-							plugins.add(f);
-						}
-					}
-				}
-			}
-		}
-
-		return plugins;
-	}
-
-	private static boolean isRequired(File file, String[] keys) {
-		return isRequired(file, keys, null);
-	}
-
-	private static boolean isRequired(File file, String[] keys, Set<String> extraKeys) {
-		String filename = file.getName();
-//		logger.debug("Jar/dir found: {}", filename);
-		for (String key : keys) {
-			if (filename.startsWith(key)) return true;
-		}
-		if (extraKeys != null) {
-			for (String key : extraKeys) {
-				if (filename.startsWith(key)) return true;
-			}
-		}
-		return false;
-	}
+//	private static boolean isRequired(File file, String[] keys, Set<String> extraKeys) {
+//		String filename = file.getName();
+////		logger.debug("Jar/dir found: {}", filename);
+//		for (String key : keys) {
+//			if (filename.startsWith(key)) return true;
+//		}
+//		if (extraKeys != null) {
+//			for (String key : extraKeys) {
+//				if (filename.startsWith(key)) return true;
+//			}
+//		}
+//		return false;
+//	}
 }
