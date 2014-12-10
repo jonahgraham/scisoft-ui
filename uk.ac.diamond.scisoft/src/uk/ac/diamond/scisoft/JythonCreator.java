@@ -152,8 +152,15 @@ public class JythonCreator implements IStartup {
 				logger.warn("Could not resolve default Java path so resorting to PATH", e);
 				javaPath = "java";
 			}
+			
+			//If the interpreter directory comes back unset, we don't want to go any further.
+			File interpreterDirectory = JythonPath.getInterpreterDirectory(isRunningInEclipse);
+			if (interpreterDirectory == null) {
+				logger.error("Interpreter directory not set. Cannot find interpreter.");
+				return;
+			}
 
-			String executable = new File(JythonPath.getInterpreterDirectory(), JythonPath.getJythonExecutableName()).getAbsolutePath();
+			String executable = new File(interpreterDirectory, JythonPath.getJythonExecutableName()).getAbsolutePath();
 			if (!(new File(executable)).exists()) { 
 				logger.error("Failed to find jython jar at all");
 				return;
