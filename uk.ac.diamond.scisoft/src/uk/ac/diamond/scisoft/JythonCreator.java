@@ -73,19 +73,19 @@ public class JythonCreator implements IStartup {
 		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS, 4000);
 	}
 
-
-	private static final String JYTHON_VERSION = "2.5";
-
 	/**
 	 * Name of interpreter that is set in the PyDev Jython Interpreter settings
 	 */
-	public static final String INTERPRETER_NAME = "Jython" + JYTHON_VERSION;
+	public static final String INTERPRETER_NAME = "Jython" + JythonPath.getJythonVersion();
 
 	/**
 	 * Boolean to set to true if running jython scripts that utilise ScisoftPy in IDE
 	 */
 	public static final String RUN_IN_ECLIPSE = "run.in.eclipse";
 
+	/**
+	 * Variables containing paths have been moved to u.a.d.jython.util.JythonPath
+	 */
 	private static final String[] removedLibEndings = {
 		"pysrc",
 		"classpath__" // includes __classpath__ and __pyclasspath__
