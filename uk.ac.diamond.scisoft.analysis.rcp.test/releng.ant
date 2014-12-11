@@ -15,7 +15,9 @@
 
 	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/test-common.ant" />
 	<target name="junit-tests" depends="set-test-base-DAWN">
-		<property name="uk.ac.diamond.jython.location" value="${workspace.git.loc}/diamond-jython.git/uk.ac.diamond.jython" />  <!-- required by uk.ac.diamond.jython/src/uk/ac/diamond/jython/util/JythonPath.java -->
+		<!-- 2 properties required by uk.ac.diamond.jython/src/uk/ac/diamond/jython/util/JythonPath.java -->
+		<property name="uk.ac.diamond.jython.location" value="${workspace.git.loc}/diamond-jython.git/uk.ac.diamond.jython" />
+		<property name="run.in.eclipse" value="true" />
 		<junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1024m">
 			<formatter type="xml" />
 			<classpath>
