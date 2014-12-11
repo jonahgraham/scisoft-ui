@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright (c) 2012 Diamond Light Source Ltd.
  *
  * All rights reserved. This program and the accompanying materials
@@ -48,7 +48,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.jython.util.JythonPath;
+import uk.ac.diamond.scisoft.jython.JythonPath;
 
 public class JythonCreator implements IStartup {
 
@@ -110,7 +110,7 @@ public class JythonCreator implements IStartup {
 
 		logger.debug("Initialising the Jython interpreter setup");
 
-		boolean isRunningInEclipse = "true".equalsIgnoreCase(System.getProperty(RUN_IN_ECLIPSE));
+		boolean isRunningInEclipse = Boolean.getBoolean(RUN_IN_ECLIPSE);
 
 		// Horrible Hack warning: This code is copied from parts of Pydev to set up the interpreter and save it.
 		{
