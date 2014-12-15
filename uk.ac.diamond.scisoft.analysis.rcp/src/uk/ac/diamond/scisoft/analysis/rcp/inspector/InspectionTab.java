@@ -720,7 +720,7 @@ class PlotTab extends ATab {
 				
 				Dataset slicedAxis = DatasetUtils.convertToDataset(axesData.getSlice(s));
 
-				Dataset reorderdAxesData = DatasetUtils.transpose(slicedAxis, reorderAxesDims);
+				Dataset reorderdAxesData = slicedAxis.getTransposedView(reorderAxesDims);
 //				reorderdAxesData.setName(axesData.getName());
 
 				reorderdAxesData.setName(c.getLongName());
@@ -846,7 +846,7 @@ class PlotTab extends ATab {
 		if (slicedData == null) return null;
 	
 		
-		reorderedData = DatasetUtils.transpose(slicedData, order);
+		reorderedData = slicedData.getTransposedView(order);
 		reorderedData.squeeze();
 		if (reorderedData.getSize() < 1)
 			return null;
@@ -1187,7 +1187,7 @@ class PlotTab extends ATab {
 //					System.err.printf("Pos %s; start %s; stop %s; step %s; ", Arrays.toString(pos), Arrays.toString(start), Arrays.toString(stop), Arrays.toString(step));
 //					System.err.printf("Shape %s\n", Arrays.toString(slicedData.getShape()));
 
-					Dataset reorderedData = DatasetUtils.transpose(slicedData, order);
+					Dataset reorderedData = slicedData.getTransposedView(order);
 
 					reorderedData.setName(slicedData.getName());
 					reorderedData.squeeze();
@@ -1275,7 +1275,7 @@ class PlotTab extends ATab {
 				if (slicedData == null)
 					return;
 
-				Dataset reorderedData = DatasetUtils.transpose(slicedData, order);
+				Dataset reorderedData = slicedData.getTransposedView(order);
 
 				reorderedData.setName(slicedData.getName());
 				reorderedData.squeeze();
