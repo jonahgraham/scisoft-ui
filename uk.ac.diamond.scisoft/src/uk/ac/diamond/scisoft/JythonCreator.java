@@ -91,8 +91,6 @@ public class JythonCreator implements IStartup {
 		"classpath__" // includes __classpath__ and __pyclasspath__
 	};
 
-	private static Set<String> extraPlugins = null;
-
 	private void initialiseInterpreter(IProgressMonitor monitor) throws Exception {
 		/*
 		 * The layout of plugins can vary between where a built product and
@@ -230,13 +228,19 @@ public class JythonCreator implements IStartup {
 				}
 			}
 
+			Set<String> extraPlugins = new HashSet<String>(7);
 			// Find all packages that contribute to loader factory
 			ILoaderFactoryExtensionService service = (ILoaderFactoryExtensionService) Activator.getService(ILoaderFactoryExtensionService.class);
 			if (service != null) {
 				List<String> plugins = service.getPlugins();
 				logger.debug("Extra plugins: {}", plugins);
-				extraPlugins = new HashSet<String>(plugins);
+				extraPlugins.addAll(plugins);
 			}
+			
+			// We add the SWT plugins so that the plotting system works in Jython mode.
+			// The class IRemotePlottingSystem ends up referencing color so SWT plugins are
+			// required to expose IRemotePlottingSystem to the scripting layer.
+			createSwtEntries(extraPlugins);
 
 			//Get Jython paths for DAWN libs
 			pyPaths.addAll(JythonPath.assembleJyPaths(pluginsDir, extraPlugins, isRunningInEclipse));
@@ -388,6 +392,19 @@ public class JythonCreator implements IStartup {
 		}
 	}
 	
+
+	private void createSwtEntries(Set<String> extraPlugins) {
+		
+		final String ws   = System.getProperty("osgi.ws");
+		if (ws == null) return;
+		final String os   = System.getProperty("osgi.os");
+		if (os == null) return;
+		final String arch = System.getProperty("osgi.arch");		
+		if (arch == null) return;
+		
+		extraPlugins.add("org.eclipse.swt_"); // Core SWT
+		extraPlugins.add("org.eclipse.swt."+ws+"."+os+"."+arch); // OS SWT
+	}
 
 	private static void logPaths(String pathname, String paths) {
 		if (paths == null)
