@@ -9,10 +9,12 @@
 
 package uk.ac.diamond.scisoft.analysis.plotclient.dataset;
 
+import java.io.Serializable;
 import java.rmi.Remote;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
-import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.dawnsci.analysis.api.RMIClientProvider;
 import org.eclipse.dawnsci.analysis.api.RMIServerProvider;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
@@ -36,9 +38,14 @@ import uk.ac.diamond.scisoft.analysis.rpc.IAnalysisRpcHandler;
  * @author Matthew Gerring
  *
  */
-public class DatasetMailman implements IDatasetMailman, Remote {
+public class DatasetMailman implements IDatasetMailman, Serializable {
 	
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6654851052590631220L;
+
 	static private Logger logger = LoggerFactory.getLogger(DatasetMailman.class);
 
 	private static DatasetMailman manager;
@@ -77,7 +84,7 @@ public class DatasetMailman implements IDatasetMailman, Remote {
 	 * 
 	 * @return
 	 */
-	public static IDatasetMailman getLocalManager() {
+	public static DatasetMailman getLocalManager() {
 		if (manager==null) init();
 		return manager;
 	}
@@ -88,8 +95,9 @@ public class DatasetMailman implements IDatasetMailman, Remote {
 	 */
 	public static IDatasetMailman getRemoteManager() {
 		try {
-			return (DatasetMailman) RMIClientProvider.getInstance().lookup(null, RMI_DATASET_SERVICE_NAME);
-		} catch (Exception e) {
+			return (IDatasetMailman) RMIClientProvider.getInstance().lookup(null, RMI_DATASET_SERVICE_NAME);
+		} catch (Throwable e) {
+			e.printStackTrace();
 			// It will not work in Jython if this exception is thrown. However people are not using this in
 			// Jython at the moment...?
 			//logger.error("Unable to obtain IPlotWindowManagerRMI manager", e);
@@ -102,7 +110,7 @@ public class DatasetMailman implements IDatasetMailman, Remote {
 		
 	}
 
-	private ListenerList listeners;
+	private Set<IDataMailListener> listeners;
 
 	@Override
 	public void send(String datasetName, Map<String, IDataset> data) {
@@ -110,7 +118,7 @@ public class DatasetMailman implements IDatasetMailman, Remote {
 		if (listeners==null) return;
 		
 		final DataMailEvent evt = new DataMailEvent(this, datasetName, data);
-		for (Object listener : listeners.getListeners()) {
+		for (Object listener : listeners) {
 			((IDataMailListener)listener).mailReceived(evt);
 		}
 	}
@@ -123,7 +131,7 @@ public class DatasetMailman implements IDatasetMailman, Remote {
 
 	@Override
 	public void addMailListener(IDataMailListener l) {
-		if (listeners==null) listeners = new ListenerList();
+		if (listeners==null) listeners = new HashSet<IDataMailListener>();
 		listeners.add(l);
 	}
 
