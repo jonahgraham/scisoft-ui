@@ -52,7 +52,7 @@ public class InspectorSelectionProvider implements IH5DoubleClickSelectionProvid
 	    HDF5Loader   loader = new HDF5Loader(filePath);
 	    Tree     tree   = loader.loadTree(new IMonitor.Stub());	    
 	    NodeLink link   = tree.findNodeLink(linkPath.getFullName());
-		return HDF5Utils.createDatasetSelection(link, true);
+		return HDF5Utils.createDatasetSelection(link);
 	}
 
 }

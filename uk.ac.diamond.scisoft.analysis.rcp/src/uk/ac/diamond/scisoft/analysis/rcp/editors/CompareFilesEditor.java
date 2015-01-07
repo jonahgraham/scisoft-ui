@@ -1276,12 +1276,15 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	/**
 	 * Load axis selections from selected files
 	 */
+	@SuppressWarnings("null")
 	private void loadAxisSelections(List<? extends SelectedObject> selectedList, List<AxisSelection> axes, String node) {
 		boolean isFirst = true;
 
 		List<AxisSelection> laxes = new ArrayList<AxisSelection>();
-		for (AxisSelection as : axes)
-			laxes.add(as.clone());
+		if (axes != null) {
+			for (AxisSelection as : axes)
+				laxes.add(as.clone());
+		}
 
 		for (SelectedObject f : selectedList) {
 			if (f.doUse() && f.hasData() && (useRowIndexAsValue || f.hasMetadataValue())) {
@@ -1296,7 +1299,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		// prune missing choices
 		List<String> choices = new ArrayList<String>();
-		int rank = axes.size();
+		int rank = axes == null ? 0 : axes.size();
 		for (int i = 0; i < rank; i++) {
 			choices.clear();
 			choices.addAll(axes.get(i).getNames());

@@ -17,8 +17,11 @@
  */
 package uk.ac.diamond.scisoft.mappingexplorer.views;
 
+import java.util.List;
+
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 
+import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
 
 /**
@@ -55,9 +58,9 @@ public class HDF5MappingViewData {
 
 		private final String dim2;
 
-		public TwoDData(ILazyDataset ds, String dim1, String dim2) {
-			super(ds, dim1);
-			this.dim2 = dim2;
+		public TwoDData(ILazyDataset ds, String... dims) {
+			super(ds, dims[0]);
+			this.dim2 = dims[1];
 		}
 
 		@Override
@@ -74,9 +77,9 @@ public class HDF5MappingViewData {
 	public static class ThreeDData extends TwoDData implements IMappingView3dData {
 		private final String dim3;
 
-		public ThreeDData(ILazyDataset ds, String dim1, String dim2, String dim3) {
-			super(ds, dim1, dim2);
-			this.dim3 = dim3;
+		public ThreeDData(ILazyDataset ds, String... dims) {
+			super(ds, dims[0], dims[1]);
+			this.dim3 = dims[2];
 
 		}
 
@@ -92,15 +95,23 @@ public class HDF5MappingViewData {
 	}
 
 	public static IMappingViewData getMappingViewData(DatasetSelection datasel) {
-		switch (datasel.getFirstElement().getShape().length) {
+		List<AxisSelection> axes = datasel.getAxes();
+		int rank = datasel.getFirstElement().getRank();
+		String[] names = new String[rank];
+		for (int i = 0; i < rank; i++) {
+			if (axes == null || axes.size() < i) {
+				names[i] = "Dim " + (i+1);
+			} else {
+				names[i] = axes.get(i).getSelectedName();
+			}
+		}
+		switch (rank) {
 		case 1:
-			return new OneDData(datasel.getFirstElement(), datasel.getAxes().get(0).getSelectedName());
+			return new OneDData(datasel.getFirstElement(), names[0]);
 		case 2:
-			return new TwoDData(datasel.getFirstElement(), datasel.getAxes().get(0).getSelectedName(), datasel
-					.getAxes().get(1).getSelectedName());
+			return new TwoDData(datasel.getFirstElement(), names);
 		case 3:
-			return new ThreeDData(datasel.getFirstElement(), datasel.getAxes().get(0).getSelectedName(), datasel
-					.getAxes().get(1).getSelectedName(), datasel.getAxes().get(2).getSelectedName());
+			return new ThreeDData(datasel.getFirstElement(), names);
 		}
 		return null;
 	}

@@ -18,6 +18,7 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisChoice;
 
@@ -249,6 +250,32 @@ public class AxisSelection extends InspectorProperty implements Iterable<String>
 				names.add(j, name);
 				asData.add(j, a);
 			}
+		}
+		selectAxis(0);
+	}
+
+	/**
+	 * @param axes
+	 */
+	public void setChoices(ILazyDataset[] axes) {
+		names.clear();
+		asData.clear();
+		int i = 1;
+		for (ILazyDataset l : axes) {
+			AxisSelData a = new AxisSelData(new AxisChoice(l), false);
+			int r = l.getRank();
+			if (r > 1) {
+				int[] map = new int[r];
+				for (int j = 0; j < r; j++) {
+					map[j] = j;
+				}
+				a.getData().setIndexMapping(map);
+			} else {
+				a.getData().setIndexMapping(dim);
+			}
+			a.setOrder(i++);
+			names.add(l.getName());
+			asData.add(a);
 		}
 		selectAxis(0);
 	}

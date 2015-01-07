@@ -590,7 +590,7 @@ public class DatasetInspector extends Composite {
 			}
 			int rank = shape.length;
 			
-            inspection = (oldSelection == null || oldSelection.getAxes().size() != rank) ? new Inspection(dSelection) :
+            inspection = (oldSelection == null || oldSelection.getAxes() == null || oldSelection.getAxes().size() != rank) ? new Inspection(dSelection) :
             	new Inspection(dSelection, oldSelection.getType()); // allow old selection to override type
 			storedInspections.put(dSelection, inspection);
 
@@ -701,8 +701,9 @@ public class DatasetInspector extends Composite {
 		List<SliceProperty> slices = inspection.getSlices();
 		for (int i = 0; i < rank; i++) {
 			SliceProperty p = slices.get(i);
-			AxisChoice c = inspection.datasetAxes.get(i).getSelectedAxis();
-			String n = inspection.datasetAxes.get(i).getSelectedName();
+			AxisSelection s = inspection.datasetAxes.get(i);
+			AxisChoice c = s.getSelectedAxis();
+			String n = s.getSelectedName();
 			int[] imap = c.getIndexMapping();
 			ILazyDataset axis = c.getValues();
 			SliceProperty[] props = new SliceProperty[imap.length];

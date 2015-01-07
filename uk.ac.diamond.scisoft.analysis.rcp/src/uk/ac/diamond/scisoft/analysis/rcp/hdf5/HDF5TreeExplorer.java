@@ -52,6 +52,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.explorers.MetadataSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 import uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView;
+import uk.ac.diamond.scisoft.analysis.utils.FileUtils;
 
 public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProvider {
 	private static final Logger logger = LoggerFactory.getLogger(HDF5TreeExplorer.class);
@@ -133,7 +134,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			return;
 		}
 
-		HDF5Selection s = HDF5Utils.createDatasetSelection(link, true);
+		HDF5Selection s = HDF5Utils.createDatasetSelection(link);
 		if (s == null) {
 			logger.error("Could not process update of selected node: {}", link.getName());
 			return;
@@ -288,14 +289,16 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		if (fileName == filename)
 			return holder;
 
-		return LoaderFactory.getData(HDF5Loader.class, fileName, true, mon);
+		final String extension = FileUtils.getFileExtension(fileName).toLowerCase();
+		return LoaderFactory.getData(LoaderFactory.getLoaderClass(extension), fileName, true, mon);
 	}
 
 	private static final long REFRESH_PERIOD = 1000L; // time between refreshing in milliseconds
 
 	@Override
 	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
-		loader = new HDF5Loader(fileName);
+		final String extension = FileUtils.getFileExtension(fileName).toLowerCase();
+		loader = (HDF5Loader) LoaderFactory.getLoader(LoaderFactory.getLoaderClass(extension), fileName);
 		loader.setAsyncLoad(true);
 		final Tree ltree = loader.loadTree(mon);
 		if (ltree != null) {
