@@ -25,7 +25,7 @@ public class PlotAxisProperty extends InspectorProperty {
 	@Override
 	public PlotAxisProperty clone() {
 		PlotAxisProperty n = new PlotAxisProperty();
-		n.plotAxis = plotAxis.clone();
+		n.plotAxis = plotAxis == null ? null : plotAxis.clone();
 		return n;
 	}
 

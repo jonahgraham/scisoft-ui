@@ -184,7 +184,7 @@ public class OneDViewPage extends MappingPageBookViewPage implements IMappingVie
 	}
 
 	protected void doSelectionChangedOnTwoDView(IWorkbenchPart part, ISelection selection) {
-		if (part == null && selection == null) {
+		if (part == null || selection == null) {
 			// this will be the effect of using a INullSelectionListener
 			activePage.selectionChanged(null, null);
 		} else {
