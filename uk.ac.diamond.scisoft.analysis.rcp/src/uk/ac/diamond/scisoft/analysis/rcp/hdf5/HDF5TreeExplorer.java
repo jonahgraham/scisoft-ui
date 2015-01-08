@@ -297,30 +297,46 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 	@Override
 	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
+		DataHolder tHolder = (DataHolder) LoaderFactory.fetchData(fileName, true);
+		if (tHolder != null) {
+			if (holder != tHolder) {
+				holder = tHolder;
+				setFilename(fileName);
+				setTree(holder.getTree());
+			}
+			return;
+		}
 		final String extension = FileUtils.getFileExtension(fileName).toLowerCase();
 		loader = (HDF5Loader) LoaderFactory.getLoader(LoaderFactory.getLoaderClass(extension), fileName);
 		loader.setAsyncLoad(true);
 		final Tree ltree = loader.loadTree(mon);
 		if (ltree != null) {
+			LoaderFactory.cacheData(holder);
 			setFilename(fileName);
 
-			setHDF5Tree(ltree);
-
-			new Thread(new Runnable() { // wait till loader completion whilst periodically refreshing viewer
-				@Override
-				public void run() {
-					while (loader.isLoading()) {
-						try {
-							Thread.sleep(REFRESH_PERIOD);
-							refreshTree();
-						} catch (InterruptedException e) {
-						}
-					}
-					refreshTree();
-					holder = loader.createDataHolder(ltree, true);
-				}
-			}).start();
+			setTree(ltree);
+			startUpdateThread(holder, loader);
 		}
+	}
+
+	public void startUpdateThread(final DataHolder holder, final HDF5Loader loader) {
+		if (holder == null || loader == null)
+			return;
+
+		new Thread(new Runnable() { // wait till loader completion whilst periodically refreshing viewer
+			@Override
+			public void run() {
+				while (loader.isLoading()) {
+					try {
+						Thread.sleep(REFRESH_PERIOD);
+						refreshTree();
+					} catch (InterruptedException e) {
+					}
+				}
+				refreshTree();
+				HDF5Loader.updateDataHolder(holder, true);
+			}
+		}).start();
 	}
 
 	private void refreshTree() {
@@ -340,14 +356,6 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	 */
 	public Tree getTree() {
 		return tree;
-	}
-
-	public Tree getHDF5Tree() {
-		return getTree();
-	}
-
-	public void setHDF5Tree(Tree htree) {
-		setTree(htree);
 	}
 
 	public void setTree(Tree htree) {

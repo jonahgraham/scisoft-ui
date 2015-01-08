@@ -45,6 +45,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 
 	private HDF5TreeExplorer hdfxp;
 	private File file;
+	private Tree tree;
 
 	private ISelectionListener selectionListener;
 
@@ -60,7 +61,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-		file = EclipseUtils.getFile(input);
+		file = EclipseUtils.getFile(input instanceof HDF5Input ? ((HDF5Input) input).getInput() : input);
 		if (file == null || !file.exists()) {
 			logger.warn("File does not exist: {}", input.getName());
 			throw new PartInitException("Input is not a file or file does not exist");
@@ -79,11 +80,14 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
     @Override
 	public void setInput(IEditorInput input) {
         super.setInput(input);
+    	tree = input instanceof HDF5Input ? ((HDF5Input) input).getTree() : null;
     }
-	
-	protected boolean loadHDF5Tree() {
-		if (getHDF5Tree() != null)
+
+    protected boolean loadHDF5Tree() {
+		if (tree != null && hdfxp != null) {
+			hdfxp.setTree(tree);
 			return true;
+		}
 
 		final String fileName = file.getAbsolutePath();
 		try {
@@ -151,6 +155,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 	@Override
 	public void dispose() {
 		file = null;
+		tree = null;
 //		unregisterSelectionListener();
 		if (hdfxp != null && !hdfxp.isDisposed())
 			hdfxp.dispose();
@@ -162,9 +167,12 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 	}
 	
 	public Tree getHDF5Tree() {
+		if (tree != null)
+			return tree;
 		if (hdfxp == null)
 			return null;
-		return hdfxp.getTree();
+		tree = hdfxp.getTree();
+		return tree;
 	}
 
 	/**
@@ -298,5 +306,4 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 		
 		return super.getAdapter(clazz);
 	}
-
 }

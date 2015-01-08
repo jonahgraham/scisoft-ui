@@ -155,7 +155,7 @@ public class HDF5TreeView extends ViewPart implements IObserver {
 
 		long start = System.nanoTime();
 		hdfxp.loadFileAndDisplay(path, new ProgressMonitorWrapper(monitor));
-		if (hdfxp.getHDF5Tree() != null) {
+		if (hdfxp.getTree() != null) {
 			display.syncExec(new Runnable() {
 				@Override
 				public void run() {
