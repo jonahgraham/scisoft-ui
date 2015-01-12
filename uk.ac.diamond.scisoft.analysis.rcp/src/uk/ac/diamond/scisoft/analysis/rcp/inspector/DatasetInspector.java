@@ -23,7 +23,6 @@ import org.dawb.common.ui.monitor.ProgressMonitorWrapper;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.Slice;
-import org.eclipse.dawnsci.analysis.dataset.impl.AggregateDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.jface.viewers.ISelection;
@@ -582,12 +581,7 @@ public class DatasetInspector extends Composite {
 		}
 
 		if (inspection == null) {
-			int[] shape;
-			if (cData instanceof AggregateDataset) {
-				shape = cData.getShape();
-			} else {
-				shape = cData.squeeze(true).getShape();
-			}
+			int[] shape = cData.getShape();
 			int rank = shape.length;
 			
             inspection = (oldSelection == null || oldSelection.getAxes() == null || oldSelection.getAxes().size() != rank) ? new Inspection(dSelection) :
