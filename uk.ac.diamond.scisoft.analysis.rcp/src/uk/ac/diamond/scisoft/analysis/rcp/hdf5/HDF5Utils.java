@@ -10,6 +10,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
@@ -118,6 +119,10 @@ public class HDF5Utils {
 					}
 					// add in an automatically generated axis with top order so it appears after primary axes
 					Dataset axis = DatasetFactory.createRange(len, Dataset.INT32);
+					int[] ashape = new int[rank];
+					Arrays.fill(ashape, 1);
+					ashape[i] = len;
+					axis.setShape(ashape);
 					axis.setName(AbstractExplorer.DIM_PREFIX + (i + 1));
 					AxisChoice newChoice = new AxisChoice(axis);
 					newChoice.setAxisNumber(i);
