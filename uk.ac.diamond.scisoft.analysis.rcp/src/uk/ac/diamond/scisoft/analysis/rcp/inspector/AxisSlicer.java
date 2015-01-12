@@ -325,13 +325,20 @@ public class AxisSlicer {
 	 * @param isVisible
 	 */
 	public void setVisible(boolean isVisible) {
-		label.setVisible(isVisible);
-		slider.setVisible(isVisible);
-		value.setVisible(isVisible);
-		size.setVisible(isVisible);
-		step.setVisible(isVisible);
-		reset.setVisible(isVisible);
-		average.setVisible(isVisible);
+		if (label != null)
+			label.setVisible(isVisible);
+		if (slider != null)
+			slider.setVisible(isVisible);
+		if (value != null)
+			value.setVisible(isVisible);
+		if (size != null)
+			size.setVisible(isVisible);
+		if (step != null)
+			step.setVisible(isVisible);
+		if (reset != null)
+			reset.setVisible(isVisible);
+		if (average != null)
+			average.setVisible(isVisible);
 	}
 }
 
