@@ -558,14 +558,14 @@ class PlotTab extends ATab {
 
 			if (axes.length == 1) { // for 1D plots and 1D dataset table, remove single point axes
 				int[] shape = dataset.getShape();
-				while (shape[lastKey] == 1) {
+				while (shape.length > lastKey && shape[lastKey] == 1) {
 					lastKey--;
 				}
 				a = sAxes.get(lastKey); // reverse order
 				for (int j : keyList) {
 					String n = sAxes.get(j);
 					p.put(j, n);
-					if (shape[j] != 1)
+					if (shape.length > j && shape[j] != 1)
 						c.add(n);
 				}
 			} else {
