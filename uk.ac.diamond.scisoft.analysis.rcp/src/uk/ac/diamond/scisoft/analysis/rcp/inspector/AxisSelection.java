@@ -21,6 +21,7 @@ import org.apache.commons.collections.Transformer;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisChoice;
+import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 
 /**
  * Class to hold a list of axis names and dataset from which an axis can be selected
@@ -207,7 +208,7 @@ public class AxisSelection extends InspectorProperty implements Iterable<String>
 	 */
 	public void addChoice(AxisChoice axis, int order) {
 		String name = axis.getName();
-		if (axis.getRank() > 1)
+		if (axis.getRank() > 1 && !name.startsWith(AbstractExplorer.DIM_PREFIX))
 			name += suffix;
 		addChoice(name, axis, order);
 	}
