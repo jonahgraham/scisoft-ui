@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.IMetadataProvider;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.ILazyLoader;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
@@ -1898,8 +1899,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			
 			@SuppressWarnings("unchecked")
 			@Override
-			public Dataset getDataset(IMonitor mon, int[] shape, int[] start, int[] stop, int[] step)
-					throws ScanFileHolderException {
+			public Dataset getDataset(IMonitor mon, SliceND slice) throws ScanFileHolderException {
 				
 				SymbolTable evalSymbolTable = eval.getSymbolTable();
 				HashMap<String, IDataset> dataSlices = new HashMap<String, IDataset>();
@@ -1908,7 +1908,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				while (itr.hasNext()) {
 					String varName = itr.next();
 					ILazyDataset lzd = varMapping.get(varName);	// TODO: This only works for SelectedFile objects
-					IDataset lzdSlice = lzd.getSlice(start, stop, step); 
+					IDataset lzdSlice = lzd.getSlice(slice); 
 					dataSlices.put(varName, lzdSlice);
 					// All datasets and slices should have the same shape
 					if (sliceShape == null) {
@@ -1960,12 +1960,11 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					}
 
 					@Override
-					public Dataset getDataset(IMonitor mon, int[] shape, int[] start, int[] stop, int[] step)
+					public Dataset getDataset(IMonitor mon, SliceND slice)
 							throws ScanFileHolderException {
 						Dataset accDataset = null;
 						for (int idx = 0; idx < dataList.size(); idx++) {
-							Dataset tmpData = DatasetUtils.convertToDataset(dataList.get(idx).getSlice(
-									start, stop, step));
+							Dataset tmpData = DatasetUtils.convertToDataset(dataList.get(idx).getSlice(slice));
 							if (accDataset == null) {
 								switch (mathOp) {
 								case ADD:
