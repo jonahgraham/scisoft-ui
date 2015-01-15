@@ -176,12 +176,6 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="uk.ac.diamond.scisoft.analysis.rcp.AnalysisPerspective"
-            icon="icons/calculator.png"
-            id="uk.ac.diamond.scisoft.analysis.rcp.AnalysisPerspective"
-            name="Analysis">
-      </perspective>
-      <perspective
             class="uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective"
             icon="icons/dexplore.png"
             id="uk.ac.diamond.scisoft.dataexplorationperspective"
