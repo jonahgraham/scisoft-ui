@@ -128,7 +128,7 @@ interface InspectionTab {
 	public InspectorType getType();
 
 	/**
-	 * @return boolean array of which dimensions are used
+	 * @return boolean array of which dimensions are used as axes
 	 */
 	public boolean[] getUsedDims();
 
@@ -708,13 +708,17 @@ class PlotTab extends ATab {
 				}
 
 				ILazyDataset axesData = c.getValues();
+				int[] shape = axesData.getShape();
 				Slice[] s = new Slice[imap.length];
 				for (int i = 0; i < s.length; i++) {
-					s[i] = slices[imap[i]].clone();
-					if (average[imap[i]]) {
-						Integer start = s[i].getStart();
-						start = start == null ? 0 : start;
-						s[i].setStop(start + 1);
+					Slice ts = slices[imap[i]];
+					if (ts.getLength() <= shape[i]) {
+						s[i] = ts.clone();
+						if (average[imap[i]]) {
+							Integer start = s[i].getStart();
+							start = start == null ? 0 : start;
+							s[i].setStop(start + 1);
+						}
 					}
 				}
 				

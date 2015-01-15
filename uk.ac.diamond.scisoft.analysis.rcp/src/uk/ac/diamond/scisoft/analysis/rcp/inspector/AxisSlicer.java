@@ -236,6 +236,7 @@ public class AxisSlicer {
 			axisSlices[i].removePropertyChangeListener(listener);
 
 		if (axisData.getRank() > 1) {
+			int[] shape = axisData.getShape();
 			Slice[] s = new Slice[axisSlices.length];
 			for (int i = 0; i < s.length; i++) {
 				SliceProperty p = axisSlices[i];
@@ -243,6 +244,8 @@ public class AxisSlicer {
 					s[i] = p.getValue();
 					if (s[i].getNumSteps() > 1) {
 						s[i] = new Slice(0, 1);
+					} else if (s[i].getLength() > shape[i]) {
+						s[i] = null;
 					}
 					p.addPropertyChangeListener(listener);
 				}
