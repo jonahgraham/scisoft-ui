@@ -23,7 +23,6 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -284,7 +283,6 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 	}
 
 	private void setColourMapChoicePreference(String value) {
-		final PaletteData data = pservice.getDirectPaletteData(schemeName);
 		// update the preference
 		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, value);
 		IPlottingSystem system = PlottingFactory.getPlottingSystem(getPlaybackViewPreference());
@@ -294,8 +292,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 		if (traces!=null) for (ITrace trace: traces) {
 			if (trace instanceof IPaletteTrace) {
 				IPaletteTrace palette = (IPaletteTrace) trace;
-				palette.setPaletteData(data);
-				palette.setPaletteName(schemeName);
+				palette.setPalette(schemeName);
 			}
 		}
 	}

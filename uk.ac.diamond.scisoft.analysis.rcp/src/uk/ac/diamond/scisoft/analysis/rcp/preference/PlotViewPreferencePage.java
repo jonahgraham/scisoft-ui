@@ -306,7 +306,7 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 	}
 
 	private void setColourMapChoicePreference(String value) {
-		final PaletteData data = pservice.getDirectPaletteData(schemeName);
+		
 		IPlottingSystem[] systems = PlottingFactory.getPlottingSystems();
 		if (systems == null) return;
 		// update colour map in all plot views
@@ -319,8 +319,7 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 					if (traces!=null) for (ITrace trace: traces) {
 						if (trace instanceof IPaletteTrace) {
 							IPaletteTrace palette = (IPaletteTrace) trace;
-							palette.setPaletteData(data);
-							palette.setPaletteName(schemeName);
+							palette.setPalette(schemeName);
 						}
 					}
 				}

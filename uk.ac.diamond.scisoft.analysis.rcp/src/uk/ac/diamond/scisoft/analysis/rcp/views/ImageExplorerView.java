@@ -374,8 +374,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 							if (traces!=null) for (ITrace trace: traces) {
 								if (trace instanceof IPaletteTrace) {
 									IPaletteTrace paletteTrace = (IPaletteTrace) trace;
-									paletteTrace.setPaletteData(pservice.getDirectPaletteData(paletteName));
-									paletteTrace.setPaletteName(paletteName);
+									paletteTrace.setPalette(paletteName);
 								}
 							}
 						}

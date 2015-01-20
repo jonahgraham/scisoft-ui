@@ -52,8 +52,8 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
  * Class to create the a 2D/image plotting
  */
 class Plotting2DUI extends AbstractPlotConnection {
+	
 	private IPlottingSystem plottingSystem;
-	private IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
 
 	private static final Logger logger = LoggerFactory.getLogger(Plotting2DUI.class);
 
@@ -190,16 +190,14 @@ class Plotting2DUI extends AbstractPlotConnection {
 		if (plottingSystem.getPlotName().equals(livePlot)) {
 			String savedLivePlotPalette = store.getString("imageExplorer.colourMap");
 			if (paletteName != null && !paletteName.equals(savedLivePlotPalette)) {
-				image.setPaletteData(pservice.getDirectPaletteData(savedLivePlotPalette));
-				image.setPaletteName(store.getString("imageExplorer.colourMap"));
+				image.setPalette(store.getString("imageExplorer.colourMap"));
 				store.setValue("imageExplorer.colourMap", savedLivePlotPalette);
 			}
 		} else {
 			if (paletteName != null && !paletteName.equals(store.getString("plotView.plot2DcolourMap"))) {
 				String savedPlotViewPalette = store.getString("plotView.plot2DcolourMap");
 				try {
-					image.setPaletteData(pservice.getDirectPaletteData(savedPlotViewPalette));
-					image.setPaletteName(savedPlotViewPalette);
+					image.setPalette(savedPlotViewPalette);
 					store.setValue("plotView.plot2DcolourMap", savedPlotViewPalette);
 				} catch (Throwable ne) {
 					// Leave palette as is and set PLOT_VIEW_PLOT2D_COLOURMAP back to grey.
