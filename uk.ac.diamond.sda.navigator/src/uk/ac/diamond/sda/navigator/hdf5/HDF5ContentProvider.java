@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-import uk.ac.diamond.scisoft.analysis.io.NexusHDF5Loader;
+import uk.ac.diamond.scisoft.analysis.io.NexusTreeUtils;
 
 public class HDF5ContentProvider implements ITreeContentProvider {
 	private TreeFilter treeFilter;
@@ -39,7 +39,7 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 	private static final Logger logger = LoggerFactory.getLogger(HDF5ContentProvider.class);
 
 	public HDF5ContentProvider() {
-		this.treeFilter = new TreeFilter(new String[] { "target", NexusHDF5Loader.NX_CLASS});
+		this.treeFilter = new TreeFilter(new String[] { "target", NexusTreeUtils.NX_CLASS});
 	}
 
 	@Override

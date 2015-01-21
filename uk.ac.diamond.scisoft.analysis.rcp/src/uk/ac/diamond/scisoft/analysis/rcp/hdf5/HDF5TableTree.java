@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 
-import uk.ac.diamond.scisoft.analysis.io.NexusHDF5Loader;
+import uk.ac.diamond.scisoft.analysis.io.NexusTreeUtils;
 
 /**
  * Class to contain a table-tree view of a HDF5 tree
@@ -71,7 +71,7 @@ public class HDF5TableTree extends Composite {
 		this.clistener = clistener;
 
 		// set up tree filter to omit following node names
-		treeFilter = new TreeFilter(new String[] { "target", NexusHDF5Loader.NX_CLASS});
+		treeFilter = new TreeFilter(new String[] { "target", NexusTreeUtils.NX_CLASS});
 
 		// set up tree and its columns
 		tViewer = new TreeViewer(this, SWT.BORDER|SWT.VIRTUAL);
@@ -422,7 +422,7 @@ class HDF5LabelProvider implements ITableLabelProvider {
 			msg = link.getName();
 			break;
 		case 1: // class
-			Attribute attr = node.getAttribute(NexusHDF5Loader.NX_CLASS);
+			Attribute attr = node.getAttribute(NexusTreeUtils.NX_CLASS);
 			msg = attr != null ? attr.getFirstElement() : "Group";
 			break;
 		}

@@ -23,7 +23,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.navigator.IDescriptionProvider;
 
-import uk.ac.diamond.scisoft.analysis.io.NexusHDF5Loader;
+import uk.ac.diamond.scisoft.analysis.io.NexusTreeUtils;
 
 /**
  * Provides a label and icon for objects of type {@HDF5NodeLink}.
@@ -116,7 +116,7 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 		NodeLink link = (NodeLink) element;
 		Node node = link.getDestination();
 		// class
-		Attribute attr = node.getAttribute(NexusHDF5Loader.NX_CLASS);
+		Attribute attr = node.getAttribute(NexusTreeUtils.NX_CLASS);
 		if(attr!=null)
 			label += attr.getFirstElement()+" ";
 		//label += attr.getFirstElement()+" ";

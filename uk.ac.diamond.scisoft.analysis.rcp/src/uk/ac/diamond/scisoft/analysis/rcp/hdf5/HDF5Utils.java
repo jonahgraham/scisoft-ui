@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisChoice;
-import uk.ac.diamond.scisoft.analysis.io.NexusHDF5Loader;
+import uk.ac.diamond.scisoft.analysis.io.NexusTreeUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
@@ -49,29 +49,26 @@ public class HDF5Utils {
 		if (link.isDestinationGroup()) {
 			GroupNode gNode = (GroupNode) node;
 			// see if chosen node is a NXdata class
-			Attribute attr = node.getAttribute(NexusHDF5Loader.NX_CLASS);
-			if (attr != null && NexusHDF5Loader.NX_DATA.equals(attr.getFirstElement())) {
+			Attribute attr;
+			if (NexusTreeUtils.isNXClass(gNode, NexusTreeUtils.NX_DATA)) {
 				// check if group has signal attribute (is this official?)
-				attr = gNode.getAttribute(NexusHDF5Loader.NX_SIGNAL);
-				if (attr != null) {
-					if (attr.isString()) {
-						String n = attr.getFirstElement();
-						if (gNode.containsDataNode(n)) {
-							dNode = gNode.getDataNode(n);						
-						} else {
-							logger.warn("Signal attribute in group points to a missing dataset called {}", n);
-						}
+				String n = NexusTreeUtils.parseStringAttr(gNode, NexusTreeUtils.NX_SIGNAL);
+				if (n != null) {
+					if (gNode.containsDataNode(n)) {
+						dNode = gNode.getDataNode(n);						
 					} else {
-						logger.warn("Signal attribute in group is not a string");
+						logger.warn("Signal attribute in group points to a missing dataset called {}", n);
 					}
+				} else {
+					logger.warn("Signal attribute in group is not a string");
 				}
 				if (dNode == null) {
 					// find data (@signal=1)
 					for (NodeLink l : gNode) {
 						if (l.isDestinationData()) {
 							dNode = (DataNode) l.getDestination();
-							attr = dNode.getAttribute(NexusHDF5Loader.NX_SIGNAL);
-							if (attr != null && NexusHDF5Loader.parseFirstInt(attr) == 1 && dNode.isSupported()) {
+							attr = dNode.getAttribute(NexusTreeUtils.NX_SIGNAL);
+							if (attr != null && NexusTreeUtils.parseFirstInt(attr) == 1 && dNode.isSupported()) {
 								link = l;
 								break; // only one signal per NXdata item
 							}
@@ -80,15 +77,22 @@ public class HDF5Utils {
 					}
 				}
 			}
-			if (dNode == null && gNode.containsDataNode(NexusHDF5Loader.DATA)) {
+			if (dNode == null && gNode.containsDataNode(NexusTreeUtils.DATA)) {
 				// fallback to "data" when no signal attribute is found
-				dNode = gNode.getDataNode(NexusHDF5Loader.DATA);
+				dNode = gNode.getDataNode(NexusTreeUtils.DATA);
 			}
 		} else if (link.isDestinationData()) {
 			dNode = (DataNode) link.getDestination();
 		}
 
 		if (dNode == null) return null;
+		if (!dNode.isAugmented()) {
+			try {
+				NexusTreeUtils.augmentNodeLink(link, true);
+			} catch (Exception e) {
+				logger.debug("Problem augmenting node: {}", link, e);
+			}
+		}
 		ILazyDataset cData = dNode.getDataset(); // chosen dataset
 
 		if (cData == null || cData.getSize() == 0) {
