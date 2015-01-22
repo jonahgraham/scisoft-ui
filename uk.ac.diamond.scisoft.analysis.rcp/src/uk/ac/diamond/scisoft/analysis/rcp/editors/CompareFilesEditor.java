@@ -1163,7 +1163,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 			// squeeze all datasets
 			for (ILazyDataset d : dataList)
-				d.squeeze(true);
+				d.squeezeEnds();
 			
 			// remove incompatible data
 			int[][] shapes = AggregateDataset.calcShapes(extend, dataList.toArray(new ILazyDataset[0]));
