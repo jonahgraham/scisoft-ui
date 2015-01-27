@@ -51,7 +51,7 @@ public class HDF5Utils {
 			// see if chosen node is a NXdata class
 			Attribute attr;
 			if (NexusTreeUtils.isNXClass(gNode, NexusTreeUtils.NX_DATA)) {
-				// check if group has signal attribute (is this official?)
+				// check if group has signal attribute
 				String n = NexusTreeUtils.parseStringAttr(gNode, NexusTreeUtils.NX_SIGNAL);
 				if (n != null) {
 					if (gNode.containsDataNode(n)) {
