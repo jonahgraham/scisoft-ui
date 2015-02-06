@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import org.dawb.common.ui.util.DisplayUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Slider;
+import org.eclipse.swt.widgets.Scale;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -50,7 +50,7 @@ public class ImagePlayBack implements Runnable {
 	private IWorkbenchPage page;
 	private int delay = 250;
 	private int step = 1;
-	private Slider sldProgress;
+	private Scale sldProgress;
 
 	class IJob extends InteractiveJobAdapter {
 		private String file;
@@ -74,7 +74,7 @@ public class ImagePlayBack implements Runnable {
 
 	private InteractiveQueue jobQueue;
 
-	public ImagePlayBack(Control control, String viewName, IWorkbenchPage page, Slider slider, int delay, int step) {
+	public ImagePlayBack(Control control, String viewName, IWorkbenchPage page, Scale slider, int delay, int step) {
 		playPos = 0;
 		jobFiles = new ArrayList<String>();
 		allFiles = new ArrayList<String>();

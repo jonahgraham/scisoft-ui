@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Slider;
+import org.eclipse.swt.widgets.Scale;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
@@ -108,7 +108,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 	private Button btnStop;
 	private Button btnForward;
 	private Button btnPlayLoop;
-	private Slider sldProgress;
+	private Scale sldProgress;
 	private Combo cmbDirectoryLocation;
 	private Image imgPlay;
 	private Image imgStill;
@@ -260,9 +260,8 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 			btnPlayLoop.setImage(AnalysisRCPActivator.getImageDescriptor("icons/control_repeat.png").createImage());
 			btnPlayLoop.setToolTipText("Playback loop (On/off)");
 			btnPlayLoop.addSelectionListener(this);
-			sldProgress = new Slider(compHUD, SWT.HORIZONTAL);
+			sldProgress = new Scale(compHUD, SWT.HORIZONTAL);
 			sldProgress.setPageIncrement(1);
-			sldProgress.setThumb(1);
 			sldProgress.addSelectionListener(this);
 			sldProgress.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		}
