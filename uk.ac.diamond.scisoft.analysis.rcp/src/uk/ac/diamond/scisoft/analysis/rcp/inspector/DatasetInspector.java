@@ -117,6 +117,12 @@ public class DatasetInspector extends Composite {
 					AxisSelection a = n.datasetAxes.get(i);
 					a.selectAxis(datasetAxes.get(i).getSelectedIndex(), false);
 				}
+			} else {
+				for (int i = 0, imax = datasetAxes.size(); i < imax; i++) {
+					AxisSelection a = datasetAxes.get(i).clone();
+					n.addDatasetAxis(a.clone());
+					a.selectAxis(datasetAxes.get(i).getSelectedIndex(), false);
+				}
 			}
 
 			n.itype = itype;
