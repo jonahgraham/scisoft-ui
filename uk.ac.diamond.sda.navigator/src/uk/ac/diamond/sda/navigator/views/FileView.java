@@ -296,7 +296,7 @@ public final class FileView extends ViewPart implements IFileView {
 		int commentWidth = showComment ? 250 : 0;
 		int scanCmdWidth = showScanCmd ? 300 : 0;
 
-		final int[]    widths = { 250, dateWidth, typeWidth, sizeWidth, commentWidth, scanCmdWidth };
+		final int[]    widths = { 350, dateWidth, typeWidth, sizeWidth, commentWidth, scanCmdWidth };
 		TreeViewerColumn tVCol;
 		for (int i = 0; i < titles.length; i++) {
 			tVCol = new TreeViewerColumn(tree, SWT.NONE);
@@ -348,7 +348,7 @@ public final class FileView extends ViewPart implements IFileView {
 		});
 
 		createRightClickMenu();
-		addToolbar();
+		createActions();
 
 		if (savedSelection!=null) {
 			if (savedSelection.toFile().exists()) {
@@ -400,7 +400,7 @@ public final class FileView extends ViewPart implements IFileView {
 
 		final Object[] elements = file==null?this.tree.getExpandedElements():null;
 		final FileContentProvider fileCont = (FileContentProvider)tree.getContentProvider();
-		fileCont.clearAndStop();
+		fileCont.clearAndStop(file);
 
 		tree.refresh(file!=null?file.getParent():tree.getInput());
 		
@@ -511,11 +511,23 @@ public final class FileView extends ViewPart implements IFileView {
      * 
      * TODO Move this to contributions
      */
-	private void addToolbar() {
+	private void createActions() {
 		
         // TODO Save preference as property
 		
 		final IToolBarManager toolMan = getViewSite().getActionBars().getToolBarManager();
+		
+		final Action filterCollections = new Action("Compress data collections with the same name", IAction.AS_CHECK_BOX) {
+			@Override
+			public void run() {
+				((FileContentProvider)tree.getContentProvider()).setCollapseDatacollections(isChecked());
+				refreshAll();
+			}
+		};
+		filterCollections.setImageDescriptor(NavigatorRCPActivator.getImageDescriptor("icons/zip.png"));
+		filterCollections.setChecked(true);
+		toolMan.add(filterCollections);
+		toolMan.add(new Separator("sorting"));
 		
 		final CheckableActionGroup grp = new CheckableActionGroup();
 		

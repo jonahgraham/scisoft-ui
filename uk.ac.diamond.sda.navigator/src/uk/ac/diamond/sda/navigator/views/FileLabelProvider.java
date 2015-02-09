@@ -100,7 +100,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
 			case 0:
 				String name = NIOUtils.getRoots().contains(node)
 				            ?  getRootLabel(node)
-				            : node.getFileName().toString();
+				            : getName(node);
 				ret = name;
 				break;
 			case 1:
@@ -133,6 +133,16 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		}
 	}
 	
+	/**
+	 * Gets a name, allowing for those folders that have been compressed.
+	 * @param node
+	 * @return name
+	 */
+	private String getName(Path node) {
+		
+		return node.getFileName().toString(); // TODO Allow for collapsed data collections.
+	}
+
 	private Map<Path, Map<Integer, String>> attributes;
 
 	

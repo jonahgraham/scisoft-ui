@@ -10,17 +10,22 @@
 package uk.ac.diamond.sda.navigator.views;
 
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.dawb.common.util.io.SortingUtils;
+import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.viewers.ILazyTreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -39,6 +44,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	
 	private TreeViewer treeViewer;
 	private FileSortType sort = FileSortType.ALPHA_NUMERIC_DIRS_FIRST;
+	private boolean collapseDatacollections = true;
 	private LinkedBlockingDeque<UpdateRequest> elementQueue;
 	private LinkedBlockingDeque<UpdateRequest> childQueue;
 	
@@ -54,16 +60,18 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 
 	/**
 	 * Caching seems to be needed to keep the path sorting
-	 * fast. NOTE Is there a better way of doing this?
+	 * fast. This used to be a soft reference cache but the 
+	 * file browsing does not really work if you start making the
+	 * cached
 	 */
-	private Map<Path, SoftReference<List<Path>>> cachedSorting;
+	private Map<Path, List<Path>> cachedSorting;
 	
 	@SuppressWarnings("unused")
 	private IStatusLineManager statusManager;
 
 	public FileContentProvider(final IStatusLineManager statusManager) {
 		this.statusManager = statusManager;
-		this.cachedSorting = new HashMap<Path, SoftReference<List<Path>>>(89);
+		this.cachedSorting = new HashMap<Path, List<Path>>(89);
 		this.elementQueue  = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
 		this.childQueue    = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
 	}
@@ -83,12 +91,24 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	}
 	
 	public void clearAndStop() {
-		clear();
+		clearAndStop(null);
+	}
+	void clearAndStop(Path path) {
+		
 		elementQueue.offerFirst(new BlankUpdateRequest()); // break the queue
 		updateElementThread = null;
 		
 		childQueue.offerFirst(new BlankUpdateRequest()); // break the queue
 		updateChildThread = null;
+
+		if (path!=null) {
+			if (elementQueue!=null)  elementQueue.clear();
+			if (childQueue!=null)    childQueue.clear();
+			Object old = cachedSorting.remove(path);
+			if (old==null) clear();
+		} else {
+		    clear();
+		}
 	}
 
 
@@ -169,25 +189,11 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		if (cachedSorting==null) return null;
 				
 		if (cachedSorting.containsKey(node)) {
-			SoftReference<List<Path>> value = cachedSorting.get(node);
-			if (value==null) return null;
-			
-			List<Path> sorted = value.get();
+			List<Path> sorted = cachedSorting.get(node);
 			if (sorted!=null) return sorted;
 		}
 		
-		List<Path> sorted=null;
-		try {
-			if (sort==FileSortType.ALPHA_NUMERIC) {
-				sorted = SortingUtils.getSortedPathList(node, false);
-			} else {
-				sorted = SortingUtils.getSortedPathList(node, true);
-			}
-			cachedSorting.put(node, new SoftReference<List<Path>>(sorted));
-		} catch (IOException ne) {
-			cachedSorting.put(node, null);
-		}
-		return sorted;
+		return null;
 	}
 
 
@@ -347,16 +353,77 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 				
 				if (updateBusyRequired) updateBusy(childQueue, true);
 				
-				
 				int count = 0;
 				
 				if (element instanceof Path) {
-					if (Files.isDirectory((Path)element)) {
-				        try (DirectoryStream<Path> ds = Files.newDirectoryStream((Path)element)) {
-				        	for (@SuppressWarnings("unused") Path path : ds) count+=1; 
-				        	// Faster way than File.list() in theory
-				        	// see http://www.rgagnon.com/javadetails/java-get-directory-content-faster-with-many-files.html
-				        } catch (IOException ex) {}
+					Path path = (Path)element;
+					
+					// We try to get the size but we ignore repeated scans in the same directory
+					// Therefore as we find the number, we populate the cachedSorting as we go.
+					if (Files.isDirectory(path)) {
+						
+						String regexp = null;
+						if (collapseDatacollections) {
+						    ILoaderService lservice = (ILoaderService)PlatformUI.getWorkbench().getService(ILoaderService.class);
+						    regexp = lservice.getStackExpression();
+						}
+						
+		    		    final Map<String, Path> files = new TreeMap<String, Path>();
+		    		    final Map<String, Path> dirs  = new TreeMap<String, Path>();
+
+			        	// Faster way than File.list() in theory
+			        	// see http://www.rgagnon.com/javadetails/java-get-directory-content-faster-with-many-files.html						
+				        try (DirectoryStream<Path> ds = Files.newDirectoryStream(path)) {
+				        	
+				        	Set<String> collapsed = collapseDatacollections
+				        			              ? new HashSet<String>(89)
+				        			              : null;
+				        	
+				        	for (Path p : ds) {
+				        		
+				        		final boolean isDir = Files.isDirectory(p);
+				        		final String  name  = p.getFileName().toString();
+				        		
+				        		if (!isDir) {
+				        			if (regexp!=null) {
+						        		int posExt = name.lastIndexOf(".");
+						        		if (posExt>-1) {
+						        			String ext = name.substring(posExt + 1);
+								    		Pattern pattern = Pattern.compile(regexp+"\\."+ext);
+								    		Matcher matcher = pattern.matcher(name);
+								    		if (matcher.matches()) {
+								    			String id = matcher.group(1);
+								    			
+								    			// If we already have an item for this scan:
+								    			if (collapsed.contains(id)) continue;
+								    			
+								    			// Otherwise allows its index to be added.
+								    			collapsed.add(id);
+								    		}
+						        		}
+				        			}
+					        		files.put(name, p);
+					        		
+				        		} else if (isDir && sort==FileSortType.ALPHA_NUMERIC_DIRS_FIRST) { // dirs separate
+				        			dirs.put(name, p);
+				        		} else {
+				        			files.put(name, p);
+				        		}
+				        		count+=1; 
+				        	}
+				        
+				        	
+			        		// We precache the directory contents now because we pared them down with the regexp
+				    	    final List<Path> ret = new ArrayList<Path>(files.size()+dirs.size());
+				    	    ret.addAll(dirs.values());
+				    	    ret.addAll(files.values());
+				    	    dirs.clear();
+				    	    files.clear();
+			    			cachedSorting.put(path, ret);
+
+				        } catch (IOException ex) {
+				        	// Nothing
+				        }
 					}
 				} else {
 					for (@SuppressWarnings("unused")Path p : NIOUtils.getRoots()) count+=1;
@@ -428,6 +495,16 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		thread.start();
 
 		return thread;
+	}
+
+
+	public boolean isCollapseDatacollections() {
+		return collapseDatacollections;
+	}
+
+
+	public void setCollapseDatacollections(boolean collapseDatacollections) {
+		this.collapseDatacollections = collapseDatacollections;
 	}
 
 }
