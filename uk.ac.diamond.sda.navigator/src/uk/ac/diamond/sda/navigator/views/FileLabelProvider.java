@@ -152,35 +152,41 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		
 		final String name = node.getFileName().toString();
 		if (Files.isDirectory(node)) return name;
-		
+			
 		FileContentProvider prov = viewer.getContentProvider() instanceof FileContentProvider
-				                 ? (FileContentProvider)viewer.getContentProvider()
-				                 : null;
-				                 
-		boolean cached = prov!=null ? prov.isCached(node.getParent()) : false;
-		if (!cached) return name;
+					                 ? (FileContentProvider)viewer.getContentProvider()
+					                 : null;
+			
+		if (prov == null) return name;
 		
-		final IPreferenceStore store = NavigatorRCPActivator.getDefault().getPreferenceStore();
-        if (!store.getBoolean(FileNavigatorPreferenceConstants.SHOW_COLLAPSED_FILES)) return name;
-		
-		final Set<String> stubs = prov.getStubs(node.getParent()); // TODO Allow for collapsed data collections.
-		if (stubs==null || stubs.isEmpty() || stubs.size()<2) return name;
-		
-		if (lservice==null) lservice = (ILoaderService)PlatformUI.getWorkbench().getService(ILoaderService.class);
-		final String regexp = lservice.getStackExpression();
-		
-		int posExt = name.lastIndexOf(".");
-		if (posExt>-1) {
-			String ext = name.substring(posExt + 1);
-			Pattern pattern = Pattern.compile(regexp+"\\."+ext);
-			Matcher matcher = pattern.matcher(name);
-			if (matcher.matches()) {
-				final String stub = matcher.group(1);
-				if (stubs.contains(stub)) return stub+"_*."+ext;
-			}
+        synchronized(prov.getLock(node.getParent())) { // We don't want to read labels if the parent is still reading.
+        	
+	        boolean cached = prov.isCached(node.getParent());
+	        if (!cached) return name;
+	
+	        final IPreferenceStore store = NavigatorRCPActivator.getDefault().getPreferenceStore();
+	        if (!store.getBoolean(FileNavigatorPreferenceConstants.SHOW_COLLAPSED_FILES)) return name;
+			
+			final Set<String> stubs = prov.getStubs(node.getParent()); // TODO Allow for collapsed data collections.
+			if (stubs==null || stubs.isEmpty()) return name;
+			
+			if (lservice==null) lservice = (ILoaderService)PlatformUI.getWorkbench().getService(ILoaderService.class);
+			final String regexp = lservice.getStackExpression();
+			
+			int posExt = name.lastIndexOf(".");
+			if (posExt>-1) {
+				String ext = name.substring(posExt + 1);
+				Pattern pattern = Pattern.compile(regexp+"\\."+ext);
+				Matcher matcher = pattern.matcher(name);
+				if (matcher.matches()) {
+					final String stub = matcher.group(1);
+					if (stubs.contains(stub)) return stub+"_*."+ext;
+				}
+			}			
 		}
-		
+	    
 		return name;
+
 	}
 
 	private Map<Path, Map<Integer, String>> attributes;

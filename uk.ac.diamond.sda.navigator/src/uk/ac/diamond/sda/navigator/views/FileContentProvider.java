@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +41,7 @@ import uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferenceConstants;
 import uk.ac.diamond.sda.navigator.util.NIOUtils;
 
 public class FileContentProvider implements ILazyTreeContentProvider {
+	
 
 	public enum FileSortType {
 		ALPHA_NUMERIC, ALPHA_NUMERIC_DIRS_FIRST;
@@ -69,6 +71,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	 */
 	private Map<Path, List<Path>>  cachedSorting;
 	private Map<Path, Set<String>> cachedStubs;
+	private Map<Path, Object>      cachedLocks;
 	
 	@SuppressWarnings("unused")
 	private IStatusLineManager statusManager;
@@ -77,6 +80,8 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		this.statusManager = statusManager;
 		this.cachedSorting = new HashMap<Path, List<Path>>(89);
 		this.cachedStubs   = new HashMap<Path, Set<String>>(89);
+		this.cachedLocks   = new Hashtable<Path, Object>(89);
+		
 		this.elementQueue  = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
 		this.childQueue    = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
 		
@@ -97,6 +102,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		if (childQueue!=null)    childQueue.clear();
 		if (cachedSorting!=null) cachedSorting.clear();
 		if (cachedStubs!=null)   cachedStubs.clear();
+		if (cachedLocks!=null)   cachedLocks.clear();
 	}
 	
 	public void clearAndStop() {
@@ -114,6 +120,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 			if (elementQueue!=null)  elementQueue.clear();
 			if (childQueue!=null)    childQueue.clear();
 			cachedStubs.remove(path);
+			cachedLocks.remove(path);
 			Object old = cachedSorting.remove(path);
 			if (old==null) clear();
 		} else {
@@ -256,7 +263,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 
 		public abstract boolean process() throws Exception;
 		
-		protected void updateBusy(final BlockingQueue<UpdateRequest> queue, boolean start) {
+		protected synchronized void updateBusy(final BlockingQueue<UpdateRequest> queue, boolean start) {
 			
 			if (start) {
 				if (!isBusy) {
@@ -271,10 +278,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 					});
 	
 				}
-			}
-			
-			// They requested us to stop
-			if (!start) {				
+			} else {				
 				if (queue.isEmpty()) { // Nothing more in queue
            			if (treeViewer.getControl().isDisposed()) return;
                     treeViewer.getControl().getDisplay().syncExec(new Runnable() {
@@ -392,51 +396,53 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 								cachedStubs.put(path, new HashSet<String>(31));
 							}
 			        	
-				        	for (Path p : ds) {
-				        		
-				        		final boolean isDir = Files.isDirectory(p);
-				        		final String  name  = p.getFileName().toString();
-				        		
-				        		if (!isDir) {
-				        			if (regexp!=null) {
-						        		int posExt = name.lastIndexOf(".");
-						        		if (posExt>-1) {
-						        			String ext = name.substring(posExt + 1);
-								    		Pattern pattern = Pattern.compile(regexp+"\\."+ext);
-								    		Matcher matcher = pattern.matcher(name);
-								    		if (matcher.matches()) {
-								    			String id = matcher.group(1);
-								    			
-								    			// If we already have an item for this scan:
-								    			if (tmp!=null && tmp.contains(id)) {
-                                                    // We have more than one of them, so they get truncated
-								    				cachedStubs.get(path).add(id);
-								    				continue;
-								    			}
-								    			
-								    			// Otherwise allows its index to be added.
-								    			tmp.add(id);
-								    		}
-						        		}
-				        			}
-					        		files.put(name, p);
+							synchronized (getLock(path)) {
+					        	for (Path p : ds) {
 					        		
-				        		} else if (isDir && sort==FileSortType.ALPHA_NUMERIC_DIRS_FIRST) { // dirs separate
-				        			dirs.put(name, p);
-				        		} else {
-				        			files.put(name, p);
-				        		}
-				        		count+=1; 
-				        	}
-				        
+					        		final boolean isDir = Files.isDirectory(p);
+					        		final String  name  = p.getFileName().toString();
+					        		
+					        		if (!isDir) {
+					        			if (regexp!=null) {
+							        		int posExt = name.lastIndexOf(".");
+							        		if (posExt>-1) {
+							        			String ext = name.substring(posExt + 1);
+									    		Pattern pattern = Pattern.compile(regexp+"\\."+ext);
+									    		Matcher matcher = pattern.matcher(name);
+									    		if (matcher.matches()) {
+									    			String id = matcher.group(1);
+									    			
+									    			// If we already have an item for this scan:
+									    			if (tmp!=null && tmp.contains(id)) {
+	                                                    // We have more than one of them, so they get truncated
+									    				cachedStubs.get(path).add(id);
+									    				continue;
+									    			}
+									    			
+									    			// Otherwise allows its index to be added.
+									    			tmp.add(id);
+									    		}
+							        		}
+					        			}
+						        		files.put(name, p);
+						        		
+					        		} else if (isDir && sort==FileSortType.ALPHA_NUMERIC_DIRS_FIRST) { // dirs separate
+					        			dirs.put(name, p);
+					        		} else {
+					        			files.put(name, p);
+					        		}
+					        		count+=1; 
+					        	}
+					        
 				        	
-			        		// We precache the directory contents now because we pared them down with the regexp
-				    	    final List<Path> ret = new ArrayList<Path>(files.size()+dirs.size());
-				    	    ret.addAll(dirs.values());
-				    	    ret.addAll(files.values());
-				    	    dirs.clear();
-				    	    files.clear();
-			    			cachedSorting.put(path, ret);
+				        		// We precache the directory contents now because we pared them down with the regexp
+					    	    final List<Path> ret = new ArrayList<Path>(files.size()+dirs.size());
+					    	    ret.addAll(dirs.values());
+					    	    ret.addAll(files.values());
+					    	    dirs.clear();
+					    	    files.clear();
+					    	    cachedSorting.put(path, ret);
+							}
 
 				        } catch (IOException ex) {
 				        	// Nothing
@@ -453,7 +459,6 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 					@Override
 					public void run() {
 						if (treeViewer.getControl().isDisposed()) return;
-
 						updateChildCountInternal(element, size);
 					}
 				});
@@ -461,7 +466,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 				
 			} finally {
 				
-			    if (updateBusyRequired) updateBusy(childQueue, true);
+			    if (updateBusyRequired) updateBusy(childQueue, false);
 			}
 			
 			return true;
@@ -512,6 +517,12 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		thread.start();
 
 		return thread;
+	}
+
+	synchronized Object getLock(Path path) {
+		if (cachedLocks.containsKey(path)) return cachedLocks.get(path);
+		cachedLocks.put(path, new Object());
+		return cachedLocks.get(path);
 	}
 
 
