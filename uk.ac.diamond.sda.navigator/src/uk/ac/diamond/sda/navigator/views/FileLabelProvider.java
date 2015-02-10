@@ -171,18 +171,14 @@ public class FileLabelProvider extends ColumnLabelProvider {
 			if (stubs==null || stubs.isEmpty()) return name;
 			
 			if (lservice==null) lservice = (ILoaderService)PlatformUI.getWorkbench().getService(ILoaderService.class);
-			final String regexp = lservice.getStackExpression();
+			final Matcher matcher = lservice.getStackMatcher(name);
 			
-			int posExt = name.lastIndexOf(".");
-			if (posExt>-1) {
-				String ext = name.substring(posExt + 1);
-				Pattern pattern = Pattern.compile(regexp+"\\."+ext);
-				Matcher matcher = pattern.matcher(name);
-				if (matcher.matches()) {
-					final String stub = matcher.group(1);
-					if (stubs.contains(stub)) return stub+"_*."+ext;
-				}
-			}			
+			if (matcher!=null && matcher.matches()) {
+				final String stub = matcher.group(1);
+				final String ext  = matcher.group(3);
+				if (stubs.contains(stub)) return stub+"_*."+ext;
+			}
+
 		}
 	    
 		return name;

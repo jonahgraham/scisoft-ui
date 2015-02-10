@@ -376,10 +376,9 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 					// Therefore as we find the number, we populate the cachedSorting as we go.
 					if (Files.isDirectory(path)) {
 						
-						String regexp = null;
+						ILoaderService lservice=null;
 						if (collapseDatacollections) {
-						    ILoaderService lservice = (ILoaderService)PlatformUI.getWorkbench().getService(ILoaderService.class);
-						    regexp = lservice.getStackExpression();
+						    lservice = (ILoaderService)PlatformUI.getWorkbench().getService(ILoaderService.class);
 						}
 						
 		    		    final Map<String, Path> files = new TreeMap<String, Path>();
@@ -403,26 +402,21 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 					        		final String  name  = p.getFileName().toString();
 					        		
 					        		if (!isDir) {
-					        			if (regexp!=null) {
-							        		int posExt = name.lastIndexOf(".");
-							        		if (posExt>-1) {
-							        			String ext = name.substring(posExt + 1);
-									    		Pattern pattern = Pattern.compile(regexp+"\\."+ext);
-									    		Matcher matcher = pattern.matcher(name);
-									    		if (matcher.matches()) {
-									    			String id = matcher.group(1);
-									    			
-									    			// If we already have an item for this scan:
-									    			if (tmp!=null && tmp.contains(id)) {
-	                                                    // We have more than one of them, so they get truncated
-									    				cachedStubs.get(path).add(id);
-									    				continue;
-									    			}
-									    			
-									    			// Otherwise allows its index to be added.
-									    			tmp.add(id);
-									    		}
-							        		}
+					        			if (lservice!=null) {
+					        				Matcher matcher = lservice.getStackMatcher(name);
+					        				if (matcher!=null && matcher.matches()) {
+					        					String id = matcher.group(1);
+
+					        					// If we already have an item for this scan:
+					        					if (tmp!=null && tmp.contains(id)) {
+					        						// We have more than one of them, so they get truncated
+					        						cachedStubs.get(path).add(id);
+					        						continue;
+					        					}
+
+					        					// Otherwise allows its index to be added.
+					        					tmp.add(id);
+					        				}
 					        			}
 						        		files.put(name, p);
 						        		
