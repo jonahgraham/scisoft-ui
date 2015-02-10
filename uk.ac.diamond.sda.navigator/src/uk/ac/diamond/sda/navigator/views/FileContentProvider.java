@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.jface.action.IStatusLineManager;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ILazyTreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -34,6 +35,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.ui.PlatformUI;
 
+import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
+import uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferenceConstants;
 import uk.ac.diamond.sda.navigator.util.NIOUtils;
 
 public class FileContentProvider implements ILazyTreeContentProvider {
@@ -44,7 +47,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	
 	private TreeViewer treeViewer;
 	private FileSortType sort = FileSortType.ALPHA_NUMERIC_DIRS_FIRST;
-	private boolean collapseDatacollections = true;
+	private boolean collapseDatacollections;
 	private LinkedBlockingDeque<UpdateRequest> elementQueue;
 	private LinkedBlockingDeque<UpdateRequest> childQueue;
 	
@@ -64,7 +67,8 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	 * file browsing does not really work if you start making the
 	 * cached
 	 */
-	private Map<Path, List<Path>> cachedSorting;
+	private Map<Path, List<Path>>  cachedSorting;
+	private Map<Path, Set<String>> cachedStubs;
 	
 	@SuppressWarnings("unused")
 	private IStatusLineManager statusManager;
@@ -72,8 +76,12 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	public FileContentProvider(final IStatusLineManager statusManager) {
 		this.statusManager = statusManager;
 		this.cachedSorting = new HashMap<Path, List<Path>>(89);
+		this.cachedStubs   = new HashMap<Path, Set<String>>(89);
 		this.elementQueue  = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
 		this.childQueue    = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
+		
+		final IPreferenceStore store = NavigatorRCPActivator.getDefault().getPreferenceStore();
+		collapseDatacollections = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_COLLAPSED_FILES);
 	}
 
 	
@@ -88,6 +96,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		if (elementQueue!=null)  elementQueue.clear();
 		if (childQueue!=null)    childQueue.clear();
 		if (cachedSorting!=null) cachedSorting.clear();
+		if (cachedStubs!=null)   cachedStubs.clear();
 	}
 	
 	public void clearAndStop() {
@@ -104,6 +113,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		if (path!=null) {
 			if (elementQueue!=null)  elementQueue.clear();
 			if (childQueue!=null)    childQueue.clear();
+			cachedStubs.remove(path);
 			Object old = cachedSorting.remove(path);
 			if (old==null) clear();
 		} else {
@@ -375,10 +385,13 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 			        	// see http://www.rgagnon.com/javadetails/java-get-directory-content-faster-with-many-files.html						
 				        try (DirectoryStream<Path> ds = Files.newDirectoryStream(path)) {
 				        	
-				        	Set<String> collapsed = collapseDatacollections
-				        			              ? new HashSet<String>(89)
-				        			              : null;
+				        	Set<String> tmp = null;
 				        	
+							if (collapseDatacollections) {
+								tmp = new HashSet<String>(31);
+								cachedStubs.put(path, new HashSet<String>(31));
+							}
+			        	
 				        	for (Path p : ds) {
 				        		
 				        		final boolean isDir = Files.isDirectory(p);
@@ -395,10 +408,14 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 								    			String id = matcher.group(1);
 								    			
 								    			// If we already have an item for this scan:
-								    			if (collapsed.contains(id)) continue;
+								    			if (tmp!=null && tmp.contains(id)) {
+                                                    // We have more than one of them, so they get truncated
+								    				cachedStubs.get(path).add(id);
+								    				continue;
+								    			}
 								    			
 								    			// Otherwise allows its index to be added.
-								    			collapsed.add(id);
+								    			tmp.add(id);
 								    		}
 						        		}
 				        			}
@@ -507,4 +524,12 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		this.collapseDatacollections = collapseDatacollections;
 	}
 
+
+	public boolean isCached(Path folder) {
+		return cachedSorting.containsKey(folder);
+	}
+
+	public Set<String> getStubs(Path folder) {
+		return cachedStubs.get(folder);
+	}
 }

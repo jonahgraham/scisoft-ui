@@ -27,5 +27,7 @@ public class FileNavigatorPreferenceInitializer extends AbstractPreferenceInitia
 		store.setDefault(FileNavigatorPreferenceConstants.SHOW_SCANCMD_COLUMN, false);
 		store.setDefault(FileNavigatorPreferenceConstants.SHOW_COMMENT_COLUMN, false);
 
+		store.setDefault(FileNavigatorPreferenceConstants.SHOW_COLLAPSED_FILES, true);
+
 	}
 }

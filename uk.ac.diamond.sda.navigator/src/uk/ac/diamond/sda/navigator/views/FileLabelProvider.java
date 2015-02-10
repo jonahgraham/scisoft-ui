@@ -15,19 +15,25 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.dawb.common.services.IFileIconService;
 import org.dawb.common.services.ServiceManager;
 import org.dawb.common.util.io.FileUtils;
 import org.dawnsci.io.h5.H5Loader;
+import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.hdf5.HierarchicalDataFactory;
 import org.eclipse.dawnsci.hdf5.IHierarchicalDataFile;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.scisoft.analysis.utils.OSUtils;
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
@@ -43,16 +49,19 @@ public class FileLabelProvider extends ColumnLabelProvider {
 	private IPreferenceStore store;
 	private boolean showComment;
 	private boolean showScanCmd;
+	private StructuredViewer viewer;
 
-	public FileLabelProvider(final int column) throws Exception {
+	public FileLabelProvider(StructuredViewer viewer, final int column) throws Exception {
+		
+		this.viewer      = viewer;
 		this.columnIndex = column;
+		
 		this.dateFormat  = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-		this.service = (IFileIconService)ServiceManager.getService(IFileIconService.class);
-		this.store =  NavigatorRCPActivator.getDefault().getPreferenceStore();
+		this.service     = (IFileIconService)ServiceManager.getService(IFileIconService.class);
+		this.store       =  NavigatorRCPActivator.getDefault().getPreferenceStore();
 		
 		this.showComment = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_COMMENT_COLUMN);
 		this.showScanCmd = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_SCANCMD_COLUMN);
-
 	}
 
 	@Override
@@ -133,6 +142,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		}
 	}
 	
+	private ILoaderService lservice;
 	/**
 	 * Gets a name, allowing for those folders that have been compressed.
 	 * @param node
@@ -140,7 +150,37 @@ public class FileLabelProvider extends ColumnLabelProvider {
 	 */
 	private String getName(Path node) {
 		
-		return node.getFileName().toString(); // TODO Allow for collapsed data collections.
+		final String name = node.getFileName().toString();
+		if (Files.isDirectory(node)) return name;
+		
+		FileContentProvider prov = viewer.getContentProvider() instanceof FileContentProvider
+				                 ? (FileContentProvider)viewer.getContentProvider()
+				                 : null;
+				                 
+		boolean cached = prov!=null ? prov.isCached(node.getParent()) : false;
+		if (!cached) return name;
+		
+		final IPreferenceStore store = NavigatorRCPActivator.getDefault().getPreferenceStore();
+        if (!store.getBoolean(FileNavigatorPreferenceConstants.SHOW_COLLAPSED_FILES)) return name;
+		
+		final Set<String> stubs = prov.getStubs(node.getParent()); // TODO Allow for collapsed data collections.
+		if (stubs==null || stubs.isEmpty() || stubs.size()<2) return name;
+		
+		if (lservice==null) lservice = (ILoaderService)PlatformUI.getWorkbench().getService(ILoaderService.class);
+		final String regexp = lservice.getStackExpression();
+		
+		int posExt = name.lastIndexOf(".");
+		if (posExt>-1) {
+			String ext = name.substring(posExt + 1);
+			Pattern pattern = Pattern.compile(regexp+"\\."+ext);
+			Matcher matcher = pattern.matcher(name);
+			if (matcher.matches()) {
+				final String stub = matcher.group(1);
+				if (stubs.contains(stub)) return stub+"_*."+ext;
+			}
+		}
+		
+		return name;
 	}
 
 	private Map<Path, Map<Integer, String>> attributes;

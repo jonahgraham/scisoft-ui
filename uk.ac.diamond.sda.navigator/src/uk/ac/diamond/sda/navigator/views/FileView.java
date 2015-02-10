@@ -304,7 +304,7 @@ public final class FileView extends ViewPart implements IFileView {
 			tCol.setText(titles[i]);
 			tCol.setWidth(widths[i]);
 			try {
-				tVCol.setLabelProvider(new FileLabelProvider(i));
+				tVCol.setLabelProvider(new FileLabelProvider(tree, i));
 			} catch (Exception e1) {
 				logger.error("Cannot create label provider "+i, e1);
 			}
@@ -514,18 +514,19 @@ public final class FileView extends ViewPart implements IFileView {
 	private void createActions() {
 		
         // TODO Save preference as property
-		
+		final IPreferenceStore store = NavigatorRCPActivator.getDefault().getPreferenceStore();
 		final IToolBarManager toolMan = getViewSite().getActionBars().getToolBarManager();
 		
 		final Action filterCollections = new Action("Compress data collections with the same name", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
 				((FileContentProvider)tree.getContentProvider()).setCollapseDatacollections(isChecked());
+				store.setValue(FileNavigatorPreferenceConstants.SHOW_COLLAPSED_FILES, isChecked());
 				refreshAll();
 			}
 		};
 		filterCollections.setImageDescriptor(NavigatorRCPActivator.getImageDescriptor("icons/zip.png"));
-		filterCollections.setChecked(true);
+		filterCollections.setChecked(store.getBoolean(FileNavigatorPreferenceConstants.SHOW_COLLAPSED_FILES));
 		toolMan.add(filterCollections);
 		toolMan.add(new Separator("sorting"));
 		
