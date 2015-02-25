@@ -9,11 +9,17 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.PlotType;
+import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.dawnsci.plotting.api.trace.ColorOption;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.plotclient.PlotWindowManager;
@@ -23,6 +29,8 @@ import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
  * Actual PlotWindow that can be used inside a View- or EditorPart
  */
 public class PlotWindow extends AbstractPlotWindow {
+
+	static private Logger logger = LoggerFactory.getLogger(PlotWindow.class);
 
 	/**
 	 * Obtain the IPlotWindowManager for the running Eclipse.
@@ -56,6 +64,19 @@ public class PlotWindow extends AbstractPlotWindow {
 			public void controlMoved(ControlEvent e) {
 			}
 		});
+	}
+
+	@Override
+	public void createPlotControl(Composite composite) {
+		try {
+			IPlottingSystem system = PlottingFactory.createPlottingSystem();
+			system.setColorOption(ColorOption.NONE);
+			system.createPlotPart(composite, getName(), bars, PlotType.XY, getPart());
+			system.repaint();
+			setPlottingSystem(system);
+		} catch (Exception e) {
+			logger.error("Cannot locate any plotting System!", e);
+		}
 	}
 
 }

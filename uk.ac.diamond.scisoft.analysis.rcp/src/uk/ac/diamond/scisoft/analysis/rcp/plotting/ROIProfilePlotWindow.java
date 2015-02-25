@@ -122,7 +122,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	 * Create a plotting system layout with a main plotting system and two side plot profiles
 	 */
 	@Override
-	public void createPlottingSystem(Composite composite){
+	public void createPlotControl(Composite composite){
 		
 		sashForm = new SashForm(composite, SWT.HORIZONTAL);
 		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

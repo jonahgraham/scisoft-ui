@@ -69,7 +69,7 @@ public class ExamplePlotWindow extends AbstractPlotWindow {
 	}
 
 	@Override
-	public void createPlottingSystem(Composite composite) {
+	public void createPlotControl(Composite composite) {
 		SashForm sashForm = new SashForm(composite, SWT.HORIZONTAL);
 		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		sashForm.setBackground(new Color(parentComp.getDisplay(), 192, 192, 192));

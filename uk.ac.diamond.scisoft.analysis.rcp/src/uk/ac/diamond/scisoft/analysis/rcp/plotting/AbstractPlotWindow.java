@@ -13,10 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.dawnsci.python.rpc.action.InjectPyDevConsole;
-import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
-import org.eclipse.dawnsci.plotting.api.PlotType;
-import org.eclipse.dawnsci.plotting.api.PlottingFactory;
-import org.eclipse.dawnsci.plotting.api.trace.ColorOption;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
@@ -24,8 +20,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindow;
 import uk.ac.diamond.scisoft.analysis.plotclient.PlotWindowManager;
@@ -43,8 +37,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DuplicatePlotAction;
  * 
  */
 public abstract class AbstractPlotWindow extends ScriptingConnection implements IPlotWindow {
-
-	static private Logger logger = LoggerFactory.getLogger(AbstractPlotWindow.class);
 
 	protected Composite parentComp;
 	protected Composite plotSystemComposite;
@@ -82,7 +74,7 @@ public abstract class AbstractPlotWindow extends ScriptingConnection implements 
 		this.bars = bars;
 		this.part = part;
 		
-		createPlottingSystem(parent);
+		createPlotControl(parent);
 	}
 	
 
@@ -96,19 +88,10 @@ public abstract class AbstractPlotWindow extends ScriptingConnection implements 
 	 * {@code	plottingSystem.addRegionListener(getRoiManager());}
 	 * {@code	plottingSystem.addTraceListener(getRoiManager().getTraceListener());}<br>
 	 * <br>
+	 * 
 	 * @param composite
 	 */
-	public void createPlottingSystem(Composite composite) {
-		try {
-			IPlottingSystem system = PlottingFactory.createPlottingSystem();
-			system.setColorOption(ColorOption.NONE);
-			system.createPlotPart(composite, getName(), bars, PlotType.XY, part);
-			system.repaint();
-			setPlottingSystem(system);
-		} catch (Exception e) {
-			logger.error("Cannot locate any plotting System!", e);
-		}
-	}
+	public abstract void createPlotControl(Composite composite);
 
 	/**
 	 * Return current page.
