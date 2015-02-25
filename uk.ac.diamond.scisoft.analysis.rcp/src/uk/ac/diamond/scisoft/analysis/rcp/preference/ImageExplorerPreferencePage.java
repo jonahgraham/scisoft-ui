@@ -48,6 +48,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 	private Spinner spnAutoHiThreshold;
 	private Spinner spnWaitTime;
 	private Spinner spnSkipImages;
+	private Spinner spnImageSize;
 	private Combo cmbDisplayViews;
 
 	private IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
@@ -159,6 +160,17 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 		spnSkipImages.setIncrement(1);
 		Label lblImages = new Label(comp, SWT.LEFT);
 		lblImages.setText("image");
+
+		Label lblImageSize = new Label(comp, SWT.LEFT);
+		lblImageSize.setText("Thumbnail Size");
+		spnImageSize = new Spinner(comp, SWT.RIGHT | SWT.BORDER);
+		spnImageSize.setMinimum(50);
+		spnImageSize.setMaximum(300);
+		spnImageSize.setIncrement(5);
+		gdc = new GridData();
+		gdc.horizontalSpan = 2;
+		spnImageSize.setLayoutData(gdc);
+
 		initializePage();
 
 		parent.layout();
@@ -187,6 +199,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 		spnAutoHiThreshold.setSelection(getAutoContrastHiPreference());
 		spnWaitTime.setSelection(getTimeDelayPreference());
 		spnSkipImages.setSelection(getPlaybackRatePreference());
+		spnImageSize.setSelection(getImageSizePreference());
 		String viewName = getPlaybackViewPreference();
 		for (int i = 0; i < cmbDisplayViews.getItems().length; i++) {
 			if (cmbDisplayViews.getItems()[i].equals(viewName))
@@ -201,6 +214,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 		setTimeDelayPreference(spnWaitTime.getSelection());
 		setPlaybackViewPreference(cmbDisplayViews.getItem(cmbDisplayViews.getSelectionIndex()));
 		setPlaybackRatePreference(spnSkipImages.getSelection());
+		setImageSizePreference(spnImageSize.getSelection());
 	}
 
 	private void loadDefaultPreferences() {
@@ -209,6 +223,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 		spnAutoHiThreshold.setSelection(getDefaultAutoContrastHiPreference());
 		spnWaitTime.setSelection(getDefaultTimeDelayPreference());
 		spnSkipImages.setSelection(getDefaultPlaybackRatePreference());
+		spnImageSize.setSelection(getDefaultImageSizePreference());
 		String viewName = getDefaultPlaybackViewPreference();
 		for (int i = 0; i < cmbDisplayViews.getItems().length; i++) {
 			if (cmbDisplayViews.getItems()[i].equals(viewName))
@@ -238,6 +253,10 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 
 	private int getDefaultPlaybackRatePreference() {
 		return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE);
+	}
+
+	private int getDefaultImageSizePreference() {
+		return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_IMAGESIZE);
 	}
 
 	private String getColourMapChoicePreference() {
@@ -273,6 +292,13 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 			return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE);
 		}
 		return getPreferenceStore().getInt(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE);
+	}
+
+	private int getImageSizePreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.IMAGEEXPLORER_IMAGESIZE)) {
+			return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_IMAGESIZE);
+		}
+		return getPreferenceStore().getInt(PreferenceConstants.IMAGEEXPLORER_IMAGESIZE);
 	}
 
 	private String getPlaybackViewPreference() {
@@ -317,4 +343,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE, value);
 	}
 
+	private void setImageSizePreference(int value) {
+		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_IMAGESIZE, value);
+	}
 }

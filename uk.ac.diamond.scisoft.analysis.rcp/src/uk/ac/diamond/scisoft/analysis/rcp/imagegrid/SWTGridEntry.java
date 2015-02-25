@@ -93,10 +93,9 @@ public class SWTGridEntry extends AbstractGridEntry {
 		this.additionalInfo = null;
 		if (gridImage != null)
 			gridImage.dispose();
-		if (thumbnailFilename != null)
-		{
-        	java.io.File imageFile = new java.io.File(thumbnailFilename);
-        	imageFile.delete();
+		if (thumbnailFilename != null) {
+			java.io.File imageFile = new java.io.File(thumbnailFilename);
+			imageFile.delete();
 			thumbnailFilename = null;
 		}
 	}
@@ -134,7 +133,6 @@ public class SWTGridEntry extends AbstractGridEntry {
 	public void loadThumbImage() {
 		if (gridImage == null) {
 			canvas.getDisplay().asyncExec(new Runnable() {
-
 				@Override
 				public void run() {
 					gridImage = new Image(canvas.getDisplay(),thumbnailFilename);
@@ -143,13 +141,13 @@ public class SWTGridEntry extends AbstractGridEntry {
 						canvas.redraw();
 						lastREDRAWinMillis = System.currentTimeMillis();
 					}
-				}				
+				}
 			});
 		} else {
 			logger.warn("Something is wrong");
 		}
 	}
-	
+
 	@Override
 	public boolean isDeactivated() {
 		return gridImage == null;

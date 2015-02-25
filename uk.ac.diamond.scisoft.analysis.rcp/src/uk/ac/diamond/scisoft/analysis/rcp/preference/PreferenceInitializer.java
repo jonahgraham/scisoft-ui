@@ -33,6 +33,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	private static final int DEFAULT_IMAGEEXPLORER_TIMEDEAY = 1000;
 	private static final String DEFAULT_IMAGEEXPLORER_PLAYBACKVIEW = "Live Plot";
 	private static final int DEFAULT_IMAGEEXPLORER_PLAYBACKRATE = 1;
+	private static final int DEFAULT_IMAGEEXPLORER_IMAGESIZE = 64;
 	private static final boolean DEFAULT_COLOURMAP_EXPERT = false;
 	private static final boolean DEFAULT_AUTOCONTRAST = true;
 	private static final int DEFAULT_AUTOCONTRAST_LO = 0;
@@ -123,6 +124,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_TIMEDELAYBETWEENIMAGES, DEFAULT_IMAGEEXPLORER_TIMEDEAY);
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW, DEFAULT_IMAGEEXPLORER_PLAYBACKVIEW);
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE, DEFAULT_IMAGEEXPLORER_PLAYBACKRATE);
+		store.setDefault(PreferenceConstants.IMAGEEXPLORER_IMAGESIZE, DEFAULT_IMAGEEXPLORER_IMAGESIZE);
 
 		store.setDefault(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT, DEFAULT_ANALYSIS_RPC_SERVER_PORT);
 		store.setDefault(PreferenceConstants.ANALYSIS_RPC_TEMP_FILE_LOCATION, DEFAULT_ANALYSIS_RPC_TEMP_FILE_LOCATION);

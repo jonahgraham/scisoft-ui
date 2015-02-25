@@ -76,6 +76,7 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 	private int mouseY = 0;
 	private int currentTileWidth = 0;
 	private int currentTileHeight = 0;
+	private int thumbSize;
 	private int mouseButtonMode = 0;
 	private boolean visualizeCache = false;
 	private boolean overviewWindow = false;
@@ -98,7 +99,6 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 		this.viewName = viewname;
 		setupGrid();
 	}
-	
 
 	private void setupGrid()
 	{
@@ -208,7 +208,12 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 						 (int)(primaryCache.height * unitHeight));
 		
 	}
-	
+
+	@Override
+	public void setThumbnailSize(int size) {
+		thumbSize = size;
+	}
+
 	@Override
 	protected void resizeGrid(int newWidth, int newHeight) {
 		super.resizeGrid(newWidth, newHeight);
@@ -217,11 +222,11 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 			@Override
 			public void run() {
 				Rectangle client = canvas.getClientArea();				
-				int tileWidth = client.width / gridWidth;
-				int tileHeight = client.height / gridHeight;
-				int thumbSize = Math.min(tileWidth, tileHeight);
-				tileWidth = Math.min(thumbSize,MAXTHUMBWIDTH);
-				tileHeight = Math.min(thumbSize,MAXTHUMBHEIGHT);
+//				int tileWidth = client.width / gridWidth;
+//				int tileHeight = client.height / gridHeight;
+//				thumbSize = Math.min(tileWidth, tileHeight);
+//				tileWidth = Math.min(thumbSize,MAXTHUMBWIDTH);
+//				tileHeight = Math.min(thumbSize,MAXTHUMBHEIGHT);
 				currentTileWidth = Math.max(thumbSize,MINTHUMBWIDTH);
 				currentTileHeight = Math.max(thumbSize,MINTHUMBHEIGHT);
 				currentTileWidth = Math.min(currentTileWidth, MAXTHUMBWIDTH);
@@ -254,11 +259,12 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 		canvasGc.fillRectangle(client);
 		if (currentTileWidth == 0 ||
 			currentTileHeight == 0) {
-			int tileWidth = client.width / gridWidth;
-			int tileHeight = client.height / gridHeight;
-			int thumbSize = Math.min(tileWidth, tileHeight);
-			tileWidth = Math.min(thumbSize,MAXTHUMBWIDTH);
-			tileHeight = Math.min(thumbSize,MAXTHUMBHEIGHT);
+//			int tileWidth = client.width / gridWidth;
+//			int tileHeight = client.height / gridHeight;
+//			int thumbSize = Math.min(tileWidth, tileHeight);
+//			tileWidth = Math.min(thumbSize,MAXTHUMBWIDTH);
+//			tileHeight = Math.min(thumbSize,MAXTHUMBHEIGHT);
+
 			currentTileWidth = Math.max(thumbSize,MINTHUMBWIDTH);
 			currentTileHeight = Math.max(thumbSize,MINTHUMBHEIGHT);
 			currentTileWidth = Math.min(currentTileWidth, MAXTHUMBWIDTH);
@@ -286,6 +292,8 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 					for (int x = 0; x < gridWidth; x++) {
 						if (table[x+y*gridWidth] != null)
 						{
+							currentTileWidth = Math.max(thumbSize,MINTHUMBWIDTH);
+							currentTileHeight = Math.max(thumbSize,MINTHUMBHEIGHT);
 							int xPos = scrollX + x * (currentTileWidth + GRIDXGAPINPIXELS);
 							int yPos = scrollY + y * (currentTileHeight + GRIDYGAPINPIXELS);
 							if (xPos > -currentTileWidth*3 && xPos < canvas.getBounds().width+currentTileWidth*3 &&
@@ -314,11 +322,13 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 				}
 			}
 			if (toolTipEntry != null) {
-				toolTipEntry.paint(canvasGc, rectX, rectY, MAXTHUMBWIDTH, MAXTHUMBHEIGHT);
+				int width = currentTileWidth + ((currentTileWidth * 30) / 100);
+				int height = currentTileHeight + ((currentTileHeight * 30) / 100);
+				toolTipEntry.paint(canvasGc, rectX, rectY, width, height);
 				canvasGc.setAlpha(128);
 				canvasGc.setBackground(blue);
-				canvasGc.fillRectangle(rectX, rectY, MAXTHUMBWIDTH, MAXTHUMBHEIGHT);
-			} 
+				canvasGc.fillRectangle(rectX, rectY, width, height);
+			}
 		}
 	}
 

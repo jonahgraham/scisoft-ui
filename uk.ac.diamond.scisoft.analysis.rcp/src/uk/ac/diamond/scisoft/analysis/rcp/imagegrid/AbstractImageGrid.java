@@ -68,6 +68,8 @@ public abstract class AbstractImageGrid {
 		resizeGrid(newWidth, newHeight);
 	}
 
+	abstract public void setThumbnailSize(int size);
+
 	public void addEntry(AbstractGridEntry newEntry, int xPos, int yPos) {
 		synchronized (table) {
 			if (xPos > gridWidth - 1 || yPos > gridHeight - 1)

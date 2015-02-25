@@ -268,6 +268,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 		compHUD.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
 
 		imageGrid = new SWTImageGrid(canvas, plotViewName);
+		imageGrid.setThumbnailSize(getPreferenceImageSize());
 		GlobalColourMaps.InitializeColourMaps();
 		retainStateFromServer();
 
@@ -291,8 +292,10 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 				if (event.getProperty().equals(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW)) {
 					playback.setPlotView(getPreferencePlaybackView());
 				}
-				if (event.getProperty().equals(PreferenceConstants.IMAGEEXPLORER_COLOURMAP)) {
+				if (event.getProperty().equals(PreferenceConstants.IMAGEEXPLORER_COLOURMAP)
+						|| event.getProperty().equals(PreferenceConstants.IMAGEEXPLORER_IMAGESIZE)) {
 					List<GridImageEntry> images = imageGrid.getListOfEntries();
+					imageGrid.setThumbnailSize(getPreferenceImageSize());
 					String colourScheme = getPreferenceColourMapChoice();
 					for (GridImageEntry entry : images) {
 						SWTGridEntry gridEntry = new SWTGridEntry(entry.getFilename(), null, canvas, 
@@ -471,6 +474,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 			imageGrid.addEntry(entry, xPos, yPos);
 		else
 			imageGrid.addEntry(entry);
+		imageGrid.setThumbnailSize(getPreferenceImageSize());
 		locker.release();
 		if (liveActive)
 			playback.moveToLast();
@@ -494,6 +498,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 						imageGrid = new SWTImageGrid(gridDims[0], gridDims[0], canvas, plotViewName);
 					else
 						imageGrid = new SWTImageGrid(gridDims[1], gridDims[0], canvas, plotViewName);
+					imageGrid.setThumbnailSize(getPreferenceImageSize());
 					locker.release();
 					canvas.redraw();
 				}
@@ -556,6 +561,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 			imageGrid.dispose();
 
 		imageGrid = new SWTImageGrid(gridDim, gridDim, canvas, plotViewName);
+		imageGrid.setThumbnailSize(getPreferenceImageSize());
 		Iterator<String> iter = filesToLoad.iterator();
 		while (iter.hasNext()) {
 			String filename = iter.next();
@@ -951,6 +957,17 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 		return preferenceStore.isDefault(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW)
 				? preferenceStore.getDefaultString(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW)
 				: preferenceStore.getString(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW);
+	}
+
+	/**
+	 * @return thumbnail size
+	 */
+	private int getPreferenceImageSize() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		int size = preferenceStore.isDefault(PreferenceConstants.IMAGEEXPLORER_IMAGESIZE)
+				? preferenceStore.getDefaultInt(PreferenceConstants.IMAGEEXPLORER_IMAGESIZE)
+				: preferenceStore.getInt(PreferenceConstants.IMAGEEXPLORER_IMAGESIZE);
+		return size;
 	}
 
 	public void setMonitorActive(boolean monitorActive) {

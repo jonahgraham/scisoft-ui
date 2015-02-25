@@ -56,6 +56,7 @@ public class PreferenceConstants {
 	public static final String IMAGEEXPLORER_TIMEDELAYBETWEENIMAGES = "imageExplorer.timeDelay";
 	public static final String IMAGEEXPLORER_PLAYBACKVIEW = "imageExplorer.playbackView";
 	public static final String IMAGEEXPLORER_PLAYBACKRATE = "imageExplorer.playbackRate";
+	public static final String IMAGEEXPLORER_IMAGESIZE = "imageExplorer.imageSize";
 
 	// Fitting 1D preferences
 	public static final String FITTING_1D_PEAKTYPE = "fitting1d.peak.type";
