@@ -47,7 +47,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
@@ -139,7 +138,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			plottingSystem = PlottingFactory.createPlottingSystem();
 			plottingSystem.setColorOption(ColorOption.NONE);
 			
-			plottingSystem.createPlotPart(sashForm2, getName(), bars, PlotType.XY, (IViewPart)getGuiManager());
+			plottingSystem.createPlotPart(sashForm2, getName(), bars, PlotType.XY, getPart());
 			plottingSystem.repaint();
 
 			IToolPageSystem tps = (IToolPageSystem)plottingSystem.getAdapter(IToolPageSystem.class);
@@ -150,7 +149,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			sideProfile1.setToolSystem(tps);
 			sideProfile1.setPlottingSystem(plottingSystem);
 			sideProfile1.setTitle(getName()+"_profile1");
-			sideProfile1.setPart((IViewPart)getGuiManager());
+			sideProfile1.setPart(getPart());
 			sideProfile1.setToolId(String.valueOf(sideProfile1.hashCode()));
 			sideProfile1.createControl(sashForm2);
 			sideProfile1.activate();
@@ -162,7 +161,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			sideProfile2.setToolSystem(tps);
 			sideProfile2.setPlottingSystem(plottingSystem);
 			sideProfile2.setTitle(getName()+"_profile2");
-			sideProfile2.setPart((IViewPart)getGuiManager());
+			sideProfile2.setPart(getPart());
 			sideProfile2.setToolId(String.valueOf(sideProfile2.hashCode()));
 			sideProfile2.createControl(sashForm3);
 			sideProfile2.activate();
@@ -227,7 +226,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 			roiSumProfile.setToolSystem(tps);
 			roiSumProfile.setPlottingSystem(plottingSystem);
 			roiSumProfile.setTitle(getName()+"_Region_Sum");
-			roiSumProfile.setPart((IViewPart)getGuiManager());
+			roiSumProfile.setPart(getPart());
 			roiSumProfile.setToolId(String.valueOf(roiSumProfile.hashCode()));
 			roiSumProfile.createControl(regionSumGroup);
 			roiSumProfile.activate();

@@ -20,7 +20,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +83,7 @@ public class ExamplePlotWindow extends AbstractPlotWindow {
 		try {
 			plottingSystem = PlottingFactory.createPlottingSystem();
 			plottingSystem.setColorOption(ColorOption.NONE);
-			plottingSystem.createPlotPart(sashForm, getName(), bars, PlotType.XY, (IViewPart) getGuiManager());
+			plottingSystem.createPlotPart(sashForm, getName(), bars, PlotType.XY, getPart());
 			plottingSystem.repaint();
 			plottingSystem.addRegionListener(getRoiManager());
 			plottingSystem.addTraceListener(getRoiManager().getTraceListener());
