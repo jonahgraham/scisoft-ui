@@ -5,19 +5,19 @@
          point="org.eclipse.ui.views">
       <category
             name="Data Analysis"
-            id="uk.ac.diamond.scisoft.analysis.rcp.dataAnalysis">
+            id="uk.ac.diamond.scisoft.analysis.rcp">
       </category>
       <view
             name="NeXus Tree"
             icon="icons/nexus.png"
-            category="uk.ac.diamond.scisoft.analysis.rcp.dataAnalysis"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.HDF5TreeView"
             id="uk.ac.diamond.scisoft.analysis.rcp.views.HDF5TreeView">
       </view>
       <view
             name="HDF5 Tree"
             icon="icons/hdf.gif"
-            category="uk.ac.diamond.scisoft.analysis.rcp.dataAnalysis"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.HDF5TreeView"
             id="uk.ac.diamond.scisoft.analysis.rcp.views.HDF5TreeView">
       </view>
@@ -42,7 +42,7 @@
       -->
       <view
              allowMultiple="false"
-             category="uk.ac.diamond.scisoft.analysis.rcp.dataAnalysis"
+             category="uk.ac.diamond.scisoft.analysis.rcp"
              class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
              icon="icons/chart_curve.png"
              id="uk.ac.diamond.scisoft.analysis.rcp.plotViewDP"
@@ -51,7 +51,7 @@
       </view>
       <view
             allowMultiple="false"
-            category="uk.ac.diamond.scisoft.analysis.rcp.dataAnalysis"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
             icon="icons/chart_curve.png"
             id="uk.ac.diamond.scisoft.analysis.rcp.plotView1"
@@ -60,7 +60,7 @@
       </view>
       <view
             allowMultiple="false"
-            category="uk.ac.diamond.scisoft.analysis.rcp.dataAnalysis"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
             icon="icons/chart_curve.png"
             id="uk.ac.diamond.scisoft.analysis.rcp.plotView2"
@@ -69,7 +69,7 @@
       </view>
       <view
             allowMultiple="false"
-            category="uk.ac.diamond.scisoft.analysis.rcp.dataAnalysis"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
             icon="icons/chart_curve.png"
             id="uk.ac.diamond.scisoft.analysis.rcp.livePlotView"
@@ -78,7 +78,7 @@
       </view>
       <view
             allowMultiple="true"
-            category="uk.ac.diamond.scisoft.analysis.rcp.dataAnalysis"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.ROIProfilePlotView"
             icon="icons/chart_curve.png"
             id="uk.ac.diamond.scisoft.analysis.rcp.perimeterProfilePlotView"
@@ -124,13 +124,13 @@
       <view
             name="Image Explorer"
             icon="icons/map_magnify.png"
-            category="uk.ac.diamond.scisoft.analysis.rcp.dataAnalysis"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView"
             id="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView"
             allowMultiple="false">
       </view>
       <view
-            category="uk.ac.diamond.scisoft.analysis.rcp.dataAnalysis"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.DatasetTableView"
             icon="icons/table.png"
             id="uk.ac.diamond.scisoft.analysis.rcp.views.DatasetTableView"
@@ -138,7 +138,7 @@
             restorable="true">
       </view>
       <view
-            category="uk.ac.diamond.scisoft.analysis.rcp.dataAnalysis"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView"
             icon="icons/table_magnify.png"
             id="uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView"
@@ -147,7 +147,7 @@
       </view>
       <view
            allowMultiple="true"
-           category="uk.ac.diamond.scisoft.analysis.rcp.dataAnalysis"
+           category="uk.ac.diamond.scisoft.analysis.rcp"
            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
            icon="icons/chart_curve.png"
            id="uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple"
@@ -156,7 +156,7 @@
       </view>
       <view
             allowMultiple="false"
-            category="uk.ac.diamond.scisoft.analysis.rcp.dataAnalysis"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView"
             icon="icons/page_white_database.png"
             id="uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView"
