@@ -9,9 +9,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
-import org.eclipse.dawnsci.plotting.api.PlotType;
-import org.eclipse.dawnsci.plotting.api.PlottingFactory;
-import org.eclipse.dawnsci.plotting.api.trace.ColorOption;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.graphics.Color;
@@ -21,8 +18,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPart;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.plotclient.PlotWindowManager;
@@ -32,8 +27,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.ExamplePlotView;
 
 /**
  * Plot Window example<br>
- * This plot window enables to create a custom Plot View with custom 
- * controls side by side with an IPlottingSystem linked to the plot server.<br>
+ * This plot window enables to create a custom Plot View with custom controls side by side with an IPlottingSystem
+ * linked to the plot server.<br>
  * The IPlottingSystem should be created the following way:<br>
  * {@code plottingSystem = PlottingFactory.createPlottingSystem();}<br>
  * {@code plottingSystem.setColorOption(ColorOption.NONE);}<br>
@@ -44,8 +39,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.ExamplePlotView;
  * (see {@link ExamplePlotView} for more info.)
  */
 public class ExamplePlotWindow extends AbstractPlotWindow {
-
-	static private Logger logger = LoggerFactory.getLogger(ExamplePlotWindow.class);
 
 	/**
 	 * Obtain the IPlotWindowManager for the running Eclipse.
@@ -80,16 +73,8 @@ public class ExamplePlotWindow extends AbstractPlotWindow {
 		Label exampleLabel = new Label(controlComp, SWT.WRAP);
 		exampleLabel.setText("Example of a composite side by side with an IPlottingSystem linked to a plot server");
 
-		try {
-			plottingSystem = PlottingFactory.createPlottingSystem();
-			plottingSystem.setColorOption(ColorOption.NONE);
-			plottingSystem.createPlotPart(sashForm, getName(), bars, PlotType.XY, getPart());
-			plottingSystem.repaint();
-			plottingSystem.addRegionListener(getRoiManager());
-			plottingSystem.addTraceListener(getRoiManager().getTraceListener());
-		} catch (Exception e) {
-			logger.error("Cannot locate any Abstract plotting System!", e);
-		}
+		// Creates the PlottingSystem
+		super.createPlotControl(sashForm);
 	}
 
 	@Override

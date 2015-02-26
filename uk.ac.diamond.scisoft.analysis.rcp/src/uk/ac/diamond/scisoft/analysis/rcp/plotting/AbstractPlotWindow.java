@@ -13,6 +13,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.dawnsci.python.rpc.action.InjectPyDevConsole;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.PlotType;
+import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.dawnsci.plotting.api.trace.ColorOption;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
@@ -20,6 +24,8 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindow;
 import uk.ac.diamond.scisoft.analysis.plotclient.PlotWindowManager;
@@ -37,6 +43,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DuplicatePlotAction;
  * 
  */
 public abstract class AbstractPlotWindow extends ScriptingConnection implements IPlotWindow {
+
+	private static Logger logger = LoggerFactory.getLogger(AbstractPlotWindow.class);
 
 	protected Composite parentComp;
 	protected Composite plotSystemComposite;
@@ -73,7 +81,7 @@ public abstract class AbstractPlotWindow extends ScriptingConnection implements 
 		this.parentComp = parent;
 		this.bars = bars;
 		this.part = part;
-		
+
 		createPlotControl(parent);
 	}
 	
@@ -91,7 +99,17 @@ public abstract class AbstractPlotWindow extends ScriptingConnection implements 
 	 * 
 	 * @param composite
 	 */
-	public abstract void createPlotControl(Composite composite);
+	public void createPlotControl(Composite composite) {
+		try {
+			IPlottingSystem system = PlottingFactory.createPlottingSystem();
+			system.setColorOption(ColorOption.NONE);
+			system.createPlotPart(composite, getName(), bars, PlotType.XY, part);
+			system.repaint();
+			setPlottingSystem(system);
+		} catch (Exception e) {
+			logger.error("Cannot locate any plotting System!", e);
+		}
+	}
 
 	/**
 	 * Return current page.

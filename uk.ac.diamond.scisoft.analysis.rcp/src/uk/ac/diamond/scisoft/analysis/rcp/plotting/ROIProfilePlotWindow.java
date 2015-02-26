@@ -15,15 +15,12 @@ import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PerimeterBoxROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
-import org.eclipse.dawnsci.plotting.api.PlotType;
-import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.eclipse.dawnsci.plotting.api.tool.AbstractToolPage;
 import org.eclipse.dawnsci.plotting.api.tool.IProfileToolPage;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.dawnsci.plotting.api.tool.ToolPageFactory;
-import org.eclipse.dawnsci.plotting.api.trace.ColorOption;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
@@ -135,11 +132,8 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 		sashForm3.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		sashForm3.setBackground(new Color(parentComp.getDisplay(), 192, 192, 192));
 		try {
-			plottingSystem = PlottingFactory.createPlottingSystem();
-			plottingSystem.setColorOption(ColorOption.NONE);
-			
-			plottingSystem.createPlotPart(sashForm2, getName(), bars, PlotType.XY, getPart());
-			plottingSystem.repaint();
+			// Creates the PlottingSystem
+			super.createPlotControl(sashForm2);
 
 			IToolPageSystem tps = (IToolPageSystem)plottingSystem.getAdapter(IToolPageSystem.class);
 			sideProfile1 = (IProfileToolPage)ToolPageFactory.getToolPage("org.dawb.workbench.plotting.tools.boxLineProfileTool");
