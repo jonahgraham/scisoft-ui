@@ -739,7 +739,12 @@ class PlotTab extends ATab {
 	protected Dataset sliceData(IMonitor monitor, Slice[] slices) {
 		Dataset slicedData = null;
 		try {
-			slicedData = DatasetUtils.convertToDataset(dataset.getSlice(monitor, slices));
+			if (dataset instanceof IDataset) {
+				slicedData = DatasetUtils.convertToDataset(dataset.getSliceView(slices));
+			} else {
+				slicedData = DatasetUtils.convertToDataset(dataset.getSlice(monitor, slices));
+			}
+			
 		} catch (Exception e) {
 			logger.error("Problem getting slice of data: {}", e);
 			logger.error("Tried to get slices: {}", Arrays.toString(slices));
@@ -750,7 +755,12 @@ class PlotTab extends ATab {
 	protected Dataset sliceData(IMonitor monitor, int[] start, int[] stop, int[] step) {
 		Dataset slicedData = null;
 		try {
-			slicedData = DatasetUtils.convertToDataset(dataset.getSlice(monitor, start, stop, step));
+			if (dataset instanceof IDataset) {
+				slicedData = DatasetUtils.convertToDataset(dataset.getSliceView(start, stop, step));
+			} else {
+				slicedData = DatasetUtils.convertToDataset(dataset.getSlice(monitor, start, stop, step));
+			}
+
 		} catch (Exception e) {
 			logger.error("Problem getting slice of data: {}", e);
 			logger.error("Tried to get slice: start={}, stop={}, step={}",

@@ -395,7 +395,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 			}
 		}
 		
-		d = d.clone();
+		d = d.getSliceView();
 		d.setName(new File(fileName).getName() + AbstractFileLoader.FILEPATH_DATASET_SEPARATOR + d.getName());
 		DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, fileName, getAxes(d), d);
 		setSelection(datasetSelection);
