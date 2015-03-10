@@ -47,8 +47,6 @@ public class FileLabelProvider extends ColumnLabelProvider {
 	private SimpleDateFormat dateFormat;
 	private IFileIconService service;
 	private IPreferenceStore store;
-	private boolean showComment;
-	private boolean showScanCmd;
 	private StructuredViewer viewer;
 
 	public FileLabelProvider(StructuredViewer viewer, final int column) throws Exception {
@@ -60,8 +58,6 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		this.service     = (IFileIconService)ServiceManager.getService(IFileIconService.class);
 		this.store       =  NavigatorRCPActivator.getDefault().getPreferenceStore();
 		
-		this.showComment = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_COMMENT_COLUMN);
-		this.showScanCmd = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_SCANCMD_COLUMN);
 	}
 
 	@Override
@@ -101,8 +97,13 @@ public class FileLabelProvider extends ColumnLabelProvider {
 
 
 		try {
-			//if node is an hdf5 file, returns the file
-			Map<Integer, String> attr = getH5Attributes(node);
+			// Reading preferences = fast!
+			// They can be changed by the user so 
+			boolean showComment = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_COMMENT_COLUMN);
+			boolean showScanCmd = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_SCANCMD_COLUMN);
+			
+			// Only read attributes if we need them!
+			Map<Integer, String> attr = showComment||showScanCmd ? getH5Attributes(node) : null;
 	
 			String ret;
 			switch(columnIndex) {
