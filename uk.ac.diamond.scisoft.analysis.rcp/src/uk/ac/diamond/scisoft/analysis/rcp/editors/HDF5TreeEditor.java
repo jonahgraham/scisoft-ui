@@ -13,6 +13,8 @@ import java.io.File;
 
 import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
+import org.eclipse.dawnsci.analysis.api.io.IFileLoader;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
@@ -305,5 +307,9 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 		}
 		
 		return super.getAdapter(clazz);
+	}
+
+	public void startUpdateThread(IDataHolder holder, IFileLoader loader) {
+		getHDF5TreeExplorer().startUpdateThread(holder, loader);
 	}
 }

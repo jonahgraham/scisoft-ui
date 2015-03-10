@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
+import org.eclipse.dawnsci.analysis.api.io.IFileLoader;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -319,7 +320,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		}
 	}
 
-	public void startUpdateThread(final DataHolder holder, final HDF5Loader loader) {
+	public void startUpdateThread(final IDataHolder holder, final IFileLoader loader) {
 		if (holder == null || loader == null)
 			return;
 
