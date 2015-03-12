@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.dawnsci.analysis.api.io.ILoaderFactoryExtensionService;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
@@ -48,6 +47,8 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.osgi.FunctionFactoryStartup;
+import uk.ac.diamond.scisoft.analysis.osgi.LoaderFactoryStartup;
 import uk.ac.diamond.scisoft.jython.JythonPath;
 
 public class JythonCreator implements IStartup {
@@ -56,12 +57,42 @@ public class JythonCreator implements IStartup {
 
 	@Override
 	public void earlyStartup() {
-		try {
-			initialiseConsole();
-			initialiseInterpreter(new NullProgressMonitor());
-		} catch (Throwable e) {
-			logger.error("Cannot create interpreter!", e);
-		}
+
+		// initialiseInterpreter only when 
+		// loader factory and function factory plugins 
+		// are known.
+		final Runnable runner = new Runnable() {
+			@Override
+			public void run() {
+				
+				try {
+					Thread.sleep(500); // 1/2 second
+				} catch (InterruptedException e) {
+					logger.error("Cannot wait on worker thread", e);
+				}
+
+				while(!LoaderFactoryStartup.isStarted() || 
+					  !FunctionFactoryStartup.isStarted()) {
+					
+					try {
+						Thread.sleep(500); // 1/2 second
+					} catch (InterruptedException e) {
+						logger.error("Cannot sleep on worker thread", e);
+					}
+				}
+				try {
+					initialiseConsole();
+					initialiseInterpreter(new NullProgressMonitor());
+				} catch (Exception e) {
+					logger.error("Cannot initialize the Jython interpreter.", e);
+				}
+			}
+		};
+
+		final Thread daemon = new Thread(runner);
+		daemon.setPriority(Thread.MIN_PRIORITY);
+		daemon.setDaemon(true);
+		daemon.start();
 	}
 
 	private void initialiseConsole() {
@@ -230,11 +261,10 @@ public class JythonCreator implements IStartup {
 
 			Set<String> extraPlugins = new HashSet<String>(7);
 			// Find all packages that contribute to loader factory
-			ILoaderFactoryExtensionService service = (ILoaderFactoryExtensionService) Activator.getService(ILoaderFactoryExtensionService.class);
-			if (service != null) {
-				List<String> plugins = service.getPlugins();
-				logger.debug("Extra plugins: {}", plugins);
-				extraPlugins.addAll(plugins);
+			Set<String> loaderPlugins = LoaderFactoryStartup.getPlugins();
+			if (loaderPlugins != null) {
+				logger.debug("Extra plugins: {}", loaderPlugins);
+				extraPlugins.addAll(loaderPlugins);
 			}
 			
 			// We add the SWT plugins so that the plotting system works in Jython mode.
@@ -323,9 +353,10 @@ public class JythonCreator implements IStartup {
 			}
 
 			// add custom loader extensions to work around Jython not being OSGI
-			if (service != null) {
+			Set<String> loaderExts = LoaderFactoryStartup.getExtensions();
+			if (loaderExts != null) {
 				String ev = "LOADER_FACTORY_EXTENSIONS=";
-				for (String e : service.getExtensions()) {
+				for (String e : loaderExts) {
 					ev += e + "|";
 				}
 				envVariables.add(ev);
@@ -382,7 +413,11 @@ public class JythonCreator implements IStartup {
 					for (String i : infoMap.keySet()) {
 						infos[j++] = infoMap.get(i);
 					}
-					man.setInfos(infos, set, monitor);
+					try {
+					    man.setInfos(infos, set, monitor);
+					} catch (Throwable swallowed) {
+						// Occurs with a clean workspace.
+					}
 				} catch (RuntimeException e) {
 					logger.warn("Problem with restoring info");
 				}
