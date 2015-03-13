@@ -204,6 +204,7 @@ public class GridEntryMonitor {
 	}
 	
 	public void dispose() {
+		stopLoading();
 		service.shutdown();
 		execSvc.shutdownNow(); // We do not want these threads to be doing work now!
 	}

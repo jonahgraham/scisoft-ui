@@ -616,7 +616,7 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 
 			if (posX < 0.0) posX = 0.0f;
 			if (posY < 0.0) posY = 0.0f;
-			monitor.updateMonitorPosition(Math.round(posX), Math.round(posY));			
+			if (monitor!=null) monitor.updateMonitorPosition(Math.round(posX), Math.round(posY));			
 			scrollX = -(int)(posX * (currentTileWidth + GRIDXGAPINPIXELS));
 			scrollY = -(int)(posY * (currentTileHeight + GRIDYGAPINPIXELS));
 			vBar.setSelection(-scrollY);
@@ -670,7 +670,7 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 
 	@Override
 	public void stopLoading() {
-		monitor.stopLoading();
+		if (monitor!=null) monitor.stopLoading();
 	}
 	
 }
