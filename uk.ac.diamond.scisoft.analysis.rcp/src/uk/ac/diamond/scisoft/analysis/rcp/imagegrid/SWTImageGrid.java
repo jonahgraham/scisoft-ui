@@ -384,6 +384,7 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 				table[x+y*gridWidth] = null;
 			}
 		monitor.dispose();
+		monitor = null;
 		if (blue != null) {
 			blue.dispose();
 			blue = null;
