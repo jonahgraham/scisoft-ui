@@ -111,20 +111,18 @@ public class SWTGridEntry extends AbstractGridEntry {
 		if (gridImage != null) {
 			try {
 				if (thumbnailFilename == null) {
-					java.io.File file = java.io.File.createTempFile("tmp_thumb", ".png");
-					String workspaceDir = org.eclipse.core.runtime.Platform.getInstanceLocation().getURL().getPath();
-					if (SWT.getPlatform().equals("win32") ||
-						SWT.getPlatform().equals("wpf"))
-						workspaceDir = workspaceDir.substring(1);
-					thumbnailFilename = workspaceDir +file.getName();
-					file.delete();
+					java.io.File  file = java.io.File.createTempFile("tmp_thumb", ".png");
+					file.deleteOnExit(); // We try to ensure that the thing does get removed.
+					
+					thumbnailFilename = file.getAbsolutePath();
 					ImageLoader loader = new ImageLoader();
 					loader.data = new ImageData[]{gridImage.getImageData()};
 					loader.save(thumbnailFilename, SWT.IMAGE_PNG);
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
-			}
+				logger.error("Cannot cache thubnail in image explorer", e);
+			} 
+			
 			gridImage.dispose();
 			gridImage = null;
 		}
