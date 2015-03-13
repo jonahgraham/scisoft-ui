@@ -130,6 +130,8 @@ public class SWTGridEntry extends AbstractGridEntry {
 
 	public void loadThumbImage() {
 		if (gridImage == null) {
+			
+			if (canvas.isDisposed() || isDisposed) return;
 			canvas.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
@@ -156,7 +158,7 @@ public class SWTGridEntry extends AbstractGridEntry {
 		
 		final Dataset ds = DatasetUtils.convertToDataset(ids);
 		
-		if (canvas.isDisposed()) return;
+		if (canvas.isDisposed() || isDisposed) return;
 		canvas.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -364,8 +366,10 @@ public class SWTGridEntry extends AbstractGridEntry {
 		return (gridImage != null && !gridImage.isDisposed());
 	}
 
+	private boolean isDisposed = false;
 	@Override
 	public void dispose() {
+		isDisposed = true;
 		if (gridImage != null &&
 			!gridImage.isDisposed())
 			gridImage.dispose();
