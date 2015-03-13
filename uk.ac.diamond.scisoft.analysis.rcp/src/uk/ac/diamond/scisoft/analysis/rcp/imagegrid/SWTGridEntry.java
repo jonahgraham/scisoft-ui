@@ -156,6 +156,7 @@ public class SWTGridEntry extends AbstractGridEntry {
 		
 		final Dataset ds = DatasetUtils.convertToDataset(ids);
 		
+		if (canvas.isDisposed()) return;
 		canvas.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {

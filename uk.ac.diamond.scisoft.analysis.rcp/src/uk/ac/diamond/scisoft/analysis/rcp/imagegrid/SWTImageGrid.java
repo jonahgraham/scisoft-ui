@@ -171,8 +171,12 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 	
 	private void displayCaches(GC gc) {
 		Rectangle client = canvas.getClientArea();
-		java.awt.Rectangle primaryCache = monitor.getPrimaryCacheArea();
-		java.awt.Rectangle secondaryCache = monitor.getSecondaryCacheArea();
+		
+		java.awt.Rectangle primaryCache=null, secondaryCache=null;
+		if (monitor!=null){
+			primaryCache = monitor.getPrimaryCacheArea();
+			secondaryCache = monitor.getSecondaryCacheArea();
+		}
 		float unitWidth = (float)client.width / (float)gridWidth;
 		float unitHeight = (float)client.height / (float)gridHeight;
 		if (green == null)
@@ -197,16 +201,21 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 		gc.setAlpha(128);
 		
 		gc.setBackground(green);
-		gc.fillRectangle((int)(secondaryCache.x * unitWidth), 
-						 (int)(secondaryCache.y * unitHeight), 
-						 (int)(secondaryCache.width * unitWidth), 
-						 (int)(secondaryCache.height * unitHeight));
-		gc.setBackground(red);
-		gc.fillRectangle((int)(primaryCache.x * unitWidth), 
-						 (int)(primaryCache.y * unitHeight), 
-						 (int)(primaryCache.width * unitWidth), 
-						 (int)(primaryCache.height * unitHeight));
 		
+		if (secondaryCache!=null) {
+			gc.fillRectangle((int)(secondaryCache.x * unitWidth), 
+							 (int)(secondaryCache.y * unitHeight), 
+							 (int)(secondaryCache.width * unitWidth), 
+							 (int)(secondaryCache.height * unitHeight));
+		}
+		gc.setBackground(red);
+		
+		if (primaryCache!=null) {
+			gc.fillRectangle((int)(primaryCache.x * unitWidth), 
+							 (int)(primaryCache.y * unitHeight), 
+							 (int)(primaryCache.width * unitWidth), 
+							 (int)(primaryCache.height * unitHeight));
+		}
 	}
 
 	@Override
@@ -338,7 +347,7 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 			Rectangle rect = canvas.getClientArea();
 			int visWidth = rect.width / MINTHUMBWIDTH;
 			int visHeight = rect.height / MINTHUMBHEIGHT;
-			monitor.resizeDisplayArea(visWidth,visHeight);
+			if (monitor!=null) monitor.resizeDisplayArea(visWidth,visHeight);
 		}
 	}
 
@@ -356,7 +365,7 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 			scrollY = -vBar.getSelection();
 			int deltaX = Math.round((float)-scrollX / (float)currentTileWidth);
 			int deltaY = Math.round((float)-scrollY / (float)currentTileHeight);
-			monitor.updateMonitorPosition(deltaX, deltaY);
+			if (monitor!=null) monitor.updateMonitorPosition(deltaX, deltaY);
 			canvas.redraw();
 		} else if (e.getSource() instanceof MenuItem){
 			if (imageFileToLoad  != null) {
