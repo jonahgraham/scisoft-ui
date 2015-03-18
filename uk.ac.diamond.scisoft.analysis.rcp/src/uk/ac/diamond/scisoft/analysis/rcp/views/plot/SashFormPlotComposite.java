@@ -89,11 +89,15 @@ public class SashFormPlotComposite implements PlotView{
 		gl_right.verticalSpacing = 0;
 		right.setLayout(gl_right);
 		
-		
 		ActionBarWrapper wrapper = ActionBarWrapper.createActionBars(right,null);
 
+		String title = "";
+		if (part != null){
+			title = part.getTitle();
+		}
+		
 		plottingsystem = PlottingFactory.createPlottingSystem();
-		plottingsystem.createPlotPart(right, part.getTitle(), null, PlotType.XY, part);
+		plottingsystem.createPlotPart(right, title, null, PlotType.XY, null);
 		plottingsystem.setRescale(true);
 		plottingsystem.getPlotActionSystem().fillZoomActions(wrapper.getToolBarManager());
 		plottingsystem.getPlotActionSystem().fillPrintActions(wrapper.getToolBarManager());
@@ -119,7 +123,9 @@ public class SashFormPlotComposite implements PlotView{
 		regionOnDisplay.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
 		getPlottingSystem().addRegion(regionOnDisplay);
 		regionOnDisplay.setMobile(true);
-		regionOnDisplay.addROIListener(regionListener);
+		if (regionListener != null){
+			regionOnDisplay.addROIListener(regionListener);
+		}
 	}
 		
 	public IPlottingSystem getPlottingSystem() {
