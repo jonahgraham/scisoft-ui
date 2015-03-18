@@ -12,9 +12,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.views.plot;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.dawb.common.ui.widgets.ActionBarWrapper;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
@@ -36,7 +34,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchPartSite;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 
 /**
@@ -49,25 +47,64 @@ import org.slf4j.Logger;
  *      |			|_______________________________|
  *      |			|		Status					|
  */
-public class SashFormPlotComposite implements PlotView{
+public class SashFormPlotComposite {
 
-	protected final IWorkbenchPart part;
-	protected final ScrolledComposite leftScroll, rightScroll;
-	protected final Composite left, right;
-	protected IPlottingSystem plottingsystem;
-	protected final SashForm sashForm;
+	public static final String DEFAULT_PLOTTING_SYSTEM_TITLE = "SashFormPlot";
+	
+	protected static int plottingSystemUID = 0;
+
+	protected IWorkbenchPart part;
+	protected SashForm sashForm;
+	protected ScrolledComposite leftScroll, rightScroll;
+	protected Composite left, right;
+	protected IPlottingSystem plottingSystem;
+	protected ActionBarWrapper actionBarWrapper;
 	protected Dataset[] dataSets;
 	protected String xAxisLabel, yAxisLabel;
-	private SashForm rightSash;
-	private Text statusLabel;
-	private IRegion regionOnDisplay;
-	private IROIListener regionListener;
+	protected SashForm rightSash;
+	protected Text statusLabel;
+	protected IRegion regionOnDisplay;
 
-	public SashFormPlotComposite(Composite parent, final IWorkbenchPart part, IROIListener regionListener, final IAction... actions) throws Exception {
+	/**
+	 * @param parent
+	 *            The Composite which will contain this SashFormPlotComposite
+	 * @param part
+	 *            The IWorkbenchPart which holds this SashFormPlotComposite, or <code>null</code> if not known
+	 * @throws Exception
+	 */
+	public SashFormPlotComposite(Composite parent, IWorkbenchPart part) throws Exception {
 
 		this.part = part;
-		this.regionListener = regionListener;
 		
+		createSashFormPlotComposite(parent);
+	}
+
+	/**
+	 * Original constructor kept for backward compatibility, but better to use the simpler constructor and then call
+	 * addRegionListener() and addActions() if necessary.
+	 */
+	@Deprecated
+	public SashFormPlotComposite(Composite parent, final IWorkbenchPart part, IROIListener regionListener,
+			final IAction... actions) throws Exception {
+
+		this(parent, part);
+
+		if (regionListener != null) {
+			addRegionListener(regionListener);
+		}
+
+		if (actions != null) {
+			addActions(actions);
+		}
+	}
+	
+	private void createSashFormPlotComposite(Composite parent) throws Exception {
+		createSashFormLayout(parent);
+		createPlottingSystem();
+		createStatusPanel();
+	}
+
+	private void createSashFormLayout(Composite parent) {
 		this.sashForm = new SashForm(parent, SWT.HORIZONTAL);
 
 		this.leftScroll = new ScrolledComposite(sashForm, SWT.H_SCROLL | SWT.V_SCROLL);
@@ -82,79 +119,79 @@ public class SashFormPlotComposite implements PlotView{
 		rightScroll.setExpandVertical(true);
 
 		this.rightSash = new SashForm(rightScroll, SWT.VERTICAL);
-		
+
 		this.right = new Composite(rightSash, SWT.NONE);
 		GridLayout gl_right = new GridLayout(1, false);
 		gl_right.marginHeight = 1;
 		gl_right.verticalSpacing = 0;
 		right.setLayout(gl_right);
-		
-		
-		ActionBarWrapper wrapper = ActionBarWrapper.createActionBars(right,null);
+	}
 
-		plottingsystem = PlottingFactory.createPlottingSystem();
-		plottingsystem.createPlotPart(right, part.getTitle(), null, PlotType.XY, part);
-		plottingsystem.setRescale(true);
-		plottingsystem.getPlotActionSystem().fillZoomActions(wrapper.getToolBarManager());
-		plottingsystem.getPlotActionSystem().fillPrintActions(wrapper.getToolBarManager());
-		plottingsystem.getPlotActionSystem().fillToolActions(wrapper.getToolBarManager(),ToolPageRole.ROLE_1D);
-		plottingsystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+	private void createPlottingSystem() throws Exception {
+		// Do this first to ensure action bar is placed at the top
+		actionBarWrapper = ActionBarWrapper.createActionBars(right, null);
+		
+		plottingSystem = PlottingFactory.createPlottingSystem();
+		plottingSystem.createPlotPart(right, getNewPlottingSystemTitle(), null, PlotType.XY, part);
+		plottingSystem.setRescale(true);
+		plottingSystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		createRegionToDisplay();
 
-		if (actions != null) {
-			for (int i = 0; i < actions.length; i++) {
-				wrapper.getToolBarManager().add(actions[i]);
-			}
-		}
-		
-		wrapper.update(true);
-		
-		this.statusLabel = new Text(rightSash, SWT.WRAP|SWT.V_SCROLL);
-		statusLabel.setEditable(false);
-		rightSash.setWeights(new int[]{100,10});
+		plottingSystem.getPlotActionSystem().fillZoomActions(actionBarWrapper.getToolBarManager());
+		plottingSystem.getPlotActionSystem().fillPrintActions(actionBarWrapper.getToolBarManager());
+		plottingSystem.getPlotActionSystem().fillToolActions(actionBarWrapper.getToolBarManager(), ToolPageRole.ROLE_1D);
+		actionBarWrapper.update(true);
 	}
 	
+	private String getNewPlottingSystemTitle() {
+		String plottingSystemTitle;
+		if (part != null) {
+			plottingSystemTitle = part.getTitle();
+		} else {
+			plottingSystemTitle = DEFAULT_PLOTTING_SYSTEM_TITLE;
+		}
+		plottingSystemTitle += ++plottingSystemUID;
+		return plottingSystemTitle;
+	}
+
 	private void createRegionToDisplay() throws Exception {
 		this.regionOnDisplay = getPlottingSystem().createRegion("ROI", RegionType.XAXIS);
 		regionOnDisplay.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
 		getPlottingSystem().addRegion(regionOnDisplay);
 		regionOnDisplay.setMobile(true);
+	}
+
+	private void createStatusPanel() {
+		this.statusLabel = new Text(rightSash, SWT.WRAP | SWT.V_SCROLL);
+		statusLabel.setEditable(false);
+		rightSash.setWeights(new int[] { 100, 10 });
+	}
+
+	/**
+	 * @param actions May be empty
+	 */
+	public void addActions(IAction[] actions) {
+		for (int i = 0; i < actions.length; i++) {
+			actionBarWrapper.getToolBarManager().add(actions[i]);
+		}
+		actionBarWrapper.update(true);
+	}
+
+	/**
+	 * @param regionListener Should not be null
+	 */
+	public void addRegionListener(IROIListener regionListener) {
 		regionOnDisplay.addROIListener(regionListener);
 	}
-		
+
 	public IPlottingSystem getPlottingSystem() {
-		return plottingsystem;
+		return plottingSystem;
 	}
-	
+
 	public IRegion getRegionOnDisplay() {
 		return regionOnDisplay;
 	}
 
-	@Override
-	public PlotBean getPlotBean() {
-		final PlotBean ret = new PlotBean();
-
-		final Map<String, Dataset> d = new HashMap<String, Dataset>(1);
-		if (dataSets != null) {
-			for (int i = 0; i < dataSets.length; i++) {
-				String name = "Plot " + i;
-				if (dataSets[i].getName() != null)
-					name = dataSets[i].getName();
-				d.put(name, dataSets[i]);
-			}
-		}
-		ret.setDataSets(d);
-		ret.setCurrentPlotName("Plot");
-
-		ret.setXAxisMode(1);
-		ret.setYAxisMode(1);
-
-		ret.setXAxis(getXAxisLabel());
-		ret.setYAxis(getYAxisLabel());
-
-		return ret;
-	}
-	
 	/**
 	 * Call once all ui has been added
 	 */
@@ -164,16 +201,6 @@ public class SashFormPlotComposite implements PlotView{
 
 		rightScroll.setContent(rightSash);
 		rightScroll.setMinSize(rightSash.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-	}
-
-	@Override
-	public String getPartName() {
-		return part.getTitle();
-	}
-
-	@Override
-	public IWorkbenchPartSite getSite() {
-		return part.getSite();
 	}
 
 	public ScrolledComposite getLeftScroll() {
@@ -196,6 +223,7 @@ public class SashFormPlotComposite implements PlotView{
 		this.sashForm.setWeights(is);
 	}
 
+	// TODO do something useful with the axis labels
 	public void setXAxisLabel(String label) {
 		this.xAxisLabel = label;
 	}
@@ -219,26 +247,25 @@ public class SashFormPlotComposite implements PlotView{
 	public SashForm getSashForm() {
 		return sashForm;
 	}
-	
+
 	public void dispose() {
-		if (plottingsystem != null){
-			plottingsystem.dispose();
+		if (plottingSystem != null) {
+			plottingSystem.dispose();
+			plottingSystem = null;
 		}
 	}
 
 	/**
-	 * Adds status to the status field (scrolling history).
-	 * 
-	 * SWT thread safe
+	 * Adds status to the status field (scrolling history). SWT thread safe
 	 * 
 	 * @param text
 	 */
 	public void appendStatus(final String text, Logger logger) {
-		if (logger!=null) logger.info(text);
-		
-		if (getSite().getShell()==null) return;
-		if (getSite().getShell().isDisposed()) return;
-		getSite().getShell().getDisplay().asyncExec(new Runnable() {
+		if (logger != null) {
+			logger.info(text);
+		}
+
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				statusLabel.append(DateFormat.getDateTimeInstance().format(new Date()));
@@ -249,26 +276,20 @@ public class SashFormPlotComposite implements PlotView{
 		});
 	}
 	
-	public void clearStatus()
-	{
+	public void clearStatus() {
 		statusLabel.setText("");
-		
-	}
-	
-	public void layout() {
-		
 	}
 
 	/**
 	 * Plots the data given by setDatasets
 	 */
 	public void plotData() {
-		plottingsystem.clear();
+		plottingSystem.clear();
 		List<IDataset> ys = new ArrayList<IDataset>();
-		for (Dataset ds : dataSets){
+		for (Dataset ds : dataSets) {
 			ys.add(ds);
 		}
-		plottingsystem.createPlot1D(null, ys, null);
-		plottingsystem.setTitle("");
+		plottingSystem.createPlot1D(null, ys, null);
+		plottingSystem.setTitle("");
 	}
 }
