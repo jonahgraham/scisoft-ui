@@ -25,7 +25,6 @@ import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.roi.ROIList;
 import org.eclipse.dawnsci.analysis.dataset.roi.ROIUtils;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
-import org.eclipse.dawnsci.plotting.api.histogram.IPaletteService;
 import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.eclipse.dawnsci.plotting.api.region.IRegionService;
@@ -36,7 +35,6 @@ import org.eclipse.dawnsci.plotting.api.trace.ISurfaceTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -262,8 +260,7 @@ class Plotting2DUI extends AbstractPlotConnection {
 							final IRegion reg = plottingSystem.getRegion(cn);
 							if (reg != null) {
 								if (rName != null) {
-									reg.setName(rName);
-									croi.setName(rName);
+									plottingSystem.renameRegion(reg, rName);
 								} else {
 									roi.setName(cn);
 									rName = cn;
