@@ -14,6 +14,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 /**
  * Implement to enable a StaticScanPlot to be constructed from the implementor.
  */
+@Deprecated
 public interface PlotView {
 
 	/**
