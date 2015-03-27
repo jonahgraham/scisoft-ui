@@ -398,18 +398,26 @@ public final class FileView extends ViewPart implements IFileView {
 		
 	protected void refresh(Path file) {
 
-		final Object[] elements = file==null?this.tree.getExpandedElements():null;
-		final FileContentProvider fileCont = (FileContentProvider)tree.getContentProvider();
-		fileCont.clearAndStop(file);
+		try {
+			updatingTextFromTreeSelections=false;
 
-		tree.refresh(file!=null?file.getParent():tree.getInput());
-		
-		if (elements!=null) this.tree.setExpandedElements(elements);
-		if (file!=null)     {
-			setSelectedFile(file);
+			final Object[] elements = file==null?this.tree.getExpandedElements():null;
+			
+			if (file!=null) {
+				final FileContentProvider fileCont = (FileContentProvider)tree.getContentProvider();
+				fileCont.clear(file, file.getParent());
+			}
+	
+			tree.refresh(file!=null?file.getParent():tree.getInput());
+			
+			if (elements!=null) this.tree.setExpandedElements(elements);
+			
+		} finally {
+			updatingTextFromTreeSelections=true;
 		}
 	}
 	
+
 
 	public void refreshAll() {
 		NIOUtils.getRoots(true);
@@ -585,19 +593,7 @@ public final class FileView extends ViewPart implements IFileView {
 		}
 		
 		if (Files.isDirectory(file)) {
-			final IWorkbenchPage page = EclipseUtils.getActivePage();
-			if (page==null) return;
-			
-			IViewPart part=null;
-			try {
-				part = page.showView("org.dawb.workbench.views.imageMonitorView");
-			} catch (PartInitException e) {
-				logger.error(e.getMessage(), e);
-				return;
-			}
-			if (part != null && part instanceof ImageMonitorView) {
-			    ((ImageMonitorView)part).setDirectoryPath(file.toAbsolutePath().toString());
-			}
+			// Disabled, this causes a UI blocking thread to execute.
 			
 		} else { // Open file
 			
