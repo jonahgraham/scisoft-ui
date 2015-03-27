@@ -13,18 +13,18 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.jface.action.IStatusLineManager;
@@ -68,19 +68,19 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	 * fast. This used to be a soft reference cache but the 
 	 * file browsing does not really work if you start making the
 	 * cached
-	 */
-	private Map<Path, List<Path>>  cachedSorting;
-	private Map<Path, Set<String>> cachedStubs;
-	private Map<Path, Object>      cachedLocks;
+	 */  
+	private Map<String, List<Path>>    cachedSorting;
+	private Map<String, Set<String>>   cachedStubs;
+	private Map<String, ReentrantLock> cachedLocks;
 	
 	@SuppressWarnings("unused")
 	private IStatusLineManager statusManager;
 
 	public FileContentProvider(final IStatusLineManager statusManager) {
 		this.statusManager = statusManager;
-		this.cachedSorting = new HashMap<Path, List<Path>>(89);
-		this.cachedStubs   = new HashMap<Path, Set<String>>(89);
-		this.cachedLocks   = new Hashtable<Path, Object>(89);
+		this.cachedSorting = new ConcurrentHashMap<String, List<Path>>(89);
+		this.cachedStubs   = new ConcurrentHashMap<String, Set<String>>(89);
+		this.cachedLocks   = new ConcurrentHashMap<String, ReentrantLock>(89);
 		
 		this.elementQueue  = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
 		this.childQueue    = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
@@ -108,7 +108,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	public void clearAndStop() {
 		clearAndStop(null);
 	}
-	void clearAndStop(Path path) {
+	private void clearAndStop(Path path) {
 		
 		elementQueue.offerFirst(new BlankUpdateRequest()); // break the queue
 		updateElementThread = null;
@@ -119,14 +119,29 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		if (path!=null) {
 			if (elementQueue!=null)  elementQueue.clear();
 			if (childQueue!=null)    childQueue.clear();
-			cachedStubs.remove(path);
-			cachedLocks.remove(path);
-			Object old = cachedSorting.remove(path);
-			if (old==null) clear();
+			cachedStubs.remove(path.toString());
+			cachedLocks.remove(path.toString());
+			Object old = cachedSorting.remove(path.toString());
+			if (old==null) {
+				System.err.println("Unexpected clear in "+getClass().getSimpleName());
+				clear();
+			}
 		} else {
 		    clear();
 		}
 	}
+
+	public void clear(Path... paths) {
+		for (int i = 0; i < paths.length; i++) {
+			cachedStubs.remove(paths[i].toString());
+			cachedLocks.remove(paths[i].toString());
+			cachedSorting.remove(paths[i].toString());
+		}
+	}
+	
+	private static final int ELEMENT_PRIORITY = Thread.MIN_PRIORITY;
+	private static final int CHILD_PRIORITY   = Thread.MAX_PRIORITY;
+	
 
 
 	@Override
@@ -140,7 +155,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 
 		if (elementQueue==null) return;
 		if (PlatformUI.isWorkbenchRunning()) {
-			if (updateElementThread==null) updateElementThread = createUpdateThread(elementQueue, 9, "Update directory contents");
+			if (updateElementThread==null) updateElementThread = createUpdateThread(elementQueue, ELEMENT_PRIORITY, "Update directory contents");
 			elementQueue.offerFirst(new ElementUpdateRequest(parent, index));
 		} else {
 			final Path node = (Path) parent;
@@ -159,7 +174,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 			// We correct when they expand, listFiles() could be slow.
 			if (Files.isDirectory(element)) {
 				treeViewer.setChildCount(element, 1); // 1 for now
-				if (updateChildThread==null) updateChildThread = createUpdateThread(childQueue, 2, "Update child size");
+				if (updateChildThread==null) updateChildThread = createUpdateThread(childQueue, CHILD_PRIORITY, "Update child size");
 				childQueue.offerFirst(new ChildUpdateRequest(element, false)); // process size from queue
 			} else {
 				treeViewer.setChildCount(element, 0);
@@ -178,7 +193,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		}
 		
 		if (PlatformUI.isWorkbenchRunning()) {
-			if (updateChildThread==null) updateChildThread = createUpdateThread(childQueue, 2, "Update child size");
+			if (updateChildThread==null) updateChildThread = createUpdateThread(childQueue, CHILD_PRIORITY, "Update child size");
 			childQueue.offerFirst(new ChildUpdateRequest(element, true));
 		} else {
 			updateChildCountInternal(element, currentChildCount);
@@ -205,8 +220,8 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		if (!Files.isDirectory(node)) return null;
 		if (cachedSorting==null) return null;
 				
-		if (cachedSorting.containsKey(node)) {
-			List<Path> sorted = cachedSorting.get(node);
+		if (cachedSorting.containsKey(node.toString())) {
+			List<Path> sorted = cachedSorting.get(node.toString());
 			if (sorted!=null) return sorted;
 		}
 		
@@ -320,8 +335,13 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 					fa = NIOUtils.getRoots();
 				} else {
 					final Path node = (Path) getElement();
-					fa = getFileList(node);
-					
+					ReentrantLock lock = getLock(node);
+					try {
+						lock.lock();
+						fa = getFileList(node);
+					} finally {
+						lock.unlock();
+					}
 				}
 	
 
@@ -364,6 +384,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		public boolean process() throws Exception {
 			
 			try {
+				if (cachedSorting.containsKey(element.toString())) return true;
 				
 				if (updateBusyRequired) updateBusy(childQueue, true);
 				
@@ -392,10 +413,12 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 				        	
 							if (collapseDatacollections) {
 								tmp = new HashSet<String>(31);
-								cachedStubs.put(path, new HashSet<String>(31));
+								cachedStubs.put(path.toString(), new HashSet<String>(31));
 							}
 			        	
-							synchronized (getLock(path)) {
+							ReentrantLock lock = getLock(path);
+							try {
+								lock.lock();
 					        	for (Path p : ds) {
 					        		
 					        		final boolean isDir = Files.isDirectory(p);
@@ -410,7 +433,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 					        					// If we already have an item for this scan:
 					        					if (tmp!=null && tmp.contains(id)) {
 					        						// We have more than one of them, so they get truncated
-					        						cachedStubs.get(path).add(id);
+					        						cachedStubs.get(path.toString()).add(id);
 					        						continue;
 					        					}
 
@@ -435,7 +458,10 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 					    	    ret.addAll(files.values());
 					    	    dirs.clear();
 					    	    files.clear();
-					    	    cachedSorting.put(path, ret);
+					    	    cachedSorting.put(path.toString(), ret);
+					    	    
+							} finally {
+								lock.unlock();
 							}
 
 				        } catch (IOException ex) {
@@ -513,10 +539,15 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		return thread;
 	}
 
-	synchronized Object getLock(Path path) {
-		if (cachedLocks.containsKey(path)) return cachedLocks.get(path);
-		cachedLocks.put(path, new Object());
-		return cachedLocks.get(path);
+	private ReentrantLock getLock(Path path) {
+		ReentrantLock lock;
+		if (cachedLocks.containsKey(path.toString())) {
+			lock = cachedLocks.get(path.toString());
+		} else {
+			lock = new ReentrantLock();
+			cachedLocks.put(path.toString(), lock);
+		}
+		return lock;
 	}
 
 
@@ -531,10 +562,11 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 
 
 	public boolean isCached(Path folder) {
-		return cachedSorting.containsKey(folder);
+		return cachedSorting.containsKey(folder.toString());
 	}
 
 	public Set<String> getStubs(Path folder) {
-		return cachedStubs.get(folder);
+		return cachedStubs.get(folder.toString());
 	}
+
 }

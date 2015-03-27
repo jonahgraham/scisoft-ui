@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.dawb.common.services.IFileIconService;
 import org.dawb.common.services.ServiceManager;
@@ -27,6 +26,8 @@ import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.hdf5.HierarchicalDataFactory;
 import org.eclipse.dawnsci.hdf5.IHierarchicalDataFile;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.SWT;
@@ -48,6 +49,8 @@ public class FileLabelProvider extends ColumnLabelProvider {
 	private IFileIconService service;
 	private IPreferenceStore store;
 	private StructuredViewer viewer;
+	private boolean          showCollapsedFiles;
+	private IPropertyChangeListener propertyListenner;
 
 	public FileLabelProvider(StructuredViewer viewer, final int column) throws Exception {
 		
@@ -58,6 +61,19 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		this.service     = (IFileIconService)ServiceManager.getService(IFileIconService.class);
 		this.store       =  NavigatorRCPActivator.getDefault().getPreferenceStore();
 		
+        this.showCollapsedFiles = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_COLLAPSED_FILES);
+        
+        this.propertyListenner = new IPropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				if (FileNavigatorPreferenceConstants.SHOW_COLLAPSED_FILES.equals(event.getProperty())) {
+			        showCollapsedFiles = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_COLLAPSED_FILES);
+				}
+			}
+        };
+        
+        store.addPropertyChangeListener(propertyListenner);
+
 	}
 
 	@Override
@@ -109,7 +125,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
 			switch(columnIndex) {
 			case 0:
 				String name = NIOUtils.getRoots().contains(node)
-				            ?  getRootLabel(node)
+				            ? getRootLabel(node)
 				            : getName(node);
 				ret = name;
 				break;
@@ -152,35 +168,26 @@ public class FileLabelProvider extends ColumnLabelProvider {
 	private String getName(Path node) {
 		
 		final String name = node.getFileName().toString();
+	    if (!showCollapsedFiles)     return name;
 		if (Files.isDirectory(node)) return name;
 			
-		FileContentProvider prov = viewer.getContentProvider() instanceof FileContentProvider
-					                 ? (FileContentProvider)viewer.getContentProvider()
-					                 : null;
-			
+ 
+        FileContentProvider prov = viewer.getContentProvider() instanceof FileContentProvider
+					             ? (FileContentProvider)viewer.getContentProvider()
+					             : null;	
 		if (prov == null) return name;
-		
-        synchronized(prov.getLock(node.getParent())) { // We don't want to read labels if the parent is still reading.
-        	
-	        boolean cached = prov.isCached(node.getParent());
-	        if (!cached) return name;
-	
-	        final IPreferenceStore store = NavigatorRCPActivator.getDefault().getPreferenceStore();
-	        if (!store.getBoolean(FileNavigatorPreferenceConstants.SHOW_COLLAPSED_FILES)) return name;
-			
-			final Set<String> stubs = prov.getStubs(node.getParent()); // TODO Allow for collapsed data collections.
-			if (stubs==null || stubs.isEmpty()) return name;
-			
-			if (lservice==null) lservice = (ILoaderService)PlatformUI.getWorkbench().getService(ILoaderService.class);
-			final Matcher matcher = lservice.getStackMatcher(name);
-			
-			if (matcher!=null && matcher.matches()) {
-				final String stub = matcher.group(1);
-				final String ext  = matcher.group(3);
-				if (stubs.contains(stub)) return stub+"_*."+ext;
-			}
+		        	
+        final Set<String> stubs = prov.getStubs(node.getParent()); // TODO Allow for collapsed data collections.
+        if (stubs==null || stubs.isEmpty()) return name;
 
-		}
+        if (lservice==null) lservice = (ILoaderService)PlatformUI.getWorkbench().getService(ILoaderService.class);
+        final Matcher matcher = lservice.getStackMatcher(name);
+
+        if (matcher!=null && matcher.matches()) {
+        	final String stub = matcher.group(1);
+        	final String ext  = matcher.group(3);
+        	if (stubs.contains(stub)) return stub+"_*."+ext;
+        }
 	    
 		return name;
 
@@ -226,6 +233,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
 	@Override
 	public void dispose() {
 		super.dispose();
+	    if (store!=null)      store.removePropertyChangeListener(propertyListenner);
 		if (attributes!=null) attributes.clear();
 	}
 
