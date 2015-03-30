@@ -132,7 +132,9 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	}
 
 	public void clear(Path... paths) {
+		if (paths==null) return;
 		for (int i = 0; i < paths.length; i++) {
+			if (paths[i]==null) continue;
 			cachedStubs.remove(paths[i].toString());
 			cachedLocks.remove(paths[i].toString());
 			cachedSorting.remove(paths[i].toString());
