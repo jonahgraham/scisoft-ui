@@ -17,10 +17,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dawb.common.services.ServiceManager;
 import org.dawb.common.ui.menu.CheckableActionGroup;
 import org.dawb.common.ui.util.EclipseUtils;
-import org.dawb.common.ui.views.ImageMonitorView;
 import org.dawnsci.common.widgets.content.FileContentProposalProvider;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -71,9 +69,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.part.ViewPart;
@@ -177,7 +173,7 @@ public final class FileView extends ViewPart implements IFileView {
 		final Label fileLabel = new Label(top, SWT.NONE);
 		fileLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 		try {
-			IFileIconService service = (IFileIconService)ServiceManager.getService(IFileIconService.class);
+			IFileIconService service = FileIconServiceHolder.getFileIconService();
 			final Image       icon    = service.getIconForFile(OSUtils.isWindowsOS() ? "C:/Windows/" : "/");
 			fileLabel.setImage(icon);
 		} catch (Exception e) {
