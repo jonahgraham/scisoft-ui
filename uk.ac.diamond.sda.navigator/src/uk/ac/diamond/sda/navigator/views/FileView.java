@@ -528,8 +528,10 @@ public final class FileView extends ViewPart implements IFileView {
 		final Action filterCollections = new Action("Compress data collections with the same name", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
-				((FileContentProvider)tree.getContentProvider()).setCollapseDatacollections(isChecked());
+				FileContentProvider prov = (FileContentProvider)tree.getContentProvider();
+				prov.setCollapseDatacollections(isChecked());
 				store.setValue(FileNavigatorPreferenceConstants.SHOW_COLLAPSED_FILES, isChecked());
+				prov.clearAndStop();
 				refreshAll();
 			}
 		};

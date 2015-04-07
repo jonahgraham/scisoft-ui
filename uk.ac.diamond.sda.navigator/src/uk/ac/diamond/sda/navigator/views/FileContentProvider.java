@@ -92,7 +92,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	
 	@Override
 	public void dispose() {
-		clearAndStop();
+		clearAndStop(null, true);
 		elementQueue = null;
 		childQueue = null;
 	}
@@ -106,15 +106,17 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	}
 	
 	public void clearAndStop() {
-		clearAndStop(null);
+		clearAndStop(null, false);
 	}
-	private void clearAndStop(Path path) {
+	private void clearAndStop(Path path, boolean blankQueue) {
 		
-		elementQueue.offerFirst(new BlankUpdateRequest()); // break the queue
-		updateElementThread = null;
-		
-		childQueue.offerFirst(new BlankUpdateRequest()); // break the queue
-		updateChildThread = null;
+		if (blankQueue) {
+			elementQueue.offerFirst(new BlankUpdateRequest()); // break the queue
+			updateElementThread = null;
+			
+			childQueue.offerFirst(new BlankUpdateRequest()); // break the queue
+			updateChildThread = null;
+		}
 
 		if (path!=null) {
 			if (elementQueue!=null)  elementQueue.clear();
