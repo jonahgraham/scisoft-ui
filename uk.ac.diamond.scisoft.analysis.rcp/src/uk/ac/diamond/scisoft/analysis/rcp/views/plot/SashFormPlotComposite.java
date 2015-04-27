@@ -49,7 +49,7 @@ import org.slf4j.Logger;
  */
 public class SashFormPlotComposite {
 
-	public static final String DEFAULT_PLOTTING_SYSTEM_TITLE = "SashFormPlot";
+	public static final String DEFAULT_PLOTTING_SYSTEM_NAME = "SashFormPlot";
 	
 	protected static int plottingSystemUID = 0;
 
@@ -61,6 +61,7 @@ public class SashFormPlotComposite {
 	protected ActionBarWrapper actionBarWrapper;
 	protected Dataset[] dataSets;
 	protected String xAxisLabel, yAxisLabel;
+	protected String plotTitle;
 	protected SashForm rightSash;
 	protected Text statusLabel;
 	protected IRegion regionOnDisplay;
@@ -132,7 +133,7 @@ public class SashFormPlotComposite {
 		actionBarWrapper = ActionBarWrapper.createActionBars(right, null);
 		
 		plottingSystem = PlottingFactory.createPlottingSystem();
-		plottingSystem.createPlotPart(right, getNewPlottingSystemTitle(), null, PlotType.XY, part);
+		plottingSystem.createPlotPart(right, getNewPlottingSystemName(), null, PlotType.XY, part);
 		plottingSystem.setRescale(true);
 		plottingSystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		createRegionToDisplay();
@@ -143,15 +144,15 @@ public class SashFormPlotComposite {
 		actionBarWrapper.update(true);
 	}
 	
-	private String getNewPlottingSystemTitle() {
-		String plottingSystemTitle;
+	private String getNewPlottingSystemName() {
+		String plottingSystemName;
 		if (part != null) {
-			plottingSystemTitle = part.getTitle();
+			plottingSystemName = part.getTitle();
 		} else {
-			plottingSystemTitle = DEFAULT_PLOTTING_SYSTEM_TITLE;
+			plottingSystemName = DEFAULT_PLOTTING_SYSTEM_NAME;
 		}
-		plottingSystemTitle += ++plottingSystemUID;
-		return plottingSystemTitle;
+		plottingSystemName += ++plottingSystemUID;
+		return plottingSystemName;
 	}
 
 	private void createRegionToDisplay() throws Exception {
@@ -223,17 +224,21 @@ public class SashFormPlotComposite {
 		this.sashForm.setWeights(is);
 	}
 
-	// TODO do something useful with the axis labels
+	public void setDataSets(Dataset... dataSets) {
+		this.dataSets = dataSets;
+	}
+
 	public void setXAxisLabel(String label) {
 		this.xAxisLabel = label;
 	}
 
 	public void setYAxisLabel(String label) {
 		this.yAxisLabel = label;
+		plottingSystem.getSelectedYAxis().setTitle(label);
 	}
 
-	public void setDataSets(Dataset... dataSets) {
-		this.dataSets = dataSets;
+	public void setPlotTitle(String plotTitle) {
+		this.plotTitle = plotTitle;
 	}
 
 	public String getXAxisLabel() {
@@ -242,6 +247,10 @@ public class SashFormPlotComposite {
 
 	public String getYAxisLabel() {
 		return yAxisLabel;
+	}
+
+	public String getPlotTitle() {
+		return plotTitle;
 	}
 
 	public SashForm getSashForm() {
@@ -281,7 +290,7 @@ public class SashFormPlotComposite {
 	}
 
 	/**
-	 * Plots the data given by setDatasets
+	 * Plots the data given by setDatasets, and sets the title and axis labels
 	 */
 	public void plotData() {
 		plottingSystem.clear();
@@ -290,6 +299,13 @@ public class SashFormPlotComposite {
 			ys.add(ds);
 		}
 		plottingSystem.createPlot1D(null, ys, null);
-		plottingSystem.setTitle("");
+
+		plottingSystem.setTitle(plotTitle);
+		if (xAxisLabel != null) {
+			plottingSystem.getSelectedXAxis().setTitle(xAxisLabel);
+		}
+		if (yAxisLabel != null) {
+			plottingSystem.getSelectedYAxis().setTitle(yAxisLabel);
+		}
 	}
 }
