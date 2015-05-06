@@ -264,16 +264,31 @@ public class SashFormPlotComposite {
 		}
 	}
 
+	
 	/**
-	 * Adds status to the status field (scrolling history). SWT thread safe
+	 * Adds status to the status field (scrolling history) and logs a message to the given logger at <code>info</code>
+	 * level. SWT thread safe
 	 * 
+	 * @deprecated Unclear why this method should have anything to do with loggers. Use appendStatus(text) instead and
+	 *             do logging in the calling code where the intent is clearer.
 	 * @param text
+	 * @param logger
 	 */
+	@Deprecated
 	public void appendStatus(final String text, Logger logger) {
 		if (logger != null) {
 			logger.info(text);
 		}
 
+		appendStatus(text);
+	}
+
+	/**
+	 * Adds status to the status field (scrolling history). SWT thread safe
+	 * 
+	 * @param text
+	 */
+	public void appendStatus(final String text) {
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
