@@ -473,6 +473,16 @@
                style="push">
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.eclipse.ui.navigator.ProjectExplorer">
+         <command
+               commandId="uk.ac.diamond.sda.navigator.showProjectExplorerDecorationsPreference"
+               label="Label decorations..."
+               style="push"
+               tooltip="Show label decorations preferences">
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -513,6 +523,11 @@
             defaultHandler="uk.ac.diamond.sda.navigator.views.RefreshDrivesHandler"
             id="uk.ac.diamond.sda.navigator.refreshdrives"
             name="Refresh Drives">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.sda.navigator.actions.ShowLabelDecoratorPreferencesHandler"
+            id="uk.ac.diamond.sda.navigator.showProjectExplorerDecorationsPreference"
+            name="Label decorations preferences">
       </command>
    </extension>
    <extension
