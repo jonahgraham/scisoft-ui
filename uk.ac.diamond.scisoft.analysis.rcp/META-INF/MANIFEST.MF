@@ -74,3 +74,4 @@ Import-Package: org.apache.commons.collections,
  org.nfunk.jep;version="2.4.1",
  org.slf4j;version="[1.7.6,1.7.7)"
 Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/*.xml
