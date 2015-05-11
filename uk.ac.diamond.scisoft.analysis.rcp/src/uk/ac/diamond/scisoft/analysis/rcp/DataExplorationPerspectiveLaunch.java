@@ -35,7 +35,7 @@ public class DataExplorationPerspectiveLaunch implements IWorkbenchWindowActionD
 	public void run(IAction action) {
 		try {
 			PlatformUI.getWorkbench().showPerspective(DataExplorationPerspective.ID,PlatformUI.getWorkbench().getActiveWorkbenchWindow());
-			EventTracker tracker = AnalyticsTrackerServiceLoader.getService();
+			EventTracker tracker = EventTrackerServiceLoader.getService();
 			if (tracker != null)
 				tracker.track("DExplore_perspective_launch");
 		} catch (WorkbenchException e) {
