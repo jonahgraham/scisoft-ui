@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.ui,
  org.apache.httpcomponents.httpclient;bundle-version="[4.3.2,4.4.0)",
  org.apache.httpcomponents.httpcore;bundle-version="[4.3.1,4.4.0)",
  uk.ac.diamond.proxyvole;bundle-version="[1.0.20120727,1.1.0)"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.dawb.common.util.eclipse,
  org.dawnsci.common.widgets.radio,
  org.dawnsci.common.widgets.utils,
