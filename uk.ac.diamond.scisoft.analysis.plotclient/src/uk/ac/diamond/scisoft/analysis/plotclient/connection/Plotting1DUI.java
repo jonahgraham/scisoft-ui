@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2012 Diamond Light Source Ltd.
+ * Copyright (c) 2012, 2015 Diamond Light Source Ltd.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 
 import java.util.ArrayList;
@@ -37,11 +36,9 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
  * Class to create a 1D plotting
  * 
  */
-class Plotting1DUI extends AbstractPlotConnection {
+class Plotting1DUI extends PlottingGUIUpdate {
 	private static final Logger logger = LoggerFactory.getLogger(Plotting1DUI.class);
 	private static final int LEGEND_LIMIT = 5; // maximum number of lines for legend otherwise it is not shown
-
-	private IPlottingSystem plottingSystem;
 
 	/**
 	 * Colour idx
@@ -57,7 +54,7 @@ class Plotting1DUI extends AbstractPlotConnection {
 	 * @param plottingSystem plotting system
 	 */
 	public Plotting1DUI(IPlottingSystem plottingSystem) {
-		this.plottingSystem = plottingSystem;
+		super(plottingSystem);
 		idx = 0;
 	}
 
