@@ -121,6 +121,8 @@ public class MetadataTool extends AbstractToolPage {
 		site.getActionBars().getToolBarManager().add(centre);
 		
 		activate();
+		
+		super.createControl(parent);
 	}
 	
 	@Override
