@@ -10,9 +10,9 @@
 package uk.ac.diamond.scisoft.beamlineexplorer.rcp.wizards;
 
 import java.net.UnknownHostException;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -45,20 +45,17 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DateTime;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
-import org.eclipse.ui.forms.widgets.FormToolkit;
-
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.beamlineexplorer.rcp.icat.ICATDBClient;
-import org.eclipse.wb.swt.SWTResourceManager;
 
 public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 
@@ -72,9 +69,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	private Button btnCheckButton;
 	private Combo beamlineListCombo;
 	private Combo visitListCombo;
-	private final String initProject;
-	private final String initDirectory;
-	private final String initFolder;
 
 	private ScrolledComposite sc;
 	private Text txtProjectname;
@@ -93,16 +87,12 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 	List<VisitDetails> visitList = new ArrayList<VisitDetails>();
 
 	private static Logger logger = LoggerFactory.getLogger(BeamlineDataWizardPage.class);
-	private Text text;
-	private Label lblNewLabel;
-	private final FormToolkit formToolkit = new FormToolkit(Display.getDefault());
 
-	
 	public BeamlineDataWizardPage(ISelection selection, String prevProject, String prevFolder, String prevDirectory) {
 		super("BeamlineDataWizardPage");
-		this.initProject = prevProject != null ? prevProject : computeBeamline();
-		this.initFolder = prevFolder != null ? prevFolder : computeDataFolder();
-		this.initDirectory = prevDirectory != null ? prevDirectory : "";
+//		this.initProject = prevProject != null ? prevProject : computeBeamline();
+//		this.initFolder = prevFolder != null ? prevFolder : computeDataFolder();
+//		this.initDirectory = prevDirectory != null ? prevDirectory : "";
 		setTitle("Beamline Data Project Wizard - creates a link to a beamline data files");
 		setDescription("Wizard to create a link to a set of beamline data files");
 
@@ -667,14 +657,20 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 				+ "', 'DD-MM-YYYY') order by investigation.inv_start_date DESC";
 
 		// getting the connection to the database
-		if (ICATDBClient.getConnection() != null) {
+		Connection connection = null;
+		try {
+			connection =ICATDBClient.getConnection();
+		} catch (Exception e1) {
+			logger.error(e1.getMessage());
+		}
+		if (connection != null) {
 			try {
 
 				// run the final query
 				logger.info("-------------------------");
 				logger.info(sqlStatement);
 				logger.info("-------------------------");
-				Statement st = ICATDBClient.getConnection().createStatement();
+				Statement st = connection.createStatement();
 				ResultSet rs = st.executeQuery(sqlStatement);
 
 				ResultSetMetaData rsmd = rs.getMetaData();
@@ -721,6 +717,8 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 				rs.close();
 				st.close();
 
+				connection.close();
+				logger.debug("ICAT DB connection closed!");
 			} catch (java.sql.SQLException e) {
 				// catch any unexpected exception
 				String faultMessage = "problem with sql query for db name: " + ", and user:  " + fedid + " "
@@ -730,14 +728,6 @@ public class BeamlineDataWizardPage extends WizardPage implements KeyListener {
 			}
 
 		}
-
-		try {
-			ICATDBClient.getConnection().close();
-			logger.debug("ICAT DB connection closed!");
-		} catch (SQLException e) {
-			logger.error("Error closing ICAT database connection");
-		}
-
 		return visitList;
 	}
 
