@@ -48,6 +48,8 @@
 			<level>ERROR</level>
 		</filter>
 	</logger>
+		
+	<logger name="ncsa.hdf" level="ERROR"/>
 	
 	<root>
 		<level value="ALL" />
