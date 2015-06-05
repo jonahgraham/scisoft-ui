@@ -50,7 +50,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor;
-import uk.ac.diamond.scisoft.analysis.rcp.editors.NexusTreeEditor;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5TableTree;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.TwoDMappingView;
 
@@ -124,7 +123,7 @@ public class TwoDSecondaryOpenOneDPluginTest {
 		// Get a handle to the file '2495.nxs' within the 'Test Project'
 		IFile file = ResourcesPlugin.getWorkspace().getRoot().getProject("Test Project").getFolder("mappingexptest")
 				.getFile("2495.nxs");
-		IEditorPart editor = window.getActivePage().openEditor(new FileEditorInput(file), NexusTreeEditor.ID);
+		IEditorPart editor = window.getActivePage().openEditor(new FileEditorInput(file), HDF5TreeEditor.ID);
 
 		PluginTestHelpers.delay(2000);
 		if (editor instanceof HDF5TreeEditor) {
