@@ -103,9 +103,9 @@ public class AnalysisControlView extends ViewPart {
 		
 		final Map<String,String> conf = new HashMap<String,String>(13);
 		conf.put("uri",       "tcp://sci-serv5.diamond.ac.uk:61616");
-		conf.put("submit",    "submit scisoft.diamond.FOLDER_QUEUE");
-		conf.put("topic",     "scisoft.diamond.STATUS_TOPIC");
-		conf.put("status",    "scisoft.diamond.STATUS_QUEUE");
+		conf.put("submit",    "scisoft.diamond.FOLDER_QUEUE");
+		conf.put("topic",     "scisoft.em.STATUS_TOPIC");
+		conf.put("status",    "scisoft.em.STATUS_QUEUE");
 		conf.put("bundle",    "org.dawnsci.commandserver.mrc");
 		conf.put("consumer",  "org.dawnsci.commandserver.mrc.consumer.MRCConsumer");
 		conf.put("momlLocation",   momlPath);
