@@ -25,6 +25,7 @@ public class EMPerspective implements IPerspectiveFactory {
 		final String queueViewId = StatusQueueView.createId("org.dawnsci.commandserver.foldermonitor", "org.dawnsci.commandserver.foldermonitor.FolderEventBean", "scisoft.em.STATUS_QUEUE", "scisoft.em.STATUS_TOPIC", "scisoft.diamond.FOLDER_QUEUE");
 		layout.addView(queueViewId, IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
 		layout.addView(ConsumerView.ID, IPageLayout.RIGHT, 0.5f, queueViewId);
+		layout.addView("uk.ac.diamond.scisoft.mrc.ui.controlView", IPageLayout.TOP, 0.26f, queueViewId);
 	}
 
 

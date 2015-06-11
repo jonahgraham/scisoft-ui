@@ -8,6 +8,7 @@
  */
 package uk.ac.diamond.scisoft.mrc.ui;
 
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -53,6 +54,10 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
+	}
+
+	public static Image getImage(String path) {
+		return imageDescriptorFromPlugin(PLUGIN_ID, path).createImage();
 	}
 
 }
