@@ -26,7 +26,7 @@ public class EMPerspective implements IPerspectiveFactory {
 		queueViewId = queueViewId+"partName=EM Queue";
 		layout.addView(queueViewId, IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
 		layout.addView(ConsumerView.ID, IPageLayout.RIGHT, 0.5f, queueViewId);
-		layout.addView("uk.ac.diamond.scisoft.mrc.ui.controlView", IPageLayout.TOP, 0.26f, queueViewId);
+		layout.addView("uk.ac.diamond.scisoft.mrc.ui.controlView", IPageLayout.TOP, 0.28f, queueViewId);
 	}
 
 
