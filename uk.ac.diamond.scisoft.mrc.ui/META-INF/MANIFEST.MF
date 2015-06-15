@@ -8,7 +8,9 @@ Bundle-Vendor: DLS
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.dawnsci.commandserver.ui;bundle-version="1.0.0",
- org.dawnsci.common.widgets;bundle-version="1.2.0"
+ org.dawnsci.common.widgets;bundle-version="1.2.0",
+ org.dawnsci.commandserver;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: org.dawnsci.commandserver.core.application
+Import-Package: org.dawnsci.commandserver.core.application,
+ org.slf4j;version="1.7.6"
