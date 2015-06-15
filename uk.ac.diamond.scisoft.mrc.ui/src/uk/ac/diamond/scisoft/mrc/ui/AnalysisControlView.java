@@ -1,9 +1,14 @@
 package uk.ac.diamond.scisoft.mrc.ui;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.dawnsci.commandserver.core.application.Consumer;
 import org.dawnsci.commandserver.core.application.IConsumerExtension;
@@ -19,6 +24,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.part.ViewPart;
 
+/**
+ * A view which starts and stops the consumers for the EM pipeline.
+ * 
+ * @author fcp94556
+ *
+ */
 public class AnalysisControlView extends ViewPart {
 	
 	private static String MPATH = "uk.ac.diamond.scisoft.mrc.ui.monitorPath";
@@ -38,7 +49,7 @@ public class AnalysisControlView extends ViewPart {
 		
 		Label label = null;
 		label = new Label(content, SWT.WRAP);
-		label.setText("Monitor an EM collection at a give path and with specific properties.\nCurrently only starting the consumers with the UI process is supported.\nTODO start consumers as process...");
+		label.setText("Monitor an EM collection at a give path and with specific properties.");
 		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		createSelector(content, "Monitor Directory    ",      MPATH, false, null, null);
@@ -61,16 +72,12 @@ public class AnalysisControlView extends ViewPart {
 		start.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				start();
-				start.setEnabled(false);
-				stop.setEnabled(true);
 			}
 		});
 		
 		stop.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				stop();
-				start.setEnabled(true);
-				stop.setEnabled(false);
 			}
 		});
 
@@ -102,13 +109,17 @@ public class AnalysisControlView extends ViewPart {
 	private void startWorkflowRunner(String momlPath) {
 		
 		final Map<String,String> conf = new HashMap<String,String>(13);
-		conf.put("uri",       "tcp://sci-serv5.diamond.ac.uk:61616");
-		conf.put("submit",    "scisoft.diamond.FOLDER_QUEUE");
-		conf.put("topic",     "scisoft.em.STATUS_TOPIC");
-		conf.put("status",    "scisoft.em.STATUS_QUEUE");
-		conf.put("bundle",    "org.dawnsci.commandserver.mrc");
-		conf.put("consumer",  "org.dawnsci.commandserver.mrc.consumer.MRCConsumer");
-		conf.put("momlLocation",   momlPath);
+		conf.put("uri",          "tcp://sci-serv5.diamond.ac.uk:61616");
+		conf.put("submit",       "scisoft.diamond.FOLDER_QUEUE");
+		conf.put("topic",        "scisoft.em.STATUS_TOPIC");
+		conf.put("status",       "scisoft.em.STATUS_QUEUE");
+		conf.put("bundle",       "org.dawnsci.commandserver.workflow");
+		conf.put("consumer",     "org.dawnsci.commandserver.workflow.WorkflowConsumer");
+		conf.put("consumerName", "EM Pipeline");
+		conf.put("processName",  "em");
+		conf.put("execLocation", "module load dawn/snapshot ; $DAWN_RELEASE_DIRECTORY/dawn");
+		conf.put("winExecLocation", "C:/Users/fcp94556/Desktop/DawnMaster/dawn.exe");
+		conf.put("momlLocation",  momlPath);
         start("Workflow Runner", conf);
 	}
 
@@ -122,7 +133,7 @@ public class AnalysisControlView extends ViewPart {
 		conf.put("status",    "scisoft.diamond.FOLDER_QUEUE");
 		conf.put("nio",        "false");
 		conf.put("filePattern",".+\\.mrc");
-		conf.put("properties", propertiesPath);
+		conf.put("extraProperties", propertiesPath);
 		conf.put("location",   toMonitor);
         start("Folder Monitor", conf);
 	}
@@ -134,8 +145,17 @@ public class AnalysisControlView extends ViewPart {
 				
 				/*
 				 *  Start consumer programmatically.
+				 *  We write the properties to file in order to do this because
+				 *  it is better than a long command line
 				 */
 				try {
+					File tmp = File.createTempFile("consumer", ".properties");
+					tmp.deleteOnExit();
+					storeProperties(conf, tmp);
+					
+					final Map<String, String> conf = new HashMap<String, String>(1);
+					conf.put("properties", tmp.getAbsolutePath());
+					
 				    IConsumerExtension ext = Consumer.create(conf);
 					consumerList.add(ext);
 					ext.start(); // blocking! It will appear in the active consumer list.
@@ -147,6 +167,24 @@ public class AnalysisControlView extends ViewPart {
 		};
 		thread.start();
  	}
+	
+	@SuppressWarnings("unchecked")
+	private final static void storeProperties(@SuppressWarnings("rawtypes") final Map map, final File file) throws IOException {
+
+		if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
+		if (!file.exists()) file.createNewFile();
+		
+		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
+		try {			
+			final Properties props = new Properties();
+			props.putAll(map);
+			props.store(out, "DAWN Consumer properties file");
+			
+		} finally {
+			out.close();
+		}
+	}
+
 
 	private void createSelector(Composite content, String label, final String propName, boolean resource, String[] types, String[] exts) {
 		
