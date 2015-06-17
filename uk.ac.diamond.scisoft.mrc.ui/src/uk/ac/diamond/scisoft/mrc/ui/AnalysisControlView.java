@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.dawnsci.commandserver.core.application.Consumer;
-import org.dawnsci.commandserver.core.application.ConsumerProcess;
+import org.dawnsci.commandserver.core.application.ApplicationProcess;
 import org.dawnsci.commandserver.core.application.IConsumerExtension;
 import org.dawnsci.commandserver.core.consumer.Constants;
 import org.dawnsci.commandserver.core.consumer.ConsumerBean;
@@ -256,7 +256,7 @@ public class AnalysisControlView extends ViewPart {
 					
 					boolean sep = Activator.getDefault().getPreferenceStore().getBoolean(EMConstants.SEP_PROCESS);
 					if (sep) {
-						ConsumerProcess process = new ConsumerProcess(tmp);
+						ApplicationProcess process = new ApplicationProcess(tmp);
 						process.start(); // We just leave it to run
 						
 					} else {

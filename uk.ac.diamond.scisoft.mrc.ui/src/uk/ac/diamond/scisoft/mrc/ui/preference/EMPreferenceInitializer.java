@@ -15,7 +15,7 @@ public class EMPreferenceInitializer extends AbstractPreferenceInitializer {
 	public void initializeDefaultPreferences() {
 		
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		store.setDefault(EMConstants.LCMD, "module load dawn/snapshot ; $DAWN_RELEASE_DIRECTORY/dawn");
+		store.setDefault(EMConstants.LCMD, "module load dawn/nightly ; $DAWN_RELEASE_DIRECTORY/dawn");
 		store.setDefault(EMConstants.WCMD, "C:/Users/fcp94556/Desktop/DawnMaster/dawn.exe");
 		store.setDefault(EMConstants.SEP_PROCESS, true);
 		
