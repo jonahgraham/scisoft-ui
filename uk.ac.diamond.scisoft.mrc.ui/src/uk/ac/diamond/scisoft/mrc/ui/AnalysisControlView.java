@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.dawnsci.commandserver.core.application.Consumer;
 import org.dawnsci.commandserver.core.application.ApplicationProcess;
+import org.dawnsci.commandserver.core.application.Consumer;
 import org.dawnsci.commandserver.core.application.IConsumerExtension;
 import org.dawnsci.commandserver.core.consumer.Constants;
 import org.dawnsci.commandserver.core.consumer.ConsumerBean;
@@ -21,6 +21,7 @@ import org.dawnsci.commandserver.core.consumer.QueueReader;
 import org.dawnsci.commandserver.core.util.JSONUtils;
 import org.dawnsci.commandserver.ui.preference.CommandConstants;
 import org.dawnsci.common.widgets.file.SelectorWidget;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -189,25 +190,6 @@ public class AnalysisControlView extends ViewPart {
 		
 	}
 
-	private void startWorkflowRunner(String momlPath) {
-		
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		
-		final Map<String,String> conf = new HashMap<String,String>(13);
-		conf.put("uri",             getURI());
-		conf.put("submit",          store.getString(EMConstants.FOLDER_QUEUE));
-		conf.put("topic",           store.getString(EMConstants.EM_TOPIC));
-		conf.put("status",          store.getString(EMConstants.EM_QUEUE));
-		conf.put("bundle",          "org.dawnsci.commandserver.workflow");
-		conf.put("consumer",        "org.dawnsci.commandserver.workflow.WorkflowConsumer");
-		conf.put("consumerName",    "EM Pipeline");
-		conf.put("processName",     "em");
-		conf.put("execLocation",    store.getString(EMConstants.LCMD));
-		conf.put("winExecLocation", store.getString(EMConstants.WCMD));
-		conf.put("momlLocation",    momlPath);
-        start("Workflow Runner",    conf);
-	}
-
 	private void startFolderMonitor(final String toMonitor, final String propertiesPath) {
 		
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
@@ -228,7 +210,27 @@ public class AnalysisControlView extends ViewPart {
 		conf.put("winExecLocation", store.getString(EMConstants.WCMD));
         start("Folder Monitor", conf);
 	}
-	
+
+	private void startWorkflowRunner(String momlPath) {
+		
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		
+		final Map<String,String> conf = new HashMap<String,String>(13);
+		conf.put("uri",             getURI());
+		conf.put("submit",          store.getString(EMConstants.FOLDER_QUEUE));
+		conf.put("topic",           store.getString(EMConstants.EM_TOPIC));
+		conf.put("status",          store.getString(EMConstants.EM_QUEUE));
+		conf.put("bundle",          "org.dawnsci.commandserver.workflow");
+		conf.put("consumer",        "org.dawnsci.commandserver.workflow.WorkflowConsumer");
+		conf.put("consumerName",    "EM Pipeline");
+		conf.put("processName",     "em");
+		conf.put("execLocation",    store.getString(EMConstants.LCMD));
+		conf.put("winExecLocation", store.getString(EMConstants.WCMD));
+		conf.put("momlLocation",    momlPath);
+		conf.put("workspaceLocation", ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString());
+        start("Workflow Runner",    conf);
+	}
+
 	private String getURI() {
         final ScopedPreferenceStore store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.dawnsci.commandserver.ui");
         return store.getString(CommandConstants.JMS_URI);
