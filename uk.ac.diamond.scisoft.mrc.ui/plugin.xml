@@ -14,7 +14,7 @@
          point="org.eclipse.ui.views">
       <view
             category="uk.ac.diamond.scisoft.mrc.ui.category"
-            class="uk.ac.diamond.scisoft.mrc.ui.AnalysisControlView"
+            class="uk.ac.diamond.scisoft.mrc.ui.EMConsumerController"
             icon="icons/scope.png"
             id="uk.ac.diamond.scisoft.mrc.ui.controlView"
             name="Analysis Control"

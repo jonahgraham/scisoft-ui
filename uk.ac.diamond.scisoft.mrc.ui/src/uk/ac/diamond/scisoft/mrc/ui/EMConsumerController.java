@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import org.dawnsci.commandserver.core.application.ApplicationProcess;
 import org.dawnsci.commandserver.core.application.Consumer;
@@ -33,6 +34,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TypedEvent;
@@ -42,6 +45,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.part.ViewPart;
@@ -57,9 +61,9 @@ import uk.ac.diamond.scisoft.mrc.ui.preference.EMConstants;
  * @author fcp94556
  *
  */
-public class AnalysisControlView extends ViewPart {
+public class EMConsumerController extends ViewPart {
 
-	private static final Logger logger = LoggerFactory.getLogger(AnalysisControlView.class);
+	private static final Logger logger = LoggerFactory.getLogger(EMConsumerController.class);
 	
 	private List<IConsumerExtension> consumerList;
 	
@@ -78,8 +82,36 @@ public class AnalysisControlView extends ViewPart {
 		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		createSelector(content, "Monitor Directory    ",      EMConstants.MPATH, false, null, null);
+		
+		final Composite line = new Composite(content, SWT.NONE);
+		line.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		line.setLayout(new GridLayout(2, false));
+		removeMargins(line);
+
+		label = new Label(line, SWT.NONE);
+		label.setText("File Pattern            ");
+		
+		final Text pattern = new Text(line, SWT.BORDER);
+		pattern.setText(Activator.getDefault().getPreferenceStore().getString(EMConstants.MPATTERN));
+		pattern.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		pattern.addModifyListener(new ModifyListener() {			
+			@Override
+			public void modifyText(ModifyEvent e) {
+				final String regex = pattern.getText();
+				try {
+					Activator.getDefault().getPreferenceStore().setValue(EMConstants.MPATTERN, regex);
+					Pattern p = Pattern.compile(regex);
+					pattern.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
+				} catch (Exception ne) {
+					pattern.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+				}
+			}
+		});
+		pattern.setToolTipText("A regular expression to match the file name.\nNOTE: The only checking done is that the expression compiles,\nnot that it actually will match names correctly.");
+
 		createSelector(content, "EM Properties         ",     EMConstants.PPATH, true, new String[]{"Properties"}, new String[]{"*.properties"});
 		createSelector(content, "Pipeline Path          ",    EMConstants.WPATH, true, new String[]{"Workflow"},   new String[]{"*.moml"});	
+		
 		
 		final Button useSeparateProcesses = new Button(content, SWT.CHECK);
 		useSeparateProcesses.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -201,8 +233,9 @@ public class AnalysisControlView extends ViewPart {
 		conf.put("consumer",   "org.dawnsci.commandserver.foldermonitor.Monitor");
 		conf.put("topic",      store.getString(EMConstants.FOLDER_TOPIC));
 		conf.put("status",     store.getString(EMConstants.FOLDER_QUEUE));
-		conf.put("nio",        "false");
-		conf.put("filePattern",".+\\.mrc");
+		conf.put("nio",        "true");
+		conf.put("recursive",  "true");
+		conf.put("filePattern", Activator.getDefault().getPreferenceStore().getString(EMConstants.MPATTERN));
 		conf.put("extraProperties", propertiesPath);
 		conf.put("location",        toMonitor);
 		conf.put("consumerName",    "EM File Monitor");
@@ -262,6 +295,7 @@ public class AnalysisControlView extends ViewPart {
 						process.start(); // We just leave it to run
 						
 					} else {
+						conf.put("sameVM", "true");
 					    IConsumerExtension ext = Consumer.create(conf);
 						consumerList.add(ext);
 						ext.start(); // blocking! It will appear in the active consumer list.

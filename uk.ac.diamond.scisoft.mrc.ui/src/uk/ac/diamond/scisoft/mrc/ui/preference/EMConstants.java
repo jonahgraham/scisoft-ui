@@ -3,6 +3,7 @@ package uk.ac.diamond.scisoft.mrc.ui.preference;
 public class EMConstants {
 
 	public static final String MPATH = "uk.ac.diamond.scisoft.mrc.ui.monitorPath";
+	public static final String MPATTERN = "uk.ac.diamond.scisoft.mrc.ui.monitorPattern";
 	public static final String PPATH = "uk.ac.diamond.scisoft.mrc.ui.propertiesPath";
 	public static final String WPATH = "uk.ac.diamond.scisoft.mrc.ui.momlPath";
 	

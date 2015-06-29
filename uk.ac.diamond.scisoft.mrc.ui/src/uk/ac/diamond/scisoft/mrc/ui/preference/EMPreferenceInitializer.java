@@ -23,6 +23,8 @@ public class EMPreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(EMConstants.FOLDER_TOPIC, "scisoft.diamond.FOLDER_TOPIC");
 		store.setDefault(EMConstants.EM_QUEUE,     "scisoft.em.STATUS_QUEUE");
 		store.setDefault(EMConstants.EM_TOPIC,     "scisoft.em.STATUS_TOPIC");
+		
+		store.setDefault(EMConstants.MPATTERN, ".+\\.mrc");
 	}
 
 }
