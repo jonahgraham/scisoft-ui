@@ -1,17 +1,13 @@
 /*
- * Copyright (c) 2012 Diamond Light Source Ltd.
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2012 Diamond Light Source Ltd. All rights reserved. This program and the accompanying materials are
+ * made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
  */
 
 package uk.ac.diamond.scisoft.analysis.rcp;
 
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.dawnsci.analysis.api.RMIServerProvider;
 import org.eclipse.dawnsci.analysis.api.ServerPortEvent;
 import org.eclipse.dawnsci.analysis.api.ServerPortListener;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -25,20 +21,16 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.AnalysisRpcServerProvider;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.preference.AnalysisRpcAndRmiPreferencePage;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
-import uk.ac.diamond.scisoft.analysis.rpc.FlatteningService;
 
 /**
  * The activator class controls the plug-in life cycle
  */
 public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPortListener {
 
-
 	private static final Logger logger = LoggerFactory.getLogger(AnalysisRCPActivator.class);
 
-	@SuppressWarnings("rawtypes")
-	private ServiceTracker plotServerTracker;
+	private ServiceTracker<?, ?> plotServerTracker;
 
 	/**
 	 * The plug-in ID
@@ -59,29 +51,21 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		this.context = context;
-		plugin = this;	
-		
-		if (isCorbaClient()) {
+		plugin = this;
+
+		if (isGDA()) {
 			AnalysisRpcServerProvider.getInstance().addPortListener(this);
-	
-			plotServerTracker = new ServiceTracker(context, PlotServer.class.getName(), null);
+
+			plotServerTracker = new ServiceTracker<>(context, PlotServer.class.getName(), null);
 			plotServerTracker.open();
 			PlotServer plotServer = (PlotServer)plotServerTracker.getService();
-			if( plotServer != null) PlotServerProvider.setPlotServer(plotServer);			
-			
-			// if the rmi server has been vetoed, dont start it up, this also has issues
-			if (Boolean.getBoolean("uk.ac.diamond.scisoft.analysis.analysisrpcserverprovider.disable") == false) {
-				AnalysisRpcServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getAnalysisRpcPort());
-				RMIServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getRmiPort());
-				FlatteningService.getFlattener().setTempLocation(AnalysisRpcAndRmiPreferencePage.getAnalysisRpcTempFileLocation());
-			}
+			if( plotServer != null) PlotServerProvider.setPlotServer(plotServer);
 		}
-		
 	}
 
 	@Override
 	public void portAssigned(ServerPortEvent evt) {
-		logger.info("Setting "+PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO+" to: " +  evt.getPort());
+		logger.info("Setting " + PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO + " to: " + evt.getPort());
 		IEclipsePreferences node = ConfigurationScope.INSTANCE.getNode("uk.ac.diamond.scisoft.analysis.rpc");
 		node.putInt(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO, evt.getPort());
 		try {
@@ -94,8 +78,8 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
-		
-		if (isCorbaClient()) {
+
+		if (isGDA()) {
 			PlotServer plotServer = (PlotServer)plotServerTracker.getService();
 			if( plotServer != null)
 				PlotServerProvider.setPlotServer(null);
@@ -140,9 +124,7 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 		return context;
 	}
 
-	
-	public static boolean isCorbaClient() {
+	public static boolean isGDA() {
 		return System.getProperty("gda.config")!=null;
 	}
 }
-
