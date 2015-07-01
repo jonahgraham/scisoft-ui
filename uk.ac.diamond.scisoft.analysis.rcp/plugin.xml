@@ -26,6 +26,9 @@
    <extension
          point="org.eclipse.ui.startup">
       <startup
+            class="uk.ac.diamond.scisoft.analysis.rcp.InitRMIServer">
+      </startup>
+      <startup
             class="uk.ac.diamond.scisoft.analysis.rcp.InitPlotServer">
       </startup>
    </extension>
