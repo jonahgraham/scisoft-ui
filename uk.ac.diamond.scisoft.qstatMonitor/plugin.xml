@@ -8,7 +8,7 @@
             category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView"
             icon="icons/qstatMonitorIcon.gif"
-            id="uk.ac.diamond.qstatmonitor.views.QStatMonitorView"
+            id="uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView"
             name="QStat Monitor">
       </view>
       <view
@@ -24,7 +24,7 @@
       <page
             category="org.dawnsci.preferences.root"
             class="uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage"
-            id="uk.ac.diamond.qstatMonitor.QStatMonitorPreferencePage"
+            id="uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage"
             name="QStat Monitor">
       </page>
    </extension>

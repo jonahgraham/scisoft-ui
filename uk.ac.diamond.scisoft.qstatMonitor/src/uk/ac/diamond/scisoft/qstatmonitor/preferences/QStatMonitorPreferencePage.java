@@ -8,10 +8,8 @@
  */
 package uk.ac.diamond.scisoft.qstatmonitor.preferences;
 
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -21,14 +19,14 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
+import uk.ac.diamond.scisoft.qstatmonitor.Activator;
 import uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView;
 
 public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 		implements IWorkbenchPreferencePage {
 
-	public static final String ID = "uk.ac.diamond.qstatMonitor.QStatMonitorPreferencePage";
+	public static final String ID = "uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage";
 
 	private Combo queryDropDown;
 	private StringFieldEditor sleepSecondsField;
@@ -42,28 +40,28 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 
 	public QStatMonitorPreferencePage() {
 		super(GRID);
-		final IPreferenceStore store = new ScopedPreferenceStore(
-				InstanceScope.INSTANCE, "uk.ac.diamond.scisoft.qstatMonitor");
-		setPreferenceStore(store);
-		setDescription("Preferences for QStat Monitor.");
 	}
 
 	@Override
 	public void init(IWorkbench workbench) {
+		setPreferenceStore(Activator.getDefault().getPreferenceStore());
+		setDescription("Preferences for QStat Monitor.");
 	}
 
 	@Override
 	protected void createFieldEditors() {
 
-		sleepSecondsField = new StringFieldEditor(QStatMonitorConstants.SLEEP,
-				"Seconds between refresh", getFieldEditorParent());
+		sleepSecondsField = new StringFieldEditor(
+				QStatMonitorConstants.P_SLEEP, "Seconds between refresh",
+				getFieldEditorParent());
 		addField(sleepSecondsField);
 
-		disableAutoRefresh = new BooleanFieldEditor(QStatMonitorConstants.DISABLE_AUTO_REFRESH,
+		disableAutoRefresh = new BooleanFieldEditor(
+				QStatMonitorConstants.P_REFRESH,
 				"Disable automatic refreshing", getFieldEditorParent());
 		addField(disableAutoRefresh);
 
-		disableAutoPlot = new BooleanFieldEditor(QStatMonitorConstants.DISABLE_AUTO_PLOT,
+		disableAutoPlot = new BooleanFieldEditor(QStatMonitorConstants.P_PLOT,
 				"Disable automatic plotting", getFieldEditorParent());
 		addField(disableAutoPlot);
 
@@ -89,14 +87,15 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 			}
 		});
 
-		queryField = new StringFieldEditor(QStatMonitorConstants.QUERY, "Query",
-				getFieldEditorParent());
+		queryField = new StringFieldEditor(QStatMonitorConstants.P_QUERY,
+				"Query", getFieldEditorParent());
 		addField(queryField);
-		userField = new StringFieldEditor(QStatMonitorConstants.USER, "Show tasks by this user",
-				getFieldEditorParent());
+		userField = new StringFieldEditor(QStatMonitorConstants.P_USER,
+				"Show tasks by this user", getFieldEditorParent());
 		addField(userField);
 	}
 
+	// TODO: Replace with PropertyChangeListener
 	@Override
 	public boolean performOk() {
 		super.performOk();

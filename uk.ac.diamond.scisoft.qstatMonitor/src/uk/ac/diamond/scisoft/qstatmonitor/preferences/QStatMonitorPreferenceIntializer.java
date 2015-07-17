@@ -9,9 +9,7 @@
 package uk.ac.diamond.scisoft.qstatmonitor.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-//import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
-//import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 import uk.ac.diamond.scisoft.qstatmonitor.Activator;
 
@@ -21,15 +19,17 @@ public class QStatMonitorPreferenceIntializer extends
 	@Override
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		/*
-		final IPreferenceStore store = new ScopedPreferenceStore(
-				InstanceScope.INSTANCE, "uk.ac.diamond.scisoft.qstatMonitor");
-		*/
-		store.setDefault(QStatMonitorConstants.SLEEP, "4.5");
-		store.setDefault(QStatMonitorConstants.DISABLE_AUTO_REFRESH, false);
-		store.setDefault(QStatMonitorConstants.DISABLE_AUTO_PLOT, false);
-		store.setDefault(QStatMonitorConstants.QUERY, "qstat");
-		store.setDefault(QStatMonitorConstants.USER, "*");		
+
+		store.setDefault(QStatMonitorConstants.P_SLEEP,
+				QStatMonitorConstants.DEF_SLEEP);
+		store.setDefault(QStatMonitorConstants.P_REFRESH,
+				QStatMonitorConstants.DEF_REFRESH);
+		store.setDefault(QStatMonitorConstants.P_PLOT,
+				QStatMonitorConstants.DEF_PLOT);
+		store.setDefault(QStatMonitorConstants.P_QUERY,
+				QStatMonitorConstants.DEF_QUERY);
+		store.setDefault(QStatMonitorConstants.P_USER,
+				QStatMonitorConstants.DEF_USER);
 	}
 
 }

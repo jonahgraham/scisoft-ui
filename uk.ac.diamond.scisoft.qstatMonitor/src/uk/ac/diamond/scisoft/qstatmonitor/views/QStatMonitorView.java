@@ -46,11 +46,11 @@ import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage
 
 public class QStatMonitorView extends ViewPart {
 
-	public static final String ID = "uk.ac.diamond.qstatmonitor.views.QStatMonitorView";
+	public static final String ID = "uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView";
 
 	private Table table;
-	private final String[] titles = { "Job Number", "Priority", "Job Name",
-			"Owner", "State", "Submission Time", "Queue Name", "Slots", "Tasks" };
+	private final String[] titles = {"Job Number", "Priority", "Job Name",
+			"Owner", "State", "Submission Time", "Queue Name", "Slots", "Tasks"};
 
 	private ArrayList<String> jobNumberList = new ArrayList<String>();
 	private ArrayList<String> priorityList = new ArrayList<String>();
@@ -220,16 +220,15 @@ public class QStatMonitorView extends ViewPart {
 
 		final IPreferenceStore store = new ScopedPreferenceStore(
 				InstanceScope.INSTANCE, "uk.ac.diamond.scisoft.qstatMonitor");
-		sleepTimeMilli = store.getInt(QStatMonitorConstants.SLEEP) * 1000;
-		qStatQuery = store.getString(QStatMonitorConstants.QUERY);
-		userArg = store.getString(QStatMonitorConstants.USER);
-		if (!store.getBoolean(QStatMonitorConstants.DISABLE_AUTO_REFRESH)) {
+		sleepTimeMilli = store.getInt(QStatMonitorConstants.P_SLEEP) * 1000;
+		qStatQuery = store.getString(QStatMonitorConstants.P_QUERY);
+		userArg = store.getString(QStatMonitorConstants.P_USER);
+		if (!store.getBoolean(QStatMonitorConstants.P_REFRESH)) {
 			tableUpdaterThread = new TableUpdaterThread();
 			tableUpdaterThread.start();
 		}
 
-		plotOption = !store
-				.getBoolean(QStatMonitorConstants.DISABLE_AUTO_PLOT);
+		plotOption = !store.getBoolean(QStatMonitorConstants.P_PLOT);
 
 	}
 
@@ -269,7 +268,6 @@ public class QStatMonitorView extends ViewPart {
 		long estimatedTime = System.nanoTime() - startTime;
 		return estimatedTime / 60000000000.0;
 	}
-	
 
 	/**
 	 * Calles updatePlotLists(), then schedules the replotJob
@@ -306,27 +304,26 @@ public class QStatMonitorView extends ViewPart {
 					.createFromList(suspendedList);
 			suspendedDataset.setName("Suspended");
 
-			Dataset queuedDataset = IntegerDataset
-					.createFromList(queuedList);
+			Dataset queuedDataset = IntegerDataset.createFromList(queuedList);
 			queuedDataset.setName("Queued");
 
-			Dataset runningDataset = IntegerDataset
-					.createFromList(runningList);
+			Dataset runningDataset = IntegerDataset.createFromList(runningList);
 			runningDataset.setName("Running");
-			
-					
-			Dataset[] datasetArr = { suspendedDataset, queuedDataset,
+
+			Dataset[] datasetArr = {suspendedDataset, queuedDataset,
 					runningDataset};
-			
-			//ArrayList<Dataset> list = new ArrayList<Dataset>();
-			//list.add(suspendedDataset);
-			//list.add(queuedDataset);
-			//list.add(runningDataset);
+
+			// ArrayList<Dataset> list = new ArrayList<Dataset>();
+			// list.add(suspendedDataset);
+			// list.add(queuedDataset);
+			// list.add(runningDataset);
 
 			if (view != null) {
 				try {
-					SDAPlotter.plot("QStat Monitor Plot", timeDataset,	datasetArr);
-					//SDAPlotter.plot("QStat Monitor Plot", timeDataset,	list.toArray(new Dataset[3]));
+					SDAPlotter.plot("QStat Monitor Plot", timeDataset,
+							datasetArr);
+					// SDAPlotter.plot("QStat Monitor Plot", timeDataset,
+					// list.toArray(new Dataset[3]));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

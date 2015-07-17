@@ -1,11 +1,20 @@
 package uk.ac.diamond.scisoft.qstatmonitor.preferences;
 
 public class QStatMonitorConstants {
-	
-	public static final String QUERY = "uk.ac.diamond.scisoft.qstatMonitor.preferences.query";
-	public static final String SLEEP = "uk.ac.diamond.scisoft.qstatMonitor.preferences.sleep";
-	public static final String USER = "uk.ac.diamond.scisoft.qstatMonitor.preferences.user";
-	public static final String DISABLE_AUTO_REFRESH = "uk.ac.diamond.scisoft.qstatMonitor.preferences.disableAutoRefresh";
-	public static final String DISABLE_AUTO_PLOT = "uk.ac.diamond.scisoft.qstatMonitor.preferences.disableAutoPlot";
+
+	public static final String P_SLEEP = "uk.ac.diamond.scisoft.qstatmonitor.preferences.sleep";
+	public static final float DEF_SLEEP = 4.5f;
+
+	public static final String P_REFRESH = "uk.ac.diamond.scisoft.qstatmonitor.preferences.refresh";
+	public static final boolean DEF_REFRESH = false;
+
+	public static final String P_PLOT = "uk.ac.diamond.scisoft.qstatmonitor.preferences.plot";
+	public static final boolean DEF_PLOT = false;
+
+	public static final String P_QUERY = "uk.ac.diamond.scisoft.qstatmonitor.preferences.query";
+	public static final String DEF_QUERY = "qstat";
+
+	public static final String P_USER = "uk.ac.diamond.scisoft.qstatmonitor.preferences.user";
+	public static final String DEF_USER = "*";
 
 }
