@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package uk.ac.diamond.scisoft.qstatmonitor;
+package uk.ac.diamond.scisoft.qstatmonitor.preferences;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.BooleanFieldEditor;
@@ -29,11 +29,6 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 		implements IWorkbenchPreferencePage {
 
 	public static final String ID = "uk.ac.diamond.qstatMonitor.QStatMonitorPreferencePage";
-	public static final String QUERY = "uk.ac.diamond.scisoft.qstatMonitor.Preferences.query";
-	public static final String SLEEP = "uk.ac.diamond.scisoft.qstatMonitor.Preferences.sleep";
-	public static final String USER = "uk.ac.diamond.scisoft.qstatMonitor.Preferences.user";
-	public static final String DISABLE_AUTO_REFRESH = "uk.ac.diamond.scisoft.qstatMonitor.Preferences.disableAutoRefresh";
-	public static final String DISABLE_AUTO_PLOT = "uk.ac.diamond.scisoft.qstatMonitor.Preferences.disableAutoPlot";
 
 	private Combo queryDropDown;
 	private StringFieldEditor sleepSecondsField;
@@ -60,15 +55,15 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 	@Override
 	protected void createFieldEditors() {
 
-		sleepSecondsField = new StringFieldEditor(SLEEP,
+		sleepSecondsField = new StringFieldEditor(QStatMonitorConstants.SLEEP,
 				"Seconds between refresh", getFieldEditorParent());
 		addField(sleepSecondsField);
 
-		disableAutoRefresh = new BooleanFieldEditor(DISABLE_AUTO_REFRESH,
+		disableAutoRefresh = new BooleanFieldEditor(QStatMonitorConstants.DISABLE_AUTO_REFRESH,
 				"Disable automatic refreshing", getFieldEditorParent());
 		addField(disableAutoRefresh);
 
-		disableAutoPlot = new BooleanFieldEditor(DISABLE_AUTO_PLOT,
+		disableAutoPlot = new BooleanFieldEditor(QStatMonitorConstants.DISABLE_AUTO_PLOT,
 				"Disable automatic plotting", getFieldEditorParent());
 		addField(disableAutoPlot);
 
@@ -94,10 +89,10 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 			}
 		});
 
-		queryField = new StringFieldEditor(QUERY, "Query",
+		queryField = new StringFieldEditor(QStatMonitorConstants.QUERY, "Query",
 				getFieldEditorParent());
 		addField(queryField);
-		userField = new StringFieldEditor(USER, "Show tasks by this user",
+		userField = new StringFieldEditor(QStatMonitorConstants.USER, "Show tasks by this user",
 				getFieldEditorParent());
 		addField(userField);
 	}

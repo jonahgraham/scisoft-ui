@@ -40,8 +40,9 @@ import org.eclipse.ui.progress.UIJob;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.qstatmonitor.Activator;
-import uk.ac.diamond.scisoft.qstatmonitor.QStatMonitorPreferencePage;
 import uk.ac.diamond.scisoft.qstatmonitor.api.Utils;
+import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorConstants;
+import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage;
 
 public class QStatMonitorView extends ViewPart {
 
@@ -66,6 +67,7 @@ public class QStatMonitorView extends ViewPart {
 	private ArrayList<Integer> runningList = new ArrayList<Integer>();
 	private ArrayList<Integer> queuedList = new ArrayList<Integer>();
 
+	// Preference values
 	private int sleepTimeMilli;
 	private String qStatQuery;
 	private String userArg;
@@ -218,16 +220,16 @@ public class QStatMonitorView extends ViewPart {
 
 		final IPreferenceStore store = new ScopedPreferenceStore(
 				InstanceScope.INSTANCE, "uk.ac.diamond.scisoft.qstatMonitor");
-		sleepTimeMilli = store.getInt(QStatMonitorPreferencePage.SLEEP) * 1000;
-		qStatQuery = store.getString(QStatMonitorPreferencePage.QUERY);
-		userArg = store.getString(QStatMonitorPreferencePage.USER);
-		if (!store.getBoolean(QStatMonitorPreferencePage.DISABLE_AUTO_REFRESH)) {
+		sleepTimeMilli = store.getInt(QStatMonitorConstants.SLEEP) * 1000;
+		qStatQuery = store.getString(QStatMonitorConstants.QUERY);
+		userArg = store.getString(QStatMonitorConstants.USER);
+		if (!store.getBoolean(QStatMonitorConstants.DISABLE_AUTO_REFRESH)) {
 			tableUpdaterThread = new TableUpdaterThread();
 			tableUpdaterThread.start();
 		}
 
 		plotOption = !store
-				.getBoolean(QStatMonitorPreferencePage.DISABLE_AUTO_PLOT);
+				.getBoolean(QStatMonitorConstants.DISABLE_AUTO_PLOT);
 
 	}
 

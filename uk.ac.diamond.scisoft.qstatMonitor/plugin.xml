@@ -23,7 +23,7 @@
          point="org.eclipse.ui.preferencePages">
       <page
             category="org.dawnsci.preferences.root"
-            class="uk.ac.diamond.scisoft.qstatmonitor.QStatMonitorPreferencePage"
+            class="uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage"
             id="uk.ac.diamond.qstatMonitor.QStatMonitorPreferencePage"
             name="QStat Monitor">
       </page>
@@ -31,7 +31,7 @@
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="uk.ac.diamond.scisoft.qstatmonitor.QStatMonitorPreferenceIntializer">
+            class="uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferenceIntializer">
       </initializer>
    </extension>
 
