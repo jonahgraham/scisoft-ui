@@ -1,6 +1,7 @@
 package uk.ac.diamond.scisoft.analysis.plotclient.view;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.dawnsci.plotting.api.VanillaPlottingSystemView;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.scisoft.analysis.plotclient.ScriptingConnection;
