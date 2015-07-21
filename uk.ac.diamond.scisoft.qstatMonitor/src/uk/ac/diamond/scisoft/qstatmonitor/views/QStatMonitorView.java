@@ -41,7 +41,7 @@ import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.qstatmonitor.Activator;
 import uk.ac.diamond.scisoft.qstatmonitor.api.Utils;
-import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorConstants;
+import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferenceConstants;
 import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage;
 
 public class QStatMonitorView extends ViewPart {
@@ -220,15 +220,15 @@ public class QStatMonitorView extends ViewPart {
 
 		final IPreferenceStore store = new ScopedPreferenceStore(
 				InstanceScope.INSTANCE, "uk.ac.diamond.scisoft.qstatMonitor");
-		sleepTimeMilli = store.getInt(QStatMonitorConstants.P_SLEEP) * 1000;
-		qStatQuery = store.getString(QStatMonitorConstants.P_QUERY);
-		userArg = store.getString(QStatMonitorConstants.P_USER);
-		if (!store.getBoolean(QStatMonitorConstants.P_REFRESH)) {
+		sleepTimeMilli = store.getInt(QStatMonitorPreferenceConstants.P_SLEEP) * 1000;
+		qStatQuery = store.getString(QStatMonitorPreferenceConstants.P_QUERY);
+		userArg = store.getString(QStatMonitorPreferenceConstants.P_USER);
+		if (!store.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH)) {
 			tableUpdaterThread = new TableUpdaterThread();
 			tableUpdaterThread.start();
 		}
 
-		plotOption = !store.getBoolean(QStatMonitorConstants.P_PLOT);
+		plotOption = !store.getBoolean(QStatMonitorPreferenceConstants.P_PLOT);
 
 	}
 

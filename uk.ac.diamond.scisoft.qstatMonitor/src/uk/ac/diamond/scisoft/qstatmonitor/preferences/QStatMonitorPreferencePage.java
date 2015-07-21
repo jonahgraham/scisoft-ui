@@ -9,6 +9,7 @@
 package uk.ac.diamond.scisoft.qstatmonitor.preferences;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
+import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
@@ -24,7 +25,8 @@ import uk.ac.diamond.scisoft.qstatmonitor.Activator;
 import uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView;
 
 public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
-		implements IWorkbenchPreferencePage {
+		implements
+			IWorkbenchPreferencePage {
 
 	public static final String ID = "uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage";
 
@@ -34,9 +36,6 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 	private StringFieldEditor userField;
 	private BooleanFieldEditor disableAutoRefresh;
 	private BooleanFieldEditor disableAutoPlot;
-
-	private final String[] listOfQueries = { "qstat", "qstat -l tesla",
-			"qstat -l tesla64", "qstat", "qstat -l tesla", "qstat -l tesla64" };
 
 	public QStatMonitorPreferencePage() {
 		super(GRID);
@@ -52,16 +51,17 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 	protected void createFieldEditors() {
 
 		sleepSecondsField = new StringFieldEditor(
-				QStatMonitorConstants.P_SLEEP, "Seconds between refresh",
-				getFieldEditorParent());
+				QStatMonitorPreferenceConstants.P_SLEEP,
+				"Seconds between refresh", getFieldEditorParent());
 		addField(sleepSecondsField);
 
 		disableAutoRefresh = new BooleanFieldEditor(
-				QStatMonitorConstants.P_REFRESH,
+				QStatMonitorPreferenceConstants.P_REFRESH,
 				"Disable automatic refreshing", getFieldEditorParent());
 		addField(disableAutoRefresh);
 
-		disableAutoPlot = new BooleanFieldEditor(QStatMonitorConstants.P_PLOT,
+		disableAutoPlot = new BooleanFieldEditor(
+				QStatMonitorPreferenceConstants.P_PLOT,
 				"Disable automatic plotting", getFieldEditorParent());
 		addField(disableAutoPlot);
 
@@ -77,8 +77,9 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 		queryDropDown.add("All jobs on tesla64", 5);
 		queryDropDown.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				queryField.setStringValue(listOfQueries[queryDropDown
-						.getSelectionIndex()]);
+				queryField
+						.setStringValue(QStatMonitorPreferenceConstants.LIST_OF_QUERIES[queryDropDown
+								.getSelectionIndex()]);
 				if (queryDropDown.getSelectionIndex() > 2) {
 					userField.setStringValue("*");
 				} else {
@@ -87,14 +88,15 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 			}
 		});
 
-		queryField = new StringFieldEditor(QStatMonitorConstants.P_QUERY,
-				"Query", getFieldEditorParent());
+		queryField = new StringFieldEditor(
+				QStatMonitorPreferenceConstants.P_QUERY, "Query",
+				getFieldEditorParent());
 		addField(queryField);
-		userField = new StringFieldEditor(QStatMonitorConstants.P_USER,
+		userField = new StringFieldEditor(
+				QStatMonitorPreferenceConstants.P_USER,
 				"Show tasks by this user", getFieldEditorParent());
 		addField(userField);
 	}
-
 	// TODO: Replace with PropertyChangeListener
 	@Override
 	public boolean performOk() {

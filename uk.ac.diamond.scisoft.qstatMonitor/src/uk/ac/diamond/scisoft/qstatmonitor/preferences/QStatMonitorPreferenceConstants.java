@@ -1,6 +1,6 @@
 package uk.ac.diamond.scisoft.qstatmonitor.preferences;
 
-public class QStatMonitorConstants {
+public class QStatMonitorPreferenceConstants {
 
 	public static final String P_SLEEP = "uk.ac.diamond.scisoft.qstatmonitor.preferences.sleep";
 	public static final float DEF_SLEEP = 4.5f;
@@ -16,5 +16,8 @@ public class QStatMonitorConstants {
 
 	public static final String P_USER = "uk.ac.diamond.scisoft.qstatmonitor.preferences.user";
 	public static final String DEF_USER = "*";
+
+	public static final String[] LIST_OF_QUERIES = {"qstat", "qstat -l tesla",
+			"qstat -l tesla64", "qstat", "qstat -l tesla", "qstat -l tesla64"};
 
 }
