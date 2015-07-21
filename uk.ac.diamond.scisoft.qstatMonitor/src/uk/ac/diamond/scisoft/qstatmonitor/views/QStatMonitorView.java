@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
@@ -34,7 +33,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.progress.UIJob;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
@@ -86,6 +84,56 @@ public class QStatMonitorView extends ViewPart {
 	private Job getQStatInfoJob;
 	private UIJob redrawTableJob;
 	private UIJob replotJob;
+	
+	/**
+	 * Constructor
+	 * <p>
+	 * Gets preference values from the preference store
+	 */
+	public QStatMonitorView() {
+		instantiateActions();
+		instantiateJobs();
+		
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		
+		sleepTimeMilli = store.getInt(QStatMonitorPreferenceConstants.P_SLEEP) * 1000;
+		qStatQuery = store.getString(QStatMonitorPreferenceConstants.P_QUERY);
+		userArg = store.getString(QStatMonitorPreferenceConstants.P_USER);
+		if (!store.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH)) {
+			tableUpdaterThread = new TableUpdaterThread();
+			tableUpdaterThread.start();
+		}
+
+		plotOption = !store.getBoolean(QStatMonitorPreferenceConstants.P_PLOT);
+	}
+	
+	@Override
+	public void createPartControl(Composite parent) {
+		setupActionBar();
+
+		table = new Table(parent, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION);
+		table.setLinesVisible(true);
+		table.setHeaderVisible(true);
+		for (int i = 0; i < tableColLabels.length; i++) {
+			TableColumn column = new TableColumn(table, SWT.NONE);
+			column.setText(tableColLabels[i]);
+		}
+
+		updateTable();
+		redrawTable();
+
+		if (plotOption) {
+			try {
+				final PlotView view = (PlotView) EclipseUtils.getPage()
+						.showView(
+								"uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
+			} catch (PartInitException e) {
+				e.printStackTrace();
+			}
+			updateListsAndPlot();
+		}
+
+	}
 
 	private void instantiateActions() {
 		refreshAction = new Action() {
@@ -189,6 +237,15 @@ public class QStatMonitorView extends ViewPart {
 		};
 	}
 
+	/**
+	 * Creates action bar, instantiates actions and adds them to the action bar
+	 */
+	private void setupActionBar() {
+		IActionBars bars = getViewSite().getActionBars();
+		bars.getMenuManager().add(openPreferencesAction);
+		bars.getToolBarManager().add(refreshAction);
+	}
+	
 	private TableUpdaterThread tableUpdaterThread;
 
 	/*
@@ -246,26 +303,6 @@ public class QStatMonitorView extends ViewPart {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	/**
-	 * Constructor, gets preferences from the preference store and stores them
-	 * as variables within this object
-	 */
-	public QStatMonitorView() {
-
-		final IPreferenceStore store = new ScopedPreferenceStore(
-				InstanceScope.INSTANCE, "uk.ac.diamond.scisoft.qstatMonitor");
-		sleepTimeMilli = store.getInt(QStatMonitorPreferenceConstants.P_SLEEP) * 1000;
-		qStatQuery = store.getString(QStatMonitorPreferenceConstants.P_QUERY);
-		userArg = store.getString(QStatMonitorPreferenceConstants.P_USER);
-		if (!store.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH)) {
-			tableUpdaterThread = new TableUpdaterThread();
-			tableUpdaterThread.start();
-		}
-
-		plotOption = !store.getBoolean(QStatMonitorPreferenceConstants.P_PLOT);
-
 	}
 
 	/**
@@ -367,40 +404,6 @@ public class QStatMonitorView extends ViewPart {
 				System.out.println("nulll");
 			}
 
-		}
-
-	}
-
-	@Override
-	public void createPartControl(Composite parent) {
-		// Create action bar and add actions to it
-		instantiateActions();
-		IActionBars bars = getViewSite().getActionBars();
-		bars.getMenuManager().add(openPreferencesAction);
-		bars.getToolBarManager().add(refreshAction);
-
-		instantiateJobs();
-
-		table = new Table(parent, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION);
-		table.setLinesVisible(true);
-		table.setHeaderVisible(true);
-		for (int i = 0; i < tableColLabels.length; i++) {
-			TableColumn column = new TableColumn(table, SWT.NONE);
-			column.setText(tableColLabels[i]);
-		}
-
-		updateTable();
-		redrawTable();
-
-		if (plotOption) {
-			try {
-				final PlotView view = (PlotView) EclipseUtils.getPage()
-						.showView(
-								"uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
-			} catch (PartInitException e) {
-				e.printStackTrace();
-			}
-			updateListsAndPlot();
 		}
 
 	}
