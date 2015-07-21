@@ -49,9 +49,11 @@ public class QStatMonitorView extends ViewPart {
 	public static final String ID = "uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView";
 
 	private Table table;
-	private final String[] titles = {"Job Number", "Priority", "Job Name",
-			"Owner", "State", "Submission Time", "Queue Name", "Slots", "Tasks"};
+	private final String[] tableColLabels = {"Job Number", "Priority",
+			"Job Name", "Owner", "State", "Submission Time", "Queue Name",
+			"Slots", "Tasks"};
 
+	// Table data
 	private ArrayList<String> jobNumberList = new ArrayList<String>();
 	private ArrayList<String> priorityList = new ArrayList<String>();
 	private ArrayList<String> jobNameList = new ArrayList<String>();
@@ -62,6 +64,7 @@ public class QStatMonitorView extends ViewPart {
 	private ArrayList<String> slotsList = new ArrayList<String>();
 	private ArrayList<String> tasksList = new ArrayList<String>();
 
+	// Plot data
 	private ArrayList<Double> timeList = new ArrayList<Double>();
 	private ArrayList<Integer> suspendedList = new ArrayList<Integer>();
 	private ArrayList<Integer> runningList = new ArrayList<Integer>();
@@ -75,12 +78,46 @@ public class QStatMonitorView extends ViewPart {
 
 	long startTime = System.nanoTime();
 
-	private final RefreshAction refreshAction = new RefreshAction();
-	private final OpenPreferencesAction openPreferencesAction = new OpenPreferencesAction();
+	// Actions
+	private Action refreshAction;
+	private Action openPreferencesAction;
+	
 	private TableUpdaterThread tableUpdaterThread;
 
+	private void instantiateActions() {
+		refreshAction = new Action() {
+			@Override
+			public void run() {
+				updateTable();
+				redrawTable();
+				updateListsAndPlot();
+			}
+		};
+		refreshAction.setText("Refresh table");
+		refreshAction.setImageDescriptor(Activator.getDefault().getWorkbench()
+				.getSharedImages()
+				.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
+		
+		openPreferencesAction = new Action() {
+			@Override
+			public void run() {
+				PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(
+						PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+								.getShell(), QStatMonitorPreferencePage.ID, null,
+						null);
+				if (pref != null) {
+					pref.open();
+				}
+			}
+		};
+		openPreferencesAction.setText("Preferences");
+		openPreferencesAction.setImageDescriptor(Activator.getDefault().getWorkbench()
+						.getSharedImages()
+						.getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
+	}
+
 	/*
-	 * Runs the Qstat query and stores the resulting items in relevant arrays,
+	 * Runs the QStat query and stores the resulting items in relevant arrays,
 	 * then calls the redrawing of the table.
 	 */
 	private final Job getQstatInfoJob = new Job("Fetching QStat Info") {
@@ -337,8 +374,8 @@ public class QStatMonitorView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-
 		// Create action bar and add actions to it
+		instantiateActions();
 		IActionBars bars = getViewSite().getActionBars();
 		bars.getMenuManager().add(openPreferencesAction);
 		bars.getToolBarManager().add(refreshAction);
@@ -346,9 +383,9 @@ public class QStatMonitorView extends ViewPart {
 		table = new Table(parent, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION);
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
-		for (int i = 0; i < titles.length; i++) {
+		for (int i = 0; i < tableColLabels.length; i++) {
 			TableColumn column = new TableColumn(table, SWT.NONE);
-			column.setText(titles[i]);
+			column.setText(tableColLabels[i]);
 		}
 
 		updateTable();
@@ -388,7 +425,7 @@ public class QStatMonitorView extends ViewPart {
 	 * without resizing
 	 */
 	private void packTable() {
-		for (int i = 0; i < titles.length; i++) {
+		for (int i = 0; i < tableColLabels.length; i++) {
 			table.getColumn(i).pack();
 		}
 	}
@@ -495,38 +532,6 @@ public class QStatMonitorView extends ViewPart {
 	 * ********************************
 	 */
 
-	class RefreshAction extends Action {
-		RefreshAction() {
-			setText("Refresh table");
-			setImageDescriptor(Activator.getDefault().getWorkbench()
-					.getSharedImages()
-					.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-		}
 
-		public void run() {
-			updateTable();
-			redrawTable();
-			updateListsAndPlot();
-		}
-	}
-
-	class OpenPreferencesAction extends Action {
-		OpenPreferencesAction() {
-			setText("Preferences");
-			setImageDescriptor(Activator.getDefault().getWorkbench()
-					.getSharedImages()
-					.getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
-		}
-
-		public void run() {
-			PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-							.getShell(), QStatMonitorPreferencePage.ID, null,
-					null);
-			if (pref != null) {
-				pref.open();
-			}
-		}
-	}
 
 }
