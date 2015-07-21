@@ -21,6 +21,9 @@ import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.SymbolicNode;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILazyTreeContentProvider;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ITreeSelection;
@@ -42,17 +45,19 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 
 import uk.ac.diamond.scisoft.analysis.io.NexusTreeUtils;
+import uk.ac.diamond.scisoft.analysis.rcp.adapters.HDF5Adaptable;
 
 /**
  * Class to contain a table-tree view of a HDF5 tree
  */
-public class HDF5TableTree extends Composite {
+public class HDF5TableTree extends Composite implements ISelectionProvider {
 
 	private TreeViewer tViewer = null;
 	private Listener clistener, slistener, dlistener;
 	private TreeFilter treeFilter;
 	private Menu headerMenu;
 	private Menu treeMenu;
+	private String filename;
 
 	private static final String MSG_ENABLED  = "Use this item as comparison value";
 	private static final String MSG_DISABLED = "Cannot use the item";
@@ -239,12 +244,47 @@ public class HDF5TableTree extends Composite {
 	/**
 	 * @return selection
 	 */
+	@Override
 	public IStructuredSelection getSelection() {
-		return (IStructuredSelection) tViewer.getSelection();
+		IStructuredSelection selection = (IStructuredSelection) tViewer.getSelection();
+		if (selection instanceof ITreeSelection) {
+			TreePath[] paths = ((ITreeSelection) selection).getPaths();
+			if (paths.length > 0) {
+				TreePath path = paths[0];
+				int n = path.getSegmentCount();
+				StringBuilder fullPath = new StringBuilder();
+				Object obj = null;
+				for (int i = 0; i < n; i++) {
+					obj = path.getSegment(i);
+					if (obj instanceof NodeLink) {
+						fullPath.append(Node.SEPARATOR);
+						fullPath.append(((NodeLink) obj).getName());
+					} else if (obj instanceof Attribute) {
+						fullPath.append(Node.ATTRIBUTE);
+						fullPath.append(((Attribute) obj).getName());
+					}
+				}
+				if (fullPath.length() > 0) {
+					return new HDF5TreeSelection(new HDF5Adaptable(filename, fullPath.toString(), obj));
+				}
+			}
+		}
+		return selection;
 	}
-	
-	public void setSelection(IStructuredSelection selection) {
-		tViewer.setSelection(selection);
+
+	@Override
+	public void addSelectionChangedListener(ISelectionChangedListener listener) {
+	}
+
+	@Override
+	public void removeSelectionChangedListener(ISelectionChangedListener listener) {
+	}
+
+	@Override
+	public void setSelection(ISelection selection) {
+		if (selection instanceof IStructuredSelection) {
+			tViewer.setSelection(selection);
+		}
 	}
 
 	public void expandAll() {
@@ -261,6 +301,10 @@ public class HDF5TableTree extends Composite {
 	
 	public TreePath[] getExpandedTreePaths() {
 		return tViewer.getExpandedTreePaths();
+	}
+
+	public void setFilename(String filename) {
+		this.filename = filename;
 	}
 
 }

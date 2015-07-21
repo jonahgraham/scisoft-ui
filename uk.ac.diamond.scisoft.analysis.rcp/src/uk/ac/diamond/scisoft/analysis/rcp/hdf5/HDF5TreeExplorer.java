@@ -21,6 +21,8 @@ import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
+import org.eclipse.dawnsci.analysis.api.tree.TreeAdaptable;
+import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -29,6 +31,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FillLayout;
@@ -109,9 +112,14 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 					handleDoubleClick();
 			}
 		}, contextListener);
-		initDragDrop(tableTree.getViewer());
+		initDragDrop(tableTree);
 		
 		cListeners = new HashSet<ISelectionChangedListener>();
+	}
+
+	@Override
+	protected Viewer getViewer() {
+		return tableTree.getViewer();
 	}
 
 	/**
@@ -175,14 +183,9 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 		try {
 			// check if selection is valid for plotting
-			if (selection != null) {
-				Object obj = selection.getFirstElement();
-				String metaName = null;
-				if (obj instanceof NodeLink) {
-					metaName = ((NodeLink) obj).getFullName();
-				} else if (obj instanceof Attribute) {
-					metaName = ((Attribute) obj).getFullName();
-				}
+			if (selection instanceof HDF5TreeSelection) {
+				TreeAdaptable adaptee = ((HDF5TreeSelection) selection).getAdaptee();
+				String metaName = adaptee.getNode();
 				if (metaName != null) {
 					SelectionChangedEvent ce = new SelectionChangedEvent(this, new MetadataSelection(metaName));
 					metaValueListener.selectionChanged(ce);
@@ -199,7 +202,15 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		SelectionChangedEvent e = new SelectionChangedEvent(this, selection);
 		for (ISelectionChangedListener s : cListeners) s.selectionChanged(e);
 	}
-	
+
+	private NodeLink processSelection(IStructuredSelection selection) {
+		if (selection instanceof HDF5TreeSelection) {
+			TreeAdaptable a = ((HDF5TreeSelection) selection).getAdaptee();
+			return a.getNodeLink();
+		}
+		return null;
+	}
+
 	private void handleDoubleClick() {
 		checkDataExplorePerspective();
 		final Cursor cursor = getCursor();
@@ -210,8 +221,8 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 		try {
 			// check if selection is valid for plotting
-			if (selection != null && selection.getFirstElement() instanceof NodeLink) {
-				NodeLink link = (NodeLink) selection.getFirstElement();
+			NodeLink link = processSelection(selection);
+			if (link != null) {
 				selectHDF5Node(link);
 			}
 		} catch (Exception e) {
@@ -364,6 +375,9 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			return;
 
 		tree = htree;
+		if (filename == null && tree instanceof TreeFile) {
+			filename = ((TreeFile) tree).getFilename();
+		}
 
 		if (display == null)
 			return;
@@ -371,6 +385,8 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
+				if (filename != null)
+					tableTree.setFilename(filename);
 				tableTree.setInput(tree.getNodeLink());
 				display.update();
 			}
@@ -434,6 +450,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	 */
 	public void setFilename(String fileName) {
 		filename = fileName;
+		tableTree.setFilename(fileName);
 	}
 
 	public HDF5TableTree getTableTree(){

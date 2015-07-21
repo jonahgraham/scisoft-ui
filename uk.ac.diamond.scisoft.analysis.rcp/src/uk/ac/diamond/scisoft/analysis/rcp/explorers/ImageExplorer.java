@@ -126,6 +126,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		}
 	}
 
+	@Override
 	public TableViewer getViewer() {
 		return viewer;
 	}

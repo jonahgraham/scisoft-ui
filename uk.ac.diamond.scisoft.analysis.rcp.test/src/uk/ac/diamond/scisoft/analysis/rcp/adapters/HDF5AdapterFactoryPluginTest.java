@@ -11,6 +11,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.adapters;
 
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.TreeAdaptable;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.junit.Assert;
@@ -25,11 +26,12 @@ import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippet
  */
 public class HDF5AdapterFactoryPluginTest {
 
-	private NodeLink createNodeLink() {
+	private TreeAdaptable createAdaptable() {
 		TreeFile file = TreeFactory.createTreeFile(123456, "/my/filename/here");
 		Node node = TreeFactory.createDataNode(234566);
 		NodeLink hdf5NodeLink = TreeFactory.createNodeLink(file, "/path", "/name", null, node);
-		return hdf5NodeLink;
+		HDF5Adaptable a = new HDF5Adaptable(file.getFilename(), hdf5NodeLink.getFullName(), hdf5NodeLink);
+		return a;
 	}
 
 	private void checkGenerator(IScriptConsoleCodeGenerator generator) {
@@ -41,14 +43,14 @@ public class HDF5AdapterFactoryPluginTest {
 	@Test
 	public void testHDF5NodeLinkAdaptsTo() {
 		IScriptConsoleCodeGenerator generator = PythonSnippetUtils
-				.getScriptConsoleCodeGeneratorAdapter(createNodeLink());
+				.getScriptConsoleCodeGeneratorAdapter(createAdaptable());
 		checkGenerator(generator);
 	}
 
 	@Test
 	public void testHDF5NodeLinkFactoryDirect() {
 		IScriptConsoleCodeGenerator generator = (IScriptConsoleCodeGenerator) new HDF5AdapterFactory().getAdapter(
-				createNodeLink(), IScriptConsoleCodeGenerator.class);
+				createAdaptable(), IScriptConsoleCodeGenerator.class);
 		checkGenerator(generator);
 	}
 

@@ -10,10 +10,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.adapters;
 
 import org.eclipse.core.runtime.IAdapterFactory;
-import org.eclipse.dawnsci.analysis.api.tree.Attribute;
-import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
-import org.eclipse.dawnsci.analysis.api.tree.Tree;
-import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
+import org.eclipse.dawnsci.analysis.api.tree.TreeAdaptable;
 import org.python.pydev.shared_interactive_console.console.codegen.IScriptConsoleCodeGenerator;
 import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippetUtils;
 
@@ -23,47 +20,22 @@ public class HDF5AdapterFactory implements IAdapterFactory {
 	@Override
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		if (adapterType == IScriptConsoleCodeGenerator.class) {
-			if (adaptableObject instanceof NodeLink) {
-				final NodeLink nodeLink = (NodeLink) adaptableObject;
-				final Tree tree = nodeLink.getTree();
-				if (!(tree instanceof TreeFile))
-					return null;
-
+			if (adaptableObject instanceof HDF5Adaptable) {
+				final TreeAdaptable adaptee = (TreeAdaptable) adaptableObject;
+	
 				return new IScriptConsoleCodeGenerator() {
-
+	
 					@Override
 					public String getPyCode() {
-						return "dnp.io.load("
-								+ PythonSnippetUtils.getSingleQuotedString(((TreeFile) tree).getFilename()) + ")["
-								+ PythonSnippetUtils.getSingleQuotedString(nodeLink.getFullName()) + "]";
+						return "dnp.io.load(" + PythonSnippetUtils.getSingleQuotedString(adaptee.getFile()) + ")["
+								+ PythonSnippetUtils.getSingleQuotedString(adaptee.getNode()) + "]";
 					}
-
+	
 					@Override
 					public boolean hasPyCode() {
 						return true;
 					}
 				};
-			} else if (adaptableObject instanceof Attribute) {
-				final Attribute attribute = (Attribute) adaptableObject;
-				final Tree tree = attribute.getTree();
-				if (!(tree instanceof TreeFile))
-					return null;
-
-				return new IScriptConsoleCodeGenerator() {
-
-					@Override
-					public String getPyCode() {
-						String filename = ((TreeFile) tree).getFilename();
-						return "dnp.io.load(" + PythonSnippetUtils.getSingleQuotedString(filename) + ")["
-								+ PythonSnippetUtils.getSingleQuotedString(attribute.getFullName()) + "]";
-					}
-
-					@Override
-					public boolean hasPyCode() {
-						return true;
-					}
-				};
-
 			}
 		}
 		return null;

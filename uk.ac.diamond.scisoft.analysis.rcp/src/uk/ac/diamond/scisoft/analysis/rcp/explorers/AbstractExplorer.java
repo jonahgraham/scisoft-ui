@@ -56,13 +56,15 @@ abstract public class AbstractExplorer extends Composite implements ISelectionPr
 		
 	}
 
-	protected void initDragDrop(final Viewer viewer) {
-		DragSource dragSource = new DragSource(viewer.getControl(), DND.DROP_COPY | DND.DROP_MOVE);
+	abstract protected Viewer getViewer();
+
+	protected void initDragDrop(final ISelectionProvider provider) {
+		DragSource dragSource = new DragSource(getViewer().getControl(), DND.DROP_COPY | DND.DROP_MOVE);
 		dragSource.addDragListener(new DragSourceListener() {
 			
 			@Override
 			public void dragStart(DragSourceEvent event) {
-		        ISelection selection = viewer.getSelection();
+		        ISelection selection = provider.getSelection();
 		        LocalSelectionTransfer.getTransfer().setSelection(selection);
 		        LocalSelectionTransfer.getTransfer().setSelectionSetTime(event.time & 0xFFFFFFFFL);
 		        event.doit = !selection.isEmpty();

@@ -109,6 +109,7 @@ public class TextDataExplorer extends AbstractExplorer implements ISelectionProv
 		}
 	}
 
+	@Override
 	public TableViewer getViewer() {
 		return viewer;
 	}
