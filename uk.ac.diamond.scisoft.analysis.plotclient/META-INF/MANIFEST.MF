@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Plot Client
 Bundle-SymbolicName: uk.ac.diamond.scisoft.analysis.plotclient;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: DLS
+Bundle-Vendor: Diamond Light Source
 Require-Bundle: org.eclipse.ui;bundle-version="3.8.2",
  uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis.xmlrpc;bundle-version="1.0.0",
