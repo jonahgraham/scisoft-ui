@@ -53,7 +53,7 @@ public class QStatMonitorView extends ViewPart {
 			"Job Name", "Owner", "State", "Submission Time", "Queue Name",
 			"Slots", "Tasks"};
 
-	// Table data
+	/* Table data */
 	private ArrayList<String> jobNumberList = new ArrayList<String>();
 	private ArrayList<String> priorityList = new ArrayList<String>();
 	private ArrayList<String> jobNameList = new ArrayList<String>();
@@ -64,13 +64,13 @@ public class QStatMonitorView extends ViewPart {
 	private ArrayList<String> slotsList = new ArrayList<String>();
 	private ArrayList<String> tasksList = new ArrayList<String>();
 
-	// Plot data
+	/* Plot data */
 	private ArrayList<Double> timeList = new ArrayList<Double>();
 	private ArrayList<Integer> suspendedList = new ArrayList<Integer>();
 	private ArrayList<Integer> runningList = new ArrayList<Integer>();
 	private ArrayList<Integer> queuedList = new ArrayList<Integer>();
 
-	// Preference values
+	/* Preference values */
 	private int sleepTimeMilli;
 	private String qStatQuery;
 	private String userArg;
@@ -78,11 +78,14 @@ public class QStatMonitorView extends ViewPart {
 
 	long startTime = System.nanoTime();
 
-	// Actions
+	/* Actions */
 	private Action refreshAction;
 	private Action openPreferencesAction;
-	
-	private TableUpdaterThread tableUpdaterThread;
+
+	/* Jobs */
+	private Job getQStatInfoJob;
+	private UIJob redrawTableJob;
+	private UIJob replotJob;
 
 	private void instantiateActions() {
 		refreshAction = new Action() {
@@ -97,100 +100,96 @@ public class QStatMonitorView extends ViewPart {
 		refreshAction.setImageDescriptor(Activator.getDefault().getWorkbench()
 				.getSharedImages()
 				.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-		
+
 		openPreferencesAction = new Action() {
 			@Override
 			public void run() {
-				PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(
-						PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-								.getShell(), QStatMonitorPreferencePage.ID, null,
-						null);
+				PreferenceDialog pref = PreferencesUtil
+						.createPreferenceDialogOn(PlatformUI.getWorkbench()
+								.getActiveWorkbenchWindow().getShell(),
+								QStatMonitorPreferencePage.ID, null, null);
 				if (pref != null) {
 					pref.open();
 				}
 			}
 		};
 		openPreferencesAction.setText("Preferences");
-		openPreferencesAction.setImageDescriptor(Activator.getDefault().getWorkbench()
-						.getSharedImages()
-						.getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
+		openPreferencesAction.setImageDescriptor(Activator.getDefault()
+				.getWorkbench().getSharedImages()
+				.getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
 	}
 
-	/*
-	 * Runs the QStat query and stores the resulting items in relevant arrays,
-	 * then calls the redrawing of the table.
-	 */
-	private final Job getQstatInfoJob = new Job("Fetching QStat Info") {
-		@Override
-		protected IStatus run(IProgressMonitor monitor) {
-			try {
-				ArrayList<String>[] lists = Utils.getTableLists(qStatQuery,
-						userArg);
-				jobNumberList = lists[0];
-				priorityList = lists[1];
-				jobNameList = lists[2];
-				ownerList = lists[3];
-				stateList = lists[4];
-				submissionTimeList = lists[5];
-				queueNameList = lists[6];
-				slotsList = lists[7];
-				tasksList = lists[8];
+	private void instantiateJobs() {
+		getQStatInfoJob = new Job("Fetching QStat Info") {
+			// Runs QStat query and stores resulting items in relevant arrays
+			// then calls the redrawing of the table
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					ArrayList<String>[] lists = Utils.getTableLists(qStatQuery,
+							userArg);
 
-				redrawTable();
-			} catch (StringIndexOutOfBoundsException e) {
-				stopThreadAndJobs();
-			} catch (NullPointerException npe) {
-				stopThreadAndJobs();
-				updateContentDescriptionError();
-			}
-			return Status.OK_STATUS;
-		}
-	};
+					jobNumberList = lists[0];
+					priorityList = lists[1];
+					jobNameList = lists[2];
+					ownerList = lists[3];
+					stateList = lists[4];
+					submissionTimeList = lists[5];
+					queueNameList = lists[6];
+					slotsList = lists[7];
+					tasksList = lists[8];
 
-	/*
-	 * removes all current items from the table, then adds the contents of the
-	 * arrays to the relevant columns, then packs the table
-	 */
-	private final UIJob redrawTableJob = new UIJob("Redrawing Table") {
-		@Override
-		public IStatus runInUIThread(IProgressMonitor monitor) {
-			try {
-				table.removeAll();
-				for (int i = 0; i < jobNumberList.size(); i++) {
-					TableItem item = new TableItem(table, SWT.NONE);
-					item.setText(0, jobNumberList.get(i));
-					item.setText(1, priorityList.get(i));
-					item.setText(2, jobNameList.get(i));
-					item.setText(3, ownerList.get(i));
-					item.setText(4, stateList.get(i));
-					item.setText(5, submissionTimeList.get(i));
-					item.setText(6, queueNameList.get(i));
-					item.setText(7, slotsList.get(i));
-					item.setText(8, tasksList.get(i));
+					redrawTable();
+				} catch (StringIndexOutOfBoundsException e) {
+					stopThreadAndJobs();
+				} catch (NullPointerException npe) {
+					stopThreadAndJobs();
+					updateContentDescriptionError();
 				}
-				packTable();
-				updateContentDescription();
-			} catch (SWTException e) {
-				stopThreadAndJobs();
+
+				return Status.OK_STATUS;
 			}
-			return Status.OK_STATUS;
-		}
-	};
+		};
 
-	private final UIJob replotJob = new UIJob("Replotting") {
-		@Override
-		public IStatus runInUIThread(IProgressMonitor monitor) {
-			plotResults();
-			return Status.OK_STATUS;
-		}
-	};
+		redrawTableJob = new UIJob("Redrawing Table") {
+			// Removes all current items from the table, then adds the contents
+			// of the
+			// arrays to the relevant columns, then packs the table
+			@Override
+			public IStatus runInUIThread(IProgressMonitor monitor) {
+				try {
+					table.removeAll();
+					for (int i = 0; i < jobNumberList.size(); i++) {
+						TableItem item = new TableItem(table, SWT.NONE);
+						item.setText(0, jobNumberList.get(i));
+						item.setText(1, priorityList.get(i));
+						item.setText(2, jobNameList.get(i));
+						item.setText(3, ownerList.get(i));
+						item.setText(4, stateList.get(i));
+						item.setText(5, submissionTimeList.get(i));
+						item.setText(6, queueNameList.get(i));
+						item.setText(7, slotsList.get(i));
+						item.setText(8, tasksList.get(i));
+					}
+					packTable();
+					updateContentDescription();
+				} catch (SWTException e) {
+					stopThreadAndJobs();
+				}
+				return Status.OK_STATUS;
+			}
+		};
 
-	private final Runnable setContentDescriptionOnError = new Runnable() {
-		@Override
-		public void run() {
-			setContentDescription("Inalid Qstat query entered.");
-		}
-	};
+		replotJob = new UIJob("Replotting") {
+			@Override
+			public IStatus runInUIThread(IProgressMonitor monitor) {
+				plotResults();
+				return Status.OK_STATUS;
+			}
+		};
+	}
+
+	private TableUpdaterThread tableUpdaterThread;
 
 	/*
 	 * Runs a loop which updates the table
@@ -380,6 +379,8 @@ public class QStatMonitorView extends ViewPart {
 		bars.getMenuManager().add(openPreferencesAction);
 		bars.getToolBarManager().add(refreshAction);
 
+		instantiateJobs();
+
 		table = new Table(parent, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION);
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
@@ -408,8 +409,8 @@ public class QStatMonitorView extends ViewPart {
 	 * schedules the getQstatInfoJob, cancelling it if it is already running
 	 */
 	public void updateTable() {
-		getQstatInfoJob.cancel();
-		getQstatInfoJob.schedule();
+		getQStatInfoJob.cancel();
+		getQStatInfoJob.schedule();
 	}
 
 	/**
@@ -447,12 +448,12 @@ public class QStatMonitorView extends ViewPart {
 		if (tableUpdaterThread != null) {
 			tableUpdaterThread.stopThread();
 		}
-		getQstatInfoJob.cancel();
+		getQStatInfoJob.cancel();
 		redrawTableJob.cancel();
 	}
 
 	/**
-	 * Updates the content description to show the number of tasks been
+	 * Updates content description to show number of tasks
 	 * displayed in the table
 	 */
 	private void updateContentDescription() {
@@ -464,9 +465,17 @@ public class QStatMonitorView extends ViewPart {
 		}
 	}
 
+	/**
+	 * Updates content description to indicate query is invalid
+	 */
 	private void updateContentDescriptionError() {
-		PlatformUI.getWorkbench().getDisplay()
-				.asyncExec(setContentDescriptionOnError);
+		// Ensures setContentDescription() executed on UI thread
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				setContentDescription("Invalid QStat query entered.");
+			}
+		});
 	}
 
 	/**
@@ -526,12 +535,5 @@ public class QStatMonitorView extends ViewPart {
 	public void setUserArg(String userID) {
 		userArg = userID;
 	}
-
-	/*
-	 * **************************************** ACTION
-	 * ********************************
-	 */
-
-
 
 }
