@@ -11,6 +11,8 @@ package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
 
 import java.util.Iterator;
 
+import org.dawb.common.ui.selection.SelectedTreeItemInfo;
+import org.dawb.common.ui.selection.SelectionUtils;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
@@ -241,6 +243,7 @@ public class HDF5TableTree extends Composite implements ISelectionProvider {
 		}
 	}
 
+
 	/**
 	 * @return selection
 	 */
@@ -248,25 +251,9 @@ public class HDF5TableTree extends Composite implements ISelectionProvider {
 	public IStructuredSelection getSelection() {
 		IStructuredSelection selection = (IStructuredSelection) tViewer.getSelection();
 		if (selection instanceof ITreeSelection) {
-			TreePath[] paths = ((ITreeSelection) selection).getPaths();
-			if (paths.length > 0) {
-				TreePath path = paths[0];
-				int n = path.getSegmentCount();
-				StringBuilder fullPath = new StringBuilder();
-				Object obj = null;
-				for (int i = 0; i < n; i++) {
-					obj = path.getSegment(i);
-					if (obj instanceof NodeLink) {
-						fullPath.append(Node.SEPARATOR);
-						fullPath.append(((NodeLink) obj).getName());
-					} else if (obj instanceof Attribute) {
-						fullPath.append(Node.ATTRIBUTE);
-						fullPath.append(((Attribute) obj).getName());
-					}
-				}
-				if (fullPath.length() > 0) {
-					return new HDF5TreeSelection(new HDF5Adaptable(filename, fullPath.toString(), obj));
-				}
+			SelectedTreeItemInfo[] results = SelectionUtils.parseAsTreeSelection((ITreeSelection) selection);
+			if (results.length > 0 && results[0].getNode() != null) {
+				return new HDF5TreeSelection(new HDF5Adaptable(filename, results[0].getNode(), results[0].getItem()));
 			}
 		}
 		return selection;

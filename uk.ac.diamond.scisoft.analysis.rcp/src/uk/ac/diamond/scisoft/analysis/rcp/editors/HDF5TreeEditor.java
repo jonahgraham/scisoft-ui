@@ -11,18 +11,19 @@ package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
 import java.io.File;
 
+import org.dawb.common.ui.selection.SelectedTreeItemInfo;
+import org.dawb.common.ui.selection.SelectionUtils;
 import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.IFileLoader;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
-import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
@@ -196,23 +197,16 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 
 			@Override
 			public void selectionChanged(final IWorkbenchPart part, final ISelection selection) {
-				if (selection instanceof IStructuredSelection) {
-					if (!selection.isEmpty()) {
-						final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
-						final Object element = structuredSelection.getFirstElement();
-						if (element instanceof NodeLink) {
-							NodeLink link = (NodeLink) element;
-							Tree tree = link.getTree();
-							if (!(tree instanceof TreeFile))
-								return;
-
-							String[] tmp = ((TreeFile) tree).getFilename().split("/");
-							String filename="";
-							if (tmp.length>0)
-								filename = tmp[tmp.length-1];
-							//update only the relevant hdf5editor
-							if(filename.equals(getSite().getPart().getTitle()))
-								update(part, link, structuredSelection);
+				if (selection instanceof ITreeSelection) {
+					ITreeSelection tSelection = (ITreeSelection) selection;
+					SelectedTreeItemInfo[] results = SelectionUtils.parseAsTreeSelection(tSelection);
+					if (results.length > 0) {
+						String filePath = results[0].getFile();
+						File f = new File(filePath);
+						String name = f.getName();
+						//update only the relevant hdf5editor
+						if (name.equals(getSite().getPart().getTitle())) {
+								update(part, (NodeLink) results[0].getItem(), tSelection);
 						}
 					}
 
@@ -234,7 +228,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 		selectionService.removeSelectionListener(selectionListener);
 	}
 
-	public void update(final IWorkbenchPart original, final NodeLink link, IStructuredSelection structuredSelection) {
+	public void update(final IWorkbenchPart original, final NodeLink link, ITreeSelection tSelection) {
 
 		// Make Display to wait until current focus event is finish, and then execute new focus event
 		Display.getDefault().asyncExec(new Runnable() {
@@ -258,9 +252,9 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 			
 			
 			
-			TreePath navTreePath1 = new TreePath(structuredSelection.toArray());
-			hdfxp.expandToLevel(navTreePath1,2);
-			hdfxp.setSelection(structuredSelection);
+			TreePath navTreePath1 = tSelection.getPaths()[0];
+			hdfxp.expandToLevel(navTreePath1, 2);
+			hdfxp.setSelection(tSelection);
 			//TreePath[] editorTreePaths=hdfxp.getExpandedTreePaths();
 
 			//hdfxp.setSelection(structuredSelection);

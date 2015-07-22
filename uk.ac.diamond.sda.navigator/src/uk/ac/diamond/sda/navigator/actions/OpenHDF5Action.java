@@ -9,17 +9,16 @@
 
 package uk.ac.diamond.sda.navigator.actions;
 
+import org.dawb.common.ui.selection.SelectedTreeItemInfo;
+import org.dawb.common.ui.selection.SelectionUtils;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
-import org.eclipse.dawnsci.analysis.api.tree.Tree;
-import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -30,7 +29,7 @@ import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 public class OpenHDF5Action extends Action {
 
 	private IWorkbenchPage page;
-	private NodeLink link;
+	private String filePath;
 	private ISelectionProvider provider;
 
 	/**
@@ -54,11 +53,13 @@ public class OpenHDF5Action extends Action {
 	@Override
 	public boolean isEnabled() {
 		ISelection selection = provider.getSelection();
-		if (!selection.isEmpty()) {
-			IStructuredSelection sSelection = (IStructuredSelection) selection;
-			if (sSelection.size() == 1 && sSelection.getFirstElement() instanceof NodeLink) {
-				link = ((NodeLink) sSelection.getFirstElement());
-				return true;
+		if (selection instanceof ITreeSelection) {
+			if (((ITreeSelection) selection).size() == 1) {
+				SelectedTreeItemInfo[] results = SelectionUtils.parseAsTreeSelection((ITreeSelection) selection);
+				if (results.length == 1) {
+					filePath = results[0].getFile();
+					return filePath != null;
+				}
 			}
 		}
 		return false;
@@ -70,12 +71,8 @@ public class OpenHDF5Action extends Action {
 	 */
 	@Override
 	public void run() {
-		Tree tree = link.getTree();
-		if (!(tree instanceof TreeFile))
-			return;
-		final String path = ((TreeFile) tree).getFilename();
 		IFileStore fileStore = EFS.getLocalFileSystem().getStore(new Path("/"));
-		fileStore = fileStore.getFileStore(new Path(path));
+		fileStore = fileStore.getFileStore(new Path(filePath));
 //		final IResource res = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
 //		IDE.openEditor(page, (IFile)res);
 //		EclipseUtils.openEditor((IFile)res);
