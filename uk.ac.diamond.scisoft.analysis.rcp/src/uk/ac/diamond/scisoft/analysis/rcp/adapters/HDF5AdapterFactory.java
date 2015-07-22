@@ -20,14 +20,18 @@ public class HDF5AdapterFactory implements IAdapterFactory {
 	@Override
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		if (adapterType == IScriptConsoleCodeGenerator.class) {
-			if (adaptableObject instanceof HDF5Adaptable) {
+			if (adaptableObject instanceof TreeAdaptable) {
 				final TreeAdaptable adaptee = (TreeAdaptable) adaptableObject;
-	
+				final String filename = adaptee.getFile();
+
+				if (filename == null || filename.isEmpty())
+					return null;
+
 				return new IScriptConsoleCodeGenerator() {
 	
 					@Override
 					public String getPyCode() {
-						return "dnp.io.load(" + PythonSnippetUtils.getSingleQuotedString(adaptee.getFile()) + ")["
+						return "dnp.io.load(" + PythonSnippetUtils.getSingleQuotedString(filename) + ")["
 								+ PythonSnippetUtils.getSingleQuotedString(adaptee.getNode()) + "]";
 					}
 	

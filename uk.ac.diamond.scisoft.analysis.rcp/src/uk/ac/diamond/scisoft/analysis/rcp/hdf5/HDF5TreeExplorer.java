@@ -16,7 +16,6 @@ import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.IFileLoader;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
-import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
@@ -377,6 +376,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		tree = htree;
 		if (filename == null && tree instanceof TreeFile) {
 			filename = ((TreeFile) tree).getFilename();
+			tableTree.setFilename(filename);
 		}
 
 		if (display == null)
@@ -385,8 +385,6 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				if (filename != null)
-					tableTree.setFilename(filename);
 				tableTree.setInput(tree.getNodeLink());
 				display.update();
 			}
