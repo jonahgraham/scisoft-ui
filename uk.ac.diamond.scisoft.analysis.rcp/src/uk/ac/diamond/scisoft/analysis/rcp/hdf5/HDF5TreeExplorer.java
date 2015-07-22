@@ -142,7 +142,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			return;
 		}
 
-		HDF5Selection s = HDF5Utils.createDatasetSelection(link);
+		HDF5Selection s = HDF5Utils.createDatasetSelection(filename, link);
 		if (s == null) {
 			logger.error("Could not process update of selected node: {}", link.getName());
 			return;

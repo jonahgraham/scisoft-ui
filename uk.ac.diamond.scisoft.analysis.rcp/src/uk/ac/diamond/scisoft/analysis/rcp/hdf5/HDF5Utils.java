@@ -20,8 +20,6 @@ import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
-import org.eclipse.dawnsci.analysis.api.tree.Tree;
-import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.slf4j.Logger;
@@ -40,10 +38,11 @@ public class HDF5Utils {
 	/**
 	 * Create a (HDF5) dataset selection from given node link. It defaults the inspector type
 	 * to a line and leaves file name null
+	 * @param filePath
 	 * @param link
 	 * @return HDF5 selection
 	 */
-	public static HDF5Selection createDatasetSelection(NodeLink link) {
+	public static HDF5Selection createDatasetSelection(String filePath, NodeLink link) {
 		Node node = link.getDestination();
 		DataNode dNode = null;
 		if (link.isDestinationGroup()) {
@@ -88,7 +87,7 @@ public class HDF5Utils {
 		if (dNode == null) return null;
 		if (!dNode.isAugmented()) {
 			try {
-				NexusTreeUtils.augmentNodeLink(link, true);
+				NexusTreeUtils.augmentNodeLink(filePath, link, true);
 			} catch (Exception e) {
 				logger.debug("Problem augmenting node: {}", link, e);
 			}
@@ -142,7 +141,6 @@ public class HDF5Utils {
 			if (shape[rank - 2] > 1) // only set image type in this case
 				itype = InspectorType.IMAGE;
 		}
-		Tree tree = link.getTree();
-		return new HDF5Selection(itype, tree instanceof TreeFile ? ((TreeFile) tree).getFilename() : null, link.getFullName(), axes, cData);
+		return new HDF5Selection(itype, filePath, link.getFullName(), axes, cData);
 	}
 }
