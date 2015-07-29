@@ -44,7 +44,6 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 	@Override
 	public void init(IWorkbench workbench) {
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
-		setDescription("Preferences for QStat Monitor.");
 	}
 
 	@Override
