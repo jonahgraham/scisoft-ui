@@ -50,7 +50,7 @@ public class QStatMonitorView extends ViewPart {
 	public static final String ID = "uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView";
 
 	private Table table;
-	private final String[] tableColLabels = {"Job Number", "Priority",
+	private static final String[] TABLE_COL_LABELS = {"Job Number", "Priority",
 			"Job Name", "Owner", "State", "Submission Time", "Queue Name",
 			"Slots", "Tasks"};
 
@@ -110,25 +110,16 @@ public class QStatMonitorView extends ViewPart {
 	@Override
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
-		doStuff();
-    }
-	
-	private void doStuff() {
 		updateTable();
-	}
+    }
 	
 	@Override
 	public void createPartControl(Composite parent) {
 		setupActionBar();
-
-		table = new Table(parent, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION);
-		table.setLinesVisible(true);
-		table.setHeaderVisible(true);
-		for (int i = 0; i < tableColLabels.length; i++) {
-			TableColumn column = new TableColumn(table, SWT.NONE);
-			column.setText(tableColLabels[i]);
-		}
+		setupTable(parent);
 	}
+	
+
 
 	private void instantiateActions() {
 		refreshAction = new Action() {
@@ -250,6 +241,20 @@ public class QStatMonitorView extends ViewPart {
 		IActionBars bars = getViewSite().getActionBars();
 		bars.getMenuManager().add(openPreferencesAction);
 		bars.getToolBarManager().add(refreshAction);
+	}
+	
+	/**
+	 * Creates table in view and fills column headings
+	 * @param parent
+	 */
+	private void setupTable(Composite parent) {
+		table = new Table(parent, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION);
+		table.setLinesVisible(true);
+		table.setHeaderVisible(true);
+		for (int i = 0; i < TABLE_COL_LABELS.length; i++) {
+			TableColumn column = new TableColumn(table, SWT.NONE);
+			column.setText(TABLE_COL_LABELS[i]);
+		}
 	}
 	
 	private TableUpdaterThread tableUpdaterThread;
@@ -446,7 +451,7 @@ public class QStatMonitorView extends ViewPart {
 	 * without resizing
 	 */
 	private void packTable() {
-		for (int i = 0; i < tableColLabels.length; i++) {
+		for (int i = 0; i < TABLE_COL_LABELS.length; i++) {
 			table.getColumn(i).pack();
 		}
 	}
