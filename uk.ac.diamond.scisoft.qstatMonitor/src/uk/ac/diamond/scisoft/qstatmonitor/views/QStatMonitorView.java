@@ -14,7 +14,9 @@ import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
@@ -29,6 +31,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
@@ -72,6 +75,7 @@ public class QStatMonitorView extends ViewPart {
 	private int sleepTimeMilli;
 	private String qStatQuery;
 	private String userArg;
+	private boolean refreshOption;
 	private boolean plotOption;
 
 	long startTime = System.nanoTime();
@@ -95,16 +99,22 @@ public class QStatMonitorView extends ViewPart {
 		instantiateJobs();
 		
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		
+
 		sleepTimeMilli = store.getInt(QStatMonitorPreferenceConstants.P_SLEEP) * 1000;
 		qStatQuery = store.getString(QStatMonitorPreferenceConstants.P_QUERY);
 		userArg = store.getString(QStatMonitorPreferenceConstants.P_USER);
-		if (!store.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH)) {
-			tableUpdaterThread = new TableUpdaterThread();
-			tableUpdaterThread.start();
-		}
-
-		plotOption = !store.getBoolean(QStatMonitorPreferenceConstants.P_PLOT);
+		refreshOption = !store.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH);
+		setPlotOption(!store.getBoolean(QStatMonitorPreferenceConstants.P_PLOT));
+	}
+	
+	@Override
+	public void init(IViewSite site) throws PartInitException {
+		super.init(site);
+		doStuff();
+    }
+	
+	private void doStuff() {
+		updateTable();
 	}
 	
 	@Override
@@ -118,21 +128,6 @@ public class QStatMonitorView extends ViewPart {
 			TableColumn column = new TableColumn(table, SWT.NONE);
 			column.setText(tableColLabels[i]);
 		}
-
-		updateTable();
-		redrawTable();
-
-		if (plotOption) {
-			try {
-				final PlotView view = (PlotView) EclipseUtils.getPage()
-						.showView(
-								"uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
-			} catch (PartInitException e) {
-				e.printStackTrace();
-			}
-			updateListsAndPlot();
-		}
-
 	}
 
 	private void instantiateActions() {
@@ -187,17 +182,28 @@ public class QStatMonitorView extends ViewPart {
 					slotsList = lists[7];
 					tasksList = lists[8];
 
-					redrawTable();
+					//redrawTable();
 				} catch (StringIndexOutOfBoundsException e) {
 					stopThreadAndJobs();
 				} catch (NullPointerException npe) {
 					stopThreadAndJobs();
 					updateContentDescriptionError();
 				}
-
+				
+				if (refreshOption) {
+					schedule(sleepTimeMilli);
+				}
+				
 				return Status.OK_STATUS;
 			}
 		};
+		getQStatInfoJob.addJobChangeListener(new JobChangeAdapter() {
+			@Override
+			public void done(IJobChangeEvent event) {
+				super.done(event);
+				redrawTableJob.schedule();
+			}
+		});
 
 		redrawTableJob = new UIJob("Redrawing Table") {
 			// Removes all current items from the table, then adds the contents
@@ -262,6 +268,7 @@ public class QStatMonitorView extends ViewPart {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+				
 				if (runCondition) {
 					updateTable();
 					if (plotOption) {
@@ -407,12 +414,22 @@ public class QStatMonitorView extends ViewPart {
 		}
 
 	}
-
+	
+	private void cancelJob(Job job) {
+		if (!job.cancel()) {
+			try {
+				job.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	/**
 	 * schedules the getQstatInfoJob, cancelling it if it is already running
 	 */
 	public void updateTable() {
-		getQStatInfoJob.cancel();
+		cancelJob(getQStatInfoJob);
 		getQStatInfoJob.schedule();
 	}
 
@@ -420,7 +437,7 @@ public class QStatMonitorView extends ViewPart {
 	 * schedules the redrawTableJob, cancelling it if it is already running
 	 */
 	private void redrawTable() {
-		redrawTableJob.cancel();
+		cancelJob(redrawTableJob);
 		redrawTableJob.schedule();
 	}
 
