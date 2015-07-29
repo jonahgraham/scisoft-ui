@@ -114,16 +114,12 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 			}
 			view.setQuery(queryField.getStringValue());
 			view.setUserArg(userField.getStringValue());
-			if (disableAutoRefresh.getBooleanValue()) {
-				view.stopRefreshing();
-			} else {
-				view.updateTable();
-				view.startRefreshing();
-			}
+			
+			view.setAutomaticRefresh(!disableAutoRefresh.getBooleanValue());
+			view.updateTable();
 
 			view.setPlotOption(!disableAutoPlot.getBooleanValue());
 			view.resetPlot();
-
 		}
 		return true;
 	}

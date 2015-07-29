@@ -175,9 +175,9 @@ public class QStatMonitorView extends ViewPart {
 
 					//redrawTable();
 				} catch (StringIndexOutOfBoundsException e) {
-					stopThreadAndJobs();
+					cancelAllJobs();
 				} catch (NullPointerException npe) {
-					stopThreadAndJobs();
+					cancelAllJobs();
 					updateContentDescriptionError();
 				}
 				
@@ -219,7 +219,7 @@ public class QStatMonitorView extends ViewPart {
 					packTable();
 					updateContentDescription();
 				} catch (SWTException e) {
-					stopThreadAndJobs();
+					cancelAllJobs();
 				}
 				return Status.OK_STATUS;
 			}
@@ -257,37 +257,6 @@ public class QStatMonitorView extends ViewPart {
 		}
 	}
 	
-	private TableUpdaterThread tableUpdaterThread;
-
-	/*
-	 * Runs a loop which updates the table
-	 */
-	private class TableUpdaterThread extends Thread {
-		private boolean runCondition = true;
-
-		@Override
-		public void run() {
-			while (runCondition) {
-				try {
-					sleep(sleepTimeMilli);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				
-				if (runCondition) {
-					updateTable();
-					if (plotOption) {
-						updateListsAndPlot();
-					}
-				}
-			}
-		}
-
-		public void stopThread() {
-			runCondition = false;
-		}
-	};
-
 	/**
 	 * Resets the time and clears the plot lists
 	 */
@@ -355,7 +324,7 @@ public class QStatMonitorView extends ViewPart {
 	}
 
 	/**
-	 * Calles updatePlotLists(), then schedules the replotJob
+	 * Calls updatePlotLists(), then schedules the replotJob
 	 */
 	private void updateListsAndPlot() {
 		updatePlotLists();
@@ -378,7 +347,7 @@ public class QStatMonitorView extends ViewPart {
 						.findView(
 								"uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
 			} catch (NullPointerException e) {
-				stopThreadAndJobs();
+				cancelAllJobs();
 			}
 
 			DoubleDataset timeDataset = (DoubleDataset) DoubleDataset
@@ -462,17 +431,15 @@ public class QStatMonitorView extends ViewPart {
 
 	@Override
 	public void dispose() {
-		stopThreadAndJobs();
+		cancelAllJobs();
 		super.dispose();
 	}
 
 	/**
-	 * stops the updaterThread, getQstatInfoJob and redrawTableJob
+	 * Stops all jobs
 	 */
-	private void stopThreadAndJobs() {
-		if (tableUpdaterThread != null) {
-			tableUpdaterThread.stopThread();
-		}
+	private void cancelAllJobs() {
+		// TODO: Have a look at JobManager
 		getQStatInfoJob.cancel();
 		redrawTableJob.cancel();
 	}
@@ -531,25 +498,9 @@ public class QStatMonitorView extends ViewPart {
 	public void setQuery(String query) {
 		qStatQuery = query;
 	}
-
-	/**
-	 * stops the updaterThread by setting its run condition to false
-	 */
-	public void stopRefreshing() {
-		if (tableUpdaterThread != null) {
-			tableUpdaterThread.stopThread();
-		}
-	}
-
-	/**
-	 * starts a new updaterThread, if one is already running it is stopped
-	 */
-	public void startRefreshing() {
-		if (tableUpdaterThread != null && tableUpdaterThread.isAlive()) {
-			tableUpdaterThread.stopThread();
-		}
-		tableUpdaterThread = new TableUpdaterThread();
-		tableUpdaterThread.start();
+	
+	public void setAutomaticRefresh(Boolean refresh) {
+		refreshOption = refresh;
 	}
 
 	/**
