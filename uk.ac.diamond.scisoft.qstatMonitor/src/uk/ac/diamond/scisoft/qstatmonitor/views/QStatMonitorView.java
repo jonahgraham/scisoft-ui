@@ -85,10 +85,10 @@ public class QStatMonitorView extends ViewPart {
 	private Action openPreferencesAction;
 
 	/* Jobs */
-	private Job getQStatInfoJob;
-	private UIJob redrawTableJob;
-	private UIJob replotJob;
-	
+	private Job fetchQStatInfoJob;
+	private UIJob fillTableJob;
+	private UIJob plotDataJob;
+
 	/**
 	 * Constructor
 	 * <p>
@@ -97,29 +97,28 @@ public class QStatMonitorView extends ViewPart {
 	public QStatMonitorView() {
 		instantiateActions();
 		instantiateJobs();
-		
+
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
 		sleepTimeMilli = store.getInt(QStatMonitorPreferenceConstants.P_SLEEP) * 1000;
 		qStatQuery = store.getString(QStatMonitorPreferenceConstants.P_QUERY);
 		userArg = store.getString(QStatMonitorPreferenceConstants.P_USER);
-		refreshOption = !store.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH);
+		refreshOption = !store
+				.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH);
 		setPlotOption(!store.getBoolean(QStatMonitorPreferenceConstants.P_PLOT));
 	}
-	
+
 	@Override
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
 		updateTable();
-    }
-	
+	}
+
 	@Override
 	public void createPartControl(Composite parent) {
 		setupActionBar();
 		setupTable(parent);
 	}
-	
-
 
 	private void instantiateActions() {
 		refreshAction = new Action() {
@@ -154,84 +153,17 @@ public class QStatMonitorView extends ViewPart {
 	}
 
 	private void instantiateJobs() {
-		getQStatInfoJob = new Job("Fetching QStat Info") {
-			// Runs QStat query and stores resulting items in relevant arrays
-			// then calls the redrawing of the table
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				try {
-					ArrayList<String>[] lists = Utils.getTableLists(qStatQuery,
-							userArg);
-
-					jobNumberList = lists[0];
-					priorityList = lists[1];
-					jobNameList = lists[2];
-					ownerList = lists[3];
-					stateList = lists[4];
-					submissionTimeList = lists[5];
-					queueNameList = lists[6];
-					slotsList = lists[7];
-					tasksList = lists[8];
-
-					//redrawTable();
-				} catch (StringIndexOutOfBoundsException e) {
-					cancelAllJobs();
-				} catch (NullPointerException npe) {
-					cancelAllJobs();
-					updateContentDescriptionError();
-				}
-				
-				if (refreshOption) {
-					schedule(sleepTimeMilli);
-				}
-				
-				return Status.OK_STATUS;
-			}
-		};
-		getQStatInfoJob.addJobChangeListener(new JobChangeAdapter() {
+		fetchQStatInfoJob = new FetchQStatInfoJob();
+		fetchQStatInfoJob.addJobChangeListener(new JobChangeAdapter() {
 			@Override
 			public void done(IJobChangeEvent event) {
 				super.done(event);
-				redrawTableJob.schedule();
+				fillTableJob.schedule();
 			}
 		});
 
-		redrawTableJob = new UIJob("Redrawing Table") {
-			// Removes all current items from the table, then adds the contents
-			// of the
-			// arrays to the relevant columns, then packs the table
-			@Override
-			public IStatus runInUIThread(IProgressMonitor monitor) {
-				try {
-					table.removeAll();
-					for (int i = 0; i < jobNumberList.size(); i++) {
-						TableItem item = new TableItem(table, SWT.NONE);
-						item.setText(0, jobNumberList.get(i));
-						item.setText(1, priorityList.get(i));
-						item.setText(2, jobNameList.get(i));
-						item.setText(3, ownerList.get(i));
-						item.setText(4, stateList.get(i));
-						item.setText(5, submissionTimeList.get(i));
-						item.setText(6, queueNameList.get(i));
-						item.setText(7, slotsList.get(i));
-						item.setText(8, tasksList.get(i));
-					}
-					packTable();
-					updateContentDescription();
-				} catch (SWTException e) {
-					cancelAllJobs();
-				}
-				return Status.OK_STATUS;
-			}
-		};
-
-		replotJob = new UIJob("Replotting") {
-			@Override
-			public IStatus runInUIThread(IProgressMonitor monitor) {
-				plotResults();
-				return Status.OK_STATUS;
-			}
-		};
+		fillTableJob = new FillTableJob();
+		plotDataJob = new PlotJob();
 	}
 
 	/**
@@ -242,9 +174,10 @@ public class QStatMonitorView extends ViewPart {
 		bars.getMenuManager().add(openPreferencesAction);
 		bars.getToolBarManager().add(refreshAction);
 	}
-	
+
 	/**
 	 * Creates table in view and fills column headings
+	 * 
 	 * @param parent
 	 */
 	private void setupTable(Composite parent) {
@@ -256,7 +189,7 @@ public class QStatMonitorView extends ViewPart {
 			column.setText(TABLE_COL_LABELS[i]);
 		}
 	}
-	
+
 	/**
 	 * Resets the time and clears the plot lists
 	 */
@@ -328,67 +261,10 @@ public class QStatMonitorView extends ViewPart {
 	 */
 	private void updateListsAndPlot() {
 		updatePlotLists();
-		replotJob.cancel();
-		replotJob.schedule();
+		plotDataJob.cancel();
+		plotDataJob.schedule();
 	}
 
-	/**
-	 * Plots the plot list values to the plot view
-	 */
-	private void plotResults() {
-		if (!timeList.isEmpty()) {
-
-			PlotView view = null;
-			try {
-				view = (PlotView) PlatformUI
-						.getWorkbench()
-						.getActiveWorkbenchWindow()
-						.getActivePage()
-						.findView(
-								"uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
-			} catch (NullPointerException e) {
-				cancelAllJobs();
-			}
-
-			DoubleDataset timeDataset = (DoubleDataset) DoubleDataset
-					.createFromList(timeList);
-			timeDataset.setName("Time (mins)");
-
-			Dataset suspendedDataset = IntegerDataset
-					.createFromList(suspendedList);
-			suspendedDataset.setName("Suspended");
-
-			Dataset queuedDataset = IntegerDataset.createFromList(queuedList);
-			queuedDataset.setName("Queued");
-
-			Dataset runningDataset = IntegerDataset.createFromList(runningList);
-			runningDataset.setName("Running");
-
-			Dataset[] datasetArr = {suspendedDataset, queuedDataset,
-					runningDataset};
-
-			// ArrayList<Dataset> list = new ArrayList<Dataset>();
-			// list.add(suspendedDataset);
-			// list.add(queuedDataset);
-			// list.add(runningDataset);
-
-			if (view != null) {
-				try {
-					SDAPlotter.plot("QStat Monitor Plot", timeDataset,
-							datasetArr);
-					// SDAPlotter.plot("QStat Monitor Plot", timeDataset,
-					// list.toArray(new Dataset[3]));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			} else {
-				System.out.println("nulll");
-			}
-
-		}
-
-	}
-	
 	private void cancelJob(Job job) {
 		if (!job.cancel()) {
 			try {
@@ -398,31 +274,21 @@ public class QStatMonitorView extends ViewPart {
 			}
 		}
 	}
-	
+
 	/**
 	 * schedules the getQstatInfoJob, cancelling it if it is already running
 	 */
 	public void updateTable() {
-		cancelJob(getQStatInfoJob);
-		getQStatInfoJob.schedule();
+		cancelJob(fetchQStatInfoJob);
+		fetchQStatInfoJob.schedule();
 	}
 
 	/**
 	 * schedules the redrawTableJob, cancelling it if it is already running
 	 */
 	private void redrawTable() {
-		cancelJob(redrawTableJob);
-		redrawTableJob.schedule();
-	}
-
-	/**
-	 * Packs each column of the table so that all titles and items are visible
-	 * without resizing
-	 */
-	private void packTable() {
-		for (int i = 0; i < TABLE_COL_LABELS.length; i++) {
-			table.getColumn(i).pack();
-		}
+		cancelJob(fillTableJob);
+		fillTableJob.schedule();
 	}
 
 	@Override
@@ -440,13 +306,14 @@ public class QStatMonitorView extends ViewPart {
 	 */
 	private void cancelAllJobs() {
 		// TODO: Have a look at JobManager
-		getQStatInfoJob.cancel();
-		redrawTableJob.cancel();
+		fetchQStatInfoJob.cancel();
+		fillTableJob.cancel();
+		plotDataJob.cancel();
 	}
 
 	/**
-	 * Updates content description to show number of tasks
-	 * displayed in the table
+	 * Updates content description to show number of tasks displayed in the
+	 * table
 	 */
 	private void updateContentDescription() {
 		int numItems = jobNumberList.size();
@@ -498,7 +365,7 @@ public class QStatMonitorView extends ViewPart {
 	public void setQuery(String query) {
 		qStatQuery = query;
 	}
-	
+
 	public void setAutomaticRefresh(Boolean refresh) {
 		refreshOption = refresh;
 	}
@@ -510,6 +377,183 @@ public class QStatMonitorView extends ViewPart {
 	 */
 	public void setUserArg(String userID) {
 		userArg = userID;
+	}
+
+	/**
+	 * Runs QStat query and stores retrieved items in corresponding arrays
+	 */
+	class FetchQStatInfoJob extends Job {
+
+		public FetchQStatInfoJob() {
+			super("Fetching QStat Info");
+		}
+
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			try {
+				getQStatInfo();
+			} catch (StringIndexOutOfBoundsException e) {
+				cancelAllJobs();
+			} catch (NullPointerException npe) {
+				cancelAllJobs();
+				updateContentDescriptionError();
+			}
+
+			// Reschedule job if automatic refresh enabled
+			if (refreshOption) {
+				schedule(sleepTimeMilli);
+			}
+
+			return Status.OK_STATUS;
+		}
+		
+		private void getQStatInfo() {
+			ArrayList<String>[] lists = Utils.getTableLists(qStatQuery,
+					userArg);
+
+			jobNumberList = lists[0];
+			priorityList = lists[1];
+			jobNameList = lists[2];
+			ownerList = lists[3];
+			stateList = lists[4];
+			submissionTimeList = lists[5];
+			queueNameList = lists[6];
+			slotsList = lists[7];
+			tasksList = lists[8];
+		}
+
+	}
+
+	/**
+	 * Removes all current items from the table, then adds the contents of the
+	 * arrays to the relevant columns, then packs the table
+	 */
+	class FillTableJob extends UIJob {
+
+		public FillTableJob() {
+			super("Drawing Table");
+		}
+
+		@Override
+		public IStatus runInUIThread(IProgressMonitor monitor) {
+			try {
+				table.removeAll();
+				fillTable();
+				packTable();
+				updateContentDescription();
+			} catch (SWTException e) {
+				cancelAllJobs();
+			}
+			return Status.OK_STATUS;
+		}
+		
+		private void fillTable() {
+			for (int i = 0; i < jobNumberList.size(); i++) {
+				TableItem item = new TableItem(table, SWT.NONE);
+				item.setText(0, jobNumberList.get(i));
+				item.setText(1, priorityList.get(i));
+				item.setText(2, jobNameList.get(i));
+				item.setText(3, ownerList.get(i));
+				item.setText(4, stateList.get(i));
+				item.setText(5, submissionTimeList.get(i));
+				item.setText(6, queueNameList.get(i));
+				item.setText(7, slotsList.get(i));
+				item.setText(8, tasksList.get(i));
+			}
+		}
+		
+		/**
+		 * Packs each column of the table so that all titles and items are visible
+		 * without resizing
+		 */
+		private void packTable() {
+			for (int i = 0; i < TABLE_COL_LABELS.length; i++) {
+				table.getColumn(i).pack();
+			}
+		}
+
+	}
+	
+	class PlotJob extends UIJob {
+		
+		public PlotJob() {
+			super("Plotting Graph");
+		}
+		
+		@Override
+		public IStatus runInUIThread(IProgressMonitor monitor) {
+			plotResults();
+			return Status.OK_STATUS;
+		}
+				
+		/**
+		 * Plots the plot list values to the plot view
+		 */
+		private void plotResults() {
+			if (!timeList.isEmpty()) {
+				PlotView view = getPlotView();
+				
+				DoubleDataset timeDataset = (DoubleDataset) DoubleDataset
+						.createFromList(timeList);
+				timeDataset.setName("Time (mins)");
+				
+				Dataset[] datasetArr = getDataToPlot();
+
+				//TODO: Investigate - if view is null then job should be cancelled
+				if (view != null) {
+					plotData(timeDataset, datasetArr);
+				} else {
+					//TODO: Perhaps more descriptive message
+					System.out.println("nulll");
+				}
+			}
+		}
+		
+		private PlotView getPlotView() {
+			PlotView view = null;
+			
+			try {
+				view = (PlotView) PlatformUI
+						.getWorkbench()
+						.getActiveWorkbenchWindow()
+						.getActivePage()
+						.findView(
+								"uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
+			} catch (NullPointerException e) {
+				//TODO: Do we want to cancel QStatJob as well?
+				//cancelAllJobs();
+				cancel();
+			}
+			
+			return view;
+		}
+		
+		private Dataset getIntegerDataset(ArrayList<Integer> list, String name) {
+			Dataset dataset = IntegerDataset.createFromList(list);
+			dataset.setName(name);
+			return dataset;
+		}
+		
+		private Dataset[] getDataToPlot() {
+			Dataset suspendedDataset = getIntegerDataset(suspendedList, "Suspended");
+			Dataset queuedDataset = getIntegerDataset(queuedList, "Queued");
+			Dataset runningDataset = getIntegerDataset(runningList, "Running");
+
+			Dataset[] datasetArr = {suspendedDataset, queuedDataset,
+					runningDataset};
+			
+			return datasetArr;
+		}
+		
+		private void plotData(DoubleDataset timeDataset, Dataset[] datasetArr) {
+			try {
+				SDAPlotter.plot("QStat Monitor Plot", timeDataset,
+						datasetArr);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
 	}
 
 }
