@@ -125,7 +125,7 @@ public class QStatMonitorView extends ViewPart {
 			@Override
 			public void run() {
 				updateTable();
-				redrawTable();
+				//redrawTable();
 				updateListsAndPlot();
 			}
 		};
@@ -208,11 +208,9 @@ public class QStatMonitorView extends ViewPart {
 	 */
 	public void setPlotOption(boolean option) {
 		this.plotOption = option;
-		if (option) {
+		if (plotOption) {
 			try {
-				final PlotView view = (PlotView) EclipseUtils.getPage()
-						.showView(
-								"uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
+				EclipseUtils.getPage().showView("uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
 			} catch (PartInitException e) {
 				e.printStackTrace();
 			}

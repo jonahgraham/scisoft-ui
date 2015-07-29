@@ -9,7 +9,6 @@
 package uk.ac.diamond.scisoft.qstatmonitor.preferences;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
-import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
@@ -17,6 +16,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
@@ -49,6 +49,16 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 
 	@Override
 	protected void createFieldEditors() {
+		Label lblRefreshInterval = new Label(getFieldEditorParent(), SWT.READ_ONLY);
+		lblRefreshInterval.setText("Refresh interval (seconds)");
+		
+		Spinner spnRefreshInterval = new Spinner(getFieldEditorParent(), SWT.READ_ONLY | SWT.BORDER);
+		spnRefreshInterval.setDigits(1);
+		spnRefreshInterval.setIncrement(5);
+		spnRefreshInterval.setMinimum(20);
+		spnRefreshInterval.setMaximum(Integer.MAX_VALUE);
+		spnRefreshInterval.setSelection((int) (QStatMonitorPreferenceConstants.DEF_SLEEP * 10));
+		
 
 		sleepSecondsField = new StringFieldEditor(
 				QStatMonitorPreferenceConstants.P_SLEEP,
