@@ -84,13 +84,13 @@ public class QStatMonitorView extends ViewPart {
 	long startTime = System.nanoTime();
 
 	/* Actions */
-	private Action refreshAction;
-	private Action openPreferencesAction;
+	private Action refreshAction = new RefreshAction();
+	private Action openPreferencesAction = new OpenPreferencesAction();
 
 	/* Jobs */
-	private Job fetchQStatInfoJob;
-	private UIJob fillTableJob;
-	private UIJob plotDataJob;
+	private Job fetchQStatInfoJob = new FetchQStatInfoJob();
+	private UIJob fillTableJob = new FillTableJob();
+	private UIJob plotDataJob = new PlotDataJob();
 
 	private IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {
 		public void propertyChange(PropertyChangeEvent event) {
@@ -118,16 +118,20 @@ public class QStatMonitorView extends ViewPart {
 		}
 	};
 
-	public QStatMonitorView() {
-		// TODO: Better to instantiate on declaration
-		instantiateActions();
-		instantiateJobs();
-	}
-
 	@Override
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
+		
+		// On completion of FetchQStatInfoJob, schedules FillTableJob
+		fetchQStatInfoJob.addJobChangeListener(new JobChangeAdapter() {
+			@Override
+			public void done(IJobChangeEvent event) {
+				super.done(event);
+				fillTableJob.schedule();
+			}
+		});
 
+		// Initialise preference variables and establish callback on-change
 		IPreferenceStore preferenceStore = Activator.getDefault()
 				.getPreferenceStore();
 		initialisePreferenceVariables(preferenceStore);
@@ -140,52 +144,6 @@ public class QStatMonitorView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		setupActionBar();
 		setupTable(parent);
-	}
-
-	private void instantiateActions() {
-		refreshAction = new Action() {
-			@Override
-			public void run() {
-				updateTable();
-				// redrawTable();
-				updateListsAndPlot();
-			}
-		};
-		refreshAction.setText("Refresh table");
-		refreshAction.setImageDescriptor(Activator.getDefault().getWorkbench()
-				.getSharedImages()
-				.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		openPreferencesAction = new Action() {
-			@Override
-			public void run() {
-				PreferenceDialog pref = PreferencesUtil
-						.createPreferenceDialogOn(PlatformUI.getWorkbench()
-								.getActiveWorkbenchWindow().getShell(),
-								QStatMonitorPreferencePage.ID, null, null);
-				if (pref != null) {
-					pref.open();
-				}
-			}
-		};
-		openPreferencesAction.setText("Preferences");
-		openPreferencesAction.setImageDescriptor(Activator.getDefault()
-				.getWorkbench().getSharedImages()
-				.getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
-	}
-
-	private void instantiateJobs() {
-		fetchQStatInfoJob = new FetchQStatInfoJob();
-		fetchQStatInfoJob.addJobChangeListener(new JobChangeAdapter() {
-			@Override
-			public void done(IJobChangeEvent event) {
-				super.done(event);
-				fillTableJob.schedule();
-			}
-		});
-
-		fillTableJob = new FillTableJob();
-		plotDataJob = new PlotJob();
 	}
 
 	/**
@@ -478,9 +436,9 @@ public class QStatMonitorView extends ViewPart {
 
 	}
 
-	class PlotJob extends UIJob {
+	class PlotDataJob extends UIJob {
 
-		public PlotJob() {
+		public PlotDataJob() {
 			super("Plotting Graph");
 		}
 
@@ -561,4 +519,38 @@ public class QStatMonitorView extends ViewPart {
 
 	}
 
+	class RefreshAction extends Action {
+		RefreshAction() {
+			setText("Refresh table");
+			setImageDescriptor(Activator.getDefault().getWorkbench()
+					.getSharedImages()
+					.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
+		}
+
+		public void run() {
+			updateTable();
+			//redrawTable();
+			updateListsAndPlot();
+		}
+	}
+
+	class OpenPreferencesAction extends Action {
+		OpenPreferencesAction() {
+			setText("Preferences");
+			setImageDescriptor(Activator.getDefault().getWorkbench()
+					.getSharedImages()
+					.getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
+		}
+
+		public void run() {
+			PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+							.getShell(), QStatMonitorPreferencePage.ID, null,
+					null);
+			if (pref != null) {
+				pref.open();
+			}
+		}
+	}
+	
 }
