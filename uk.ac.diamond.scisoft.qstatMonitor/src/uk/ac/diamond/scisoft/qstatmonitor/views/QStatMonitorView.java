@@ -23,6 +23,8 @@ import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Composite;
@@ -41,6 +43,7 @@ import org.eclipse.ui.progress.UIJob;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.qstatmonitor.Activator;
+import uk.ac.diamond.scisoft.qstatmonitor.Logger;
 import uk.ac.diamond.scisoft.qstatmonitor.api.Utils;
 import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferenceConstants;
 import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage;
@@ -89,28 +92,47 @@ public class QStatMonitorView extends ViewPart {
 	private UIJob fillTableJob;
 	private UIJob plotDataJob;
 
-	/**
-	 * Constructor
-	 * <p>
-	 * Gets preference values from the preference store
-	 */
+	private IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {
+		public void propertyChange(PropertyChangeEvent event) {
+			Logger.log(ID, "propertyChange()");
+			if (event.getProperty().equals(
+					QStatMonitorPreferenceConstants.P_SLEEP)) {
+				setSleepTimeSecs((float) event.getNewValue());
+			} else if (event.getProperty().equals(
+					QStatMonitorPreferenceConstants.P_QUERY)) {
+				qStatQuery = String.valueOf(event.getNewValue());
+			} else if (event.getProperty().equals(
+					QStatMonitorPreferenceConstants.P_USER)) {
+				userArg = String.valueOf(event.getNewValue());
+			} else if (event.getProperty().equals(
+					QStatMonitorPreferenceConstants.P_REFRESH)) {
+				refreshOption = !Boolean.parseBoolean(String.valueOf(event
+						.getNewValue()));
+			} else if (event.getProperty().equals(
+					QStatMonitorPreferenceConstants.P_PLOT)) {
+				setPlotOption(!Boolean.parseBoolean(String.valueOf(event
+						.getNewValue())));
+			} else {
+				// TODO: Should an exception be thrown here?
+			}
+		}
+	};
+
 	public QStatMonitorView() {
+		// TODO: Better to instantiate on declaration
 		instantiateActions();
 		instantiateJobs();
-
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-
-		sleepTimeMilli = store.getInt(QStatMonitorPreferenceConstants.P_SLEEP) * 1000;
-		qStatQuery = store.getString(QStatMonitorPreferenceConstants.P_QUERY);
-		userArg = store.getString(QStatMonitorPreferenceConstants.P_USER);
-		refreshOption = !store
-				.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH);
-		setPlotOption(!store.getBoolean(QStatMonitorPreferenceConstants.P_PLOT));
 	}
 
 	@Override
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
+
+		IPreferenceStore preferenceStore = Activator.getDefault()
+				.getPreferenceStore();
+		initialisePreferenceVariables(preferenceStore);
+		preferenceStore.addPropertyChangeListener(preferenceListener);
+
 		updateTable();
 	}
 
@@ -125,7 +147,7 @@ public class QStatMonitorView extends ViewPart {
 			@Override
 			public void run() {
 				updateTable();
-				//redrawTable();
+				// redrawTable();
 				updateListsAndPlot();
 			}
 		};
@@ -164,6 +186,21 @@ public class QStatMonitorView extends ViewPart {
 
 		fillTableJob = new FillTableJob();
 		plotDataJob = new PlotJob();
+	}
+
+	/**
+	 * Initialise preference variables with values from preference store
+	 * 
+	 * @param store
+	 */
+	private void initialisePreferenceVariables(IPreferenceStore store) {
+		setSleepTimeSecs(store
+				.getFloat(QStatMonitorPreferenceConstants.P_SLEEP));
+		qStatQuery = store.getString(QStatMonitorPreferenceConstants.P_QUERY);
+		userArg = store.getString(QStatMonitorPreferenceConstants.P_USER);
+		refreshOption = !store
+				.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH);
+		setPlotOption(!store.getBoolean(QStatMonitorPreferenceConstants.P_PLOT));
 	}
 
 	/**
@@ -210,7 +247,8 @@ public class QStatMonitorView extends ViewPart {
 		this.plotOption = option;
 		if (plotOption) {
 			try {
-				EclipseUtils.getPage().showView("uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
+				EclipseUtils.getPage().showView(
+						"uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
 			} catch (PartInitException e) {
 				e.printStackTrace();
 			}
@@ -341,7 +379,7 @@ public class QStatMonitorView extends ViewPart {
 	 * @param seconds
 	 *            new value in seconds
 	 */
-	public void setSleepTimeSecs(double seconds) {
+	public void setSleepTimeSecs(float seconds) {
 		sleepTimeMilli = (int) Math.round(seconds * 1000);
 	}
 
@@ -404,10 +442,10 @@ public class QStatMonitorView extends ViewPart {
 
 			return Status.OK_STATUS;
 		}
-		
+
 		private void getQStatInfo() {
-			ArrayList<String>[] lists = Utils.getTableLists(qStatQuery,
-					userArg);
+			ArrayList<String>[] lists = Utils
+					.getTableLists(qStatQuery, userArg);
 
 			jobNumberList = lists[0];
 			priorityList = lists[1];
@@ -444,7 +482,7 @@ public class QStatMonitorView extends ViewPart {
 			}
 			return Status.OK_STATUS;
 		}
-		
+
 		private void fillTable() {
 			for (int i = 0; i < jobNumberList.size(); i++) {
 				TableItem item = new TableItem(table, SWT.NONE);
@@ -459,10 +497,10 @@ public class QStatMonitorView extends ViewPart {
 				item.setText(8, tasksList.get(i));
 			}
 		}
-		
+
 		/**
-		 * Packs each column of the table so that all titles and items are visible
-		 * without resizing
+		 * Packs each column of the table so that all titles and items are
+		 * visible without resizing
 		 */
 		private void packTable() {
 			for (int i = 0; i < TABLE_COL_LABELS.length; i++) {
@@ -471,45 +509,46 @@ public class QStatMonitorView extends ViewPart {
 		}
 
 	}
-	
+
 	class PlotJob extends UIJob {
-		
+
 		public PlotJob() {
 			super("Plotting Graph");
 		}
-		
+
 		@Override
 		public IStatus runInUIThread(IProgressMonitor monitor) {
 			plotResults();
 			return Status.OK_STATUS;
 		}
-				
+
 		/**
 		 * Plots the plot list values to the plot view
 		 */
 		private void plotResults() {
 			if (!timeList.isEmpty()) {
 				PlotView view = getPlotView();
-				
+
 				DoubleDataset timeDataset = (DoubleDataset) DoubleDataset
 						.createFromList(timeList);
 				timeDataset.setName("Time (mins)");
-				
+
 				Dataset[] datasetArr = getDataToPlot();
 
-				//TODO: Investigate - if view is null then job should be cancelled
+				// TODO: Investigate - if view is null then job should be
+				// cancelled
 				if (view != null) {
 					plotData(timeDataset, datasetArr);
 				} else {
-					//TODO: Perhaps more descriptive message
+					// TODO: Perhaps more descriptive message
 					System.out.println("nulll");
 				}
 			}
 		}
-		
+
 		private PlotView getPlotView() {
 			PlotView view = null;
-			
+
 			try {
 				view = (PlotView) PlatformUI
 						.getWorkbench()
@@ -518,40 +557,40 @@ public class QStatMonitorView extends ViewPart {
 						.findView(
 								"uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
 			} catch (NullPointerException e) {
-				//TODO: Do we want to cancel QStatJob as well?
-				//cancelAllJobs();
+				// TODO: Do we want to cancel QStatJob as well?
+				// cancelAllJobs();
 				cancel();
 			}
-			
+
 			return view;
 		}
-		
+
 		private Dataset getIntegerDataset(ArrayList<Integer> list, String name) {
 			Dataset dataset = IntegerDataset.createFromList(list);
 			dataset.setName(name);
 			return dataset;
 		}
-		
+
 		private Dataset[] getDataToPlot() {
-			Dataset suspendedDataset = getIntegerDataset(suspendedList, "Suspended");
+			Dataset suspendedDataset = getIntegerDataset(suspendedList,
+					"Suspended");
 			Dataset queuedDataset = getIntegerDataset(queuedList, "Queued");
 			Dataset runningDataset = getIntegerDataset(runningList, "Running");
 
 			Dataset[] datasetArr = {suspendedDataset, queuedDataset,
 					runningDataset};
-			
+
 			return datasetArr;
 		}
-		
+
 		private void plotData(DoubleDataset timeDataset, Dataset[] datasetArr) {
 			try {
-				SDAPlotter.plot("QStat Monitor Plot", timeDataset,
-						datasetArr);
+				SDAPlotter.plot("QStat Monitor Plot", timeDataset, datasetArr);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 	}
 
 }

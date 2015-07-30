@@ -8,9 +8,6 @@
  */
 package uk.ac.diamond.scisoft.qstatmonitor.preferences;
 
-import org.eclipse.core.runtime.ILog;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -23,10 +20,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.scisoft.qstatmonitor.Activator;
-import uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView;
 
 public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 		implements
@@ -41,7 +36,6 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 	private BooleanFieldEditor disableAutoRefresh;
 	private BooleanFieldEditor disableAutoPlot;
 
-
 	public QStatMonitorPreferencePage() {
 		super(GRID);
 	}
@@ -53,12 +47,12 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 
 	@Override
 	protected void createFieldEditors() {
-		IPreferenceStore preferences = Activator.getDefault().getPreferenceStore();
+		IPreferenceStore preferences = Activator.getDefault()
+				.getPreferenceStore();
 
 		Label lblRefreshInterval = new Label(getFieldEditorParent(),
 				SWT.READ_ONLY);
 		lblRefreshInterval.setText("Refresh interval (seconds)");
-
 
 		spnRefreshInterval = new Spinner(getFieldEditorParent(), SWT.READ_ONLY
 				| SWT.BORDER);
@@ -111,33 +105,14 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 				"Show tasks by this user", getFieldEditorParent());
 		addField(userField);
 	}
-	// TODO: Replace with PropertyChangeListener, use PreferenceStore
+
 	@Override
 	public boolean performOk() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		store.setValue(QStatMonitorPreferenceConstants.P_SLEEP,
-				spnRefreshInterval.getText());
+				Float.parseFloat(spnRefreshInterval.getText()));
 
-		super.performOk();
-
-		// update qstat view variables for new query and sleep time
-		QStatMonitorView view = (QStatMonitorView) PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getActivePage()
-				.findView(QStatMonitorView.ID);
-		if (view != null) { // then view is open
-			view.setSleepTimeSecs(Double.parseDouble(spnRefreshInterval
-					.getText()));
-
-			view.setQuery(queryField.getStringValue());
-			view.setUserArg(userField.getStringValue());
-
-			view.setAutomaticRefresh(!disableAutoRefresh.getBooleanValue());
-			view.updateTable();
-
-			view.setPlotOption(!disableAutoPlot.getBooleanValue());
-			view.resetPlot();
-		}
-		return true;
+		return super.performOk();
 	}
 
 }
