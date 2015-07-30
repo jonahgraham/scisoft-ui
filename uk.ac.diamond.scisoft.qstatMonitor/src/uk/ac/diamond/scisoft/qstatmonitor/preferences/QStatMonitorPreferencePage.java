@@ -140,9 +140,4 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 		return true;
 	}
 
-	public void log(String msg) {
-		ILog logger = Activator.getDefault().getLog();
-		logger.log(new Status(IStatus.INFO, ID, msg));
-	}
-
 }
