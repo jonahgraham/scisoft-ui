@@ -8,13 +8,14 @@
  */
 package uk.ac.diamond.scisoft.qstatmonitor.preferences;
 
+import org.eclipse.core.runtime.ILog;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Combo;
@@ -34,13 +35,12 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 	public static final String ID = "uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage";
 
 	private Combo queryDropDown;
-	//private StringFieldEditor sleepSecondsField;
+	private Spinner spnRefreshInterval;
 	private StringFieldEditor queryField;
 	private StringFieldEditor userField;
 	private BooleanFieldEditor disableAutoRefresh;
 	private BooleanFieldEditor disableAutoPlot;
-	
-	private Spinner spnRefreshInterval;
+
 
 	public QStatMonitorPreferencePage() {
 		super(GRID);
@@ -52,32 +52,22 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 	}
 
 	@Override
-	protected void createFieldEditors() {		
-		Label lblRefreshInterval = new Label(getFieldEditorParent(), SWT.READ_ONLY);
+	protected void createFieldEditors() {
+		IPreferenceStore preferences = Activator.getDefault().getPreferenceStore();
+
+		Label lblRefreshInterval = new Label(getFieldEditorParent(),
+				SWT.READ_ONLY);
 		lblRefreshInterval.setText("Refresh interval (seconds)");
-		
-		spnRefreshInterval = new Spinner(getFieldEditorParent(), SWT.READ_ONLY | SWT.BORDER);
+
+
+		spnRefreshInterval = new Spinner(getFieldEditorParent(), SWT.READ_ONLY
+				| SWT.BORDER);
 		spnRefreshInterval.setDigits(1);
 		spnRefreshInterval.setIncrement(5);
 		spnRefreshInterval.setMinimum(20);
 		spnRefreshInterval.setMaximum(Integer.MAX_VALUE);
-		spnRefreshInterval.setSelection((int) (QStatMonitorPreferenceConstants.DEF_SLEEP * 10));
-		
-		//TODO: Temp fix to use preference store, better to set in performOk()
-		spnRefreshInterval.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-				store.setValue(QStatMonitorPreferenceConstants.P_SLEEP, spnRefreshInterval.getText());
-			}
-		});
-		
-		/*
-		sleepSecondsField = new StringFieldEditor(
-				QStatMonitorPreferenceConstants.P_SLEEP,
-				"Seconds between refresh", getFieldEditorParent());
-		addField(sleepSecondsField);
-		*/
+		spnRefreshInterval.setSelection((int) (Double.parseDouble(preferences
+				.getString(QStatMonitorPreferenceConstants.P_SLEEP)) * 10));
 
 		disableAutoRefresh = new BooleanFieldEditor(
 				QStatMonitorPreferenceConstants.P_REFRESH,
@@ -124,26 +114,23 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 	// TODO: Replace with PropertyChangeListener, use PreferenceStore
 	@Override
 	public boolean performOk() {
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		store.setValue(QStatMonitorPreferenceConstants.P_SLEEP,
+				spnRefreshInterval.getText());
+
 		super.performOk();
+
 		// update qstat view variables for new query and sleep time
 		QStatMonitorView view = (QStatMonitorView) PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow().getActivePage()
 				.findView(QStatMonitorView.ID);
 		if (view != null) { // then view is open
-			view.setSleepTimeSecs(Double.parseDouble(spnRefreshInterval.getText()));
-			
-			/*
-			if (sleepSecondsField.getStringValue() != null
-					&& sleepSecondsField.getStringValue() != ""
-					&& !sleepSecondsField.getStringValue().isEmpty()) {
-				view.setSleepTimeSecs(Double.parseDouble(sleepSecondsField
-						.getStringValue()));
-			}
-			*/
-			
+			view.setSleepTimeSecs(Double.parseDouble(spnRefreshInterval
+					.getText()));
+
 			view.setQuery(queryField.getStringValue());
 			view.setUserArg(userField.getStringValue());
-			
+
 			view.setAutomaticRefresh(!disableAutoRefresh.getBooleanValue());
 			view.updateTable();
 
@@ -151,6 +138,11 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 			view.resetPlot();
 		}
 		return true;
+	}
+
+	public void log(String msg) {
+		ILog logger = Activator.getDefault().getLog();
+		logger.log(new Status(IStatus.INFO, ID, msg));
 	}
 
 }
