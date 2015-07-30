@@ -28,27 +28,34 @@ public class Utils {
 
 	public static void main(String[] args) {
 		// System.out.println(getAbsoluteScriptPath());
-		getTableLists("qstat", "*");
+		// getTableLists("qstat", "*");
 	}
 
 	/**
 	 * gets the list of arrays of table items
-	 * @param argument the qstat query
-	 * @param userString the user name pattern to filter the users by in the query
+	 * 
+	 * @param argument
+	 *            the qstat query
+	 * @param userString
+	 *            the user name pattern to filter the users by in the query
 	 * @return
 	 */
 	public static ArrayList<String>[] getTableLists(String argument,
-			String userString) {
+			String userString, ArrayList<String>[] lists) {
 		String scriptDir = getAbsoluteScriptPath() + "getQStatXML.sh";
-		return convertXMLToStringArrays(runScriptAndGetOutput(scriptDir, argument,
-				userString));
+		return convertXMLToStringArrays(lists,
+				runScriptAndGetOutput(scriptDir, argument, userString));
 	}
 
 	/**
 	 * Runs given command with arguments and returns the output as a String
-	 * @param cmd command to run, this will usually be the script that is ran
-	 * @param argment the first argument, this will be the main qstat query
-	 * @param userString the user name pattern to filter the users by in the query
+	 * 
+	 * @param cmd
+	 *            command to run, this will usually be the script that is ran
+	 * @param argment
+	 *            the first argument, this will be the main qstat query
+	 * @param userString
+	 *            the user name pattern to filter the users by in the query
 	 * @return
 	 */
 	public static String runScriptAndGetOutput(String cmd, String argment,
@@ -87,20 +94,25 @@ public class Utils {
 		int startOfXmlIndex = result.indexOf("<?xml version='1.0'?");
 		if (startOfXmlIndex == -1) {
 			System.out.println("Can not find XML header.");
-		}else{
+		} else {
 			result = result.substring(startOfXmlIndex);
 		}
-		
+
 		return result;
 	}
 
 	/**
-	 * Gets the contents of the XML as arrays, using a different array for each XML tag
-	 * @param xmlString the string of XML returned by running a qstat command
-	 * @return an array of length 9, containing ArrayLists for items of each XML tag
+	 * Gets the contents of the XML as arrays, using a different array for each
+	 * XML tag
+	 * 
+	 * @param xmlString
+	 *            the string of XML returned by running a qstat command
+	 * @return an array of length 9, containing ArrayLists for items of each XML
+	 *         tag
 	 */
-	public static ArrayList<String>[] convertXMLToStringArrays(String xmlString) {
-		ArrayList<String>[] lists = (ArrayList<String>[]) new ArrayList[9];
+	public static ArrayList<String>[] convertXMLToStringArrays(
+			ArrayList<String>[] lists, String xmlString) {
+		// ArrayList<String>[] lists = (ArrayList<String>[]) new ArrayList[9];
 		for (int i = 0; i < lists.length; i++) {
 			lists[i] = new ArrayList<String>();
 		}
@@ -108,7 +120,7 @@ public class Utils {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory
 					.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			InputSource is = new InputSource(new StringReader(xmlString));			
+			InputSource is = new InputSource(new StringReader(xmlString));
 			Document doc = dBuilder.parse(is);
 			doc.getDocumentElement().normalize();
 
@@ -154,7 +166,9 @@ public class Utils {
 	}
 
 	/**
-	 * Gets the absolute path of the script where it is been run from, this script folder is in the same directory as the scr folder
+	 * Gets the absolute path of the script where it is been run from, this
+	 * script folder is in the same directory as the scr folder
+	 * 
 	 * @return
 	 */
 	public static String getAbsoluteScriptPath() {

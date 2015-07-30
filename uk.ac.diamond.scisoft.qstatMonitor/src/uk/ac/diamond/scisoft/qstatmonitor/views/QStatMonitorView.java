@@ -43,7 +43,6 @@ import org.eclipse.ui.progress.UIJob;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.qstatmonitor.Activator;
-import uk.ac.diamond.scisoft.qstatmonitor.Logger;
 import uk.ac.diamond.scisoft.qstatmonitor.api.Utils;
 import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferenceConstants;
 import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage;
@@ -54,8 +53,8 @@ public class QStatMonitorView extends ViewPart {
 
 	private Table table;
 	private static final String[] TABLE_COL_LABELS = {"Job Number", "Priority",
-			"Job Name", "Owner", "State", "Submission Time", "Queue Name",
-			"Slots", "Tasks"};
+			"Job Name", "Owner", "State", "Submission Time", "Queue Name", "Slots",
+			"Tasks"};
 
 	/* Table data */
 	private ArrayList<String> jobNumberList = new ArrayList<String>();
@@ -94,34 +93,31 @@ public class QStatMonitorView extends ViewPart {
 
 	private IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {
 		public void propertyChange(PropertyChangeEvent event) {
-			Logger.log(ID, "propertyChange()");
-			if (event.getProperty().equals(
-					QStatMonitorPreferenceConstants.P_SLEEP)) {
+			if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_SLEEP)) {
 				setRefreshInterval((float) event.getNewValue());
-			} else if (event.getProperty().equals(
-					QStatMonitorPreferenceConstants.P_QUERY)) {
+			} else if (event.getProperty()
+					.equals(QStatMonitorPreferenceConstants.P_QUERY)) {
 				qStatQuery = String.valueOf(event.getNewValue());
-			} else if (event.getProperty().equals(
-					QStatMonitorPreferenceConstants.P_USER)) {
+			} else if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_USER)) {
 				userArg = String.valueOf(event.getNewValue());
 			} else if (event.getProperty().equals(
 					QStatMonitorPreferenceConstants.P_REFRESH)) {
-				refreshOption = !Boolean.parseBoolean(String.valueOf(event
-						.getNewValue()));
-			} else if (event.getProperty().equals(
-					QStatMonitorPreferenceConstants.P_PLOT)) {
-				setPlotOption(!Boolean.parseBoolean(String.valueOf(event
-						.getNewValue())));
+				refreshOption = !Boolean
+						.parseBoolean(String.valueOf(event.getNewValue()));
+			} else if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_PLOT)) {
+				setPlotOption(!Boolean.parseBoolean(String.valueOf(event.getNewValue())));
 			} else {
 				// TODO: Should an exception be thrown here?
 			}
+
+			updateTable();
 		}
 	};
 
 	@Override
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
-		
+
 		// On completion of FetchQStatInfoJob, schedules FillTableJob
 		fetchQStatInfoJob.addJobChangeListener(new JobChangeAdapter() {
 			@Override
@@ -132,8 +128,7 @@ public class QStatMonitorView extends ViewPart {
 		});
 
 		// Initialise preference variables and establish callback on-change
-		IPreferenceStore preferenceStore = Activator.getDefault()
-				.getPreferenceStore();
+		IPreferenceStore preferenceStore = Activator.getDefault().getPreferenceStore();
 		initialisePreferenceVariables(preferenceStore);
 		preferenceStore.addPropertyChangeListener(preferenceListener);
 
@@ -152,12 +147,10 @@ public class QStatMonitorView extends ViewPart {
 	 * @param store
 	 */
 	private void initialisePreferenceVariables(IPreferenceStore store) {
-		setRefreshInterval(store
-				.getFloat(QStatMonitorPreferenceConstants.P_SLEEP));
+		setRefreshInterval(store.getFloat(QStatMonitorPreferenceConstants.P_SLEEP));
 		qStatQuery = store.getString(QStatMonitorPreferenceConstants.P_QUERY);
 		userArg = store.getString(QStatMonitorPreferenceConstants.P_USER);
-		refreshOption = !store
-				.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH);
+		refreshOption = !store.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH);
 		setPlotOption(!store.getBoolean(QStatMonitorPreferenceConstants.P_PLOT));
 	}
 
@@ -228,8 +221,7 @@ public class QStatMonitorView extends ViewPart {
 				if (stateList.get(i).equalsIgnoreCase("r")) {
 					running += Integer.parseInt(slotsList.get(i));
 				} else {
-					if (stateList.get(i).contains("q")
-							|| stateList.get(i).contains("Q")) {
+					if (stateList.get(i).contains("q") || stateList.get(i).contains("Q")) {
 						queued += Integer.parseInt(slotsList.get(i));
 					}
 				}
@@ -277,14 +269,6 @@ public class QStatMonitorView extends ViewPart {
 		fetchQStatInfoJob.schedule();
 	}
 
-	/**
-	 * schedules the redrawTableJob, cancelling it if it is already running
-	 */
-	private void redrawTable() {
-		cancelJob(fillTableJob);
-		fillTableJob.schedule();
-	}
-
 	@Override
 	public void setFocus() {
 	}
@@ -306,8 +290,7 @@ public class QStatMonitorView extends ViewPart {
 	}
 
 	/**
-	 * Updates content description to show number of tasks displayed in the
-	 * table
+	 * Updates content description to show number of tasks displayed in the table
 	 */
 	private void updateContentDescription() {
 		int numItems = jobNumberList.size();
@@ -346,14 +329,36 @@ public class QStatMonitorView extends ViewPart {
 	 */
 	class FetchQStatInfoJob extends Job {
 
+		// QStat data returned as array of lists
+		@SuppressWarnings("unchecked")
+		private final ArrayList<String>[] lists = (ArrayList<String>[]) new ArrayList[9];
+
 		public FetchQStatInfoJob() {
 			super("Fetching QStat Info");
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			try {
-				getQStatInfo();
+				Thread fetchTableListsThread = new Thread() {
+					public void run() {
+						Utils.getTableLists(qStatQuery, userArg, lists);
+					}
+				};
+
+				fetchTableListsThread.start();
+
+				// Loop until thread has retrieved table lists
+				while (fetchTableListsThread.isAlive()) {
+					if (monitor.isCanceled()) {
+						// TODO: Temporary fix to immediately end job on cancel request
+						fetchTableListsThread.stop();
+						return Status.CANCEL_STATUS;
+					}
+				}
+
+				assignTableData();
 			} catch (StringIndexOutOfBoundsException e) {
 				cancelAllJobs();
 			} catch (NullPointerException npe) {
@@ -369,10 +374,7 @@ public class QStatMonitorView extends ViewPart {
 			return Status.OK_STATUS;
 		}
 
-		private void getQStatInfo() {
-			ArrayList<String>[] lists = Utils
-					.getTableLists(qStatQuery, userArg);
-
+		private void assignTableData() {
 			jobNumberList = lists[0];
 			priorityList = lists[1];
 			jobNameList = lists[2];
@@ -387,8 +389,8 @@ public class QStatMonitorView extends ViewPart {
 	}
 
 	/**
-	 * Removes all current items from the table, then adds the contents of the
-	 * arrays to the relevant columns, then packs the table
+	 * Removes all current items from the table, then adds the contents of the arrays to
+	 * the relevant columns, then packs the table
 	 */
 	class FillTableJob extends UIJob {
 
@@ -425,8 +427,8 @@ public class QStatMonitorView extends ViewPart {
 		}
 
 		/**
-		 * Packs each column of the table so that all titles and items are
-		 * visible without resizing
+		 * Packs each column of the table so that all titles and items are visible without
+		 * resizing
 		 */
 		private void packTable() {
 			for (int i = 0; i < TABLE_COL_LABELS.length; i++) {
@@ -476,12 +478,9 @@ public class QStatMonitorView extends ViewPart {
 			PlotView view = null;
 
 			try {
-				view = (PlotView) PlatformUI
-						.getWorkbench()
-						.getActiveWorkbenchWindow()
+				view = (PlotView) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 						.getActivePage()
-						.findView(
-								"uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
+						.findView("uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
 			} catch (NullPointerException e) {
 				// TODO: Do we want to cancel QStatJob as well?
 				// cancelAllJobs();
@@ -498,13 +497,11 @@ public class QStatMonitorView extends ViewPart {
 		}
 
 		private Dataset[] getDataToPlot() {
-			Dataset suspendedDataset = getIntegerDataset(suspendedList,
-					"Suspended");
+			Dataset suspendedDataset = getIntegerDataset(suspendedList, "Suspended");
 			Dataset queuedDataset = getIntegerDataset(queuedList, "Queued");
 			Dataset runningDataset = getIntegerDataset(runningList, "Running");
 
-			Dataset[] datasetArr = {suspendedDataset, queuedDataset,
-					runningDataset};
+			Dataset[] datasetArr = {suspendedDataset, queuedDataset, runningDataset};
 
 			return datasetArr;
 		}
@@ -522,14 +519,13 @@ public class QStatMonitorView extends ViewPart {
 	class RefreshAction extends Action {
 		RefreshAction() {
 			setText("Refresh table");
-			setImageDescriptor(Activator.getDefault().getWorkbench()
-					.getSharedImages()
+			setImageDescriptor(Activator.getDefault().getWorkbench().getSharedImages()
 					.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 		}
 
 		public void run() {
 			updateTable();
-			//redrawTable();
+			// redrawTable();
 			updateListsAndPlot();
 		}
 	}
@@ -537,20 +533,18 @@ public class QStatMonitorView extends ViewPart {
 	class OpenPreferencesAction extends Action {
 		OpenPreferencesAction() {
 			setText("Preferences");
-			setImageDescriptor(Activator.getDefault().getWorkbench()
-					.getSharedImages()
+			setImageDescriptor(Activator.getDefault().getWorkbench().getSharedImages()
 					.getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
 		}
 
 		public void run() {
-			PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-							.getShell(), QStatMonitorPreferencePage.ID, null,
-					null);
+			PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(PlatformUI
+					.getWorkbench().getActiveWorkbenchWindow().getShell(),
+					QStatMonitorPreferencePage.ID, null, null);
 			if (pref != null) {
 				pref.open();
 			}
 		}
 	}
-	
+
 }
