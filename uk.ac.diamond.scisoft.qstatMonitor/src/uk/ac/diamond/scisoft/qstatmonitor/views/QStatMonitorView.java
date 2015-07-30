@@ -75,7 +75,7 @@ public class QStatMonitorView extends ViewPart {
 	private ArrayList<Integer> queuedList = new ArrayList<Integer>();
 
 	/* Preference values */
-	private int sleepTimeMilli;
+	private int refreshInterval; // in milliseconds
 	private String qStatQuery;
 	private String userArg;
 	private boolean refreshOption;
@@ -97,7 +97,7 @@ public class QStatMonitorView extends ViewPart {
 			Logger.log(ID, "propertyChange()");
 			if (event.getProperty().equals(
 					QStatMonitorPreferenceConstants.P_SLEEP)) {
-				setSleepTimeSecs((float) event.getNewValue());
+				setRefreshInterval((float) event.getNewValue());
 			} else if (event.getProperty().equals(
 					QStatMonitorPreferenceConstants.P_QUERY)) {
 				qStatQuery = String.valueOf(event.getNewValue());
@@ -194,7 +194,7 @@ public class QStatMonitorView extends ViewPart {
 	 * @param store
 	 */
 	private void initialisePreferenceVariables(IPreferenceStore store) {
-		setSleepTimeSecs(store
+		setRefreshInterval(store
 				.getFloat(QStatMonitorPreferenceConstants.P_SLEEP));
 		qStatQuery = store.getString(QStatMonitorPreferenceConstants.P_QUERY);
 		userArg = store.getString(QStatMonitorPreferenceConstants.P_USER);
@@ -374,45 +374,13 @@ public class QStatMonitorView extends ViewPart {
 	}
 
 	/**
-	 * setter for sleepTimeMilli
+	 * Converts given refresh interval in seconds to milliseconds
 	 * 
 	 * @param seconds
 	 *            new value in seconds
 	 */
-	public void setSleepTimeSecs(float seconds) {
-		sleepTimeMilli = (int) Math.round(seconds * 1000);
-	}
-
-	/**
-	 * setter for sleepTimeMilli
-	 * 
-	 * @param seconds
-	 *            new value in milliseconds
-	 */
-	public void setSleepTimeMilli(int milliSeconds) {
-		sleepTimeMilli = milliSeconds;
-	}
-
-	/**
-	 * setter for qStatQuery
-	 * 
-	 * @param query
-	 */
-	public void setQuery(String query) {
-		qStatQuery = query;
-	}
-
-	public void setAutomaticRefresh(Boolean refresh) {
-		refreshOption = refresh;
-	}
-
-	/**
-	 * setter for userArg
-	 * 
-	 * @param userID
-	 */
-	public void setUserArg(String userID) {
-		userArg = userID;
+	private void setRefreshInterval(float seconds) {
+		refreshInterval = (int) Math.round(seconds * 1000);
 	}
 
 	/**
@@ -437,7 +405,7 @@ public class QStatMonitorView extends ViewPart {
 
 			// Reschedule job if automatic refresh enabled
 			if (refreshOption) {
-				schedule(sleepTimeMilli);
+				schedule(refreshInterval);
 			}
 
 			return Status.OK_STATUS;
