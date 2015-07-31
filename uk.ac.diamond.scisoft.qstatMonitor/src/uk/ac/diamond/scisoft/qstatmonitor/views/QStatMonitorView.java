@@ -42,7 +42,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.qstatmonitor.Activator;
 import uk.ac.diamond.scisoft.qstatmonitor.Logger;
 import uk.ac.diamond.scisoft.qstatmonitor.api.Utils;
@@ -276,19 +275,8 @@ public class QStatMonitorView extends ViewPart {
 
 	@Override
 	public void dispose() {
-		cancelAllJobs();
-		super.dispose();
-	}
-
-	/**
-	 * Stops all jobs
-	 */
-	private void cancelAllJobs() {
-		// TODO: Have a look at JobManager
 		cancelJob(fetchQStatInfoJob);
-		// Plug-in hangs when try to end fillTable and plotData jobs
-		//cancelJob(fillTableJob);
-		//cancelJob(plotDataJob);
+		super.dispose();
 	}
 
 	/**
@@ -329,7 +317,7 @@ public class QStatMonitorView extends ViewPart {
 				// Loop until thread has retrieved table lists
 				while (fetchTableListsThread.isAlive()) {
 					if (monitor.isCanceled()) {
-						// TODO: Temporary fix to immediately end job on cancel request
+						// Temporary fix to immediately end job on cancel request
 						fetchTableListsThread.stop();
 						return Status.CANCEL_STATUS;
 					}
@@ -341,7 +329,7 @@ public class QStatMonitorView extends ViewPart {
 			//TODO: Not catching invalid queries
 			} catch (NullPointerException npe) {
 				displayDescInvalidQuery();
-				cancelAllJobs();
+				return Status.CANCEL_STATUS;
 			}
 
 			// Reschedule job if automatic refresh enabled
