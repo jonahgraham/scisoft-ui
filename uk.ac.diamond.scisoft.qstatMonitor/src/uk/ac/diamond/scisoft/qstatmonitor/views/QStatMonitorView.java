@@ -134,8 +134,9 @@ public class QStatMonitorView extends ViewPart {
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
 		
-		// Ensures two jobs do not run concurrently
+		// Ensures jobs do not run concurrently
 		fetchQStatInfoJob.setRule(rule);
+		fillTableJob.setRule(rule);
 		plotDataJob.setRule(rule);
 
 		// On completion of FetchQStatInfoJob, schedules FillTableJob
@@ -144,6 +145,11 @@ public class QStatMonitorView extends ViewPart {
 			public void done(IJobChangeEvent event) {
 				super.done(event);
 				fillTableJob.schedule();
+				
+				if (plotOption) {
+					cancelJob(plotDataJob);
+					plotDataJob.schedule();	
+				}
 			}
 		});
 
@@ -163,11 +169,6 @@ public class QStatMonitorView extends ViewPart {
 	private void startQStatService() {
 		cancelJob(fetchQStatInfoJob);
 		fetchQStatInfoJob.schedule();
-		
-		if (plotOption) {
-			cancelJob(plotDataJob);
-			plotDataJob.schedule();	
-		}
 	}
 
 	@Override
@@ -282,8 +283,9 @@ public class QStatMonitorView extends ViewPart {
 	private void cancelAllJobs() {
 		// TODO: Have a look at JobManager
 		cancelJob(fetchQStatInfoJob);
-		cancelJob(fillTableJob);
-		cancelJob(plotDataJob);
+		// Plug-in hangs when try to end fillTable and plotData jobs
+		//cancelJob(fillTableJob);
+		//cancelJob(plotDataJob);
 	}
 
 	/**
@@ -332,7 +334,7 @@ public class QStatMonitorView extends ViewPart {
 
 				assignTableData();
 			} catch (StringIndexOutOfBoundsException e) {
-				cancelAllJobs();
+				return Status.CANCEL_STATUS;
 			//TODO: Not catching invalid queries
 			} catch (NullPointerException npe) {
 				displayDescInvalidQuery();
@@ -392,7 +394,7 @@ public class QStatMonitorView extends ViewPart {
 				packTable();
 				updateContentDescription();
 			} catch (SWTException e) {
-				cancelAllJobs();
+				return Status.CANCEL_STATUS;
 			}
 			return Status.OK_STATUS;
 		}
