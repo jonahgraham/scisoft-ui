@@ -93,8 +93,8 @@ public class QStatMonitorView extends ViewPart {
 	private UIJob fillTableJob = new FillTableJob();
 	private UIJob plotDataJob = new PlotDataJob();
 
-	private IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {
-		public void propertyChange(PropertyChangeEvent event) {
+	private IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {		
+		public void propertyChange(PropertyChangeEvent event) {			
 			if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_SLEEP)) {
 				setRefreshInterval((float) event.getNewValue());
 			} else if (event.getProperty()
@@ -111,8 +111,7 @@ public class QStatMonitorView extends ViewPart {
 			} else {
 				// TODO: Should an exception be thrown here?
 			}
-
-			resetPlot();
+			
 			startQStatService();
 		}
 	};
@@ -134,12 +133,13 @@ public class QStatMonitorView extends ViewPart {
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
 		
+		//TODO: Is this really needed?
 		// Ensures jobs do not run concurrently
 		fetchQStatInfoJob.setRule(rule);
 		fillTableJob.setRule(rule);
 		plotDataJob.setRule(rule);
 
-		// On completion of FetchQStatInfoJob, schedules FillTableJob
+		// On completion of FetchQStatInfoJob, schedules FillTableJob and plotDataJob
 		fetchQStatInfoJob.addJobChangeListener(new JobChangeAdapter() {
 			@Override
 			public void done(IJobChangeEvent event) {
@@ -147,7 +147,6 @@ public class QStatMonitorView extends ViewPart {
 				fillTableJob.schedule();
 				
 				if (plotOption) {
-					cancelJob(plotDataJob);
 					plotDataJob.schedule();	
 				}
 			}
@@ -162,12 +161,16 @@ public class QStatMonitorView extends ViewPart {
 	}
 	
 	/**
-	 * Schedules the getQstatInfoJob, cancelling it if it is already running
-	 * <p>
-	 * If plot option enabled in preferences, plotDataJob is scheduled
+	 * Starts the QStat service by scheduling the getQstatInfoJob
 	 */
 	private void startQStatService() {
+		// Stops any on-going jobs
 		cancelJob(fetchQStatInfoJob);
+		cancelJob(plotDataJob);
+		
+		resetPlot();
+		
+		//cancelJob(fetchQStatInfoJob);
 		fetchQStatInfoJob.schedule();
 	}
 
