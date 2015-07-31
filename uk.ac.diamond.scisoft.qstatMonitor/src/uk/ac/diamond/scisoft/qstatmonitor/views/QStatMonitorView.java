@@ -94,7 +94,7 @@ public class QStatMonitorView extends ViewPart {
 	private UIJob plotDataJob = new PlotDataJob();
 
 	private IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {		
-		public void propertyChange(PropertyChangeEvent event) {			
+		public void propertyChange(PropertyChangeEvent event) {						
 			if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_SLEEP)) {
 				setRefreshInterval((float) event.getNewValue());
 			} else if (event.getProperty()
@@ -453,44 +453,47 @@ public class QStatMonitorView extends ViewPart {
 			plotResults();
 			return Status.OK_STATUS;
 		}
+		
+		/**
+		 * Updates the plot lists
+		 */
+		private void updatePlotLists() {
+			Double test = getElapsedMinutes();
+			timeList.add(test);
+			int suspended = 0;
+			int running = 0;
+			int queued = 0;
+			for (int i = 0; i < jobNumberList.size(); i++) {
+				if (stateList.get(i).equalsIgnoreCase("s")) {
+					suspended += Integer.parseInt(slotsList.get(i));
+				} else {
+					if (stateList.get(i).equalsIgnoreCase("r")) {
+						running += Integer.parseInt(slotsList.get(i));
+					} else {
+						if (stateList.get(i).contains("q") || stateList.get(i).contains("Q")) {
+							queued += Integer.parseInt(slotsList.get(i));
+						}
+					}
+				}
+			}
+			suspendedList.add(suspended);
+			runningList.add(running);
+			queuedList.add(queued);
+		}
 
 		/**
 		 * Plots the plot list values to the plot view
 		 */
 		private void plotResults() {
 			if (!timeList.isEmpty()) {
-				PlotView view = getPlotView();
-
 				DoubleDataset timeDataset = (DoubleDataset) DoubleDataset
 						.createFromList(timeList);
 				timeDataset.setName("Time (mins)");
 
 				Dataset[] datasetArr = getDataToPlot();
 
-				// TODO: Investigate - if view is null then job should be cancelled
-				if (view != null) {
-					plotData(timeDataset, datasetArr);
-				} else {
-					// TODO: Perhaps more descriptive message
-					System.out.println("nulll");
-				}
+				plotData(timeDataset, datasetArr);
 			}
-		}
-
-		private PlotView getPlotView() {
-			PlotView view = null;
-
-			try {
-				view = (PlotView) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-						.getActivePage()
-						.findView("uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
-			} catch (NullPointerException e) {
-				// TODO: Do we want to cancel QStatJob as well?
-				// cancelAllJobs();
-				cancel();
-			}
-
-			return view;
 		}
 
 		private Dataset getIntegerDataset(ArrayList<Integer> list, String name) {
@@ -515,39 +518,6 @@ public class QStatMonitorView extends ViewPart {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
-		
-		/**
-		 * Updates the plot lists
-		 */
-		//TODO: Should this be put into a Job?
-		private void updatePlotLists() {
-			Double test = getElapsedMinutes();
-			Logger.log(ID, "Elapsed minutes: " + test);
-			timeList.add(test);
-			int suspended = 0;
-			int running = 0;
-			int queued = 0;
-			Logger.log(ID, "Number of jobs: " + jobNumberList.size());
-			for (int i = 0; i < jobNumberList.size(); i++) {
-				if (stateList.get(i).equalsIgnoreCase("s")) {
-					suspended += Integer.parseInt(slotsList.get(i));
-				} else {
-					if (stateList.get(i).equalsIgnoreCase("r")) {
-						running += Integer.parseInt(slotsList.get(i));
-					} else {
-						if (stateList.get(i).contains("q") || stateList.get(i).contains("Q")) {
-							queued += Integer.parseInt(slotsList.get(i));
-						}
-					}
-				}
-			}
-			Logger.log(ID, "Suspended count: " + suspended);
-			Logger.log(ID, "Running count: " + running);
-			Logger.log(ID, "Queued count: " + queued);
-			suspendedList.add(suspended);
-			runningList.add(running);
-			queuedList.add(queued);
 		}
 
 	}
