@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
@@ -43,6 +44,7 @@ import org.eclipse.ui.progress.UIJob;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.qstatmonitor.Activator;
+import uk.ac.diamond.scisoft.qstatmonitor.Logger;
 import uk.ac.diamond.scisoft.qstatmonitor.api.Utils;
 import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferenceConstants;
 import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage;
@@ -110,13 +112,31 @@ public class QStatMonitorView extends ViewPart {
 				// TODO: Should an exception be thrown here?
 			}
 
-			updateTable();
+			resetPlot();
+			startQStatService();
+		}
+	};
+	
+	private ISchedulingRule rule = new ISchedulingRule() {
+		
+		@Override
+		public boolean isConflicting(ISchedulingRule rule) {
+			return rule == this;
+		}
+		
+		@Override
+		public boolean contains(ISchedulingRule rule) {
+			return rule == this;
 		}
 	};
 
 	@Override
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
+		
+		// Ensures two jobs do not run concurrently
+		fetchQStatInfoJob.setRule(rule);
+		plotDataJob.setRule(rule);
 
 		// On completion of FetchQStatInfoJob, schedules FillTableJob
 		fetchQStatInfoJob.addJobChangeListener(new JobChangeAdapter() {
@@ -132,7 +152,22 @@ public class QStatMonitorView extends ViewPart {
 		initialisePreferenceVariables(preferenceStore);
 		preferenceStore.addPropertyChangeListener(preferenceListener);
 
-		updateTable();
+		startQStatService();
+	}
+	
+	/**
+	 * Schedules the getQstatInfoJob, cancelling it if it is already running
+	 * <p>
+	 * If plot option enabled in preferences, plotDataJob is scheduled
+	 */
+	private void startQStatService() {
+		cancelJob(fetchQStatInfoJob);
+		fetchQStatInfoJob.schedule();
+		
+		if (plotOption) {
+			cancelJob(plotDataJob);
+			plotDataJob.schedule();	
+		}
 	}
 
 	@Override
@@ -207,32 +242,6 @@ public class QStatMonitorView extends ViewPart {
 	}
 
 	/**
-	 * Updates the plot lists
-	 */
-	private void updatePlotLists() {
-		timeList.add(getElapsedMinutes());
-		int suspended = 0;
-		int running = 0;
-		int queued = 0;
-		for (int i = 0; i < jobNumberList.size(); i++) {
-			if (stateList.get(i).equalsIgnoreCase("s")) {
-				suspended += Integer.parseInt(slotsList.get(i));
-			} else {
-				if (stateList.get(i).equalsIgnoreCase("r")) {
-					running += Integer.parseInt(slotsList.get(i));
-				} else {
-					if (stateList.get(i).contains("q") || stateList.get(i).contains("Q")) {
-						queued += Integer.parseInt(slotsList.get(i));
-					}
-				}
-			}
-		}
-		suspendedList.add(suspended);
-		runningList.add(running);
-		queuedList.add(queued);
-	}
-
-	/**
 	 * Gets the time in minutes since the time was last reset
 	 * 
 	 * @return
@@ -243,14 +252,9 @@ public class QStatMonitorView extends ViewPart {
 	}
 
 	/**
-	 * Calls updatePlotLists(), then schedules the replotJob
+	 * Blocks current thread until job has completely ended it execution
+	 * @param job
 	 */
-	private void updateListsAndPlot() {
-		updatePlotLists();
-		plotDataJob.cancel();
-		plotDataJob.schedule();
-	}
-
 	private void cancelJob(Job job) {
 		if (!job.cancel()) {
 			try {
@@ -260,17 +264,10 @@ public class QStatMonitorView extends ViewPart {
 			}
 		}
 	}
-
-	/**
-	 * schedules the getQstatInfoJob, cancelling it if it is already running
-	 */
-	public void updateTable() {
-		cancelJob(fetchQStatInfoJob);
-		fetchQStatInfoJob.schedule();
-	}
-
+	
 	@Override
 	public void setFocus() {
+		//Inherited abstract method - must be overridden
 	}
 
 	@Override
@@ -284,34 +281,9 @@ public class QStatMonitorView extends ViewPart {
 	 */
 	private void cancelAllJobs() {
 		// TODO: Have a look at JobManager
-		fetchQStatInfoJob.cancel();
-		fillTableJob.cancel();
-		plotDataJob.cancel();
-	}
-
-	/**
-	 * Updates content description to show number of tasks displayed in the table
-	 */
-	private void updateContentDescription() {
-		int numItems = jobNumberList.size();
-		if (numItems == 1) {
-			setContentDescription("Showing 1 task.");
-		} else {
-			setContentDescription("Showing " + numItems + " tasks.");
-		}
-	}
-
-	/**
-	 * Updates content description to indicate query is invalid
-	 */
-	private void updateContentDescriptionError() {
-		// Ensures setContentDescription() executed on UI thread
-		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				setContentDescription("Invalid QStat query entered.");
-			}
-		});
+		cancelJob(fetchQStatInfoJob);
+		cancelJob(fillTableJob);
+		cancelJob(plotDataJob);
 	}
 
 	/**
@@ -361,16 +333,17 @@ public class QStatMonitorView extends ViewPart {
 				assignTableData();
 			} catch (StringIndexOutOfBoundsException e) {
 				cancelAllJobs();
+			//TODO: Not catching invalid queries
 			} catch (NullPointerException npe) {
+				displayDescInvalidQuery();
 				cancelAllJobs();
-				updateContentDescriptionError();
 			}
 
 			// Reschedule job if automatic refresh enabled
 			if (refreshOption) {
 				schedule(refreshInterval);
 			}
-
+			
 			return Status.OK_STATUS;
 		}
 
@@ -385,7 +358,20 @@ public class QStatMonitorView extends ViewPart {
 			slotsList = lists[7];
 			tasksList = lists[8];
 		}
-
+		
+		/**
+		 * Updates content description to indicate query is invalid
+		 */
+		private void displayDescInvalidQuery() {
+			// Ensures setContentDescription() executed on UI thread
+			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					setContentDescription("Invalid QStat query entered.");
+				}
+			});
+		}
+		
 	}
 
 	/**
@@ -435,6 +421,18 @@ public class QStatMonitorView extends ViewPart {
 				table.getColumn(i).pack();
 			}
 		}
+		
+		/**
+		 * Updates content description to show number of tasks displayed in the table
+		 */
+		private void updateContentDescription() {
+			int numItems = jobNumberList.size();
+			if (numItems == 1) {
+				setContentDescription("Showing 1 task.");
+			} else {
+				setContentDescription("Showing " + numItems + " tasks.");
+			}
+		}
 
 	}
 
@@ -446,6 +444,7 @@ public class QStatMonitorView extends ViewPart {
 
 		@Override
 		public IStatus runInUIThread(IProgressMonitor monitor) {
+			updatePlotLists();
 			plotResults();
 			return Status.OK_STATUS;
 		}
@@ -463,8 +462,7 @@ public class QStatMonitorView extends ViewPart {
 
 				Dataset[] datasetArr = getDataToPlot();
 
-				// TODO: Investigate - if view is null then job should be
-				// cancelled
+				// TODO: Investigate - if view is null then job should be cancelled
 				if (view != null) {
 					plotData(timeDataset, datasetArr);
 				} else {
@@ -513,6 +511,39 @@ public class QStatMonitorView extends ViewPart {
 				e.printStackTrace();
 			}
 		}
+		
+		/**
+		 * Updates the plot lists
+		 */
+		//TODO: Should this be put into a Job?
+		private void updatePlotLists() {
+			Double test = getElapsedMinutes();
+			Logger.log(ID, "Elapsed minutes: " + test);
+			timeList.add(test);
+			int suspended = 0;
+			int running = 0;
+			int queued = 0;
+			Logger.log(ID, "Number of jobs: " + jobNumberList.size());
+			for (int i = 0; i < jobNumberList.size(); i++) {
+				if (stateList.get(i).equalsIgnoreCase("s")) {
+					suspended += Integer.parseInt(slotsList.get(i));
+				} else {
+					if (stateList.get(i).equalsIgnoreCase("r")) {
+						running += Integer.parseInt(slotsList.get(i));
+					} else {
+						if (stateList.get(i).contains("q") || stateList.get(i).contains("Q")) {
+							queued += Integer.parseInt(slotsList.get(i));
+						}
+					}
+				}
+			}
+			Logger.log(ID, "Suspended count: " + suspended);
+			Logger.log(ID, "Running count: " + running);
+			Logger.log(ID, "Queued count: " + queued);
+			suspendedList.add(suspended);
+			runningList.add(running);
+			queuedList.add(queued);
+		}
 
 	}
 
@@ -524,9 +555,7 @@ public class QStatMonitorView extends ViewPart {
 		}
 
 		public void run() {
-			updateTable();
-			// redrawTable();
-			updateListsAndPlot();
+			startQStatService();
 		}
 	}
 
