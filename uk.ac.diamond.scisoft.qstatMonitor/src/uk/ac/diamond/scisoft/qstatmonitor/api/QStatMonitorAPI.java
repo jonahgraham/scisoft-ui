@@ -22,7 +22,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-public class Utils {
+public class QStatMonitorAPI {
 
 	private static Process process = null;
 
@@ -173,7 +173,7 @@ public class Utils {
 	 */
 	public static String getAbsoluteScriptPath() {
 
-		java.security.ProtectionDomain pd = Utils.class.getProtectionDomain();
+		java.security.ProtectionDomain pd = QStatMonitorAPI.class.getProtectionDomain();
 		if (pd == null) {
 			System.out.print("No path found returning null");
 			return null;

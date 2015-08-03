@@ -44,7 +44,7 @@ import org.eclipse.ui.progress.UIJob;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.qstatmonitor.Activator;
 import uk.ac.diamond.scisoft.qstatmonitor.Logger;
-import uk.ac.diamond.scisoft.qstatmonitor.api.Utils;
+import uk.ac.diamond.scisoft.qstatmonitor.api.QStatMonitorAPI;
 import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferenceConstants;
 import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage;
 
@@ -309,7 +309,7 @@ public class QStatMonitorView extends ViewPart {
 			try {
 				Thread fetchTableListsThread = new Thread() {
 					public void run() {
-						Utils.getTableLists(qStatQuery, userArg, lists);
+						QStatMonitorAPI.getTableLists(qStatQuery, userArg, lists);
 					}
 				};
 
