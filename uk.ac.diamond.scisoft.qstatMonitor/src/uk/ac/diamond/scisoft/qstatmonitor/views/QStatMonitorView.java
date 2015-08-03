@@ -93,7 +93,7 @@ public class QStatMonitorView extends ViewPart {
 	private UIJob plotDataJob = new PlotDataJob();
 
 	private IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {		
-		public void propertyChange(PropertyChangeEvent event) {						
+		public void propertyChange(PropertyChangeEvent event) {
 			if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_SLEEP)) {
 				setRefreshInterval((float) event.getNewValue());
 			} else if (event.getProperty()
@@ -108,7 +108,8 @@ public class QStatMonitorView extends ViewPart {
 			} else if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_PLOT)) {
 				setPlotOption(!Boolean.parseBoolean(String.valueOf(event.getNewValue())));
 			} else {
-				// TODO: Should an exception be thrown here?
+				// Should never reach here
+				throw new IllegalArgumentException("Unrecognised property change event");
 			}
 			
 			startQStatService();
