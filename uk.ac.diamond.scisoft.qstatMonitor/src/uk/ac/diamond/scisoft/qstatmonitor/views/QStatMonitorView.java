@@ -9,8 +9,8 @@
 package uk.ac.diamond.scisoft.qstatmonitor.views;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
-import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -21,6 +21,9 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.PlotType;
+import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;
@@ -30,7 +33,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -43,8 +45,6 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
 
-import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.qstatmonitor.Activator;
 import uk.ac.diamond.scisoft.qstatmonitor.Logger;
 import uk.ac.diamond.scisoft.qstatmonitor.api.QStatMonitorAPI;
@@ -94,6 +94,8 @@ public class QStatMonitorView extends ViewPart {
 	private Job fetchQStatInfoJob = new FetchQStatInfoJob();
 	private UIJob fillTableJob = new FillTableJob();
 	private UIJob plotDataJob = new PlotDataJob();
+	
+	private IPlottingSystem plottingSystem;
 
 	private IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {		
 		public void propertyChange(PropertyChangeEvent event) {
@@ -136,6 +138,19 @@ public class QStatMonitorView extends ViewPart {
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
 		
+	    try {
+	    	plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	    
+	    // Check if plotting system successfully obtained
+	    if (plottingSystem == null) {
+	    	// Plotting system unavailable
+	    	// Display error message to user
+	    	// Close plug-in
+	    }
+		
 		//TODO: Is this really needed?
 		// Ensures jobs do not run concurrently
 		fetchQStatInfoJob.setRule(rule);
@@ -173,7 +188,6 @@ public class QStatMonitorView extends ViewPart {
 		
 		resetPlot();
 		
-		//cancelJob(fetchQStatInfoJob);
 		fetchQStatInfoJob.schedule();
 	}
 
@@ -184,7 +198,9 @@ public class QStatMonitorView extends ViewPart {
 		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);		
 		setupTable(sashForm);
 	    
-	    PlotWindow plot = new PlotWindow(sashForm, null, null, "plot");
+	    //TODO: Are the plotting tools really necessary?
+		IActionBars bars = getViewSite().getActionBars();
+		plottingSystem.createPlotPart(sashForm, "QStat Monitor Plot Sash", bars, PlotType.XY, null);
 	}
 
 	/**
@@ -242,14 +258,7 @@ public class QStatMonitorView extends ViewPart {
 	 */
 	public void setPlotOption(boolean option) {
 		this.plotOption = option;
-		if (plotOption) {
-			try {
-				EclipseUtils.getPage().showView(
-						"uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
-			} catch (PartInitException e) {
-				e.printStackTrace();
-			}
-		}
+		//TODO: If option is false then only display table
 	}
 
 	/**
@@ -284,6 +293,7 @@ public class QStatMonitorView extends ViewPart {
 	@Override
 	public void dispose() {
 		cancelJob(fetchQStatInfoJob);
+		plottingSystem.dispose();
 		super.dispose();
 	}
 
@@ -510,7 +520,12 @@ public class QStatMonitorView extends ViewPart {
 
 		private void plotData(DoubleDataset timeDataset, Dataset[] datasetArr) {
 			try {
-				SDAPlotter.plot("QStat Monitor Plot", timeDataset, datasetArr);
+				// Required in the situation where plotData() is called after
+				// plottingSystem is disposed
+				if (!plottingSystem.isDisposed()) {
+					plottingSystem.clear();
+					plottingSystem.createPlot1D(timeDataset, Arrays.asList(datasetArr), null);	
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
