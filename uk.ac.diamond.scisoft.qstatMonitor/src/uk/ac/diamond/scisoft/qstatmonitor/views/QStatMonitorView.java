@@ -82,13 +82,14 @@ public class QStatMonitorView extends ViewPart {
 	private String qStatQuery;
 	private String userArg;
 	private boolean refreshOption;
-	private boolean plotOption;
+	private boolean plotOption = false; // Plot not displayed by default
 
 	long startTime = System.nanoTime();
 
 	/* Actions */
 	private Action refreshAction = new RefreshAction();
 	private Action openPreferencesAction = new OpenPreferencesAction();
+	private Action showPlotAction = new ShowPlotAction();
 
 	/* Jobs */
 	private Job fetchQStatInfoJob = new FetchQStatInfoJob();
@@ -110,8 +111,8 @@ public class QStatMonitorView extends ViewPart {
 					QStatMonitorPreferenceConstants.P_REFRESH)) {
 				refreshOption = !Boolean
 						.parseBoolean(String.valueOf(event.getNewValue()));
-			} else if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_PLOT)) {
-				setPlotOption(!Boolean.parseBoolean(String.valueOf(event.getNewValue())));
+			//} else if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_PLOT)) {
+			//	setPlotOption(!Boolean.parseBoolean(String.valueOf(event.getNewValue())));
 			} else {
 				// Should never reach here
 				throw new IllegalArgumentException("Unrecognised property change event");
@@ -212,7 +213,7 @@ public class QStatMonitorView extends ViewPart {
 		qStatQuery = store.getString(QStatMonitorPreferenceConstants.P_QUERY);
 		userArg = store.getString(QStatMonitorPreferenceConstants.P_USER);
 		refreshOption = !store.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH);
-		setPlotOption(!store.getBoolean(QStatMonitorPreferenceConstants.P_PLOT));
+		//setPlotOption(!store.getBoolean(QStatMonitorPreferenceConstants.P_PLOT));
 	}
 
 	/**
@@ -222,6 +223,7 @@ public class QStatMonitorView extends ViewPart {
 		IActionBars bars = getViewSite().getActionBars();
 		bars.getMenuManager().add(openPreferencesAction);
 		bars.getToolBarManager().add(refreshAction);
+		bars.getToolBarManager().add(showPlotAction);
 	}
 
 	/**
@@ -255,9 +257,10 @@ public class QStatMonitorView extends ViewPart {
 	 * 
 	 * @param option
 	 */
-	public void setPlotOption(boolean option) {
-		this.plotOption = option;
-		// TODO: If option is false then only display table
+	public void setPlotOption() {
+		this.plotOption = !this.plotOption;
+		//TODO: If option is false then only display table
+		//TODO: Should call plotjob immediately
 	}
 
 	/**
@@ -561,6 +564,18 @@ public class QStatMonitorView extends ViewPart {
 			if (pref != null) {
 				pref.open();
 			}
+		}
+	}
+	
+	class ShowPlotAction extends Action {
+		ShowPlotAction() {
+			setText("Show Plot");
+			setImageDescriptor(Activator.getDefault().getWorkbench().getSharedImages()
+					.getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
+		}
+		
+		public void run() {
+			setPlotOption();
 		}
 	}
 

@@ -61,9 +61,6 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 		addField(new BooleanFieldEditor(QStatMonitorPreferenceConstants.P_REFRESH,
 				"Disable automatic refreshing", getFieldEditorParent()));
 
-		addField(new BooleanFieldEditor(QStatMonitorPreferenceConstants.P_PLOT,
-				"Disable automatic plotting", getFieldEditorParent()));
-
 		(new Label(getFieldEditorParent(), SWT.WRAP)).setText("Example queries");
 
 		final Combo queryDropDown = new Combo(getFieldEditorParent(), SWT.DROP_DOWN
