@@ -28,7 +28,9 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -177,7 +179,12 @@ public class QStatMonitorView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		setupActionBar();
-		setupTable(parent);
+
+		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);		
+		setupTable(sashForm);
+		
+	    Label label = new Label(sashForm, SWT.BORDER | SWT.CENTER);
+	    label.setText("Hello World");
 	}
 
 	/**
