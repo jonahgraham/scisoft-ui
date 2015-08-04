@@ -29,12 +29,9 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 
 	public static final String ID = "uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage";
 
-	private Combo queryDropDown;
 	private Spinner spnRefreshInterval;
 	private StringFieldEditor queryField;
 	private StringFieldEditor userField;
-	private BooleanFieldEditor disableAutoRefresh;
-	private BooleanFieldEditor disableAutoPlot;
 
 	public QStatMonitorPreferencePage() {
 		super(GRID);
@@ -47,14 +44,12 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 
 	@Override
 	protected void createFieldEditors() {
-		IPreferenceStore preferences = Activator.getDefault()
-				.getPreferenceStore();
+		IPreferenceStore preferences = Activator.getDefault().getPreferenceStore();
 
-		Label lblRefreshInterval = new Label(getFieldEditorParent(),
-				SWT.READ_ONLY);
-		lblRefreshInterval.setText("Refresh interval (seconds)");
+		(new Label(getFieldEditorParent(), SWT.READ_ONLY))
+				.setText("Refresh interval (seconds)");
 
-		spnRefreshInterval = new Spinner(getFieldEditorParent(), SWT.READ_ONLY
+		Spinner spnRefreshInterval = new Spinner(getFieldEditorParent(), SWT.READ_ONLY
 				| SWT.BORDER);
 		spnRefreshInterval.setDigits(1);
 		spnRefreshInterval.setIncrement(5);
@@ -63,19 +58,15 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 		spnRefreshInterval.setSelection((int) (Double.parseDouble(preferences
 				.getString(QStatMonitorPreferenceConstants.P_SLEEP)) * 10));
 
-		disableAutoRefresh = new BooleanFieldEditor(
-				QStatMonitorPreferenceConstants.P_REFRESH,
-				"Disable automatic refreshing", getFieldEditorParent());
-		addField(disableAutoRefresh);
+		addField(new BooleanFieldEditor(QStatMonitorPreferenceConstants.P_REFRESH,
+				"Disable automatic refreshing", getFieldEditorParent()));
 
-		disableAutoPlot = new BooleanFieldEditor(
-				QStatMonitorPreferenceConstants.P_PLOT,
-				"Disable automatic plotting", getFieldEditorParent());
-		addField(disableAutoPlot);
+		addField(new BooleanFieldEditor(QStatMonitorPreferenceConstants.P_PLOT,
+				"Disable automatic plotting", getFieldEditorParent()));
 
-		Label axisLabel = new Label(getFieldEditorParent(), SWT.WRAP);
-		axisLabel.setText("Example queries");
-		queryDropDown = new Combo(getFieldEditorParent(), SWT.DROP_DOWN
+		(new Label(getFieldEditorParent(), SWT.WRAP)).setText("Example queries");
+
+		final Combo queryDropDown = new Combo(getFieldEditorParent(), SWT.DROP_DOWN
 				| SWT.WRAP | SWT.READ_ONLY);
 		queryDropDown.add("My jobs", 0);
 		queryDropDown.add("My jobs on tesla", 1);
@@ -96,14 +87,11 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 			}
 		});
 
-		queryField = new StringFieldEditor(
-				QStatMonitorPreferenceConstants.P_QUERY, "Query",
-				getFieldEditorParent());
-		addField(queryField);
-		userField = new StringFieldEditor(
-				QStatMonitorPreferenceConstants.P_USER,
-				"Show tasks by this user", getFieldEditorParent());
-		addField(userField);
+		addField(new StringFieldEditor(QStatMonitorPreferenceConstants.P_QUERY, "Query",
+				getFieldEditorParent()));
+
+		addField(new StringFieldEditor(QStatMonitorPreferenceConstants.P_USER,
+				"Show tasks by this user", getFieldEditorParent()));
 	}
 
 	@Override
