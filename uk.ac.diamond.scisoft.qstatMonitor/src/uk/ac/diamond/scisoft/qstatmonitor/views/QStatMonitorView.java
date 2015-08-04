@@ -44,6 +44,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.qstatmonitor.Activator;
 import uk.ac.diamond.scisoft.qstatmonitor.Logger;
 import uk.ac.diamond.scisoft.qstatmonitor.api.QStatMonitorAPI;
@@ -182,9 +183,8 @@ public class QStatMonitorView extends ViewPart {
 
 		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);		
 		setupTable(sashForm);
-		
-	    Label label = new Label(sashForm, SWT.BORDER | SWT.CENTER);
-	    label.setText("Hello World");
+	    
+	    PlotWindow plot = new PlotWindow(sashForm, null, null, "plot");
 	}
 
 	/**
