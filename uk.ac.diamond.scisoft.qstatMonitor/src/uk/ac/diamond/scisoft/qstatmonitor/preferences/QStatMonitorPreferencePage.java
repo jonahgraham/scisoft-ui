@@ -49,7 +49,7 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 		(new Label(getFieldEditorParent(), SWT.READ_ONLY))
 				.setText("Refresh interval (seconds)");
 
-		Spinner spnRefreshInterval = new Spinner(getFieldEditorParent(), SWT.READ_ONLY
+		spnRefreshInterval = new Spinner(getFieldEditorParent(), SWT.READ_ONLY
 				| SWT.BORDER);
 		spnRefreshInterval.setDigits(1);
 		spnRefreshInterval.setIncrement(5);
@@ -87,11 +87,13 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 			}
 		});
 
-		addField(new StringFieldEditor(QStatMonitorPreferenceConstants.P_QUERY, "Query",
-				getFieldEditorParent()));
+		queryField = new StringFieldEditor(QStatMonitorPreferenceConstants.P_QUERY,
+				"Query", getFieldEditorParent());
+		addField(queryField);
 
-		addField(new StringFieldEditor(QStatMonitorPreferenceConstants.P_USER,
-				"Show tasks by this user", getFieldEditorParent()));
+		userField = new StringFieldEditor(QStatMonitorPreferenceConstants.P_USER,
+				"Show tasks by this user", getFieldEditorParent());
+		addField(userField);
 	}
 
 	@Override
