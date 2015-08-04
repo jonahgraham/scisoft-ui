@@ -94,10 +94,10 @@ public class QStatMonitorView extends ViewPart {
 	private Job fetchQStatInfoJob = new FetchQStatInfoJob();
 	private UIJob fillTableJob = new FillTableJob();
 	private UIJob plotDataJob = new PlotDataJob();
-	
+
 	private IPlottingSystem plottingSystem;
 
-	private IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {		
+	private IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {
 		public void propertyChange(PropertyChangeEvent event) {
 			if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_SLEEP)) {
 				setRefreshInterval((float) event.getNewValue());
@@ -116,18 +116,18 @@ public class QStatMonitorView extends ViewPart {
 				// Should never reach here
 				throw new IllegalArgumentException("Unrecognised property change event");
 			}
-			
+
 			startQStatService();
 		}
 	};
-	
+
 	private ISchedulingRule rule = new ISchedulingRule() {
-		
+
 		@Override
 		public boolean isConflicting(ISchedulingRule rule) {
 			return rule == this;
 		}
-		
+
 		@Override
 		public boolean contains(ISchedulingRule rule) {
 			return rule == this;
@@ -137,21 +137,21 @@ public class QStatMonitorView extends ViewPart {
 	@Override
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
-		
-	    try {
-	    	plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
+
+		try {
+			plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	    
-	    // Check if plotting system successfully obtained
-	    if (plottingSystem == null) {
-	    	// Plotting system unavailable
-	    	// Display error message to user
-	    	// Close plug-in
-	    }
-		
-		//TODO: Is this really needed?
+
+		// Check if plotting system successfully obtained
+		if (plottingSystem == null) {
+			// Plotting system unavailable
+			// Display error message to user
+			// Close plug-in
+		}
+
+		// TODO: Is this really needed?
 		// Ensures jobs do not run concurrently
 		fetchQStatInfoJob.setRule(rule);
 		fillTableJob.setRule(rule);
@@ -163,9 +163,9 @@ public class QStatMonitorView extends ViewPart {
 			public void done(IJobChangeEvent event) {
 				super.done(event);
 				fillTableJob.schedule();
-				
+
 				if (plotOption) {
-					plotDataJob.schedule();	
+					plotDataJob.schedule();
 				}
 			}
 		});
@@ -177,7 +177,7 @@ public class QStatMonitorView extends ViewPart {
 
 		startQStatService();
 	}
-	
+
 	/**
 	 * Starts the QStat service by scheduling the getQstatInfoJob
 	 */
@@ -185,9 +185,9 @@ public class QStatMonitorView extends ViewPart {
 		// Stops any on-going jobs
 		cancelJob(fetchQStatInfoJob);
 		cancelJob(plotDataJob);
-		
+
 		resetPlot();
-		
+
 		fetchQStatInfoJob.schedule();
 	}
 
@@ -195,12 +195,11 @@ public class QStatMonitorView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		setupActionBar();
 
-		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);		
+		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);
 		setupTable(sashForm);
-	    
-	    //TODO: Are the plotting tools really necessary?
-		IActionBars bars = getViewSite().getActionBars();
-		plottingSystem.createPlotPart(sashForm, "QStat Monitor Plot Sash", bars, PlotType.XY, null);
+
+		plottingSystem.createPlotPart(sashForm, "QStat Monitor Plot Sash", null,
+				PlotType.XY, null);
 	}
 
 	/**
@@ -258,7 +257,7 @@ public class QStatMonitorView extends ViewPart {
 	 */
 	public void setPlotOption(boolean option) {
 		this.plotOption = option;
-		//TODO: If option is false then only display table
+		// TODO: If option is false then only display table
 	}
 
 	/**
@@ -273,6 +272,7 @@ public class QStatMonitorView extends ViewPart {
 
 	/**
 	 * Blocks current thread until job has completely ended it execution
+	 * 
 	 * @param job
 	 */
 	private void cancelJob(Job job) {
@@ -284,10 +284,10 @@ public class QStatMonitorView extends ViewPart {
 			}
 		}
 	}
-	
+
 	@Override
 	public void setFocus() {
-		//Inherited abstract method - must be overridden
+		// Inherited abstract method - must be overridden
 	}
 
 	@Override
@@ -344,7 +344,7 @@ public class QStatMonitorView extends ViewPart {
 				assignTableData();
 			} catch (StringIndexOutOfBoundsException e) {
 				return Status.CANCEL_STATUS;
-			//TODO: Not catching invalid queries
+				// TODO: Not catching invalid queries
 			} catch (NullPointerException npe) {
 				displayDescInvalidQuery();
 				return Status.CANCEL_STATUS;
@@ -354,7 +354,7 @@ public class QStatMonitorView extends ViewPart {
 			if (refreshOption) {
 				schedule(refreshInterval);
 			}
-			
+
 			return Status.OK_STATUS;
 		}
 
@@ -369,7 +369,7 @@ public class QStatMonitorView extends ViewPart {
 			slotsList = lists[7];
 			tasksList = lists[8];
 		}
-		
+
 		/**
 		 * Updates content description to indicate query is invalid
 		 */
@@ -382,7 +382,7 @@ public class QStatMonitorView extends ViewPart {
 				}
 			});
 		}
-		
+
 	}
 
 	/**
@@ -432,7 +432,7 @@ public class QStatMonitorView extends ViewPart {
 				table.getColumn(i).pack();
 			}
 		}
-		
+
 		/**
 		 * Updates content description to show number of tasks displayed in the table
 		 */
@@ -459,7 +459,7 @@ public class QStatMonitorView extends ViewPart {
 			plotResults();
 			return Status.OK_STATUS;
 		}
-		
+
 		/**
 		 * Updates the plot lists
 		 */
@@ -476,7 +476,8 @@ public class QStatMonitorView extends ViewPart {
 					if (stateList.get(i).equalsIgnoreCase("r")) {
 						running += Integer.parseInt(slotsList.get(i));
 					} else {
-						if (stateList.get(i).contains("q") || stateList.get(i).contains("Q")) {
+						if (stateList.get(i).contains("q")
+								|| stateList.get(i).contains("Q")) {
 							queued += Integer.parseInt(slotsList.get(i));
 						}
 					}
@@ -524,7 +525,8 @@ public class QStatMonitorView extends ViewPart {
 				// plottingSystem is disposed
 				if (!plottingSystem.isDisposed()) {
 					plottingSystem.clear();
-					plottingSystem.createPlot1D(timeDataset, Arrays.asList(datasetArr), null);	
+					plottingSystem.createPlot1D(timeDataset, Arrays.asList(datasetArr),
+							null);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
