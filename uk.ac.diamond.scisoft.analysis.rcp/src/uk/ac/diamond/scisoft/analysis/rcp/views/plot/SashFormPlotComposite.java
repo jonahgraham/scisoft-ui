@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.dawb.common.ui.widgets.ActionBarWrapper;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -59,7 +58,7 @@ public class SashFormPlotComposite {
 	protected Composite left, right;
 	protected IPlottingSystem plottingSystem;
 	protected ActionBarWrapper actionBarWrapper;
-	protected Dataset[] dataSets;
+	protected IDataset[] datasets;
 	protected String xAxisLabel, yAxisLabel;
 	protected String plotTitle;
 	protected SashForm rightSash;
@@ -224,8 +223,8 @@ public class SashFormPlotComposite {
 		this.sashForm.setWeights(is);
 	}
 
-	public void setDataSets(Dataset... dataSets) {
-		this.dataSets = dataSets;
+	public void setDatasets(IDataset... datasets) {
+		this.datasets = datasets;
 	}
 
 	public void setXAxisLabel(String label) {
@@ -310,7 +309,7 @@ public class SashFormPlotComposite {
 	public void plotData() {
 		plottingSystem.clear();
 		List<IDataset> ys = new ArrayList<IDataset>();
-		for (Dataset ds : dataSets) {
+		for (IDataset ds : datasets) {
 			ys.add(ds);
 		}
 		plottingSystem.createPlot1D(null, ys, null);
