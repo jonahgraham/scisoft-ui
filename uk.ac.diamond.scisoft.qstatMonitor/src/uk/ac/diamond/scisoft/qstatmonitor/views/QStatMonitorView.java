@@ -44,9 +44,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.qstatmonitor.Activator;
-import uk.ac.diamond.scisoft.qstatmonitor.Logger;
 import uk.ac.diamond.scisoft.qstatmonitor.api.QStatMonitorAPI;
 import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferenceConstants;
 import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage;
@@ -56,6 +57,7 @@ public class QStatMonitorView extends ViewPart {
 	}
 
 	public static final String ID = "uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView";
+	private static final Logger logger = LoggerFactory.getLogger(QStatMonitorView.class);
 
 	/* UI Components */
 	private Table table;
@@ -86,10 +88,10 @@ public class QStatMonitorView extends ViewPart {
 	private String qStatQuery;
 	private String userArg;
 	private boolean refreshOption;
-	
+
 	private boolean plotOption = false; // Plot not displayed by default
 
-	//TODO: Shouldn't this variable be private
+	// TODO: Shouldn't this variable be private
 	long startTime = System.nanoTime();
 
 	/* Actions */
@@ -156,7 +158,7 @@ public class QStatMonitorView extends ViewPart {
 			// Close plug-in
 		}
 
-		//TODO: Is this really needed?
+		// TODO: Is this really needed?
 		// Ensures jobs do not run concurrently
 		fetchQStatInfoJob.setRule(rule);
 		fillTableJob.setRule(rule);
@@ -202,7 +204,7 @@ public class QStatMonitorView extends ViewPart {
 
 		plottingSystem.createPlotPart(sashForm, "QStat Monitor Plot Sash", null,
 				PlotType.XY, null);
-		
+
 		// Plot view not shown by default
 		sashForm.setMaximizedControl(table);
 	}
@@ -575,14 +577,14 @@ public class QStatMonitorView extends ViewPart {
 			}
 		}
 	}
-	
+
 	class ShowPlotAction extends Action {
 		ShowPlotAction() {
 			setText("Show Plot");
 			setImageDescriptor(Activator.getDefault().getWorkbench().getSharedImages()
 					.getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
 		}
-		
+
 		public void run() {
 			setPlotOption();
 		}
