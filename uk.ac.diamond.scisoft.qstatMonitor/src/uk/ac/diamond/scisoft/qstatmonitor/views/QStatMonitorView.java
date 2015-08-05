@@ -57,7 +57,9 @@ public class QStatMonitorView extends ViewPart {
 
 	public static final String ID = "uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView";
 
+	/* UI Components */
 	private Table table;
+	private SashForm sashForm;
 	private static final String[] TABLE_COL_LABELS = {"Job Number", "Priority",
 			"Job Name", "Owner", "State", "Submission Time", "Queue Name", "Slots",
 			"Tasks"};
@@ -195,11 +197,14 @@ public class QStatMonitorView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		setupActionBar();
 
-		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);
+		sashForm = new SashForm(parent, SWT.VERTICAL);
 		setupTable(sashForm);
 
 		plottingSystem.createPlotPart(sashForm, "QStat Monitor Plot Sash", null,
 				PlotType.XY, null);
+		
+		// Plot view not shown by default
+		sashForm.setMaximizedControl(table);
 	}
 
 	/**
@@ -257,7 +262,11 @@ public class QStatMonitorView extends ViewPart {
 	 */
 	public void setPlotOption() {
 		this.plotOption = !this.plotOption;
-		//TODO: If option is false then only display table
+		if (plotOption) {
+			sashForm.setMaximizedControl(null);
+		} else {
+			sashForm.setMaximizedControl(table);
+		}
 		//TODO: Should call plotjob immediately
 	}
 
