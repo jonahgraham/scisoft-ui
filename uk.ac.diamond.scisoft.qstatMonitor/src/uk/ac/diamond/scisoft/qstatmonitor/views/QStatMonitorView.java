@@ -52,6 +52,8 @@ import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferenceCons
 import uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage;
 
 public class QStatMonitorView extends ViewPart {
+	public QStatMonitorView() {
+	}
 
 	public static final String ID = "uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView";
 
@@ -82,8 +84,10 @@ public class QStatMonitorView extends ViewPart {
 	private String qStatQuery;
 	private String userArg;
 	private boolean refreshOption;
+	
 	private boolean plotOption = false; // Plot not displayed by default
 
+	//TODO: Shouldn't this variable be private
 	long startTime = System.nanoTime();
 
 	/* Actions */
@@ -111,8 +115,6 @@ public class QStatMonitorView extends ViewPart {
 					QStatMonitorPreferenceConstants.P_REFRESH)) {
 				refreshOption = !Boolean
 						.parseBoolean(String.valueOf(event.getNewValue()));
-			//} else if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_PLOT)) {
-			//	setPlotOption(!Boolean.parseBoolean(String.valueOf(event.getNewValue())));
 			} else {
 				// Should never reach here
 				throw new IllegalArgumentException("Unrecognised property change event");
@@ -152,7 +154,7 @@ public class QStatMonitorView extends ViewPart {
 			// Close plug-in
 		}
 
-		// TODO: Is this really needed?
+		//TODO: Is this really needed?
 		// Ensures jobs do not run concurrently
 		fetchQStatInfoJob.setRule(rule);
 		fillTableJob.setRule(rule);
@@ -164,10 +166,7 @@ public class QStatMonitorView extends ViewPart {
 			public void done(IJobChangeEvent event) {
 				super.done(event);
 				fillTableJob.schedule();
-
-				if (plotOption) {
-					plotDataJob.schedule();
-				}
+				plotDataJob.schedule();
 			}
 		});
 
@@ -213,7 +212,6 @@ public class QStatMonitorView extends ViewPart {
 		qStatQuery = store.getString(QStatMonitorPreferenceConstants.P_QUERY);
 		userArg = store.getString(QStatMonitorPreferenceConstants.P_USER);
 		refreshOption = !store.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH);
-		//setPlotOption(!store.getBoolean(QStatMonitorPreferenceConstants.P_PLOT));
 	}
 
 	/**
@@ -459,7 +457,9 @@ public class QStatMonitorView extends ViewPart {
 		@Override
 		public IStatus runInUIThread(IProgressMonitor monitor) {
 			updatePlotLists();
-			plotResults();
+			if (plotOption) {
+				plotResults();
+			}
 			return Status.OK_STATUS;
 		}
 
