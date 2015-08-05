@@ -538,7 +538,10 @@ public class QStatMonitorView extends ViewPart {
 				// Required in the situation where plotData() is called after
 				// plottingSystem is disposed
 				if (!plottingSystem.isDisposed()) {
-					plottingSystem.clear();
+					// Reset axes and clear plot
+					plottingSystem.reset();
+					// Quick fix to prevent horizontal line trace at 0 from being hidden
+					plottingSystem.getSelectedYAxis().setRange(0, 0);
 					plottingSystem.createPlot1D(timeDataset, Arrays.asList(datasetArr),
 							null);
 				}
