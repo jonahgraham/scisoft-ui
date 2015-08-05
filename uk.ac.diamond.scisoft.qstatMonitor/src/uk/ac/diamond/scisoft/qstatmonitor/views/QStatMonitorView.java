@@ -59,6 +59,9 @@ public class QStatMonitorView extends ViewPart {
 	public static final String ID = "uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView";
 	private static final Logger logger = LoggerFactory.getLogger(QStatMonitorView.class);
 
+	// Table and plot views fill sashform with ratio 2:1
+	private static final int[] SASH_FORM_RATIO = {2, 1};
+
 	/* UI Components */
 	private Table table;
 	private SashForm sashForm;
@@ -93,7 +96,7 @@ public class QStatMonitorView extends ViewPart {
 
 	// TODO: Shouldn't this variable be private
 	long startTime = System.nanoTime();
-
+	
 	/* Actions */
 	private Action refreshAction = new RefreshAction();
 	private Action openPreferencesAction = new OpenPreferencesAction();
@@ -205,6 +208,9 @@ public class QStatMonitorView extends ViewPart {
 		plottingSystem.createPlotPart(sashForm, "QStat Monitor Plot Sash", null,
 				PlotType.XY, null);
 
+		// Set sashform layout
+		sashForm.setWeights(SASH_FORM_RATIO);
+		
 		// Plot view not shown by default
 		sashForm.setMaximizedControl(table);
 	}
@@ -271,6 +277,8 @@ public class QStatMonitorView extends ViewPart {
 			sashForm.setMaximizedControl(null);
 		} else {
 			sashForm.setMaximizedControl(table);
+			// Reset sashform layout to default
+			sashForm.setWeights(SASH_FORM_RATIO);
 		}
 	}
 
