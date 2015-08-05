@@ -263,11 +263,11 @@ public class QStatMonitorView extends ViewPart {
 	public void setPlotOption() {
 		this.plotOption = !this.plotOption;
 		if (plotOption) {
+			plotDataJob.schedule();
 			sashForm.setMaximizedControl(null);
 		} else {
 			sashForm.setMaximizedControl(table);
 		}
-		//TODO: Should call plotjob immediately
 	}
 
 	/**
