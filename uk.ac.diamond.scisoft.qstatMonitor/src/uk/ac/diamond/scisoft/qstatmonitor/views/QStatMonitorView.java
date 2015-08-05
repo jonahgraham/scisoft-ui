@@ -243,6 +243,8 @@ public class QStatMonitorView extends ViewPart {
 		for (int i = 0; i < TABLE_COL_LABELS.length; i++) {
 			TableColumn column = new TableColumn(table, SWT.NONE);
 			column.setText(TABLE_COL_LABELS[i]);
+			// Required to display columns (with labels) before data loaded
+			column.pack();
 		}
 	}
 
@@ -540,7 +542,7 @@ public class QStatMonitorView extends ViewPart {
 				if (!plottingSystem.isDisposed()) {
 					// Reset axes and clear plot
 					plottingSystem.reset();
-					// Quick fix to prevent horizontal line trace at 0 from being hidden
+					// Quick fix to prevent horizontal line trace at y = 0 from being hidden
 					plottingSystem.getSelectedYAxis().setRange(0, 0);
 					plottingSystem.createPlot1D(timeDataset, Arrays.asList(datasetArr),
 							null);
