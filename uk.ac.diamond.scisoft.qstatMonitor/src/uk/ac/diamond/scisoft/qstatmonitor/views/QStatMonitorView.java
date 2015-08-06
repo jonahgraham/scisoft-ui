@@ -577,8 +577,6 @@ public class QStatMonitorView extends ViewPart {
 	class OpenPreferencesAction extends Action {
 		OpenPreferencesAction() {
 			setText("Preferences");
-			setImageDescriptor(Activator.getDefault().getWorkbench().getSharedImages()
-					.getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
 		}
 
 		public void run() {
