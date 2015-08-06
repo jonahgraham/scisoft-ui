@@ -45,6 +45,9 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 	@Override
 	protected void createFieldEditors() {
 		IPreferenceStore preferences = Activator.getDefault().getPreferenceStore();
+		
+		addField(new BooleanFieldEditor(QStatMonitorPreferenceConstants.P_REFRESH,
+				"Enable automatic refreshing", getFieldEditorParent()));
 
 		(new Label(getFieldEditorParent(), SWT.READ_ONLY))
 				.setText("Refresh interval (seconds)");
@@ -57,9 +60,6 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 		spnRefreshInterval.setMaximum(Integer.MAX_VALUE);
 		spnRefreshInterval.setSelection((int) (Double.parseDouble(preferences
 				.getString(QStatMonitorPreferenceConstants.P_SLEEP)) * 10));
-
-		addField(new BooleanFieldEditor(QStatMonitorPreferenceConstants.P_REFRESH,
-				"Disable automatic refreshing", getFieldEditorParent()));
 
 		(new Label(getFieldEditorParent(), SWT.WRAP)).setText("Example queries");
 

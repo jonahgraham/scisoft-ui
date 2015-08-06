@@ -6,7 +6,7 @@ public class QStatMonitorPreferenceConstants {
 	public static final float DEF_SLEEP = 4.5f;
 
 	public static final String P_REFRESH = "uk.ac.diamond.scisoft.qstatmonitor.preferences.refresh";
-	public static final boolean DEF_REFRESH = false;
+	public static final boolean DEF_REFRESH = true;
 
 	public static final String P_QUERY = "uk.ac.diamond.scisoft.qstatmonitor.preferences.query";
 	public static final String DEF_QUERY = "qstat";

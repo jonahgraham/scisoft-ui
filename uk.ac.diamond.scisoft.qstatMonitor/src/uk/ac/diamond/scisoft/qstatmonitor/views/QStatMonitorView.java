@@ -120,7 +120,7 @@ public class QStatMonitorView extends ViewPart {
 				userArg = String.valueOf(event.getNewValue());
 			} else if (event.getProperty().equals(
 					QStatMonitorPreferenceConstants.P_REFRESH)) {
-				refreshOption = !Boolean
+				refreshOption = Boolean
 						.parseBoolean(String.valueOf(event.getNewValue()));
 			} else {
 				// Should never reach here
@@ -224,7 +224,7 @@ public class QStatMonitorView extends ViewPart {
 		setRefreshInterval(store.getFloat(QStatMonitorPreferenceConstants.P_SLEEP));
 		qStatQuery = store.getString(QStatMonitorPreferenceConstants.P_QUERY);
 		userArg = store.getString(QStatMonitorPreferenceConstants.P_USER);
-		refreshOption = !store.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH);
+		refreshOption = store.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH);
 	}
 
 	/**
