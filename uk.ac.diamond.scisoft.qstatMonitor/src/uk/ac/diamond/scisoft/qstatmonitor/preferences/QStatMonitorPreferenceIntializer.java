@@ -24,9 +24,6 @@ public class QStatMonitorPreferenceIntializer extends
 				QStatMonitorPreferenceConstants.DEF_SLEEP);
 		store.setDefault(QStatMonitorPreferenceConstants.P_REFRESH,
 				QStatMonitorPreferenceConstants.DEF_REFRESH);
-		//TODO: Remove maybe?
-		//store.setDefault(QStatMonitorPreferenceConstants.P_PLOT,
-		//		QStatMonitorPreferenceConstants.DEF_PLOT);
 		store.setDefault(QStatMonitorPreferenceConstants.P_QUERY,
 				QStatMonitorPreferenceConstants.DEF_QUERY);
 		store.setDefault(QStatMonitorPreferenceConstants.P_USER,

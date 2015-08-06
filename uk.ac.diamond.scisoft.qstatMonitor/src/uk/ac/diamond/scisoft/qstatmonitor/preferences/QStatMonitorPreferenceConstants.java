@@ -7,12 +7,6 @@ public class QStatMonitorPreferenceConstants {
 
 	public static final String P_REFRESH = "uk.ac.diamond.scisoft.qstatmonitor.preferences.refresh";
 	public static final boolean DEF_REFRESH = false;
-	
-	//TODO: Do still need 'preference' constant for plot option
-	/*
-	public static final String P_PLOT = "uk.ac.diamond.scisoft.qstatmonitor.preferences.plot";
-	public static final boolean DEF_PLOT = false;
-	*/
 
 	public static final String P_QUERY = "uk.ac.diamond.scisoft.qstatmonitor.preferences.query";
 	public static final String DEF_QUERY = "qstat";
