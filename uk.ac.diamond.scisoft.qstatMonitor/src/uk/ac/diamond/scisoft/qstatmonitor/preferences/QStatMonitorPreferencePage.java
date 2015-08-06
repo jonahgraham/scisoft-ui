@@ -12,6 +12,7 @@ import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -20,6 +21,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.qstatmonitor.Activator;
 
@@ -28,10 +31,12 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 			IWorkbenchPreferencePage {
 
 	public static final String ID = "uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage";
+	private static final Logger logger = LoggerFactory.getLogger(QStatMonitorPreferencePage.class);
 
 	private Spinner spnRefreshInterval;
 	private StringFieldEditor queryField;
 	private StringFieldEditor userField;
+	private BooleanFieldEditor refreshField;
 
 	public QStatMonitorPreferencePage() {
 		super(GRID);
@@ -46,8 +51,9 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 	protected void createFieldEditors() {
 		IPreferenceStore preferences = Activator.getDefault().getPreferenceStore();
 		
-		addField(new BooleanFieldEditor(QStatMonitorPreferenceConstants.P_REFRESH,
-				"Enable automatic refreshing", getFieldEditorParent()));
+		refreshField = new BooleanFieldEditor(QStatMonitorPreferenceConstants.P_REFRESH,
+				"Enable automatic refreshing", getFieldEditorParent());
+		addField(refreshField);
 
 		(new Label(getFieldEditorParent(), SWT.READ_ONLY))
 				.setText("Refresh interval (seconds)");
@@ -92,13 +98,29 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 				"Show tasks by this user", getFieldEditorParent());
 		addField(userField);
 	}
+	
+	@Override
+    public void propertyChange(PropertyChangeEvent event) {
+		// Enable/disable refresh interval spinner depending on whether
+		// automatic refresh is checked
+		if (event.getSource().equals(refreshField)) {
+			if (event.getProperty().equals("field_editor_value")) {
+				if ((boolean) event.getNewValue()) {
+					spnRefreshInterval.setEnabled(true);
+				} else {
+					spnRefreshInterval.setEnabled(false);
+				}
+			}
+		}
+	
+		super.propertyChange(event);
+	}
 
 	@Override
 	public boolean performOk() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		store.setValue(QStatMonitorPreferenceConstants.P_SLEEP,
 				Float.parseFloat(spnRefreshInterval.getText()));
-
 		return super.performOk();
 	}
 
