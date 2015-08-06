@@ -182,7 +182,7 @@ public class QStatMonitorView extends ViewPart {
 		initialisePreferenceVariables(preferenceStore);
 		preferenceStore.addPropertyChangeListener(preferenceListener);
 
-		startQStatService();
+		//startQStatService();
 	}
 
 	/**

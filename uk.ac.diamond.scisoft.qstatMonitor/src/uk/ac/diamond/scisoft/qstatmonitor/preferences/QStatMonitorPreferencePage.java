@@ -8,9 +8,17 @@
  */
 package uk.ac.diamond.scisoft.qstatmonitor.preferences;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.slf4j.Logger;
@@ -24,7 +32,10 @@ public class QStatMonitorPreferencePage extends PreferencePage
 
 	public static final String ID = "uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage";
 	private static final Logger logger = LoggerFactory.getLogger(QStatMonitorPreferencePage.class);
-
+	
+	private Button btnAutoRefresh;
+	private Spinner spnInterval;
+	
 	public QStatMonitorPreferencePage() {
 	}
 
@@ -35,7 +46,30 @@ public class QStatMonitorPreferencePage extends PreferencePage
 
 	@Override
 	protected Control createContents(Composite parent) {
-		return null;
+		IPreferenceStore preferences = Activator.getDefault().getPreferenceStore();
+		
+		Composite mainComposite = new Composite(parent, SWT.NONE);
+		mainComposite.setLayout(new GridLayout(1, false));
+		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		Group grpRefresh = new Group(mainComposite, SWT.NONE);
+		grpRefresh.setText("Refresh Settings");
+		grpRefresh.setLayout(new GridLayout(2, false));
+		grpRefresh.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		
+		(new Label(grpRefresh, SWT.NONE)).setText("Enable automatic refreshing");
+		btnAutoRefresh = new Button(grpRefresh, SWT.CHECK | SWT.NO_FOCUS);
+		
+		(new Label(grpRefresh, SWT.NONE)).setText("Interval (seconds)");
+		spnInterval = new Spinner(grpRefresh, SWT.READ_ONLY | SWT.BORDER);
+		spnInterval.setDigits(1);
+		spnInterval.setIncrement(5);
+		spnInterval.setMinimum(20);
+		spnInterval.setMaximum(1000);
+		spnInterval.setSelection((int) (Double.parseDouble(preferences
+				.getString(QStatMonitorPreferenceConstants.P_SLEEP)) * 10));
+		
+		return mainComposite;
 	}
 	
 
