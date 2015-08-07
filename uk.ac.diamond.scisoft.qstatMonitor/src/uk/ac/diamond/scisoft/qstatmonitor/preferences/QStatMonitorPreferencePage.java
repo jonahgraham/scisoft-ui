@@ -34,6 +34,25 @@ public class QStatMonitorPreferencePage extends PreferencePage
 	public static final String ID = "uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage";
 	private static final Logger logger = LoggerFactory.getLogger(QStatMonitorPreferencePage.class);
 	
+	private static final int SPN_DEC_PLACES = 1;
+	// Must not exceed SPN_DEC_PLACES number of decimal places
+	private static final float REF_INC_VAL = 0.5f;
+	private static final float REF_MIN_VAL = 2.0f;
+	private static final float REF_MAX_VAL = 100.0f;
+	
+	/**
+	 * Converts refresh interval value to spinner compatible value (integer)
+	 * 
+	 * @param 
+	 * 		value
+	 * @return
+	 * 		spinner value
+	 */
+	private static int convertSpinnerValue(float value) {
+		int multFactor = (int) Math.pow(10, SPN_DEC_PLACES);		
+		return (int) (value * multFactor);
+	}
+	
 	private Button btnAutoRefresh;
 	private Spinner spnInterval;
 	private Combo cboResource;
@@ -65,12 +84,11 @@ public class QStatMonitorPreferencePage extends PreferencePage
 		
 		(new Label(grpRefresh, SWT.NONE)).setText("Interval (seconds)");
 		spnInterval = new Spinner(grpRefresh, SWT.READ_ONLY | SWT.BORDER);
-		spnInterval.setDigits(1);
-		spnInterval.setIncrement(5);
-		spnInterval.setMinimum(20);
-		spnInterval.setMaximum(1000);
-		spnInterval.setSelection((int) (Double.parseDouble(preferences
-				.getString(QStatMonitorPreferenceConstants.P_SLEEP)) * 10));
+		spnInterval.setDigits(SPN_DEC_PLACES);
+		spnInterval.setIncrement(convertSpinnerValue(REF_INC_VAL));
+		spnInterval.setMinimum(convertSpinnerValue(REF_MIN_VAL));
+		spnInterval.setMaximum(convertSpinnerValue(REF_MAX_VAL));
+		spnInterval.setSelection(convertSpinnerValue(preferences.getFloat(QStatMonitorPreferenceConstants.P_SLEEP)));
 		
 		Group grpQuery = new Group(mainComposite, SWT.NONE);
 		grpQuery.setText("Query Configuration");
