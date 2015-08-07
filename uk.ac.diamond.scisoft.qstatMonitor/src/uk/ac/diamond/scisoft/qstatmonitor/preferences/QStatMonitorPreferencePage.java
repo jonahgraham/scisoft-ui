@@ -14,6 +14,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -35,6 +36,8 @@ public class QStatMonitorPreferencePage extends PreferencePage
 	
 	private Button btnAutoRefresh;
 	private Spinner spnInterval;
+	private Combo cboResource;
+	private Combo cboUser;
 	
 	public QStatMonitorPreferencePage() {
 	}
@@ -69,6 +72,20 @@ public class QStatMonitorPreferencePage extends PreferencePage
 		spnInterval.setSelection((int) (Double.parseDouble(preferences
 				.getString(QStatMonitorPreferenceConstants.P_SLEEP)) * 10));
 		
+		Group grpQuery = new Group(mainComposite, SWT.NONE);
+		grpQuery.setText("Query Configuration");
+		grpQuery.setLayout(new GridLayout(2, false));
+		grpQuery.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		
+		(new Label(grpQuery, SWT.NONE)).setText("Resource");
+		cboResource = new Combo(grpQuery, SWT.DROP_DOWN);
+		cboResource.setItems(new String[] {"tesla", "tesla64", "All"});
+		cboResource.setSize(5, 0);
+		
+		(new Label(grpQuery, SWT.NONE)).setText("User");
+		cboUser = new Combo(grpQuery, SWT.DROP_DOWN | SWT.WRAP);
+		cboUser.setItems(new String[] {"Default", "All"});
+
 		return mainComposite;
 	}
 	
