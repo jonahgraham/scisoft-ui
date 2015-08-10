@@ -24,8 +24,16 @@ public class QStatMonitorPreferenceIntializer extends
 				QStatMonitorPreferenceConstants.DEF_SLEEP);
 		store.setDefault(QStatMonitorPreferenceConstants.P_REFRESH,
 				QStatMonitorPreferenceConstants.DEF_REFRESH);
-		store.setDefault(QStatMonitorPreferenceConstants.P_QUERY,
-				QStatMonitorPreferenceConstants.DEF_QUERY);
+		store.setDefault(QStatMonitorPreferenceConstants.P_RESOURCES_ALL,
+				QStatMonitorPreferenceConstants.DEF_RESOURCES_ALL);
+		store.setDefault(QStatMonitorPreferenceConstants.P_RESOURCE,
+				QStatMonitorPreferenceConstants.DEF_RESOURCE);
+		store.setDefault(QStatMonitorPreferenceConstants.P_USER_ALL,
+				QStatMonitorPreferenceConstants.DEF_USER_ALL);
+		store.setDefault(QStatMonitorPreferenceConstants.P_USER_CURR,
+				QStatMonitorPreferenceConstants.DEF_USER_CURR);
+		store.setDefault(QStatMonitorPreferenceConstants.P_USER_CUST,
+				QStatMonitorPreferenceConstants.DEF_USER_CUST);
 		store.setDefault(QStatMonitorPreferenceConstants.P_USER,
 				QStatMonitorPreferenceConstants.DEF_USER);
 	}

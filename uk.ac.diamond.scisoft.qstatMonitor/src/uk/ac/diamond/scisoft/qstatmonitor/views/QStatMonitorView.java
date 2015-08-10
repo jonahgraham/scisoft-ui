@@ -61,6 +61,12 @@ public class QStatMonitorView extends ViewPart {
 
 	// Table and plot views fill sashform with ratio 2:1
 	private static final int[] SASH_FORM_RATIO = {2, 1};
+	
+	// Query string constants
+	private static final String QSTAT_COMMAND = "qstat";
+	private static final String RESOURCE_FLAG = "-l";
+	private static final String ALL_USERS = "*";
+	private static final String CURR_USER = "";
 
 	/* UI Components */
 	private Table table;
@@ -108,20 +114,29 @@ public class QStatMonitorView extends ViewPart {
 	private UIJob plotDataJob = new PlotDataJob();
 
 	private IPlottingSystem plottingSystem;
-
+	
 	private IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {
 		public void propertyChange(PropertyChangeEvent event) {
 			if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_SLEEP)) {
 				setRefreshInterval((float) event.getNewValue());
-			} else if (event.getProperty()
-					.equals(QStatMonitorPreferenceConstants.P_QUERY)) {
-				qStatQuery = String.valueOf(event.getNewValue());
-			} else if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_USER)) {
-				userArg = String.valueOf(event.getNewValue());
 			} else if (event.getProperty().equals(
 					QStatMonitorPreferenceConstants.P_REFRESH)) {
 				refreshOption = Boolean
 						.parseBoolean(String.valueOf(event.getNewValue()));
+			} else if (event.getProperty()
+					.equals(QStatMonitorPreferenceConstants.P_RESOURCES_ALL)) {
+				qStatQuery = QSTAT_COMMAND;
+			} else if (event.getProperty()
+					.equals(QStatMonitorPreferenceConstants.P_RESOURCE)) {
+				qStatQuery = QSTAT_COMMAND + " " + RESOURCE_FLAG + " " + String.valueOf(event.getNewValue());
+			} else if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_USER_ALL)) {
+				userArg = ALL_USERS;
+			} else if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_USER_CURR)) {
+				userArg = CURR_USER;
+			} else if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_USER_CUST)) {
+				// Do nothing
+			} else if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_USER)) {
+				userArg = String.valueOf(event.getNewValue());
 			} else {
 				// Should never reach here
 				throw new IllegalArgumentException("Unrecognised property change event");
@@ -182,7 +197,7 @@ public class QStatMonitorView extends ViewPart {
 		initialisePreferenceVariables(preferenceStore);
 		preferenceStore.addPropertyChangeListener(preferenceListener);
 
-		//startQStatService();
+		startQStatService();
 	}
 
 	/**
@@ -218,13 +233,39 @@ public class QStatMonitorView extends ViewPart {
 	/**
 	 * Initialise preference variables with values from preference store
 	 * 
-	 * @param store
+	 * @param preferences
 	 */
-	private void initialisePreferenceVariables(IPreferenceStore store) {
-		setRefreshInterval(store.getFloat(QStatMonitorPreferenceConstants.P_SLEEP));
-		qStatQuery = store.getString(QStatMonitorPreferenceConstants.P_QUERY);
-		userArg = store.getString(QStatMonitorPreferenceConstants.P_USER);
-		refreshOption = store.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH);
+	private void initialisePreferenceVariables(IPreferenceStore preferences) {
+		refreshOption = preferences.getBoolean(QStatMonitorPreferenceConstants.P_REFRESH);
+		setRefreshInterval(preferences.getFloat(QStatMonitorPreferenceConstants.P_SLEEP));
+		initialiseQStatQuery(preferences);
+		initialiseUserArg(preferences);
+	}
+	
+	/**
+	 * Initialise qStatQuery with value from preference store
+	 * @param preferences
+	 */
+	private void initialiseQStatQuery(IPreferenceStore preferences) {
+		if (preferences.getBoolean(QStatMonitorPreferenceConstants.P_RESOURCES_ALL)) {
+			qStatQuery = QSTAT_COMMAND;
+		} else {
+			qStatQuery = QSTAT_COMMAND + " " + RESOURCE_FLAG + " " + preferences.getString(QStatMonitorPreferenceConstants.P_RESOURCE);
+		}
+	}
+	
+	/**
+	 * Initialise userArg with value from preference store
+	 * @param preferences
+	 */
+	private void initialiseUserArg(IPreferenceStore preferences) {
+		if (preferences.getBoolean(QStatMonitorPreferenceConstants.P_USER_ALL)) {
+			userArg = ALL_USERS;
+		} else if (preferences.getBoolean(QStatMonitorPreferenceConstants.P_USER_CURR)) {
+			userArg = CURR_USER;
+		} else {
+			userArg = preferences.getString(QStatMonitorPreferenceConstants.P_USER);
+		}
 	}
 
 	/**
