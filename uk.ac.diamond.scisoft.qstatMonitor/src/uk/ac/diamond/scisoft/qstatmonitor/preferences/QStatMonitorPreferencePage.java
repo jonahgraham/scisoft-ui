@@ -124,7 +124,7 @@ public class QStatMonitorPreferencePage extends PreferencePage
 			public void handleEvent(Event event) {
 				// Enables/disables interval spinner
 				spnInterval.setEnabled(!spnInterval.getEnabled());
-				spnInterval.setSelection(convertSpinnerValue(preferences.getFloat(QStatMonitorPreferenceConstants.P_SLEEP)));
+				//spnInterval.setSelection(convertSpinnerValue(preferences.getFloat(QStatMonitorPreferenceConstants.P_SLEEP)));
 			}
 		});
 		
@@ -357,12 +357,13 @@ public class QStatMonitorPreferencePage extends PreferencePage
 	@Override
 	public boolean performOk() {
 		IPreferenceStore preferences = Activator.getDefault().getPreferenceStore();
-
+		
 		preferences.setValue(QStatMonitorPreferenceConstants.P_REFRESH, btnAutoRefresh.getSelection());
-		preferences.setValue(QStatMonitorPreferenceConstants.P_SLEEP, Float.parseFloat(spnInterval.getText()));
+		if (btnAutoRefresh.getSelection()) {
+			preferences.setValue(QStatMonitorPreferenceConstants.P_SLEEP, Float.parseFloat(spnInterval.getText()));
+		}
 		
 		preferences.setValue(QStatMonitorPreferenceConstants.P_RESOURCES_ALL, btnAllResources.getSelection());
-
 		if (!btnAllResources.getSelection()) {
 			preferences.setValue(QStatMonitorPreferenceConstants.P_RESOURCE, cboResource.getText());
 		} else {
@@ -372,7 +373,6 @@ public class QStatMonitorPreferencePage extends PreferencePage
 		preferences.setValue(QStatMonitorPreferenceConstants.P_USER_ALL, btnUsersAll.getSelection());
 		preferences.setValue(QStatMonitorPreferenceConstants.P_USER_CURR, btnUsersCurr.getSelection());
 		preferences.setValue(QStatMonitorPreferenceConstants.P_USER_CUST, btnUsersCust.getSelection());
-		
 		if (btnUsersCust.getSelection()) {
 			preferences.setValue(QStatMonitorPreferenceConstants.P_USER, txtUser.getText());
 		} else {
