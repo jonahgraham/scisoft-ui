@@ -121,22 +121,35 @@ public class QStatMonitorView extends ViewPart {
 				setRefreshInterval((float) event.getNewValue());
 			} else if (event.getProperty().equals(
 					QStatMonitorPreferenceConstants.P_REFRESH)) {
-				refreshOption = Boolean
-						.parseBoolean(String.valueOf(event.getNewValue()));
+				refreshOption = getBooleanValue(event.getNewValue());
 			} else if (event.getProperty()
 					.equals(QStatMonitorPreferenceConstants.P_RESOURCES_ALL)) {
-				qStatQuery = QSTAT_COMMAND;
+				if (getBooleanValue(event.getNewValue())) {
+					qStatQuery = QSTAT_COMMAND;
+				}
 			} else if (event.getProperty()
 					.equals(QStatMonitorPreferenceConstants.P_RESOURCE)) {
-				qStatQuery = QSTAT_COMMAND + " " + RESOURCE_FLAG + " " + String.valueOf(event.getNewValue());
+				String resource = String.valueOf(event.getNewValue());
+				if (!resource.equals("")) {
+					qStatQuery = QSTAT_COMMAND + " " + RESOURCE_FLAG + " " + resource;
+				}
 			} else if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_USER_ALL)) {
-				userArg = ALL_USERS;
+				if (getBooleanValue(event.getNewValue())) {
+					userArg = ALL_USERS;
+				}
 			} else if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_USER_CURR)) {
-				userArg = CURR_USER;
+				if (getBooleanValue(event.getNewValue())) {
+					userArg = CURR_USER;
+				}
 			} else if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_USER_CUST)) {
-				// Do nothing
+				if (getBooleanValue(event.getNewValue())) {
+					userArg = String.valueOf(event.getNewValue());
+				}
 			} else if (event.getProperty().equals(QStatMonitorPreferenceConstants.P_USER)) {
-				userArg = String.valueOf(event.getNewValue());
+				String user = String.valueOf(event.getNewValue());
+				if (!user.equals("")) {
+					userArg = user;
+				}
 			} else {
 				// Should never reach here
 				throw new IllegalArgumentException("Unrecognised property change event");
@@ -145,6 +158,15 @@ public class QStatMonitorView extends ViewPart {
 			startQStatService();
 		}
 	};
+	
+	/**
+	 * Converts object to boolean, used by PropertyChangeListener
+	 * @param object
+	 * @return
+	 */
+	private boolean getBooleanValue(Object object) {
+		return Boolean.parseBoolean(String.valueOf(object));
+	}
 
 	private ISchedulingRule rule = new ISchedulingRule() {
 

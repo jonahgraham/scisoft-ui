@@ -11,6 +11,8 @@ package uk.ac.diamond.scisoft.qstatmonitor.preferences;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -69,6 +71,11 @@ public class QStatMonitorPreferencePage extends PreferencePage
 	private Combo cboResource;
 	private Text txtUser;
 	
+	// Validation checks
+	// Required to determine overall state
+	private boolean validResource = true;
+	private boolean validUser = true;
+	
 	public QStatMonitorPreferencePage() {
 	}
 
@@ -93,7 +100,7 @@ public class QStatMonitorPreferencePage extends PreferencePage
 		setupQueryPart(mainComposite, preferences);
 	
 		initialiseWidgets(preferences);
-
+		
 		return mainComposite;
 	}
 	
@@ -104,6 +111,7 @@ public class QStatMonitorPreferencePage extends PreferencePage
 	 * @param preferences
 	 */
 	private void setupRefreshPart(Composite parent, final IPreferenceStore preferences) {
+		// Place all widgets inside Group
 		Group grpRefresh = new Group(parent, SWT.NONE);
 		grpRefresh.setText("Refresh Settings");
 		grpRefresh.setLayout(new GridLayout(2, false));
@@ -114,6 +122,7 @@ public class QStatMonitorPreferencePage extends PreferencePage
 		btnAutoRefresh.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
+				// Enables/disables interval spinner
 				spnInterval.setEnabled(!spnInterval.getEnabled());
 				spnInterval.setSelection(convertSpinnerValue(preferences.getFloat(QStatMonitorPreferenceConstants.P_SLEEP)));
 			}
@@ -135,9 +144,7 @@ public class QStatMonitorPreferencePage extends PreferencePage
 	 */
 	private void setupQueryPart(Composite parent, final IPreferenceStore preferences) {
 		(new Label(parent, SWT.NONE)).setText("Query Configuration");
-		
 		setupResourcesSubPart(parent, preferences);
-		
 		setupUsersSubPart(parent, preferences);
 	}
 	
@@ -148,6 +155,7 @@ public class QStatMonitorPreferencePage extends PreferencePage
 	 * @param preferences
 	 */
 	private void setupResourcesSubPart(Composite parent, final IPreferenceStore preferences) {
+		// Put widgets inside group
 		Group grpResources = new Group(parent, SWT.NONE);
 		grpResources.setText("Resources");
 		grpResources.setLayout(new GridLayout(2, false));
@@ -158,14 +166,31 @@ public class QStatMonitorPreferencePage extends PreferencePage
 		btnAllResources.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
+				// Enable/disable combobox
 				cboResource.setEnabled(!cboResource.getEnabled());
-				cboResource.setText(preferences.getString(QStatMonitorPreferenceConstants.P_RESOURCE));
+				
+				// All resources checkbox selected
+				if (btnAllResources.getSelection()) {
+					validResource = true;
+					setValidState();
+				} else {
+					validateResourceText();
+				}
 			}
 		});
+		
 		
 		(new Label(grpResources, SWT.NONE)).setText("Custom resource");
 		cboResource = new Combo(grpResources, SWT.DROP_DOWN);
 		cboResource.setItems(RESOURCE_LIST);
+		cboResource.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				if (!btnAllResources.getSelection()) {
+					validateResourceText();
+				}
+			}
+		});
 	}
 	
 	/**
@@ -175,18 +200,21 @@ public class QStatMonitorPreferencePage extends PreferencePage
 	 * @param preferences
 	 */
 	private void setupUsersSubPart(Composite parent, final IPreferenceStore preferences) {
+		// Put widgets inside group
 		Group grpUsers = new Group(parent, SWT.NONE);
 		grpUsers.setText("Users");
 		grpUsers.setLayout(new GridLayout(2, false));
 		grpUsers.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
+		// Set up radio buttons
 	    btnUsersAll = new Button(grpUsers, SWT.RADIO);
 	    btnUsersAll.setText("All");
 	    btnUsersAll.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
 				txtUser.setEnabled(false);
-				txtUser.setText(preferences.getString(QStatMonitorPreferenceConstants.P_USER));
+				validUser = true;
+				setValidState();
 			}
 		});
 	    new Label(grpUsers, SWT.NONE); // Empty label to fill 2nd cell
@@ -197,7 +225,8 @@ public class QStatMonitorPreferencePage extends PreferencePage
 			@Override
 			public void handleEvent(Event event) {
 				txtUser.setEnabled(false);
-				txtUser.setText(preferences.getString(QStatMonitorPreferenceConstants.P_USER));
+				validUser = true;
+				setValidState();
 			}
 		});
 	    new Label(grpUsers, SWT.NONE); // Empty label to fill 2nd cell
@@ -208,11 +237,78 @@ public class QStatMonitorPreferencePage extends PreferencePage
 			@Override
 			public void handleEvent(Event event) {
 				txtUser.setEnabled(true);
+				validateUserText();
 			}
 		});
 		
+	    // Custom user text box
 	    txtUser = new Text(grpUsers, SWT.BORDER);
 	    txtUser.setLayoutData(new GridData(80, SWT.DEFAULT));
+	    txtUser.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				if (btnUsersCust.getSelection()) {
+					validateUserText();
+				}
+			}
+		});
+	}
+	
+	/**
+	 * Attempt to make state valid
+	 */
+	private void setValidState() {
+		setErrorMessage(null);
+		
+		// Both must be true
+		if (validResource && validUser) {
+			setValid(true);
+		}
+		
+		showErrorMessage();
+	}
+	
+	/**
+	 * Reprint error message if still invalid
+	 */
+	private void showErrorMessage() {
+		if (!validResource) {
+			setErrorMessage("Resource name cannot be blank");
+		}
+		
+		if (!validUser) {
+			setErrorMessage("Username cannot be blank");
+		}
+	}
+	
+	/**
+	 * Validates resource text value
+	 */
+	private void validateResourceText() {
+		// Text value not empty
+		if (!cboResource.getText().equals("")) {
+			validResource = true;
+			setValidState();
+		} else {
+			validResource = false;
+			setErrorMessage("Resource name cannot be blank");
+			setValid(false);
+		}
+	}
+	
+	/**
+	 * Validates user text value
+	 */
+	private void validateUserText() {
+		// Text value not empty
+		if (!txtUser.getText().equals("")) {
+			validUser = true;
+			setValidState();
+		} else {
+			validUser = false;
+			setErrorMessage("Username cannot be blank");
+			setValid(false);
+		}
 	}
 	
 	/**
@@ -266,12 +362,22 @@ public class QStatMonitorPreferencePage extends PreferencePage
 		preferences.setValue(QStatMonitorPreferenceConstants.P_SLEEP, Float.parseFloat(spnInterval.getText()));
 		
 		preferences.setValue(QStatMonitorPreferenceConstants.P_RESOURCES_ALL, btnAllResources.getSelection());
-		preferences.setValue(QStatMonitorPreferenceConstants.P_RESOURCE, cboResource.getText());
+
+		if (!btnAllResources.getSelection()) {
+			preferences.setValue(QStatMonitorPreferenceConstants.P_RESOURCE, cboResource.getText());
+		} else {
+			preferences.setValue(QStatMonitorPreferenceConstants.P_RESOURCE, "");
+		}
 		
 		preferences.setValue(QStatMonitorPreferenceConstants.P_USER_ALL, btnUsersAll.getSelection());
 		preferences.setValue(QStatMonitorPreferenceConstants.P_USER_CURR, btnUsersCurr.getSelection());
 		preferences.setValue(QStatMonitorPreferenceConstants.P_USER_CUST, btnUsersCust.getSelection());
-		preferences.setValue(QStatMonitorPreferenceConstants.P_USER, txtUser.getText());
+		
+		if (btnUsersCust.getSelection()) {
+			preferences.setValue(QStatMonitorPreferenceConstants.P_USER, txtUser.getText());
+		} else {
+			preferences.setValue(QStatMonitorPreferenceConstants.P_USER, "");
+		}
 		
 		return super.performOk();
 	}
@@ -279,7 +385,27 @@ public class QStatMonitorPreferencePage extends PreferencePage
 	@Override
 	protected void performDefaults() {
 		IPreferenceStore preferences = Activator.getDefault().getPreferenceStore();
-		
+		setWidgetsDefaultValues(preferences);
+		disableWidgets();
+		resetState();
+	}
+	
+	/**
+	 * Sets page state to valid after reset to default preference values
+	 */
+	private void resetState() {
+		validResource = true;
+		validUser = true;
+		setErrorMessage(null);
+		setValid(true);
+	}
+	
+	/**
+	 * Initialises widgets to default values
+	 * 
+	 * @param preferences
+	 */
+	private void setWidgetsDefaultValues(final IPreferenceStore preferences) {
 		btnAutoRefresh.setSelection(preferences.getDefaultBoolean(QStatMonitorPreferenceConstants.P_REFRESH));
 		spnInterval.setSelection(convertSpinnerValue(preferences.getDefaultFloat(QStatMonitorPreferenceConstants.P_SLEEP)));
 		
