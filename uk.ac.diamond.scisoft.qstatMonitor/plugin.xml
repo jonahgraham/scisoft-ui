@@ -8,30 +8,23 @@
             category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView"
             icon="icons/qstatMonitorIcon.gif"
-            id="uk.ac.diamond.qstatmonitor.views.QStatMonitorView"
+            id="uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView"
             name="QStat Monitor">
-      </view>
-      <view
-            category="uk.ac.diamond.scisoft.analysis.rcp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
-            id="uk.ac.diamond.scisoft.qstatMonitor.qstatPlot"
-            name="QStat Monitor Plot"
-            restorable="true">
       </view>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
             category="org.dawnsci.preferences.root"
-            class="uk.ac.diamond.scisoft.qstatmonitor.QStatMonitorPreferencePage"
-            id="uk.ac.diamond.qstatMonitor.QStatMonitorPreferencePage"
+            class="uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage"
+            id="uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferencePage"
             name="QStat Monitor">
       </page>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="uk.ac.diamond.scisoft.qstatmonitor.QStatMonitorPreferenceIntializer">
+            class="uk.ac.diamond.scisoft.qstatmonitor.preferences.QStatMonitorPreferenceIntializer">
       </initializer>
    </extension>
 
