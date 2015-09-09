@@ -39,10 +39,11 @@ public class HDF5Utils {
 	 * Create a (HDF5) dataset selection from given node link. It defaults the inspector type
 	 * to a line and leaves file name null
 	 * @param filePath
+	 * @param nodePath
 	 * @param link
 	 * @return HDF5 selection
 	 */
-	public static HDF5Selection createDatasetSelection(String filePath, NodeLink link) {
+	public static HDF5Selection createDatasetSelection(String filePath, String nodePath, NodeLink link) {
 		Node node = link.getDestination();
 		DataNode dNode = null;
 		if (link.isDestinationGroup()) {
@@ -141,6 +142,6 @@ public class HDF5Utils {
 			if (shape[rank - 2] > 1) // only set image type in this case
 				itype = InspectorType.IMAGE;
 		}
-		return new HDF5Selection(itype, filePath, link.getFullName(), axes, cData);
+		return new HDF5Selection(itype, filePath, nodePath, axes, cData);
 	}
 }

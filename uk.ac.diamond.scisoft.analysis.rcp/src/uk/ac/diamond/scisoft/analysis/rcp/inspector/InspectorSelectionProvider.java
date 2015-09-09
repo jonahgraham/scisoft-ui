@@ -51,7 +51,8 @@ public class InspectorSelectionProvider implements IH5DoubleClickSelectionProvid
 
 	    IDataHolder holder = LoaderFactory.getData(filePath);
 	    Tree     tree   = holder.getTree();
-	    NodeLink link   = tree.findNodeLink(linkPath.getFullName());
-		return HDF5Utils.createDatasetSelection(filePath, link);
+	    String nodePath = linkPath.getFullName();
+	    NodeLink link   = tree.findNodeLink(nodePath);
+		return HDF5Utils.createDatasetSelection(filePath, nodePath, link);
 	}
 }

@@ -206,7 +206,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 						String name = f.getName();
 						//update only the relevant hdf5editor
 						if (name.equals(getSite().getPart().getTitle())) {
-								update(part, (NodeLink) results[0].getItem(), tSelection);
+								update(part, results[0].getNode(), (NodeLink) results[0].getItem(), tSelection);
 						}
 					}
 
@@ -228,7 +228,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 		selectionService.removeSelectionListener(selectionListener);
 	}
 
-	public void update(final IWorkbenchPart original, final NodeLink link, ITreeSelection tSelection) {
+	public void update(final IWorkbenchPart original, final String path, final NodeLink link, ITreeSelection tSelection) {
 
 		// Make Display to wait until current focus event is finish, and then execute new focus event
 		Display.getDefault().asyncExec(new Runnable() {
@@ -275,7 +275,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 			
 			//hdfxp.getTableTree().getViewer().setSelection(structuredSelection);
 			
-			hdfxp.selectHDF5Node(link);
+			hdfxp.selectHDF5Node(path, link);
 		} catch (Exception e) {
 			logger.error("Error processing selection: {}", e.getMessage());
 		} finally {

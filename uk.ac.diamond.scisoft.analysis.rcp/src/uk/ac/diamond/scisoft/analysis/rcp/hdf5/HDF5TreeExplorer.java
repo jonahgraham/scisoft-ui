@@ -123,18 +123,20 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 	/**
 	 * Select a node and populate a selection object
+	 * @param path path to node
 	 * @param link node link
 	 */
-	public void selectHDF5Node(NodeLink link) {
-		selectHDF5Node(link, null);
+	public void selectHDF5Node(String path, NodeLink link) {
+		selectHDF5Node(path, link, (InspectorType) null);
 	}
 
 	/**
 	 * Select a node and populate a selection object
+	 * @param nodePath path to node
 	 * @param link node link
 	 * @param type
 	 */
-	public void selectHDF5Node(NodeLink link, InspectorType type) {
+	public void selectHDF5Node(String nodePath, NodeLink link, InspectorType type) {
 		if (link == null)
 			return;
 
@@ -142,7 +144,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			return;
 		}
 
-		HDF5Selection s = HDF5Utils.createDatasetSelection(filename, link);
+		HDF5Selection s = HDF5Utils.createDatasetSelection(filename, nodePath, link);
 		if (s == null) {
 			logger.error("Could not process update of selected node: {}", link.getName());
 			return;
@@ -159,7 +161,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	 * @param path path of node
 	 */
 	public void selectHDF5Node(String path) {
-		selectHDF5Node(path, null);
+		selectHDF5Node(path, (InspectorType) null);
 	}
 
 	/**
@@ -171,7 +173,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		NodeLink link = tree.findNodeLink(path);
 
 		if (link != null) {
-			selectHDF5Node(link, type);
+			selectHDF5Node(path, link, type);
 		} else {
 			logger.debug("Could not find selected node: {}", path);
 		}
@@ -202,14 +204,6 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		for (ISelectionChangedListener s : cListeners) s.selectionChanged(e);
 	}
 
-	private NodeLink processSelection(IStructuredSelection selection) {
-		if (selection instanceof HDF5TreeSelection) {
-			TreeAdaptable a = ((HDF5TreeSelection) selection).getAdaptee();
-			return a.getNodeLink();
-		}
-		return null;
-	}
-
 	private void handleDoubleClick() {
 		checkDataExplorePerspective();
 		final Cursor cursor = getCursor();
@@ -220,9 +214,9 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 		try {
 			// check if selection is valid for plotting
-			NodeLink link = processSelection(selection);
-			if (link != null) {
-				selectHDF5Node(link);
+			if (selection instanceof HDF5TreeSelection) {
+				TreeAdaptable a = ((HDF5TreeSelection) selection).getAdaptee();
+				selectHDF5Node(a.getNode(), a.getNodeLink());
 			}
 		} catch (Exception e) {
 			logger.error("Error processing selection: {}", e.getMessage());
