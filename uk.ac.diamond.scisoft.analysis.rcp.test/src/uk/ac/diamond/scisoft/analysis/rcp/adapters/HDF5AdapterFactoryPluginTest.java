@@ -29,8 +29,8 @@ public class HDF5AdapterFactoryPluginTest {
 	private TreeAdaptable createAdaptable() {
 		TreeFile file = TreeFactory.createTreeFile(123456, "/my/filename/here");
 		Node node = TreeFactory.createDataNode(234566);
-		NodeLink hdf5NodeLink = TreeFactory.createNodeLink("/path", "/name", null, node);
-		HDF5Adaptable a = new HDF5Adaptable(file.getFilename(), hdf5NodeLink.getFullName(), hdf5NodeLink);
+		NodeLink hdf5NodeLink = TreeFactory.createNodeLink("name", null, node);
+		HDF5Adaptable a = new HDF5Adaptable(file.getFilename(), "/path/name", hdf5NodeLink);
 		return a;
 	}
 
