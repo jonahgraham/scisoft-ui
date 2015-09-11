@@ -40,13 +40,9 @@ import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 import uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferenceConstants;
 import uk.ac.diamond.sda.navigator.util.NIOUtils;
 
-public class FileContentProvider implements ILazyTreeContentProvider {
+public class ThreadingFileContentProvider implements IFileContentProvider {
 	
 
-	public enum FileSortType {
-		ALPHA_NUMERIC, ALPHA_NUMERIC_DIRS_FIRST;
-	}
-	
 	private TreeViewer treeViewer;
 	private FileSortType sort = FileSortType.ALPHA_NUMERIC_DIRS_FIRST;
 	private boolean collapseDatacollections;
@@ -76,7 +72,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	@SuppressWarnings("unused")
 	private IStatusLineManager statusManager;
 
-	public FileContentProvider(final IStatusLineManager statusManager) {
+	public ThreadingFileContentProvider(final IStatusLineManager statusManager) {
 		this.statusManager = statusManager;
 		this.cachedSorting = new ConcurrentHashMap<String, List<Path>>(89);
 		this.cachedStubs   = new ConcurrentHashMap<String, Set<String>>(89);
@@ -105,7 +101,8 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		if (cachedLocks!=null)   cachedLocks.clear();
 	}
 	
-	public void clearAndStop() {
+	@Override
+	public void clearAll() {
 		clearAndStop(null, false);
 	}
 	private void clearAndStop(Path path, boolean blankQueue) {
@@ -406,8 +403,8 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 						    lservice = (ILoaderService)PlatformUI.getWorkbench().getService(ILoaderService.class);
 						}
 						
-		    		    final Map<String, Path> files = new TreeMap<String, Path>();
-		    		    final Map<String, Path> dirs  = new TreeMap<String, Path>();
+		    		    final Map<String, Path> files = new TreeMap<String, Path>(new SortNatural<String>(false));
+		    		    final Map<String, Path> dirs  = new TreeMap<String, Path>(new SortNatural<String>(false));
 
 			        	// Faster way than File.list() in theory
 			        	// see http://www.rgagnon.com/javadetails/java-get-directory-content-faster-with-many-files.html						
@@ -442,7 +439,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 					        					}
 
 					        					// Otherwise allows its index to be added.
-					        					tmp.add(id);
+					        					if (tmp!=null) tmp.add(id);
 					        				}
 					        			}
 						        		files.put(name, p);

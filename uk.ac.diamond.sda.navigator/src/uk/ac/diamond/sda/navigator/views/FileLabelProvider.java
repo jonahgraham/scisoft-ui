@@ -172,8 +172,8 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		if (Files.isDirectory(node)) return name;
 			
  
-        FileContentProvider prov = viewer.getContentProvider() instanceof FileContentProvider
-					             ? (FileContentProvider)viewer.getContentProvider()
+        ThreadingFileContentProvider prov = viewer.getContentProvider() instanceof ThreadingFileContentProvider
+					             ? (ThreadingFileContentProvider)viewer.getContentProvider()
 					             : null;	
 		if (prov == null) return name;
 		        	

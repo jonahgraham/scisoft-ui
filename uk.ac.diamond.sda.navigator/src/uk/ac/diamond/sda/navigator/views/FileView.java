@@ -80,7 +80,6 @@ import uk.ac.diamond.scisoft.analysis.utils.OSUtils;
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 import uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferenceConstants;
 import uk.ac.diamond.sda.navigator.util.NIOUtils;
-import uk.ac.diamond.sda.navigator.views.FileContentProvider.FileSortType;
 
 /**
  * This class navigates a file system and remembers where you last left it. 
@@ -400,11 +399,11 @@ public final class FileView extends ViewPart implements IFileView {
 			final Object[] elements = file==null?this.tree.getExpandedElements():null;
 			
 			if (file!=null) {
-				final FileContentProvider fileCont = (FileContentProvider)tree.getContentProvider();
+				final IFileContentProvider fileCont = (IFileContentProvider)tree.getContentProvider();
 				fileCont.clear(file, file.getParent());
 			}
 	
-			tree.refresh(file!=null?file.getParent():tree.getInput());
+			tree.refresh(file!=null?file:tree.getInput());
 			
 			if (elements!=null) this.tree.setExpandedElements(elements);
 			
@@ -412,20 +411,21 @@ public final class FileView extends ViewPart implements IFileView {
 			updatingTextFromTreeSelections=true;
 		}
 	}
-	
-
 
 	public void refreshAll() {
 		NIOUtils.getRoots(true);
 		tree.refresh();
 	}
 
-
 	private void createContent(boolean setItemCount) {
 		
 		final List<Path> roots = NIOUtils.getRoots();
 		if (setItemCount) tree.getTree().setItemCount(roots.size());
-		tree.setContentProvider(new FileContentProvider(getViewSite().getActionBars().getStatusLineManager()));
+		if (Boolean.getBoolean("uk.ac.diamond.sda.navigator.threadingFileNavigator")) {
+		    tree.setContentProvider(new ThreadingFileContentProvider(getViewSite().getActionBars().getStatusLineManager()));
+		} else {
+			tree.setContentProvider(new NioFileContentProvider());
+		}
 		if (roots.size()==1) {
 			tree.setInput(roots.get(0));
 		} else {
@@ -524,10 +524,10 @@ public final class FileView extends ViewPart implements IFileView {
 		final Action filterCollections = new Action("Compress data collections with the same name", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
-				FileContentProvider prov = (FileContentProvider)tree.getContentProvider();
+				IFileContentProvider prov = (IFileContentProvider)tree.getContentProvider();
 				prov.setCollapseDatacollections(isChecked());
 				store.setValue(FileNavigatorPreferenceConstants.SHOW_COLLAPSED_FILES, isChecked());
-				prov.clearAndStop();
+				prov.clearAll();
 				refreshAll();
 			}
 		};
@@ -542,7 +542,7 @@ public final class FileView extends ViewPart implements IFileView {
 			@Override
 			public void run() {
 				final Path selection = getSelectedPath();
-				((FileContentProvider)tree.getContentProvider()).setSort(FileSortType.ALPHA_NUMERIC_DIRS_FIRST);
+				((IFileContentProvider)tree.getContentProvider()).setSort(FileSortType.ALPHA_NUMERIC_DIRS_FIRST);
 				tree.refresh();
 				if (selection!=null)tree.setSelection(new StructuredSelection(selection));
 			}
@@ -557,7 +557,7 @@ public final class FileView extends ViewPart implements IFileView {
 			@Override
 			public void run() {
 				final Path selection = getSelectedPath();
-				((FileContentProvider)tree.getContentProvider()).setSort(FileSortType.ALPHA_NUMERIC);
+				((IFileContentProvider)tree.getContentProvider()).setSort(FileSortType.ALPHA_NUMERIC);
 				tree.refresh();
 				if (selection!=null)tree.setSelection(new StructuredSelection(selection));
 			}
