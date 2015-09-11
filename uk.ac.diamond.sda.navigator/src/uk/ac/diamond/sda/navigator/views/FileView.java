@@ -400,10 +400,19 @@ public final class FileView extends ViewPart implements IFileView {
 			
 			if (file!=null) {
 				final IFileContentProvider fileCont = (IFileContentProvider)tree.getContentProvider();
-				fileCont.clear(file, file.getParent());
+				fileCont.clear(file);
 			}
 	
-			tree.refresh(file!=null?file:tree.getInput());
+			if (file!=null) {
+				if (!Files.exists(file)) {
+					tree.remove(file);
+				} else {
+				    tree.refresh(file);
+				    if (file.getParent() != null) tree.refresh(file.getParent());
+				}
+			} else {
+				tree.refresh();
+			}
 			
 			if (elements!=null) this.tree.setExpandedElements(elements);
 			
@@ -422,7 +431,7 @@ public final class FileView extends ViewPart implements IFileView {
 		final List<Path> roots = NIOUtils.getRoots();
 		if (setItemCount) tree.getTree().setItemCount(roots.size());
 		if (Boolean.getBoolean("uk.ac.diamond.sda.navigator.threadingFileNavigator")) {
-		    tree.setContentProvider(new ThreadingFileContentProvider(getViewSite().getActionBars().getStatusLineManager()));
+		    tree.setContentProvider(new ThreadingFileContentProvider());
 		} else {
 			tree.setContentProvider(new NioFileContentProvider());
 		}

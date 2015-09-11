@@ -41,7 +41,7 @@ import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 import uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferenceConstants;
 import uk.ac.diamond.sda.navigator.util.NIOUtils;
 
-public class NioFileContentProvider implements IFileContentProvider {
+class NioFileContentProvider implements IFileContentProvider {
 	
 	private static final Logger logger = LoggerFactory.getLogger(NioFileContentProvider.class);
 
@@ -49,17 +49,17 @@ public class NioFileContentProvider implements IFileContentProvider {
 	private FileSortType sort = FileSortType.ALPHA_NUMERIC_DIRS_FIRST;
 	private boolean collapseDatacollections;
 	
-    private final Map<Path, List<Path>>     cachedFileList;
+    private final Map<Path, List<Path>>      cachedFileList;
     private final Map<String, Path>          files;
     private final Map<String, Path>          dirs;
-	private final Map<String, Set<String>>   cachedStubs;
+	private final Map<Path, Set<String>>     cachedStubs;
 	
 	public NioFileContentProvider() {
 		
 		this.cachedFileList = new HashMap<Path, List<Path>>(89);
 		this.files = new TreeMap<String, Path>(new SortNatural<String>(false));
 	    this.dirs  = new TreeMap<String, Path>(new SortNatural<String>(false));
-		this.cachedStubs = new HashMap<String, Set<String>>();
+		this.cachedStubs = new HashMap<Path, Set<String>>();
 		
 		final IPreferenceStore store = NavigatorRCPActivator.getDefault().getPreferenceStore();
 		collapseDatacollections = store.getBoolean(FileNavigatorPreferenceConstants.SHOW_COLLAPSED_FILES);
@@ -110,8 +110,12 @@ public class NioFileContentProvider implements IFileContentProvider {
 	    } else if (element instanceof Path) {
 			Path path = (Path)element;
 			if (Files.isDirectory(path)) {
-				String[]list = path.toFile().list();
-				size = list!=null ? list.length : 0;
+				try {
+					List<Path> paths = getPaths(path);
+					size = paths!=null ? paths.size() : 0;
+				} catch (IOException e) {
+					logger.error("Cannot get paths for "+path, e);
+				}
 			}
 
 		} else {
@@ -137,7 +141,7 @@ public class NioFileContentProvider implements IFileContentProvider {
 		} else {
 			for (int i = 0; i < paths.length; i++) {
 				if (paths[i]==null) continue;
-				cachedStubs.remove(paths[i].toString());
+				cachedStubs.remove(paths[i]);
 				if (Files.isDirectory(paths[i])) {
 					removeCachedPath(paths[i].getParent());
 				} else {
@@ -200,6 +204,7 @@ public class NioFileContentProvider implements IFileContentProvider {
 
 				if (collapseDatacollections) {
 					tmp = new HashSet<String>(31);
+					cachedStubs.put(parent, new HashSet<String>(31));
 				}
 
 				for (Path p : ds) {
@@ -216,8 +221,11 @@ public class NioFileContentProvider implements IFileContentProvider {
 								// If we already have an item for this scan:
 								if (tmp!=null && tmp.contains(id)) {
 									// We have more than one of them, so they get truncated
-									cachedStubs.get(parent.toString()).add(id);
-									continue;
+									Set<String> stubs = cachedStubs.get(parent);
+									if (stubs!=null) {
+										stubs.add(id);
+										continue;
+									}
 								}
 
 								// Otherwise allows its index to be added.
@@ -247,6 +255,11 @@ public class NioFileContentProvider implements IFileContentProvider {
 
 		cachedFileList.put(parent, paths);
 		return paths;
+	}
+
+	@Override
+	public Set<String> getStubs(Path parent) {
+		return cachedStubs.get(parent);
 	}
 
 }

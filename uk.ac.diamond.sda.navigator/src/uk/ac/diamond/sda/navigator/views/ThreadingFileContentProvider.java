@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,7 +28,6 @@ import java.util.regex.Matcher;
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.viewers.ILazyTreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
@@ -40,7 +38,7 @@ import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 import uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferenceConstants;
 import uk.ac.diamond.sda.navigator.util.NIOUtils;
 
-public class ThreadingFileContentProvider implements IFileContentProvider {
+class ThreadingFileContentProvider implements IFileContentProvider {
 	
 
 	private TreeViewer treeViewer;
@@ -65,18 +63,15 @@ public class ThreadingFileContentProvider implements IFileContentProvider {
 	 * file browsing does not really work if you start making the
 	 * cached
 	 */  
-	private Map<String, List<Path>>    cachedSorting;
-	private Map<String, Set<String>>   cachedStubs;
-	private Map<String, ReentrantLock> cachedLocks;
+	private Map<Path, List<Path>>    cachedSorting;
+	private Map<Path, Set<String>>   cachedStubs;
+	private Map<Path, ReentrantLock> cachedLocks;
 	
-	@SuppressWarnings("unused")
-	private IStatusLineManager statusManager;
 
-	public ThreadingFileContentProvider(final IStatusLineManager statusManager) {
-		this.statusManager = statusManager;
-		this.cachedSorting = new ConcurrentHashMap<String, List<Path>>(89);
-		this.cachedStubs   = new ConcurrentHashMap<String, Set<String>>(89);
-		this.cachedLocks   = new ConcurrentHashMap<String, ReentrantLock>(89);
+	public ThreadingFileContentProvider() {
+		this.cachedSorting = new ConcurrentHashMap<Path, List<Path>>(89);
+		this.cachedStubs   = new ConcurrentHashMap<Path, Set<String>>(89);
+		this.cachedLocks   = new ConcurrentHashMap<Path, ReentrantLock>(89);
 		
 		this.elementQueue  = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
 		this.childQueue    = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
@@ -91,14 +86,6 @@ public class ThreadingFileContentProvider implements IFileContentProvider {
 		clearAndStop(null, true);
 		elementQueue = null;
 		childQueue = null;
-	}
-
-	private void clear() {
-		if (elementQueue!=null)  elementQueue.clear();
-		if (childQueue!=null)    childQueue.clear();
-		if (cachedSorting!=null) cachedSorting.clear();
-		if (cachedStubs!=null)   cachedStubs.clear();
-		if (cachedLocks!=null)   cachedLocks.clear();
 	}
 	
 	@Override
@@ -118,9 +105,9 @@ public class ThreadingFileContentProvider implements IFileContentProvider {
 		if (path!=null) {
 			if (elementQueue!=null)  elementQueue.clear();
 			if (childQueue!=null)    childQueue.clear();
-			cachedStubs.remove(path.toString());
-			cachedLocks.remove(path.toString());
-			Object old = cachedSorting.remove(path.toString());
+			removeCachedPath(cachedStubs, path);
+			removeCachedPath(cachedLocks, path);
+			Object old = removeCachedPath(cachedSorting, path);
 			if (old==null) {
 				System.err.println("Unexpected clear in "+getClass().getSimpleName());
 				clear();
@@ -130,21 +117,39 @@ public class ThreadingFileContentProvider implements IFileContentProvider {
 		}
 	}
 
+	@Override
 	public void clear(Path... paths) {
-		if (paths==null) return;
-		for (int i = 0; i < paths.length; i++) {
-			if (paths[i]==null) continue;
-			cachedStubs.remove(paths[i].toString());
-			cachedLocks.remove(paths[i].toString());
-			cachedSorting.remove(paths[i].toString());
+		if (paths==null || paths.length<1) {
+			if (elementQueue!=null)  elementQueue.clear();
+			if (childQueue!=null)    childQueue.clear();
+			if (cachedSorting!=null) cachedSorting.clear();
+			if (cachedStubs!=null)   cachedStubs.clear();
+			if (cachedLocks!=null)   cachedLocks.clear();
+
+		} else {
+			for (int i = 0; i < paths.length; i++) {
+				if (paths[i]==null) continue;
+				removeCachedPath(cachedStubs,   paths[i].getParent());
+				removeCachedPath(cachedLocks,   paths[i].getParent());
+				removeCachedPath(cachedSorting, paths[i].getParent());
+			}
 		}
 	}
+
+	private Object removeCachedPath(Map<Path, ?> cache, Path delete) {
+		Object ret = cache.remove(delete);
+		for (Path path : cache.keySet()) {
+			if (path.startsWith(delete) || !Files.exists(path)) {
+				cache.remove(path);
+			}
+		}
+		return ret;
+	}
+
 	
 	private static final int ELEMENT_PRIORITY = Thread.MIN_PRIORITY;
 	private static final int CHILD_PRIORITY   = Thread.MAX_PRIORITY;
 	
-
-
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		treeViewer = (TreeViewer) viewer;
@@ -174,9 +179,7 @@ public class ThreadingFileContentProvider implements IFileContentProvider {
 			
 			// We correct when they expand, listFiles() could be slow.
 			if (Files.isDirectory(element)) {
-				treeViewer.setChildCount(element, 1); // 1 for now
-				if (updateChildThread==null) updateChildThread = createUpdateThread(childQueue, CHILD_PRIORITY, "Update child size");
-				childQueue.offerFirst(new ChildUpdateRequest(element, false)); // process size from queue
+				updateChildCount(element, -1);
 			} else {
 				treeViewer.setChildCount(element, 0);
 			}
@@ -221,8 +224,8 @@ public class ThreadingFileContentProvider implements IFileContentProvider {
 		if (!Files.isDirectory(node)) return null;
 		if (cachedSorting==null) return null;
 				
-		if (cachedSorting.containsKey(node.toString())) {
-			List<Path> sorted = cachedSorting.get(node.toString());
+		if (cachedSorting.containsKey(node)) {
+			List<Path> sorted = cachedSorting.get(node);
 			if (sorted!=null) return sorted;
 		}
 		
@@ -385,14 +388,14 @@ public class ThreadingFileContentProvider implements IFileContentProvider {
 		public boolean process() throws Exception {
 			
 			try {
-				if (cachedSorting.containsKey(element.toString())) return true;
+				if (cachedSorting.containsKey(element)) return true;
 				
 				if (updateBusyRequired) updateBusy(childQueue, true);
 				
 				int count = 0;
 				
 				if (element instanceof Path) {
-					Path path = (Path)element;
+					final Path path = (Path)element;
 					
 					// We try to get the size but we ignore repeated scans in the same directory
 					// Therefore as we find the number, we populate the cachedSorting as we go.
@@ -414,7 +417,7 @@ public class ThreadingFileContentProvider implements IFileContentProvider {
 				        	
 							if (collapseDatacollections) {
 								tmp = new HashSet<String>(31);
-								cachedStubs.put(path.toString(), new HashSet<String>(31));
+								cachedStubs.put(path, new HashSet<String>(31));
 							}
 			        	
 							ReentrantLock lock = getLock(path);
@@ -434,7 +437,7 @@ public class ThreadingFileContentProvider implements IFileContentProvider {
 					        					// If we already have an item for this scan:
 					        					if (tmp!=null && tmp.contains(id)) {
 					        						// We have more than one of them, so they get truncated
-					        						cachedStubs.get(path.toString()).add(id);
+					        						cachedStubs.get(path).add(id);
 					        						continue;
 					        					}
 
@@ -459,7 +462,7 @@ public class ThreadingFileContentProvider implements IFileContentProvider {
 					    	    ret.addAll(files.values());
 					    	    dirs.clear();
 					    	    files.clear();
-					    	    cachedSorting.put(path.toString(), ret);
+					    	    cachedSorting.put(path, ret);
 					    	    
 							} finally {
 								lock.unlock();
@@ -542,11 +545,11 @@ public class ThreadingFileContentProvider implements IFileContentProvider {
 
 	private ReentrantLock getLock(Path path) {
 		ReentrantLock lock;
-		if (cachedLocks.containsKey(path.toString())) {
-			lock = cachedLocks.get(path.toString());
+		if (cachedLocks.containsKey(path)) {
+			lock = cachedLocks.get(path);
 		} else {
 			lock = new ReentrantLock();
-			cachedLocks.put(path.toString(), lock);
+			cachedLocks.put(path, lock);
 		}
 		return lock;
 	}
@@ -562,12 +565,8 @@ public class ThreadingFileContentProvider implements IFileContentProvider {
 	}
 
 
-	public boolean isCached(Path folder) {
-		return cachedSorting.containsKey(folder.toString());
-	}
-
 	public Set<String> getStubs(Path folder) {
-		return cachedStubs.get(folder.toString());
+		return cachedStubs.get(folder);
 	}
 
 }

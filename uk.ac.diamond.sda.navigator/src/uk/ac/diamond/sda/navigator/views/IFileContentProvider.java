@@ -17,6 +17,7 @@
 package uk.ac.diamond.sda.navigator.views;
 
 import java.nio.file.Path;
+import java.util.Set;
 
 import org.eclipse.jface.viewers.ILazyTreeContentProvider;
 
@@ -29,5 +30,7 @@ interface IFileContentProvider extends ILazyTreeContentProvider {
 	void clearAll();
 
 	void setSort(FileSortType alphaNumeric);
+
+	Set<String> getStubs(Path parent);
 
 }

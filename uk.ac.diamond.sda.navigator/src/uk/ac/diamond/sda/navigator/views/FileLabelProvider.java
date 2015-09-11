@@ -42,7 +42,7 @@ import uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferenceConstants;
 import uk.ac.diamond.sda.navigator.util.NIOUtils;
 import uk.ac.diamond.sda.navigator.util.NavigatorUtils;
 
-public class FileLabelProvider extends ColumnLabelProvider {
+class FileLabelProvider extends ColumnLabelProvider {
 
 	private int columnIndex;
 	private SimpleDateFormat dateFormat;
@@ -172,8 +172,8 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		if (Files.isDirectory(node)) return name;
 			
  
-        ThreadingFileContentProvider prov = viewer.getContentProvider() instanceof ThreadingFileContentProvider
-					             ? (ThreadingFileContentProvider)viewer.getContentProvider()
+        IFileContentProvider prov = viewer.getContentProvider() instanceof IFileContentProvider
+					             ? (IFileContentProvider)viewer.getContentProvider()
 					             : null;	
 		if (prov == null) return name;
 		        	
