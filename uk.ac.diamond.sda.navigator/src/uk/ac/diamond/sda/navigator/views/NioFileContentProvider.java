@@ -49,14 +49,14 @@ public class NioFileContentProvider implements IFileContentProvider {
 	private FileSortType sort = FileSortType.ALPHA_NUMERIC_DIRS_FIRST;
 	private boolean collapseDatacollections;
 	
-    private final Map<Object, List<Path>>    cachedFileList;
+    private final Map<Path, List<Path>>     cachedFileList;
     private final Map<String, Path>          files;
     private final Map<String, Path>          dirs;
 	private final Map<String, Set<String>>   cachedStubs;
 	
 	public NioFileContentProvider() {
 		
-		this.cachedFileList = new HashMap<Object, List<Path>>(89);
+		this.cachedFileList = new HashMap<Path, List<Path>>(89);
 		this.files = new TreeMap<String, Path>(new SortNatural<String>(false));
 	    this.dirs  = new TreeMap<String, Path>(new SortNatural<String>(false));
 		this.cachedStubs = new HashMap<String, Set<String>>();
@@ -82,18 +82,16 @@ public class NioFileContentProvider implements IFileContentProvider {
 	public void updateElement(Object parent, int index) {
 		
 		try {
-			List<Path> paths = getPaths(parent);
+			List<Path> paths = parent instanceof Path
+					         ? getPaths((Path)parent)
+					         : NIOUtils.getRoots();
 			
 			if (paths!=null) {
-				Path path = paths.get(index);
+				Path path = paths.size()>index ? paths.get(index) : null;
 				if (path!=null) {
 					treeViewer.replace(parent, index, path);
 					if (Files.isDirectory(path)) {
-						paths = getPaths(path);
-						if (paths!=null) {
-							int size = paths.size();
-							treeViewer.setChildCount(path, size);
-						}
+						updateChildCount(path, -1);
 					}
 				}
 			}
@@ -102,81 +100,6 @@ public class NioFileContentProvider implements IFileContentProvider {
 		}			
 	}
 
-	private List<Path> getPaths(Object parent) throws IOException {
-		
-		
-		List<Path> paths = cachedFileList.get(parent);
-		if (paths!=null) return paths;
-		
-		if (parent instanceof String) {
-			paths = NIOUtils.getRoots();
-		} else {
-			final Path path = (Path)parent;
-	
-			if (Files.isDirectory(path)) {
-				
-				ILoaderService lservice=null;
-				if (collapseDatacollections) {
-				    lservice = (ILoaderService)PlatformUI.getWorkbench().getService(ILoaderService.class);
-				}
-				
-				// Faster way than File.list() in theory
-				// see http://www.rgagnon.com/javadetails/java-get-directory-content-faster-with-many-files.html						
-				try (DirectoryStream<Path> ds = Files.newDirectoryStream(path)) {
-	
-					Set<String> tmp = null;
-	
-					if (collapseDatacollections) {
-						tmp = new HashSet<String>(31);
-					}
-	
-					for (Path p : ds) {
-	
-						final boolean isDir = Files.isDirectory(p);
-						final String  name  = p.getFileName().toString();
-	
-						if (!isDir) {
-							if (lservice!=null) {
-								Matcher matcher = lservice.getStackMatcher(name);
-								if (matcher!=null && matcher.matches()) {
-									String id = matcher.group(1);
-	
-									// If we already have an item for this scan:
-									if (tmp!=null && tmp.contains(id)) {
-										// We have more than one of them, so they get truncated
-										cachedStubs.get(path.toString()).add(id);
-										continue;
-									}
-	
-									// Otherwise allows its index to be added.
-									if (tmp!=null) tmp.add(id);
-								}
-							}
-							files.put(name, p);
-	
-						} else if (isDir && sort==FileSortType.ALPHA_NUMERIC_DIRS_FIRST) { // dirs separate
-							dirs.put(name, p);
-						} else {
-							files.put(name, p);
-						}
-					}
-	
-					// We precache the directory contents now because we pared them down with the regexp
-					paths = new ArrayList<Path>(files.size()+dirs.size());
-					paths.addAll(dirs.values());
-					paths.addAll(files.values());
-					dirs.clear();
-					files.clear();	
-				} catch (java.nio.file.AccessDeniedException ne) {
-					// We don't care about private dirs
-					logger.debug("Private directory "+path+" will be ignored.");
-				}
-			}
-		}
-		
-		cachedFileList.put(parent, paths);
-		return paths;
-	}
 
 	@Override
 	public void updateChildCount(Object element, int currentChildCount) {
@@ -187,11 +110,8 @@ public class NioFileContentProvider implements IFileContentProvider {
 	    } else if (element instanceof Path) {
 			Path path = (Path)element;
 			if (Files.isDirectory(path)) {
-				try {
-					size = getPaths(path).size();
-				} catch (IOException e) {
-					logger.error("Cannot get size of directory contents "+e.getMessage(), e);
-				}
+				String[]list = path.toFile().list();
+				size = list!=null ? list.length : 0;
 			}
 
 		} else {
@@ -219,11 +139,19 @@ public class NioFileContentProvider implements IFileContentProvider {
 				if (paths[i]==null) continue;
 				cachedStubs.remove(paths[i].toString());
 				if (Files.isDirectory(paths[i])) {
-					cachedFileList.remove(paths[i]);
+					removeCachedPath(paths[i].getParent());
 				} else {
 					cachedFileList.remove(paths[i].getParent());
 				}
 			}	
+		}
+	}
+
+	private void removeCachedPath(Path delete) {
+		cachedFileList.remove(delete);
+		
+		for (Path path : cachedFileList.keySet()) {
+			if (path.startsWith(delete)) cachedFileList.remove(path);
 		}
 	}
 
@@ -249,6 +177,76 @@ public class NioFileContentProvider implements IFileContentProvider {
 	@Override
 	public void setCollapseDatacollections(boolean collapseDatacollections) {
 		this.collapseDatacollections = collapseDatacollections;
+	}
+
+	private List<Path> getPaths(Path parent) throws IOException {
+		
+		
+		List<Path> paths = cachedFileList.get(parent);
+		if (paths!=null) return paths;
+		
+		if (Files.isDirectory(parent)) {
+
+			ILoaderService lservice=null;
+			if (collapseDatacollections) {
+				lservice = (ILoaderService)PlatformUI.getWorkbench().getService(ILoaderService.class);
+			}
+
+			// Faster way than File.list() in theory
+			// see http://www.rgagnon.com/javadetails/java-get-directory-content-faster-with-many-files.html						
+			try (DirectoryStream<Path> ds = Files.newDirectoryStream(parent)) {
+
+				Set<String> tmp = null;
+
+				if (collapseDatacollections) {
+					tmp = new HashSet<String>(31);
+				}
+
+				for (Path p : ds) {
+
+					final boolean isDir = Files.isDirectory(p);
+					final String  name  = p.getFileName().toString();
+
+					if (!isDir) {
+						if (lservice!=null) {
+							Matcher matcher = lservice.getStackMatcher(name);
+							if (matcher!=null && matcher.matches()) {
+								String id = matcher.group(1);
+
+								// If we already have an item for this scan:
+								if (tmp!=null && tmp.contains(id)) {
+									// We have more than one of them, so they get truncated
+									cachedStubs.get(parent.toString()).add(id);
+									continue;
+								}
+
+								// Otherwise allows its index to be added.
+								if (tmp!=null) tmp.add(id);
+							}
+						}
+						files.put(name, p);
+
+					} else if (isDir && sort==FileSortType.ALPHA_NUMERIC_DIRS_FIRST) { // dirs separate
+						dirs.put(name, p);
+					} else {
+						files.put(name, p);
+					}
+				}
+
+				// We precache the directory contents now because we pared them down with the regexp
+				paths = new ArrayList<Path>(files.size()+dirs.size());
+				paths.addAll(dirs.values());
+				paths.addAll(files.values());
+				dirs.clear();
+				files.clear();	
+			} catch (java.nio.file.AccessDeniedException ne) {
+				// We don't care about private dirs
+				logger.debug("Private directory "+parent+" will be ignored.");
+			}
+		}
+
+		cachedFileList.put(parent, paths);
+		return paths;
 	}
 
 }
