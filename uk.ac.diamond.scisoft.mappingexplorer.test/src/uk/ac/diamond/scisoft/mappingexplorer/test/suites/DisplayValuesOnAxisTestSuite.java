@@ -24,7 +24,6 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import uk.ac.diamond.scisoft.mappingexplorer.test.DisplayAxisValuesPluginTest;
 import uk.ac.diamond.scisoft.mappingexplorer.test.MappingExplorerPerspectiveTest;
-import uk.ac.diamond.scisoft.mappingexplorer.test.TwoDSecondaryOpenOneDPluginTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ MappingExplorerPerspectiveTest.class, DisplayAxisValuesPluginTest.class })

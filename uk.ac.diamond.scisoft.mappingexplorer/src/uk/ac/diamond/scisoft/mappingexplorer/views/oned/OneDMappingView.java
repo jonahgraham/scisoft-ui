@@ -35,7 +35,6 @@ import uk.ac.diamond.scisoft.mappingexplorer.views.IMappingView3dData;
 import uk.ac.diamond.scisoft.mappingexplorer.views.MappingPageBookView;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.IMappingDataControllingView;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.TwoDMappingView;
-import uk.ac.diamond.scisoft.mappingexplorer.views.twod.TwoDViewPage;
 
 /**
  * PageBook view for One D Mapping viewer. One D display of a dataset that contains at least 3 dimensions.

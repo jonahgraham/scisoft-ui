@@ -189,11 +189,6 @@ public class QStatMonitorAPI {
 			return null;
 		}
 		java.io.File f = new File(url.getFile());
-		if (f == null) {
-			System.out.print("No path found returning null");
-			return null;
-		}
-
 		String resultTest = f.getAbsolutePath();
 
 		if (resultTest == null) {

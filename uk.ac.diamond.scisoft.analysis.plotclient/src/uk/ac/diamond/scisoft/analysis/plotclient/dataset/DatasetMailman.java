@@ -10,7 +10,6 @@
 package uk.ac.diamond.scisoft.analysis.plotclient.dataset;
 
 import java.io.Serializable;
-import java.rmi.Remote;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;

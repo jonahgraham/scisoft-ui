@@ -26,7 +26,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
-import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -248,6 +247,7 @@ class ThreadingFileContentProvider implements IFileContentProvider {
 	}
 
 
+	@Override
 	public void setSort(FileSortType sort) {
 		this.sort = sort;
 	}
@@ -560,11 +560,13 @@ class ThreadingFileContentProvider implements IFileContentProvider {
 	}
 
 
+	@Override
 	public void setCollapseDatacollections(boolean collapseDatacollections) {
 		this.collapseDatacollections = collapseDatacollections;
 	}
 
 
+	@Override
 	public Set<String> getStubs(Path folder) {
 		return cachedStubs.get(folder);
 	}
