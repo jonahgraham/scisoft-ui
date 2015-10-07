@@ -39,6 +39,7 @@ public abstract class FilenameReaderUpdateOnlyJob extends FilenameReaderJob {
 			
 			String filename = br.readLine();
 			if(filename == null) {
+				br.close();
 				throw new IOException("No File Specified in drop location");
 			}
 			
@@ -47,6 +48,7 @@ public abstract class FilenameReaderUpdateOnlyJob extends FilenameReaderJob {
 				filenames.add(filename);
 				filename = br.readLine();
 			}
+			br.close();
 			
 			if(newFilesPresent(oldFilenames, filenames)) {
 				processFile(filenames);

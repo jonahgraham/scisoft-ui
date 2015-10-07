@@ -45,6 +45,7 @@ public abstract class FilenameReaderJob extends AbstractPollJob {
 			String filename = br.readLine();
 			// if there is nothing there, throw an exception here to let the user know
 			if(filename == null) {
+				br.close();
 				throw new IOException("No File Specified in drop location");
 			}
 			
@@ -53,7 +54,7 @@ public abstract class FilenameReaderJob extends AbstractPollJob {
 				filenames.add(filename);
 				filename = br.readLine();
 			}
-			
+			br.close();
 			processFile(filenames);
 		
 		} catch (Exception e) {

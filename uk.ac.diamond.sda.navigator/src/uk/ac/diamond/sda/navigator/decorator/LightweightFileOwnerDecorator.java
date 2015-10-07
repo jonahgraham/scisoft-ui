@@ -83,7 +83,7 @@ public class LightweightFileOwnerDecorator extends LabelProvider implements ILig
 					String[] tmp = sc.nextLine().split(" ");
 					owner = tmp[2]; //-rw-rw---- 1 wqk87977 wqk87977 16224 Nov 15 11:21 226942.dat
 				}
-				
+				sc.close();
 			} catch (IOException e) {
 				logger.warn("WARNING: could not get file owner:",e.getMessage());
 			}
