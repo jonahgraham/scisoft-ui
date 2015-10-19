@@ -15,17 +15,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
-import org.eclipse.dawnsci.plotting.api.trace.IPaletteTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ISurfaceTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,80 +102,23 @@ class Plotting2DUI extends PlottingGUIUpdate {
 
 					if (shape != null && Arrays.equals(shape, data.getShape()) &&
 							lastXAxisName.equals(xAxisName) && lastYAxisName.equals(yAxisName)) {
-						IPaletteTrace image = null;
-						image = (IPaletteTrace) plottingSystem.updatePlot2D(data, axes, null);
-						setPlotViewPalette(image);
+						plottingSystem.updatePlot2D(data, axes, null);
 						logger.debug("Plot 2D updated");
 					} else {
-						IPaletteTrace image = null;
-						image = (IPaletteTrace) plottingSystem.createPlot2D(data, axes, null);
-						setPlotViewPalette(image);
+						plottingSystem.createPlot2D(data, axes, null);
 						logger.debug("Plot 2D created");
 					}
 					if (newAxes) {
 						plottingSystem.repaint();
 					}
 				} else {
-					IPaletteTrace image = null;
-					image = (IPaletteTrace) plottingSystem.createPlot2D(data, axes, null);
-
-					setPlotViewPalette(image);
+					plottingSystem.createPlot2D(data, axes, null);
 					logger.debug("Plot 2D created");
 				}
 				// COMMENTED TO FIX SCI-808: no need for a repaint
 				// plottingSystem.repaint();
 			} else {
 				logger.debug("No data to plot");
-			}
-		}
-	}
-
-	/**
-	 * Thread safe palette update
-	 * @param image
-	 */
-	private void setPlotViewPalette(final IPaletteTrace image) {
-		
-		if (Thread.currentThread() == Display.getDefault().getThread()) {
-			setPaletteUnsafe(image);
-		} else {
-			Display.getDefault().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					setPaletteUnsafe(image);
-				}
-			});
-		}
-	}
-	
-	private void setPaletteUnsafe(IPaletteTrace image) {
-		
-		
-		// TODO This is probably no longer needed as the preference is being stored in a way
-		// likely not to work with the plotting system. 
-		
-		if (image == null) return;
-		IPreferenceStore store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "uk.ac.diamond.scisoft.analysis.rcp");
-
-		// check colour scheme in if image trace is in a live plot
-		String paletteName = image.getPaletteName();
-		String livePlot = store.getString("imageExplorer.playbackView");
-		if (plottingSystem.getPlotName().equals(livePlot)) {
-			String savedLivePlotPalette = store.getString("imageExplorer.colourMap");
-			if (paletteName != null && !paletteName.equals(savedLivePlotPalette)) {
-				image.setPalette(store.getString("imageExplorer.colourMap"));
-				store.setValue("imageExplorer.colourMap", savedLivePlotPalette);
-			}
-		} else {
-			if (paletteName != null && !paletteName.equals(store.getString("plotView.plot2DcolourMap"))) {
-				String savedPlotViewPalette = store.getString("plotView.plot2DcolourMap");
-				try {
-					image.setPalette(savedPlotViewPalette);
-					store.setValue("plotView.plot2DcolourMap", savedPlotViewPalette);
-				} catch (Throwable ne) {
-					// Leave palette as is and set PLOT_VIEW_PLOT2D_COLOURMAP back to grey.
-					store.setValue("plotView.plot2DcolourMap", "Grey Scale");
-				}
 			}
 		}
 	}

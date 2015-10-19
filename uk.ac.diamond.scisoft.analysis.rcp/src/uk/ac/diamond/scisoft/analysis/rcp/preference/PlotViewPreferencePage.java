@@ -11,11 +11,8 @@ package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
 import java.util.Collection;
 
-import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
-import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.histogram.IPaletteService;
-import org.eclipse.dawnsci.plotting.api.trace.IPaletteTrace;
-import org.eclipse.dawnsci.plotting.api.trace.ITrace;
+import org.eclipse.dawnsci.plotting.api.preferences.BasePlottingConstants;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -35,7 +32,6 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.views.AbstractPlotView;
 
 public class PlotViewPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
@@ -305,26 +301,8 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 	}
 
 	private void setColourMapChoicePreference(String value) {
-		
-		IPlottingSystem[] systems = PlottingFactory.getPlottingSystems();
-		if (systems == null) return;
-		// update colour map in all plot views
-		for (int i = 0; i < systems.length; i++) {
-			if (systems[i].getPart() instanceof AbstractPlotView) {
-				// change all Plot Views except live plot
-				String livePlot = getPreferenceStore().getString(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW);
-				if (!systems[i].getPlotName().equals(livePlot)) {
-					final Collection<ITrace> traces = systems[i].getTraces();
-					if (traces!=null) for (ITrace trace: traces) {
-						if (trace instanceof IPaletteTrace) {
-							IPaletteTrace palette = (IPaletteTrace) trace;
-							palette.setPalette(schemeName);
-						}
-					}
-				}
-			}
-		}
 		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, value);
+		AnalysisRCPActivator.getPlottingPreferenceStore().setValue(BasePlottingConstants.COLOUR_SCHEME, value);
 	}
 
 	private void setColourScaleChoicePreference(int value) {

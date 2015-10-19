@@ -8,11 +8,14 @@ package uk.ac.diamond.scisoft.analysis.rcp;
 
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.dawnsci.analysis.api.ServerPortEvent;
 import org.eclipse.dawnsci.analysis.api.ServerPortListener;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
@@ -39,6 +42,9 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 
 	// The shared instance
 	private static AnalysisRCPActivator plugin;
+
+	private static IPreferenceStore plottingPreferenceStore;
+
 	private BundleContext context;
 
 	/**
@@ -126,5 +132,11 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 
 	public static boolean isGDA() {
 		return System.getProperty("gda.config")!=null;
+	}
+
+	public static IPreferenceStore getPlottingPreferenceStore() {
+		if (plottingPreferenceStore == null)
+			plottingPreferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.dawnsci.plotting");
+		return plottingPreferenceStore;
 	}
 }
