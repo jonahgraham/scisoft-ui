@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.scisoft.mappingexplorer.test;
 
-import gda.util.TestUtils;
+import uk.ac.diamond.scisoft.analysis.TestUtils;
 
 import java.io.File;
 import java.util.Arrays;
