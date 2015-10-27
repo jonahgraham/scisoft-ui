@@ -9,7 +9,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
-import gda.util.TestUtils;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -18,6 +17,7 @@ import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
+import uk.ac.diamond.scisoft.analysis.TestUtils;
 import uk.ac.diamond.scisoft.analysis.io.ADSCImageLoader;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
