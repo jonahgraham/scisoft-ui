@@ -12,14 +12,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import org.dawnsci.commandserver.core.ActiveMQServiceHolder;
 import org.dawnsci.commandserver.core.application.ApplicationProcess;
 import org.dawnsci.commandserver.core.application.Consumer;
 import org.dawnsci.commandserver.core.application.IConsumerExtension;
 import org.dawnsci.commandserver.core.consumer.Constants;
-import org.dawnsci.commandserver.core.consumer.ConsumerBean;
-import org.dawnsci.commandserver.core.consumer.ConsumerStatus;
-import org.dawnsci.commandserver.core.consumer.QueueReader;
-import org.dawnsci.commandserver.core.util.JSONUtils;
 import org.dawnsci.commandserver.ui.preference.CommandConstants;
 import org.dawnsci.common.widgets.file.SelectorWidget;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -33,6 +30,14 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.alive.HeartbeatBean;
+import org.eclipse.scanning.api.event.alive.HeartbeatEvent;
+import org.eclipse.scanning.api.event.alive.IHeartbeatListener;
+import org.eclipse.scanning.api.event.alive.KillBean;
+import org.eclipse.scanning.api.event.core.IPublisher;
+import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -177,24 +182,37 @@ public class EMConsumerController extends ViewPart {
 		// We assume the consumers are going and send the terminate topic
 		// if they are.
 		if (consumerList==null || consumerList.isEmpty()) {
-			final QueueReader<ConsumerBean>  reader    = new QueueReader<ConsumerBean>();
+			
+			// We just use this submiter to read the queue
+			IEventService service = ActiveMQServiceHolder.getEventService();
+			
 	        try {
-				final Map<String, ConsumerBean>  consumers = reader.getHeartbeats(new URI(getURI()), Constants.ALIVE_TOPIC, ConsumerBean.class, Constants.NOTIFICATION_FREQUENCY+500);
+				final ISubscriber<IHeartbeatListener> reader = service.createSubscriber(new URI(getURI()), Constants.ALIVE_TOPIC);
+				final IPublisher<KillBean>            killer = service.createPublisher(new URI(getURI()), Constants.TERMINATE_CONSUMER_TOPIC);
 				
-				for (String name : consumers.keySet()) {
-					
-					if (!name.startsWith("EM ")) continue;
-					ConsumerBean bean = consumers.get(name);
-					
-					bean.setStatus(ConsumerStatus.REQUEST_TERMINATE);
-					bean.setMessage("Requesting a termination of "+bean.getName());
-					try {
-						JSONUtils.sendTopic(bean, Constants.TERMINATE_CONSUMER_TOPIC, new URI(getURI()));
-					} catch (Exception e) {
-						logger.error("Cannot terminate consumer "+bean.getName(), e);
-					}
-				}
+				reader.addListener(new IHeartbeatListener.Stub() {
+					@Override
+					public void heartbeatPerformed(HeartbeatEvent evt) {
+						
+						final HeartbeatBean hbean = evt.getBean();
+						final String        cname = hbean.getConsumerName();
+						if (!cname.startsWith("EM ")) return;
 
+						final KillBean kill = new KillBean();
+						kill.setConsumerId(hbean.getConsumerId());
+						kill.setMessage("Requesting a termination of "+cname);
+					
+						try {
+							killer.broadcast(kill);
+						} catch (EventException e) {
+							logger.error("Cannot kill consumer "+hbean.getConsumerName());
+						}
+					}
+				});
+						
+				Thread.sleep(Constants.NOTIFICATION_FREQUENCY+500);
+				reader.disconnect();
+				
 	        } catch (Exception e1) {
 				e1.printStackTrace();
 			} 
