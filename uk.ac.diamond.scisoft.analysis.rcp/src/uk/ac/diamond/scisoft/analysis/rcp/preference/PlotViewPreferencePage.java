@@ -11,8 +11,10 @@ package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
 import java.util.Collection;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.dawnsci.plotting.api.histogram.IPaletteService;
 import org.eclipse.dawnsci.plotting.api.preferences.BasePlottingConstants;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -46,6 +48,7 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 
 	private IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
 	private String schemeName;
+	private Button chkAspectRatio;
 
 	public PlotViewPreferencePage() {
 	}
@@ -149,6 +152,11 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		Label lblScrollbars = new Label(plot2DGroup, SWT.LEFT);
 		lblScrollbars.setText("Show scrollbars");
 		chkScrollbars = new Button(plot2DGroup, SWT.CHECK | SWT.RIGHT);
+
+		Label lblAspectRatio = new Label(plot2DGroup, SWT.LEFT);
+		lblAspectRatio.setText("Keep Aspect Ratio");
+		chkAspectRatio = new Button(plot2DGroup, SWT.CHECK | SWT.RIGHT);
+
 		initializePage();
 
 		return comp;
@@ -182,6 +190,7 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		cmbColourScale.select(getColourScaleChoicePreference());
 		cmbCameraPerspective.select(getPerspectivePreference());
 		chkScrollbars.setSelection(getScrollBarPreference());
+		chkAspectRatio.setSelection(getAspectRatioPreference());
 	}
 
 	/**
@@ -196,6 +205,7 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		cmbColourScale.select(getDefautColourScaleChoicePreference());
 		cmbCameraPerspective.select(getDefaultPerspectivePreference());
 		chkScrollbars.setSelection(getDefaultScrollBarPreference());
+		chkAspectRatio.setSelection(getDefaultAspectRatioPreference());
 	}
 
 	/**
@@ -210,10 +220,15 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		setColourScaleChoicePreference(cmbColourScale.getSelectionIndex());
 		setCameraPerspective(cmbCameraPerspective.getSelectionIndex());
 		setScrollBarPreference(chkScrollbars.getSelection());
+		setAspectRatioPreference(chkAspectRatio.getSelection());
 	}
 
 	private int getDefaultPerspectivePreference() {
 		return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ);
+	}
+
+	private boolean getDefaultAspectRatioPreference() {
+		return AnalysisRCPActivator.getPlottingPreferenceStore().getDefaultBoolean(BasePlottingConstants.ASPECT);
 	}
 
 	private String getDefaultColourMapChoicePreference() {
@@ -249,6 +264,13 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 			return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ);
 		}
 		return getPreferenceStore().getInt(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ);
+	}
+
+	private boolean getAspectRatioPreference() {
+		if (AnalysisRCPActivator.getPlottingPreferenceStore().isDefault(BasePlottingConstants.ASPECT)) {
+			return AnalysisRCPActivator.getPlottingPreferenceStore().getDefaultBoolean(BasePlottingConstants.ASPECT);
+		}
+		return AnalysisRCPActivator.getPlottingPreferenceStore().getBoolean(BasePlottingConstants.ASPECT);
 	}
 
 	private String getColourMapChoicePreference() {
@@ -305,6 +327,10 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		AnalysisRCPActivator.getPlottingPreferenceStore().setValue(BasePlottingConstants.COLOUR_SCHEME, value);
 	}
 
+	private void setAspectRatioPreference(boolean value) {
+		AnalysisRCPActivator.getPlottingPreferenceStore().setValue(BasePlottingConstants.ASPECT, value);
+	}
+
 	private void setColourScaleChoicePreference(int value) {
 		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_SCALING, value);
 	}
@@ -332,4 +358,5 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 	private void setScrollBarPreference(boolean value) {
 		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_SHOWSCROLLBAR, value);
 	}
+
 }
