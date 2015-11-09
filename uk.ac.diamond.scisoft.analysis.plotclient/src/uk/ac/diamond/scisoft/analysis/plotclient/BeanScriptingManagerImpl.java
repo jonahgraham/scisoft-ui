@@ -59,17 +59,18 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 	
 	BeanScriptingManagerImpl(PlotServer server, String viewName) {
 
+		this.server   = server;
 		this.viewName = viewName;
+		
 		this.plotID = UUID.randomUUID();
 		logger.info("Plot view uuid: {}", plotID);
-
-		this.server         = server;
-		server.addIObserver(this);
 		
 		// Blocking queue to which we add plot update events.
 		this.queue = new LinkedBlockingDeque<PlotEvent>(25);
 		
 		this.dataObservers = Collections.synchronizedSet(new LinkedHashSet<IObserver>());
+
+		server.addIObserver(this);
 
 	}
 	
