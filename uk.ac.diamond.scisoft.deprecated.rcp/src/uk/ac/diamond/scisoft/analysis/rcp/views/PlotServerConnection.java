@@ -80,12 +80,12 @@ public class PlotServerConnection implements IObserver,
 		this.plotId     = UUID.randomUUID();
 		
 		plotServer = PlotServerProvider.getPlotServer();
-		plotServer.addIObserver(this);
+		plotServer.addIObserver(this); //FIXME: potential race condition
 		execSvc = Executors.newFixedThreadPool(2);
 		
 		plotConsumer = new PlotConsumer(plotServer, plotName);
 
-		plotConsumer.addIObserver(this);
+		plotConsumer.addIObserver(this); //FIXME: potential race condition
 		execSvc.execute(plotConsumer);
 		plotConsumer.addJob(new PlotJob(PlotJobType.Data));
 

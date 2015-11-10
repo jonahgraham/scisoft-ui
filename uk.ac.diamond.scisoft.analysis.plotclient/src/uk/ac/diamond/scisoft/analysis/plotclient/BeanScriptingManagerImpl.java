@@ -70,7 +70,7 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 		
 		this.dataObservers = Collections.synchronizedSet(new LinkedHashSet<IObserver>());
 
-		server.addIObserver(this);
+		server.addIObserver(this); //FIXME: potential race condition
 
 	}
 	

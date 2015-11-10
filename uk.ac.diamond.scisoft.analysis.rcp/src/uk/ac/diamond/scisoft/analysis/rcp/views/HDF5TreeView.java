@@ -72,7 +72,7 @@ public class HDF5TreeView extends ViewPart implements IObserver {
 	public HDF5TreeView() {
 		plotID = UUID.randomUUID();
 		plotServer = PlotServerProvider.getPlotServer();
-		plotServer.addIObserver(this);
+		plotServer.addIObserver(this); //FIXME: potential race condition
 		// generate the bean that will contain all the information about this GUI
 		guiBean = new GuiBean();
 		guiBean.put(GuiParameters.PLOTID, plotID); // put plotID in bean

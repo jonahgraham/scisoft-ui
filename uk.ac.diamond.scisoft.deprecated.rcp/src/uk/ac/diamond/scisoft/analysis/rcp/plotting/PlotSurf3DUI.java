@@ -149,7 +149,7 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 						this.id, IWorkbenchPage.VIEW_CREATE);
 				if (histogramView != null)
 					histogramView.addIObserver(dataWindowView);
-				dataWindowView.addIObserver(this);
+				dataWindowView.addIObserver(this); //FIXME: potential race condition
 			} catch (PartInitException e) {
 				e.printStackTrace();
 			}
@@ -159,7 +159,7 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 						this.id, IWorkbenchPage.VIEW_CREATE);
 				dataWindowView.setFocus();
 				plotWindow.addIObserver(dataWindowView);
-				dataWindowView.addIObserver(this);
+				dataWindowView.addIObserver(this); //FIXME: potential race condition
 			} catch (PartInitException e) {
 				e.printStackTrace();
 			}

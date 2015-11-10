@@ -113,7 +113,7 @@ public class RemoteVolVizView extends ViewPart implements PaintListener, MouseLi
 	
 	public RemoteVolVizView() {
 		plotServer = PlotServerProvider.getPlotServer();
-		plotServer.addIObserver(this);
+		plotServer.addIObserver(this); //FIXME: potential race condition
 	}
 	@Override
 	public void createPartControl(Composite parent) {

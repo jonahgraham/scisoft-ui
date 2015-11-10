@@ -52,7 +52,7 @@ public class ThumbnailLoadService implements Runnable, IObserver {
 		highPriorityQueue = new ArrayDeque<AbstractGridEntry>();
 		lowPriorityQueue = new ArrayDeque<AbstractGridEntry>();
 		plotServer = PlotServerProvider.getPlotServer();
-		plotServer.addIObserver(this);
+		plotServer.addIObserver(this); //FIXME: potential race condition
 		try {
 			localProcessing = plotServer.isServerLocal();
 		} catch (Exception e) {
