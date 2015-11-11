@@ -436,30 +436,24 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	}
 
 	@Override
-	public void updatePlotMode(final GuiPlotMode plotMode, boolean async) {
-		DisplayUtils.runInDisplayThread(async, parentComp, new Runnable() {
+	public void updatePlotMode(final GuiPlotMode plotMode) {
+		DisplayUtils.runInDisplayThread(true, parentComp, new Runnable() {
 			@Override
 			public void run() {
-				try {
-					GuiPlotMode oldMode = getPreviousMode();
-					if (plotMode.equals(GuiPlotMode.ONED) && oldMode != GuiPlotMode.ONED) {
-						plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
-						setPreviousMode(GuiPlotMode.ONED);
-					} else if (plotMode.equals(GuiPlotMode.TWOD) && oldMode != GuiPlotMode.TWOD) {
-						plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
-						addToggleActions();
-						setPreviousMode(GuiPlotMode.TWOD);
-					} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && oldMode != GuiPlotMode.SCATTER2D) {
-						plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
-						setPreviousMode(GuiPlotMode.SCATTER2D);
-					} else if (plotMode.equals(GuiPlotMode.EMPTY) && oldMode != GuiPlotMode.EMPTY) {
-						clearPlot();
-						setPreviousMode(GuiPlotMode.EMPTY);
-					}
-					addScriptingAction();
-					addDuplicateAction();
-				} finally {
-					undoBlock();
+				GuiPlotMode oldMode = getPreviousMode();
+				if (plotMode.equals(GuiPlotMode.ONED) && oldMode != GuiPlotMode.ONED) {
+					plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
+					setPreviousMode(GuiPlotMode.ONED);
+				} else if (plotMode.equals(GuiPlotMode.TWOD) && oldMode != GuiPlotMode.TWOD) {
+					plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
+					addToggleActions();
+					setPreviousMode(GuiPlotMode.TWOD);
+				} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && oldMode != GuiPlotMode.SCATTER2D) {
+					plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
+					setPreviousMode(GuiPlotMode.SCATTER2D);
+				} else if (plotMode.equals(GuiPlotMode.EMPTY) && oldMode != GuiPlotMode.EMPTY) {
+					clearPlot();
+					setPreviousMode(GuiPlotMode.EMPTY);
 				}
 			}
 		});
