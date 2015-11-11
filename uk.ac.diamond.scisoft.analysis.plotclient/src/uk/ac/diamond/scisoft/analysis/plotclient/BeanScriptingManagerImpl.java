@@ -137,7 +137,7 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 								if (window != null) {
 									window.processPlotUpdate(dataBean);
 								}
-								notifyDataObservers(dataBean);
+								notifyDataObservers(dataBean, null);
 							} catch (Exception e) {
 								logger.error("There has been an issue retrieving the databean from the plotserver", e);
 							}
@@ -148,7 +148,7 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 					}
 				}
 			}
-		}, "Plot View Update Daemon '"+plotID+"'");
+		}, "Bean Scripting Manager for '"+plotID+"'");
 	}
 
 	/**
@@ -159,7 +159,9 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 	 * @param observer
 	 */
 	public void addDataObserver(IObserver observer) {
-		dataObservers.add(observer);
+		synchronized (dataObservers) {
+			dataObservers.add(observer);
+		}
 	}
 
 	/**
@@ -168,36 +170,44 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 	 * @param observer
 	 */
 	public void deleteDataObserver(IObserver observer) {
-		dataObservers.remove(observer);
+		synchronized (dataObservers) {
+			dataObservers.remove(observer);
+		}
 	}
 
 	/**
 	 * Remove all data observers
 	 */
 	public void deleteDataObservers() {
-		dataObservers.clear();
-	}
-
-	public void notifyDataObservers(DataBean bean) {
-		Iterator<IObserver> iter = dataObservers.iterator();
-		while (iter.hasNext()) {
-			IObserver ob = iter.next();
-			ob.update(this, bean);
+		synchronized (dataObservers) {
+			dataObservers.clear();
 		}
 	}
 
-	
+	public void notifyDataObservers(DataBean bean, IObserver source) {
+		synchronized (dataObservers) {
+			Iterator<IObserver> iter = dataObservers.iterator();
+			while (iter.hasNext()) {
+				IObserver ob = iter.next();
+				if (ob == source) { // skip updating source
+					continue;
+				}
+				ob.update(this, bean);
+			}
+		}
+	}
+
 	@Override
 	public void update(Object theObserved, Object changeCode) {
-		
+		final Thread thd = Thread.currentThread();
+
 		if (changeCode instanceof String && changeCode.equals(viewName)) {
-			logger.debug("Getting a plot data update for {}; thd {}",  viewName, Thread.currentThread().getId());
+			logger.debug("Getting a plot data update for {}; thd {} {}",  viewName, thd.getId(), thd.getName());
 			GuiBean     guiBean = getGUIBean();
 			final PlotEvent evt = new PlotEvent();
 			evt.setDataBeanAvailable(viewName);
 			evt.setGuiBean(guiBean);
 			offer(evt);
-			
 		} else if (changeCode instanceof GuiUpdate) {
 			GuiUpdate gu = (GuiUpdate) changeCode;
 			if (gu.getGuiName().contains(viewName)) {
@@ -208,7 +218,7 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 				
 				UUID id = (UUID) bean.get(GuiParameters.PLOTID);
 				if (id == null || plotID.compareTo(id) != 0) { // filter out own beans
-					logger.debug("Getting a plot gui update for {}; thd {}; bean {}", new Object[] {viewName, Thread.currentThread().getId(), bean});
+					logger.debug("Getting a plot gui update for {}; thd {} {}; bean {}", new Object[] {viewName, thd.getId(), thd.getName(), bean});
 					if (guiBean == null) {
 						guiBean = bean.copy(); // cache a local copy
 					} else {
@@ -300,8 +310,9 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 	}
 
 	public void dispose() {
-		
-		dataObservers.clear();
+		synchronized (dataObservers) {
+			dataObservers.clear();
+		}
 		queue.clear();
 		queue.add(new PlotEvent());
 		getPlotServer().deleteIObserver(this);

@@ -55,7 +55,6 @@ import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.plotclient.PlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.plotclient.connection.PlotConnectionFactory;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
@@ -436,31 +435,27 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 	}
 
 	@Override
-	public void updatePlotMode(final GuiPlotMode plotMode, boolean async) {
-		DisplayUtils.runInDisplayThread(async, parentComp, new Runnable() {
+	public void updatePlotMode(final GuiPlotMode plotMode) {
+		DisplayUtils.runInDisplayThread(true, parentComp, new Runnable() {
 			@Override
 			public void run() {
-				try {
-					GuiPlotMode oldMode = getPreviousMode();
-					if (plotMode.equals(GuiPlotMode.ONED) && oldMode != GuiPlotMode.ONED) {
-						plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
-						setPreviousMode(GuiPlotMode.ONED);
-					} else if (plotMode.equals(GuiPlotMode.TWOD) && oldMode != GuiPlotMode.TWOD) {
-						plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
-						addToggleActions();
-						setPreviousMode(GuiPlotMode.TWOD);
-					} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && oldMode != GuiPlotMode.SCATTER2D) {
-						plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
-						setPreviousMode(GuiPlotMode.SCATTER2D);
-					} else if (plotMode.equals(GuiPlotMode.EMPTY) && oldMode != GuiPlotMode.EMPTY) {
-						clearPlot();
-						setPreviousMode(GuiPlotMode.EMPTY);
-					}
-					addScriptingAction();
-					addDuplicateAction();
-				} finally {
-					undoBlock();
+				GuiPlotMode oldMode = getPreviousMode();
+				if (plotMode.equals(GuiPlotMode.ONED) && oldMode != GuiPlotMode.ONED) {
+					plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
+					setPreviousMode(GuiPlotMode.ONED);
+				} else if (plotMode.equals(GuiPlotMode.TWOD) && oldMode != GuiPlotMode.TWOD) {
+					plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
+					addToggleActions();
+					setPreviousMode(GuiPlotMode.TWOD);
+				} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && oldMode != GuiPlotMode.SCATTER2D) {
+					plotConnection = PlotConnectionFactory.getConnection(plotMode, plottingSystem);
+					setPreviousMode(GuiPlotMode.SCATTER2D);
+				} else if (plotMode.equals(GuiPlotMode.EMPTY) && oldMode != GuiPlotMode.EMPTY) {
+					clearPlot();
+					setPreviousMode(GuiPlotMode.EMPTY);
 				}
+				addScriptingAction();
+				addDuplicateAction();
 			}
 		});
 	}
@@ -476,23 +471,8 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 
 	@Override
 	public void processGUIUpdate(GuiBean bean) {
-
-		if(parentComp != null && !parentComp.isDisposed()){
-			setUpdatePlot(false);
-			if (bean.containsKey(GuiParameters.PLOTMODE)) {
-				updatePlotMode(bean, true);
-			}
-
-			if (bean.containsKey(GuiParameters.PLOTOPERATION)) {
-				String opStr = (String) bean.get(GuiParameters.PLOTOPERATION);
-				if (opStr.equals(GuiParameters.PLOTOP_UPDATE)) {
-					setUpdatePlot(true);
-				}
-			}
-
-			if (bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST)) {
-				plotConnection.processGUIUpdate(bean);
-			}
+		if (parentComp != null && !parentComp.isDisposed()) {
+			super.processGUIUpdate(bean);
 		}
 	}
 

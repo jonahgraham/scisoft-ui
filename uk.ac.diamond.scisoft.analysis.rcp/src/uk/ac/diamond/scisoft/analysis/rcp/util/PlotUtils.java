@@ -78,7 +78,7 @@ public class PlotUtils {
 			@Override
 			public void run() {
 				try {
-					plotWindow.updatePlotMode(plotMode.getGuiPlotMode(), false);
+					plotWindow.updatePlotMode(plotMode.getGuiPlotMode());
 
 					if (monitor!=null&&monitor.isCanceled()) return;
 					
@@ -144,7 +144,7 @@ public class PlotUtils {
 			@Override
 			public void run() {
 				try {
-					plotWindow.updatePlotMode(mode, false);
+					plotWindow.updatePlotMode(mode);
 
 					if (monitor!=null&&monitor.isCanceled()) return;
 					

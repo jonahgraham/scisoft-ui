@@ -16,9 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.plotclient;
 
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -26,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.dawb.common.ui.util.DisplayUtils;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
@@ -33,6 +31,8 @@ import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.observable.IObservable;
+import gda.observable.IObserver;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.plotclient.connection.AbstractPlotConnection;
 import uk.ac.diamond.scisoft.analysis.plotclient.connection.IPlotConnection;
@@ -107,8 +107,8 @@ public class ScriptingConnection implements IObservable {
 		
 		if (plottingSystem!=null) throw new IllegalArgumentException("The plotting system has already been set!");
 		
-		this.plottingSystem = system;
-		
+		plottingSystem = system;
+
 		system.addRegionListener(getRoiManager());
 		system.addTraceListener(getRoiManager().getTraceListener());
 		
@@ -118,7 +118,7 @@ public class ScriptingConnection implements IObservable {
 			man.setConnection(this);
 							
 			GuiBean bean = manager.getGUIInfo();
-			updatePlotMode(bean, false);
+			updatePlotMode(bean);
 			
 			final PlotEvent evt = new PlotEvent();
 			evt.setDataBeanAvailable(name);
@@ -185,17 +185,25 @@ public class ScriptingConnection implements IObservable {
 
 	@Override
 	public void addIObserver(IObserver observer) {
-		observers.add(observer);
+		synchronized (observers) {
+			if (!observers.contains(observer)) {
+				observers.add(observer);
+			}
+		}
 	}
 
 	@Override
 	public void deleteIObserver(IObserver observer) {
-		observers.remove(observer);
+		synchronized (observers) {
+			observers.remove(observer);
+		}
 	}
 
 	@Override
 	public void deleteIObservers() {
-		observers.clear();
+		synchronized (observers) {
+			observers.clear();
+		}
 	}
 
 	protected List<IObserver> getObservers() {
@@ -206,35 +214,6 @@ public class ScriptingConnection implements IObservable {
 		if (notifyListener != null)
 			notifyListener.updateProcessed();
 	}
-
-	private SimpleLock simpleLock = new SimpleLock();
-
-	protected void doBlock() {
-		logger.debug("doBlock " + Thread.currentThread().getId());
-		synchronized (simpleLock) {
-			if (simpleLock.isLocked()) {
-				try {
-					logger.debug("doBlock  - waiting " + Thread.currentThread().getId());
-					simpleLock.wait();
-					logger.debug("doBlock  - locking " + Thread.currentThread().getId());
-				} catch (InterruptedException e) {
-					// do nothing - but return
-				}
-			} else {
-				logger.debug("doBlock  - waiting not needed " + Thread.currentThread().getId());
-			}
-			simpleLock.lock();
-		}
-	}
-
-	protected void undoBlock() {
-		synchronized (simpleLock) {
-			logger.debug("undoBlock " + Thread.currentThread().getId());
-			simpleLock.unlock();
-			simpleLock.notifyAll();
-		}
-	}
-
 
 	/**
 	 * Process a plot with data packed in bean - remember to update plot mode first if you do not know the current mode
@@ -249,23 +228,17 @@ public class ScriptingConnection implements IObservable {
 				throw new IllegalStateException("parentComp is already disposed");
 			}
 
-			updatePlotMode(dbPlot.getGuiPlotMode(), true);
+			updatePlotMode(dbPlot.getGuiPlotMode());
 		}
 		// there may be some gui information in the databean, if so this also needs to be updated
 		if (dbPlot.getGuiParameters() != null) {
 			processGUIUpdate(dbPlot.getGuiParameters());
 		}
 		
-		try {
-			doBlock();
-			// Now plot the data as standard
-			if (plotConnection != null) {
-				plotConnection.processPlotUpdate(dbPlot, isUpdatePlot());
-				setDataBean(dbPlot);
-				createRegion();
-			}
-		} finally {
-			undoBlock();
+		if (plotConnection != null) {
+			plotConnection.processPlotUpdate(dbPlot, isUpdatePlot());
+			setDataBean(dbPlot);
+			createRegion();
 		}
 	}
 
@@ -283,7 +256,7 @@ public class ScriptingConnection implements IObservable {
 	public void processGUIUpdate(GuiBean bean) {
 		setUpdatePlot(false);
 		if (bean.containsKey(GuiParameters.PLOTMODE)) {
-			updatePlotMode(bean, true);
+			updatePlotMode(bean);
 		}
 
 		if (bean.containsKey(GuiParameters.AXIS_OPERATION)) {
@@ -308,6 +281,7 @@ public class ScriptingConnection implements IObservable {
 				getRoiManager().releaseLock();
 			}
 		}
+
 		if (bean.containsKey(GuiParameters.QUIET_UPDATE)) {
 			manager.sendGUIInfo(bean);
 		}
@@ -320,64 +294,60 @@ public class ScriptingConnection implements IObservable {
 		if (plottingSystem == null || plottingSystem.isDisposed())
 			return;
 
-		doBlock();
-		plottingSystem.getPlotComposite().getDisplay().asyncExec(new Runnable() {
+		DisplayUtils.runInDisplayThread(false, plottingSystem.getPlotComposite(),
+				new Runnable() {
 			@Override
 			public void run() {
-				try {
-					final List<IAxis> pAxes = plottingSystem.getAxes();
-					if (axes.size() != 0 && axes.size() != pAxes.size()) {
-						logger.warn("Axes are out of synch! {} cf {}", axes, pAxes);
-						axes.clear();
-					}
-					if (axes.size() == 0) {
-						for (IAxis i : pAxes) {
-							String t = i.getTitle();
-							if (i.isPrimaryAxis()) {
-								if (t == null || t.length() == 0) { // override if empty
-									t = i.isYAxis() ? "Y-Axis" : "X-Axis";
-								}
-							}
-							axes.put(i, t);
-						}
-					}
-					String title = operation.getTitle();
-					String type = operation.getOperationType();
-					IAxis a = null;
-					if (axes.containsValue(title)) {
-						for (IAxis i : axes.keySet()) {
-							if (title.equals(axes.get(i))) {
-								a = i;
-								break;
+				final List<IAxis> pAxes = plottingSystem.getAxes();
+				if (axes.size() != 0 && axes.size() != pAxes.size()) {
+					logger.warn("Axes are out of synch! {} cf {}", axes, pAxes);
+					axes.clear();
+				}
+				if (axes.size() == 0) {
+					for (IAxis i : pAxes) {
+						String t = i.getTitle();
+						if (i.isPrimaryAxis()) {
+							if (t == null || t.length() == 0) { // override if empty
+								t = i.isYAxis() ? "Y-Axis" : "X-Axis";
 							}
 						}
+						axes.put(i, t);
 					}
-					if (type.equals(AxisOperation.CREATE)) {
-						boolean isYAxis = operation.isYAxis();
-						if (a != null) {
-							if (isYAxis == a.isYAxis()) {
-								logger.warn("Axis already exists: {}", title);
-								return;
-							}
-							logger.debug("Axis is opposite orientation already exists");
+				}
+				String title = operation.getTitle();
+				String type = operation.getOperationType();
+				IAxis a = null;
+				if (axes.containsValue(title)) {
+					for (IAxis i : axes.keySet()) {
+						if (title.equals(axes.get(i))) {
+							a = i;
+							break;
 						}
-						a = plottingSystem.createAxis(title, isYAxis, operation.getSide());
-						axes.put(a, title);
-						logger.trace("Created: {}", title);
-						return;
-					} else if (type.equals(AxisOperation.RENAMEX)) {
-						a = plottingSystem.getSelectedXAxis();
-						a.setTitle(title);
-						axes.put(a, title);
-						logger.trace("Renamed x: {}", title);
-					} else if (type.equals(AxisOperation.RENAMEY)) {
-						a = plottingSystem.getSelectedYAxis();
-						a.setTitle(title);
-						axes.put(a, title);
-						logger.trace("Renamed y: {}", title);
 					}
-				} finally {
-					undoBlock();
+				}
+				if (type.equals(AxisOperation.CREATE)) {
+					boolean isYAxis = operation.isYAxis();
+					if (a != null) {
+						if (isYAxis == a.isYAxis()) {
+							logger.warn("Axis already exists: {}", title);
+							return;
+						}
+						logger.debug("Axis is opposite orientation already exists");
+					}
+					a = plottingSystem.createAxis(title, isYAxis, operation.getSide());
+					axes.put(a, title);
+					logger.trace("Created: {}", title);
+					return;
+				} else if (type.equals(AxisOperation.RENAMEX)) {
+					a = plottingSystem.getSelectedXAxis();
+					a.setTitle(title);
+					axes.put(a, title);
+					logger.trace("Renamed x: {}", title);
+				} else if (type.equals(AxisOperation.RENAMEY)) {
+					a = plottingSystem.getSelectedYAxis();
+					a.setTitle(title);
+					axes.put(a, title);
+					logger.trace("Renamed y: {}", title);
 				}
 			}
 		});
@@ -409,49 +379,40 @@ public class ScriptingConnection implements IObservable {
 	 * @param plotMode
 	 * @param async
 	 */
-	public void updatePlotMode(final GuiPlotMode plotMode, boolean async) {
-		
-		doBlock();
-		
-		DisplayUtils.runInDisplayThread(async, plottingSystem.getPlotComposite(), new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if (plotMode.equals(GuiPlotMode.EXPORT)) {
-						GuiBean bean = getGuiManager().getGUIInfo();
-						getPlottingSystem().savePlotting((String)bean.get(GuiParameters.SAVEPATH), 
-														(String)bean.get(GuiParameters.FILEFORMAT));
-					} else if (plotMode.equals(GuiPlotMode.RESETAXES)) {
-						resetAxes();
-					} else {
-						GuiPlotMode oldMode = getPreviousMode();
-						if (oldMode == null || !plotMode.equals(oldMode)) {
-							changePlotMode(plotMode);
-							setPreviousMode(plotMode);
-						}
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("Error exporting plot:"+e.getMessage());
-				} finally {
-					undoBlock();
+	public void updatePlotMode(final GuiPlotMode plotMode) {
+		logger.debug("Update plot mode: {}", plotMode);
+		try {
+			if (plotMode.equals(GuiPlotMode.EXPORT)) {
+				GuiBean bean = getGuiManager().getGUIInfo();
+				getPlottingSystem().savePlotting((String)bean.get(GuiParameters.SAVEPATH), 
+												(String)bean.get(GuiParameters.FILEFORMAT));
+			} else if (plotMode.equals(GuiPlotMode.RESETAXES)) {
+				resetAxes();
+			} else {
+				GuiPlotMode oldMode = getPreviousMode();
+				if (oldMode == null || !plotMode.equals(oldMode)) {
+					changePlotMode(plotMode);
+					setPreviousMode(plotMode);
 				}
 			}
-		});
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("Error exporting plot:"+e.getMessage());
+		} finally {
+		}
 	}
 
 	/**
 	 * Update the Plot mode with a GuiBean
 	 * @param bean
-	 * @param async
 	 */
-	public void updatePlotMode(GuiBean bean, boolean async) {
+	public void updatePlotMode(GuiBean bean) {
 		if (bean != null) {
 			if (bean.containsKey(GuiParameters.PLOTMODE)) { // bean does not necessarily have a plot mode (eg, it
 															// contains ROIs only)
 				GuiPlotMode plotMode = (GuiPlotMode) bean.get(GuiParameters.PLOTMODE);
 				if (plotMode != null)
-					updatePlotMode(plotMode, async);
+					updatePlotMode(plotMode);
 			}
 		}
 	}
