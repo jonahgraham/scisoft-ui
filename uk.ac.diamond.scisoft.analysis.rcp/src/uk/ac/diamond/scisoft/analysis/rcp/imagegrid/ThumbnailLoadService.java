@@ -52,7 +52,7 @@ public class ThumbnailLoadService implements Runnable, IObserver {
 		highPriorityQueue = new ArrayDeque<AbstractGridEntry>();
 		lowPriorityQueue = new ArrayDeque<AbstractGridEntry>();
 		plotServer = PlotServerProvider.getPlotServer();
-		plotServer.addIObserver(this);
+
 		try {
 			localProcessing = plotServer.isServerLocal();
 		} catch (Exception e) {
@@ -63,6 +63,8 @@ public class ThumbnailLoadService implements Runnable, IObserver {
 	
 	@Override
 	public void run() {
+		plotServer.addIObserver(this);
+
 		while (!terminate) {
 			
 			AbstractGridEntry entry = null;
