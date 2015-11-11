@@ -16,9 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.plotclient;
 
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -33,6 +30,8 @@ import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.observable.IObservable;
+import gda.observable.IObserver;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.plotclient.connection.AbstractPlotConnection;
 import uk.ac.diamond.scisoft.analysis.plotclient.connection.IPlotConnection;
@@ -107,8 +106,8 @@ public class ScriptingConnection implements IObservable {
 		
 		if (plottingSystem!=null) throw new IllegalArgumentException("The plotting system has already been set!");
 		
-		this.plottingSystem = system;
-		
+		plottingSystem = system;
+
 		system.addRegionListener(getRoiManager());
 		system.addTraceListener(getRoiManager().getTraceListener());
 		
@@ -118,7 +117,7 @@ public class ScriptingConnection implements IObservable {
 			man.setConnection(this);
 							
 			GuiBean bean = manager.getGUIInfo();
-			updatePlotMode(bean, false);
+			updatePlotMode(bean);
 			
 			final PlotEvent evt = new PlotEvent();
 			evt.setDataBeanAvailable(name);
@@ -257,7 +256,7 @@ public class ScriptingConnection implements IObservable {
 				throw new IllegalStateException("parentComp is already disposed");
 			}
 
-			updatePlotMode(dbPlot.getGuiPlotMode(), true);
+			updatePlotMode(dbPlot.getGuiPlotMode());
 		}
 		// there may be some gui information in the databean, if so this also needs to be updated
 		if (dbPlot.getGuiParameters() != null) {
@@ -291,7 +290,7 @@ public class ScriptingConnection implements IObservable {
 	public void processGUIUpdate(GuiBean bean) {
 		setUpdatePlot(false);
 		if (bean.containsKey(GuiParameters.PLOTMODE)) {
-			updatePlotMode(bean, true);
+			updatePlotMode(bean);
 		}
 
 		if (bean.containsKey(GuiParameters.AXIS_OPERATION)) {
@@ -417,49 +416,40 @@ public class ScriptingConnection implements IObservable {
 	 * @param plotMode
 	 * @param async
 	 */
-	public void updatePlotMode(final GuiPlotMode plotMode, boolean async) {
-		
-		doBlock();
-		
-		DisplayUtils.runInDisplayThread(async, plottingSystem.getPlotComposite(), new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if (plotMode.equals(GuiPlotMode.EXPORT)) {
-						GuiBean bean = getGuiManager().getGUIInfo();
-						getPlottingSystem().savePlotting((String)bean.get(GuiParameters.SAVEPATH), 
-														(String)bean.get(GuiParameters.FILEFORMAT));
-					} else if (plotMode.equals(GuiPlotMode.RESETAXES)) {
-						resetAxes();
-					} else {
-						GuiPlotMode oldMode = getPreviousMode();
-						if (oldMode == null || !plotMode.equals(oldMode)) {
-							changePlotMode(plotMode);
-							setPreviousMode(plotMode);
-						}
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("Error exporting plot:"+e.getMessage());
-				} finally {
-					undoBlock();
+	public void updatePlotMode(final GuiPlotMode plotMode) {
+		logger.debug("Update plot mode: {}", plotMode);
+		try {
+			if (plotMode.equals(GuiPlotMode.EXPORT)) {
+				GuiBean bean = getGuiManager().getGUIInfo();
+				getPlottingSystem().savePlotting((String)bean.get(GuiParameters.SAVEPATH), 
+												(String)bean.get(GuiParameters.FILEFORMAT));
+			} else if (plotMode.equals(GuiPlotMode.RESETAXES)) {
+				resetAxes();
+			} else {
+				GuiPlotMode oldMode = getPreviousMode();
+				if (oldMode == null || !plotMode.equals(oldMode)) {
+					changePlotMode(plotMode);
+					setPreviousMode(plotMode);
 				}
 			}
-		});
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("Error exporting plot:"+e.getMessage());
+		} finally {
+		}
 	}
 
 	/**
 	 * Update the Plot mode with a GuiBean
 	 * @param bean
-	 * @param async
 	 */
-	public void updatePlotMode(GuiBean bean, boolean async) {
+	public void updatePlotMode(GuiBean bean) {
 		if (bean != null) {
 			if (bean.containsKey(GuiParameters.PLOTMODE)) { // bean does not necessarily have a plot mode (eg, it
 															// contains ROIs only)
 				GuiPlotMode plotMode = (GuiPlotMode) bean.get(GuiParameters.PLOTMODE);
 				if (plotMode != null)
-					updatePlotMode(plotMode, async);
+					updatePlotMode(plotMode);
 			}
 		}
 	}
