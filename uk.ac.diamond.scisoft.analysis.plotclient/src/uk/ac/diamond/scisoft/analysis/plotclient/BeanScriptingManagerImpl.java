@@ -64,13 +64,11 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 		logger.info("Plot view uuid: {}", plotID);
 
 		this.server         = server;
-		server.addIObserver(this);
-		
+
 		// Blocking queue to which we add plot update events.
 		this.queue = new LinkedBlockingDeque<PlotEvent>(25);
 		
 		this.dataObservers = Collections.synchronizedSet(new LinkedHashSet<IObserver>());
-
 	}
 	
 
@@ -83,6 +81,7 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 		plotThread.setDaemon(true);
 		plotThread.start();
 
+		server.addIObserver(this);
 	}
 
 	public ScriptingConnection getConnection() {
