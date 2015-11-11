@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.dawb.common.ui.util.DisplayUtils;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
@@ -328,7 +329,8 @@ public class ScriptingConnection implements IObservable {
 			return;
 
 		doBlock();
-		plottingSystem.getPlotComposite().getDisplay().asyncExec(new Runnable() {
+		DisplayUtils.runInDisplayThread(false, plottingSystem.getPlotComposite(),
+				new Runnable() {
 			@Override
 			public void run() {
 				try {
