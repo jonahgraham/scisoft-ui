@@ -185,17 +185,25 @@ public class ScriptingConnection implements IObservable {
 
 	@Override
 	public void addIObserver(IObserver observer) {
-		observers.add(observer);
+		synchronized (observers) {
+			if (!observers.contains(observer)) {
+				observers.add(observer);
+			}
+		}
 	}
 
 	@Override
 	public void deleteIObserver(IObserver observer) {
-		observers.remove(observer);
+		synchronized (observers) {
+			observers.remove(observer);
+		}
 	}
 
 	@Override
 	public void deleteIObservers() {
-		observers.clear();
+		synchronized (observers) {
+			observers.clear();
+		}
 	}
 
 	protected List<IObserver> getObservers() {

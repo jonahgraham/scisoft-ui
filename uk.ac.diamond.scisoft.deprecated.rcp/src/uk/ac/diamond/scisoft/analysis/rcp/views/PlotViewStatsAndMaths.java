@@ -368,6 +368,7 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 		dswai.setData(dataSet);
 		coll.add(dswai);
 
+		result.setGuiPlotMode(dataSet.getRank() == 2 ? GuiPlotMode.TWOD : GuiPlotMode.ONED);
 		result.setData(coll);
 		if (dataBean1 instanceof NexusDataBean)
 			((NexusDataBean) result).setNexusTrees(((NexusDataBean) dataBean1).getNexusTrees());
@@ -389,6 +390,7 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 		dswai.setData(dataSet);
 		coll.add(dswai);
 
+		result.setGuiPlotMode(dataSet.getRank() == 2 ? GuiPlotMode.TWOD : GuiPlotMode.ONED);
 		result.setData(coll);
 		if (dataBean1 instanceof NexusDataBean)
 			((NexusDataBean) result).setNexusTrees(((NexusDataBean) dataBean1).getNexusTrees());
@@ -513,15 +515,7 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 			return;
 		}
 
-		List<DatasetWithAxisInformation> dc = dBean.getData();
-		Dataset data = dc.get(0).getData();
-		if (data.getRank() == 1) {
-			plotView.updatePlotMode(GuiPlotMode.ONED);
-		} else if (data.getRank() == 2) {
-			plotView.updatePlotMode(GuiPlotMode.TWOD);
-		}
-
-		plotView.processPlotUpdate(dBean);
+		plotView.processPlotUpdate(dBean, this);
 		currentBean = dBean;
 	}
 }
