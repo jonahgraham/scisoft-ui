@@ -215,35 +215,6 @@ public class ScriptingConnection implements IObservable {
 			notifyListener.updateProcessed();
 	}
 
-	private SimpleLock simpleLock = new SimpleLock();
-
-	protected void doBlock() {
-		logger.debug("doBlock " + Thread.currentThread().getId());
-		synchronized (simpleLock) {
-			if (simpleLock.isLocked()) {
-				try {
-					logger.debug("doBlock  - waiting " + Thread.currentThread().getId());
-					simpleLock.wait();
-					logger.debug("doBlock  - locking " + Thread.currentThread().getId());
-				} catch (InterruptedException e) {
-					// do nothing - but return
-				}
-			} else {
-				logger.debug("doBlock  - waiting not needed " + Thread.currentThread().getId());
-			}
-			simpleLock.lock();
-		}
-	}
-
-	protected void undoBlock() {
-		synchronized (simpleLock) {
-			logger.debug("undoBlock " + Thread.currentThread().getId());
-			simpleLock.unlock();
-			simpleLock.notifyAll();
-		}
-	}
-
-
 	/**
 	 * Process a plot with data packed in bean - remember to update plot mode first if you do not know the current mode
 	 * or if it is to change
@@ -264,16 +235,10 @@ public class ScriptingConnection implements IObservable {
 			processGUIUpdate(dbPlot.getGuiParameters());
 		}
 		
-		try {
-			doBlock();
-			// Now plot the data as standard
-			if (plotConnection != null) {
-				plotConnection.processPlotUpdate(dbPlot, isUpdatePlot());
-				setDataBean(dbPlot);
-				createRegion();
-			}
-		} finally {
-			undoBlock();
+		if (plotConnection != null) {
+			plotConnection.processPlotUpdate(dbPlot, isUpdatePlot());
+			setDataBean(dbPlot);
+			createRegion();
 		}
 	}
 
@@ -316,6 +281,7 @@ public class ScriptingConnection implements IObservable {
 				getRoiManager().releaseLock();
 			}
 		}
+
 		if (bean.containsKey(GuiParameters.QUIET_UPDATE)) {
 			manager.sendGUIInfo(bean);
 		}
@@ -328,65 +294,60 @@ public class ScriptingConnection implements IObservable {
 		if (plottingSystem == null || plottingSystem.isDisposed())
 			return;
 
-		doBlock();
 		DisplayUtils.runInDisplayThread(false, plottingSystem.getPlotComposite(),
 				new Runnable() {
 			@Override
 			public void run() {
-				try {
-					final List<IAxis> pAxes = plottingSystem.getAxes();
-					if (axes.size() != 0 && axes.size() != pAxes.size()) {
-						logger.warn("Axes are out of synch! {} cf {}", axes, pAxes);
-						axes.clear();
-					}
-					if (axes.size() == 0) {
-						for (IAxis i : pAxes) {
-							String t = i.getTitle();
-							if (i.isPrimaryAxis()) {
-								if (t == null || t.length() == 0) { // override if empty
-									t = i.isYAxis() ? "Y-Axis" : "X-Axis";
-								}
-							}
-							axes.put(i, t);
-						}
-					}
-					String title = operation.getTitle();
-					String type = operation.getOperationType();
-					IAxis a = null;
-					if (axes.containsValue(title)) {
-						for (IAxis i : axes.keySet()) {
-							if (title.equals(axes.get(i))) {
-								a = i;
-								break;
+				final List<IAxis> pAxes = plottingSystem.getAxes();
+				if (axes.size() != 0 && axes.size() != pAxes.size()) {
+					logger.warn("Axes are out of synch! {} cf {}", axes, pAxes);
+					axes.clear();
+				}
+				if (axes.size() == 0) {
+					for (IAxis i : pAxes) {
+						String t = i.getTitle();
+						if (i.isPrimaryAxis()) {
+							if (t == null || t.length() == 0) { // override if empty
+								t = i.isYAxis() ? "Y-Axis" : "X-Axis";
 							}
 						}
+						axes.put(i, t);
 					}
-					if (type.equals(AxisOperation.CREATE)) {
-						boolean isYAxis = operation.isYAxis();
-						if (a != null) {
-							if (isYAxis == a.isYAxis()) {
-								logger.warn("Axis already exists: {}", title);
-								return;
-							}
-							logger.debug("Axis is opposite orientation already exists");
+				}
+				String title = operation.getTitle();
+				String type = operation.getOperationType();
+				IAxis a = null;
+				if (axes.containsValue(title)) {
+					for (IAxis i : axes.keySet()) {
+						if (title.equals(axes.get(i))) {
+							a = i;
+							break;
 						}
-						a = plottingSystem.createAxis(title, isYAxis, operation.getSide());
-						axes.put(a, title);
-						logger.trace("Created: {}", title);
-						return;
-					} else if (type.equals(AxisOperation.RENAMEX)) {
-						a = plottingSystem.getSelectedXAxis();
-						a.setTitle(title);
-						axes.put(a, title);
-						logger.trace("Renamed x: {}", title);
-					} else if (type.equals(AxisOperation.RENAMEY)) {
-						a = plottingSystem.getSelectedYAxis();
-						a.setTitle(title);
-						axes.put(a, title);
-						logger.trace("Renamed y: {}", title);
 					}
-				} finally {
-					undoBlock();
+				}
+				if (type.equals(AxisOperation.CREATE)) {
+					boolean isYAxis = operation.isYAxis();
+					if (a != null) {
+						if (isYAxis == a.isYAxis()) {
+							logger.warn("Axis already exists: {}", title);
+							return;
+						}
+						logger.debug("Axis is opposite orientation already exists");
+					}
+					a = plottingSystem.createAxis(title, isYAxis, operation.getSide());
+					axes.put(a, title);
+					logger.trace("Created: {}", title);
+					return;
+				} else if (type.equals(AxisOperation.RENAMEX)) {
+					a = plottingSystem.getSelectedXAxis();
+					a.setTitle(title);
+					axes.put(a, title);
+					logger.trace("Renamed x: {}", title);
+				} else if (type.equals(AxisOperation.RENAMEY)) {
+					a = plottingSystem.getSelectedYAxis();
+					a.setTitle(title);
+					axes.put(a, title);
+					logger.trace("Renamed y: {}", title);
 				}
 			}
 		});
