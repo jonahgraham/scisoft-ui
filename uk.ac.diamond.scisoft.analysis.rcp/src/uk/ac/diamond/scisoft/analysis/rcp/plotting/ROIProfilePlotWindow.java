@@ -55,7 +55,6 @@ import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.plotclient.PlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.plotclient.connection.PlotConnectionFactory;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
@@ -455,6 +454,8 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 					clearPlot();
 					setPreviousMode(GuiPlotMode.EMPTY);
 				}
+				addScriptingAction();
+				addDuplicateAction();
 			}
 		});
 	}
@@ -470,23 +471,8 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 
 	@Override
 	public void processGUIUpdate(GuiBean bean) {
-
-		if(parentComp != null && !parentComp.isDisposed()){
-			setUpdatePlot(false);
-			if (bean.containsKey(GuiParameters.PLOTMODE)) {
-				updatePlotMode(bean, true);
-			}
-
-			if (bean.containsKey(GuiParameters.PLOTOPERATION)) {
-				String opStr = (String) bean.get(GuiParameters.PLOTOPERATION);
-				if (opStr.equals(GuiParameters.PLOTOP_UPDATE)) {
-					setUpdatePlot(true);
-				}
-			}
-
-			if (bean.containsKey(GuiParameters.ROIDATA) || bean.containsKey(GuiParameters.ROIDATALIST)) {
-				plotConnection.processGUIUpdate(bean);
-			}
+		if (parentComp != null && !parentComp.isDisposed()) {
+			super.processGUIUpdate(bean);
 		}
 	}
 
