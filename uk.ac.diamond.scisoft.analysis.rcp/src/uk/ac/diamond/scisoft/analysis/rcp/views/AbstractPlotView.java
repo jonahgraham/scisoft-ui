@@ -9,8 +9,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
-import gda.observable.IObserver;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -31,6 +29,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.observable.IObserver;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.IPeak;
 import uk.ac.diamond.scisoft.analysis.plotclient.BeanScriptingManagerImpl;
@@ -57,7 +56,7 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 	 * the ID of the view
 	 */
 	protected String        id;
-	protected AbstractPlotWindow plotWindow;
+	protected AbstractPlotWindow plotWindow; // scripting connection
 
 	private boolean                  isDisposed;
 	
@@ -112,7 +111,6 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 		}
 		logger.info("View name is {}", manager.getViewName());
 
-		// plotConsumer = new PlotConsumer(plotServer, plotViewName, this);
 		parent.setLayout(new FillLayout());
 
 		plotWindow = createPlotWindow(parent, manager, getViewSite().getActionBars(), this, manager.getViewName());
@@ -178,8 +176,12 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 	}
 
 	public void processPlotUpdate(DataBean dBean) {
+		processPlotUpdate(dBean, null);
+	}
+
+	public void processPlotUpdate(final DataBean dBean, IObserver source) {
 		plotWindow.processPlotUpdate(dBean);
-		notifyDataObservers(dBean);
+		notifyDataObservers(dBean, source);
 	}
 
 	public void processGUIUpdate(GuiBean bean) {
@@ -217,10 +219,9 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 		manager.deleteDataObservers();
 	}
 
-	public void notifyDataObservers(DataBean bean) {
-		manager.notifyDataObservers(bean);
+	public void notifyDataObservers(DataBean bean, IObserver source) {
+		manager.notifyDataObservers(bean, source);
 	}
-
 
 	@Override
 	public void updateData(Serializable data, Class<?> clazz) {
