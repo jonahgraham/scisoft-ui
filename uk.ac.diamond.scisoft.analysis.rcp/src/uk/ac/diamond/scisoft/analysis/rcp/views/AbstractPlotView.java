@@ -170,9 +170,8 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 		deleteDataObservers();
 	}
 
-
-	public void updatePlotMode(GuiPlotMode mode) {
-		plotWindow.updatePlotMode(mode, true);
+	public void updatePlotMode(final GuiPlotMode mode) {
+		plotWindow.updatePlotMode(mode);
 	}
 
 	public void processPlotUpdate(DataBean dBean) {
