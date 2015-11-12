@@ -282,7 +282,7 @@ public class EMConsumerController extends ViewPart {
 	}
 
 	private String getURI() {
-        final ScopedPreferenceStore store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.dawnsci.commandserver.ui");
+        final ScopedPreferenceStore store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.eclipse.scanning.event.ui");
         return store.getString(CommandConstants.JMS_URI);
 	}
 
