@@ -7,7 +7,7 @@ Bundle-Activator: uk.ac.diamond.scisoft.mrc.ui.Activator
 Bundle-Vendor: Diamond Light Source
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.dawnsci.commandserver.ui;bundle-version="1.0.0",
+ org.eclipse.scanning.event.ui;bundle-version="1.0.0",
  org.dawnsci.common.widgets;bundle-version="1.2.0",
  org.dawnsci.commandserver;bundle-version="1.0.0",
  org.eclipse.core.resources;bundle-version="3.8.1",

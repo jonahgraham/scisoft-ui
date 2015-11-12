@@ -16,8 +16,6 @@ import org.dawnsci.commandserver.core.ActiveMQServiceHolder;
 import org.dawnsci.commandserver.core.application.ApplicationProcess;
 import org.dawnsci.commandserver.core.application.Consumer;
 import org.dawnsci.commandserver.core.application.IConsumerExtension;
-import org.dawnsci.commandserver.core.consumer.Constants;
-import org.dawnsci.commandserver.ui.preference.CommandConstants;
 import org.dawnsci.common.widgets.file.SelectorWidget;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -38,6 +36,7 @@ import org.eclipse.scanning.api.event.alive.IHeartbeatListener;
 import org.eclipse.scanning.api.event.alive.KillBean;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
+import org.eclipse.scanning.event.ui.preference.CommandConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -187,8 +186,8 @@ public class EMConsumerController extends ViewPart {
 			IEventService service = ActiveMQServiceHolder.getEventService();
 			
 	        try {
-				final ISubscriber<IHeartbeatListener> reader = service.createSubscriber(new URI(getURI()), Constants.ALIVE_TOPIC);
-				final IPublisher<KillBean>            killer = service.createPublisher(new URI(getURI()), Constants.TERMINATE_CONSUMER_TOPIC);
+				final ISubscriber<IHeartbeatListener> reader = service.createSubscriber(new URI(getURI()), IEventService.HEARTBEAT_TOPIC);
+				final IPublisher<KillBean>            killer = service.createPublisher(new URI(getURI()), IEventService.KILL_TOPIC);
 				
 				reader.addListener(new IHeartbeatListener.Stub() {
 					@Override
@@ -210,7 +209,7 @@ public class EMConsumerController extends ViewPart {
 					}
 				});
 						
-				Thread.sleep(Constants.NOTIFICATION_FREQUENCY+500);
+				Thread.sleep(2500);
 				reader.disconnect();
 				
 	        } catch (Exception e1) {

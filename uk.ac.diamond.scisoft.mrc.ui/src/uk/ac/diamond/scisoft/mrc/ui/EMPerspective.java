@@ -8,8 +8,8 @@
  */
 package uk.ac.diamond.scisoft.mrc.ui;
 
-import org.dawnsci.commandserver.ui.view.ConsumerView;
-import org.dawnsci.commandserver.ui.view.StatusQueueView;
+import org.eclipse.scanning.event.ui.view.ConsumerView;
+import org.eclipse.scanning.event.ui.view.StatusQueueView;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
