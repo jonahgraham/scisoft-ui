@@ -15,15 +15,11 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.junit.Test;
 
-import uk.ac.diamond.scisoft.analysis.PlotServer;
-import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.TestUtils;
 import uk.ac.diamond.scisoft.analysis.io.ADSCImageLoader;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.utils.PluginTestHelpers;
@@ -43,21 +39,13 @@ public class DiffractionViewerPluginTest {
 		
 		
 		PlotView plotView = (PlotView) window.getActivePage().showView("uk.ac.diamond.scisoft.analysis.rcp.plotView1");
-		PlotServer plotServer = PlotServerProvider.getPlotServer();
-		GuiBean guiState = plotServer.getGuiState("Plot 1");
-		if (guiState == null) {
-			guiState = new GuiBean();
-		}
 		
-		DataBean datab = new DataBean();
-		
+		DataBean datab = new DataBean(GuiPlotMode.TWOD);
 		DatasetWithAxisInformation dswai = new DatasetWithAxisInformation();
 		AxisMapBean amb = new AxisMapBean();
 		dswai.setAxisMap(amb);
 		dswai.setData(data);
 		datab.addData(dswai);
-		guiState.put(GuiParameters.PLOTMODE, GuiPlotMode.TWOD);
-		plotView.processGUIUpdate(guiState);
     	plotView.processPlotUpdate(datab);
 		PluginTestHelpers.delay(300000); // time to 'play with the graph if wanted
 	}

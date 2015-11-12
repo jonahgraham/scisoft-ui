@@ -41,7 +41,7 @@ class PlottingScatter2DUI extends AbstractPlotConnection {
 
 	@Override
 	public void processPlotUpdate(final DataBean dbPlot, final boolean isUpdate) {
-		Display.getDefault().syncExec(new Runnable() {
+		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				Collection<DatasetWithAxisInformation> plotData = dbPlot.getData();
