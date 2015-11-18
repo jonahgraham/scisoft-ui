@@ -35,10 +35,7 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 		if (layout.getViewLayout(explorer) != null)
 			layout.getViewLayout(explorer).setCloseable(false);
 
-		IFolderLayout dataLayout = layout.createFolder("data", IPageLayout.RIGHT, 0.25f, editorArea);
 		String plot = PlotView.ID + "DP";
-		dataLayout.addView(plot);
-		
 		layout.addView(plot, IPageLayout.RIGHT, 0.30f, editorArea);
 		if (layout.getViewLayout(plot) != null)
 			layout.getViewLayout(plot).setCloseable(true);
