@@ -56,7 +56,7 @@ public class SashFormPlotComposite {
 	protected SashForm sashForm;
 	protected ScrolledComposite leftScroll, rightScroll;
 	protected Composite left, right;
-	protected IPlottingSystem plottingSystem;
+	protected IPlottingSystem<Composite> plottingSystem;
 	protected ActionBarWrapper actionBarWrapper;
 	protected IDataset[] datasets;
 	protected String xAxisLabel, yAxisLabel;

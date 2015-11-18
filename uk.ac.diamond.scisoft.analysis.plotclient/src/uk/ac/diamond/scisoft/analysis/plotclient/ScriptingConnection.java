@@ -28,6 +28,7 @@ import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.region.IRegion;
+import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,7 @@ public class ScriptingConnection implements IObservable {
 	
 	static private Logger logger = LoggerFactory.getLogger(ScriptingConnection.class);
 
-	protected IPlottingSystem plottingSystem;
+	protected IPlottingSystem<Composite> plottingSystem;
 	protected String name;
 
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
