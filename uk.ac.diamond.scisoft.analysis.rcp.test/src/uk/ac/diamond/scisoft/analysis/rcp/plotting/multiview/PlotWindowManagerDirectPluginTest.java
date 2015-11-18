@@ -35,7 +35,7 @@ public class PlotWindowManagerDirectPluginTest extends PlotWindowManagerPluginTe
 	}
 
 	@Override
-	public void clearPlottingSystem(IPlottingSystem plottingSystem, String viewName) {
+	public void clearPlottingSystem(IPlottingSystem<?> plottingSystem, String viewName) {
 		plottingSystem.reset();
 	}
 

@@ -36,7 +36,7 @@ class Plotting2DUI extends PlottingGUIUpdate {
 	
 	private static final Logger logger = LoggerFactory.getLogger(Plotting2DUI.class);
 
-	public Plotting2DUI(IPlottingSystem plotter) {
+	public Plotting2DUI(IPlottingSystem<?> plotter) {
 		super(plotter);
 	}
 

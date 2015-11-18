@@ -63,7 +63,7 @@ public class PlotWindowManagerRPCPluginTest extends PlotWindowManagerPluginTestA
 			}
 
 			@Override
-			public void clearPlottingSystem(IPlottingSystem plottingSystem, String viewName) {
+			public void clearPlottingSystem(IPlottingSystem<?> plottingSystem, String viewName) {
 				try{
 					plottingSystem.reset();
 				} catch (Exception e) {
@@ -92,7 +92,7 @@ public class PlotWindowManagerRPCPluginTest extends PlotWindowManagerPluginTestA
 	}
 
 	@Override
-	public void clearPlottingSystem(final IPlottingSystem plottingSystem, String viewName) {
+	public void clearPlottingSystem(final IPlottingSystem<?> plottingSystem, String viewName) {
 		ThreadRunner threadRunner = new ThreadRunner(new ThreadRunnable() {
 
 			@Override

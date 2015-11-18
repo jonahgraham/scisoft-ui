@@ -87,8 +87,8 @@ public abstract class AbstractPlotWindow extends ScriptingConnection implements 
 	
 
 	/**
-	 * Create the IPlottingSystem and other controls if necessary<br>
-	 * The IPlottingSystem should be created the following way:<br>
+	 * Create the IPlottingSystem<Composite> and other controls if necessary<br>
+	 * The IPlottingSystem<Composite> should be created the following way:<br>
 	 * {@code 	plottingSystem = PlottingFactory.createPlottingSystem();}<br>
 	 * {@code	plottingSystem.setColorOption(ColorOption.NONE);}<br>
 	 * {@code	plottingSystem.createPlotPart(parent, getName(), bars, PlotType.XY, (IViewPart) getGuiManager());}<br>
@@ -101,7 +101,7 @@ public abstract class AbstractPlotWindow extends ScriptingConnection implements 
 	 */
 	public void createPlotControl(Composite composite) {
 		try {
-			IPlottingSystem system = PlottingFactory.createPlottingSystem();
+			IPlottingSystem<Composite> system = PlottingFactory.createPlottingSystem();
 			system.setColorOption(ColorOption.NONE);
 			system.createPlotPart(composite, getName(), bars, PlotType.XY, part);
 			system.repaint();

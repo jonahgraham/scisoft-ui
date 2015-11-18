@@ -35,7 +35,7 @@ public class ClearPlottingSystemAction extends AbstractHandler{
 		try{
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			String plotName = page.getActivePart().getTitle();
-			IPlottingSystem plottingSystem = PlottingFactory.getPlottingSystem(plotName);
+			IPlottingSystem<?> plottingSystem = PlottingFactory.getPlottingSystem(plotName);
 			PlotWindow.getManager().clearPlottingSystem(plottingSystem, plotName);
 		} catch (Exception e) {
 			logger.error("Cannot clear plot", e);

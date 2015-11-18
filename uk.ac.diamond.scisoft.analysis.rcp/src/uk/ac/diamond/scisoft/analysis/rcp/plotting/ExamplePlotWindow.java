@@ -27,9 +27,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.ExamplePlotView;
 
 /**
  * Plot Window example<br>
- * This plot window enables to create a custom Plot View with custom controls side by side with an IPlottingSystem
+ * This plot window enables to create a custom Plot View with custom controls side by side with an IPlottingSystem<Composite>
  * linked to the plot server.<br>
- * The IPlottingSystem should be created the following way:<br>
+ * The IPlottingSystem<Composite> should be created the following way:<br>
  * {@code plottingSystem = PlottingFactory.createPlottingSystem();}<br>
  * {@code plottingSystem.setColorOption(ColorOption.NONE);}<br>
  * {@code plottingSystem.createPlotPart(parent, getName(), bars, PlotType.XY, (IViewPart) getGuiManager());}<br>
@@ -71,7 +71,7 @@ public class ExamplePlotWindow extends AbstractPlotWindow {
 		controlComp.setLayout(new FillLayout());
 
 		Label exampleLabel = new Label(controlComp, SWT.WRAP);
-		exampleLabel.setText("Example of a composite side by side with an IPlottingSystem linked to a plot server");
+		exampleLabel.setText("Example of a composite side by side with an IPlottingSystem<Composite> linked to a plot server");
 
 		// Creates the PlottingSystem
 		super.createPlotControl(sashForm);

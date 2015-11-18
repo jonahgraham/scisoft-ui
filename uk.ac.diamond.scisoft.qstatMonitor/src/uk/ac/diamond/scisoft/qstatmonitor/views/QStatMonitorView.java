@@ -113,7 +113,7 @@ public class QStatMonitorView extends ViewPart {
 	private UIJob fillTableJob = new FillTableJob();
 	private UIJob plotDataJob = new PlotDataJob();
 
-	private IPlottingSystem plottingSystem;
+	private IPlottingSystem<Composite> plottingSystem;
 	
 	private IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {
 		public void propertyChange(PropertyChangeEvent event) {

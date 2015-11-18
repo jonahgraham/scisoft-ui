@@ -33,13 +33,13 @@ class PlottingScatter3DUI extends AbstractPlotConnection {
 
 	private Logger logger = LoggerFactory.getLogger(PlottingScatter3DUI.class);
 
-	private IPlottingSystem plottingSystem;
+	private IPlottingSystem<?> plottingSystem;
 
 	/**
 	 * Constructor of a plotting 3D scatter plot
 	 * @param plottingSystem plotting system
 	 */
-	public PlottingScatter3DUI(IPlottingSystem plottingSystem) {
+	public PlottingScatter3DUI(IPlottingSystem<?> plottingSystem) {
 		this.plottingSystem = plottingSystem;
 	}
 

@@ -18,7 +18,7 @@ public class PlotConnectionFactory {
 	 * @param plottingSystem
 	 * @return connection
 	 */
-	public static AbstractPlotConnection getConnection(GuiPlotMode plotMode, IPlottingSystem plottingSystem) {
+	public static AbstractPlotConnection getConnection(GuiPlotMode plotMode, IPlottingSystem<?> plottingSystem) {
 		
 		AbstractPlotConnection plotUI=null;
 		if (plotMode.equals(GuiPlotMode.ONED)) {
@@ -46,7 +46,7 @@ public class PlotConnectionFactory {
 		return plotUI;
 	}
 
-	public static GuiPlotMode getPlotMode(IPlottingSystem plottingSystem) {
+	public static GuiPlotMode getPlotMode(IPlottingSystem<?> plottingSystem) {
 		
 		if (plottingSystem==null) return GuiPlotMode.ONED;
 		

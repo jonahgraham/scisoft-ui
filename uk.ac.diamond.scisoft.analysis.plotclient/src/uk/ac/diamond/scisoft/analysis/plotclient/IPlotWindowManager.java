@@ -90,6 +90,6 @@ public interface IPlotWindowManager {
 	 * @param viewName
 	 *            to duplicate
 	 */
-	public void clearPlottingSystem(IPlottingSystem plottingSystem, String viewName);
+	public void clearPlottingSystem(IPlottingSystem<?> plottingSystem, String viewName);
 
 }

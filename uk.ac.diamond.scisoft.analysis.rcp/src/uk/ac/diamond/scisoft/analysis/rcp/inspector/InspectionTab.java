@@ -286,7 +286,7 @@ class PlotTab extends ATab {
 				}
 			});
 		} else if (itype == InspectorType.SURFACE) {
-			final IPlottingSystem plottingSystem = PlottingFactory.getPlottingSystem(PLOTNAME);
+			final IPlottingSystem<Composite> plottingSystem = PlottingFactory.getPlottingSystem(PLOTNAME);
 			final Link openWindowing = new Link(holder, SWT.WRAP);
 			openWindowing.setText("Open the <a>Slice Window</a>");
 			openWindowing.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 0));

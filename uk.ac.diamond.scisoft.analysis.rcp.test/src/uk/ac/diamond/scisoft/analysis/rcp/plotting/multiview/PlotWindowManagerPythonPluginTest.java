@@ -76,7 +76,7 @@ public class PlotWindowManagerPythonPluginTest extends PlotWindowManagerPluginTe
 			}
 
 			@Override
-			public void clearPlottingSystem(IPlottingSystem plottingSystem, String viewName) {
+			public void clearPlottingSystem(IPlottingSystem<?> plottingSystem, String viewName) {
 				try{
 					plottingSystem.reset();
 				} catch (Exception e) {
@@ -106,7 +106,7 @@ public class PlotWindowManagerPythonPluginTest extends PlotWindowManagerPluginTe
 	}
 
 	@Override
-	public void clearPlottingSystem(final IPlottingSystem plottingSystem, String viewName) {
+	public void clearPlottingSystem(final IPlottingSystem<?> plottingSystem, String viewName) {
 		ThreadRunner threadRunner = new ThreadRunner(new ThreadRunnable() {
 
 			@Override

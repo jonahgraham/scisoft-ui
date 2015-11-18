@@ -184,7 +184,7 @@ public class SashFormPlotComposite {
 		regionOnDisplay.addROIListener(regionListener);
 	}
 
-	public IPlottingSystem getPlottingSystem() {
+	public IPlottingSystem<Composite> getPlottingSystem() {
 		return plottingSystem;
 	}
 

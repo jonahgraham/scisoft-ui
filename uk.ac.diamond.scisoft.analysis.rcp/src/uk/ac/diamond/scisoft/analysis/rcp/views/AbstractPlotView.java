@@ -126,7 +126,7 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 
 	/**
 	 * Create a custom Plot Window which will enable to create a custom Plot View with custom 
-	 * controls side by side with an IPlottingSystem linked to the plot server.<br>
+	 * controls side by side with an IPlottingSystem<Composite> linked to the plot server.<br>
 	 * (See {@link ExamplePlotWindow} for more info).
 	 * @return AbstractPlotWindow
 	 */
@@ -187,7 +187,7 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 		plotWindow.processGUIUpdate(bean);
 	}
 
-	public IPlottingSystem getPlottingSystem() {
+	public IPlottingSystem<Composite> getPlottingSystem() {
 		return plotWindow.getPlottingSystem();
 	}
 

@@ -49,7 +49,7 @@ public class PlotWindowManagerRMIPluginTest extends PlotWindowManagerPluginTestA
 	}
 
 	@Override
-	public void clearPlottingSystem(final IPlottingSystem plottingSystem, String viewName) {
+	public void clearPlottingSystem(final IPlottingSystem<?> plottingSystem, String viewName) {
 		ThreadRunner threadRunner = new ThreadRunner(new ThreadRunnable() {
 
 			@Override

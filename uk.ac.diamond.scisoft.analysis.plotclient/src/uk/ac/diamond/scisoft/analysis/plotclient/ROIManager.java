@@ -40,7 +40,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 	private IROI roi;
 	private IBeanScriptingManager server; // usually plot window
 	private String plotName;
-	private IPlottingSystem plottingSystem;
+	private IPlottingSystem<?> plottingSystem;
 	private ReentrantLock lock;
 
 	ROIManager(IBeanScriptingManager guiManager, String plotName) {
@@ -69,7 +69,7 @@ public class ROIManager implements IROIListener, IRegionListener {
 		return traceListener;
 	}
 
-	private IPlottingSystem getPlottingSystem() {
+	private IPlottingSystem<?> getPlottingSystem() {
 		if (plottingSystem == null) {
 			plottingSystem = PlottingFactory.getPlottingSystem(plotName);
 		}

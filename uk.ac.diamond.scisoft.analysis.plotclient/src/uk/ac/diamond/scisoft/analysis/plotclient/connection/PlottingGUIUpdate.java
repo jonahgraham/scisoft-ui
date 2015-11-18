@@ -36,9 +36,9 @@ public class PlottingGUIUpdate extends AbstractPlotConnection {
 
 	private static final Logger logger = LoggerFactory.getLogger(PlottingGUIUpdate.class);
 
-	protected IPlottingSystem plottingSystem;
+	protected IPlottingSystem<?> plottingSystem;
 
-	public PlottingGUIUpdate(IPlottingSystem plottingSystem) {
+	public PlottingGUIUpdate(IPlottingSystem<?> plottingSystem) {
 		this.plottingSystem = plottingSystem;
 	}
 

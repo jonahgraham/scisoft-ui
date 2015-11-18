@@ -29,12 +29,12 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
  */
 class Plotting2DMultiUI extends AbstractPlotConnection {
 
-	private IPlottingSystem plottingSystem;
+	private IPlottingSystem<?> plottingSystem;
 
 	/**
 	 * @param plottingSystem
 	 */
-	public Plotting2DMultiUI(IPlottingSystem plottingSystem) {
+	public Plotting2DMultiUI(IPlottingSystem<?> plottingSystem) {
 		this.plottingSystem = plottingSystem;
 	}
 

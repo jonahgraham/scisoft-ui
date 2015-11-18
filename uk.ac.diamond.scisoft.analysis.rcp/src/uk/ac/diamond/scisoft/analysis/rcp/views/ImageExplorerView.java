@@ -370,7 +370,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 					try {
 						setPreferenceColourMapChoice(paletteName);
 						
-						IPlottingSystem system = PlottingFactory.getPlottingSystem(getPreferencePlaybackView());
+						IPlottingSystem<Composite> system = PlottingFactory.getPlottingSystem(getPreferencePlaybackView());
 						if (system != null) {
 							final Collection<ITrace> traces = system.getTraces();
 							if (traces!=null) for (ITrace trace: traces) {

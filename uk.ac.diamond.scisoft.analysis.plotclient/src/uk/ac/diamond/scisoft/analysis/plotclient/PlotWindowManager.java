@@ -198,7 +198,7 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 	}
 
 	@Override
-	public void clearPlottingSystem(IPlottingSystem plottingSystem, String viewName) {
+	public void clearPlottingSystem(IPlottingSystem<?> plottingSystem, String viewName) {
 		try {
 			plottingSystem.reset();
 			plottingSystem.setTitle("");

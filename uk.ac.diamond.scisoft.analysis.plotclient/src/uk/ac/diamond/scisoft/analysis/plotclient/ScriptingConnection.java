@@ -104,7 +104,7 @@ public class ScriptingConnection implements IObservable {
 	 * 
 	 * @param system
 	 */
-	public void setPlottingSystem(IPlottingSystem system) {
+	public void setPlottingSystem(IPlottingSystem<Composite> system) {
 		
 		if (plottingSystem!=null) throw new IllegalArgumentException("The plotting system has already been set!");
 		
@@ -483,7 +483,7 @@ public class ScriptingConnection implements IObservable {
 		return roiManager;
 	}
 
-	public IPlottingSystem getPlottingSystem() {
+	public IPlottingSystem<Composite> getPlottingSystem() {
 		return plottingSystem;
 	}
 

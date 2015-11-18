@@ -32,10 +32,10 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
  *
  */
 class PlottingScatter2DUI extends AbstractPlotConnection {
-	private IPlottingSystem plottingSystem;
+	private IPlottingSystem<?> plottingSystem;
 	private Logger logger = LoggerFactory.getLogger(PlottingScatter2DUI.class);
 
-	public PlottingScatter2DUI(IPlottingSystem plotter) {
+	public PlottingScatter2DUI(IPlottingSystem<?> plotter) {
 		this.plottingSystem = plotter;
 	}
 

@@ -53,7 +53,7 @@ class Plotting1DUI extends PlottingGUIUpdate {
 	 * Constructor of a plotting 1D 
 	 * @param plottingSystem plotting system
 	 */
-	public Plotting1DUI(IPlottingSystem plottingSystem) {
+	public Plotting1DUI(IPlottingSystem<?> plottingSystem) {
 		super(plottingSystem);
 		idx = 0;
 	}

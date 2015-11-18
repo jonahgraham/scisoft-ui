@@ -69,7 +69,7 @@ public class PlotWindow extends AbstractPlotWindow {
 	@Override
 	public void createPlotControl(Composite composite) {
 		try {
-			IPlottingSystem system = PlottingFactory.createPlottingSystem();
+			IPlottingSystem<Composite> system = PlottingFactory.createPlottingSystem();
 			system.setColorOption(ColorOption.NONE);
 			system.createPlotPart(composite, getName(), bars, PlotType.XY, getPart());
 			system.repaint();

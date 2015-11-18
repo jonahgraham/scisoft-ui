@@ -311,7 +311,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 	private void setColourMapChoicePreference(String value) {
 		// update the preference
 		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, value);
-		IPlottingSystem system = PlottingFactory.getPlottingSystem(getPlaybackViewPreference());
+		IPlottingSystem<Composite> system = PlottingFactory.getPlottingSystem(getPlaybackViewPreference());
 		if (system == null) return;
 		// update the palette data
 		final Collection<ITrace> traces = system.getTraces();

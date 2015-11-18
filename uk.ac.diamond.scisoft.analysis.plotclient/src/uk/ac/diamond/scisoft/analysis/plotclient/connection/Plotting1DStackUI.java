@@ -40,12 +40,12 @@ class Plotting1DStackUI extends AbstractPlotConnection {
 	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.Plotting1DStackUI";
 	private static final Logger logger = LoggerFactory.getLogger(Plotting1DStackUI.class);
 
-	private IPlottingSystem plottingSystem;
+	private IPlottingSystem<?> plottingSystem;
 	/**
 	 * Constructor of a plotting 1D 3D stack
 	 * @param plottingSystem plotting system
 	 */
-	public Plotting1DStackUI(IPlottingSystem plottingSystem) {
+	public Plotting1DStackUI(IPlottingSystem<?> plottingSystem) {
 		this.plottingSystem = plottingSystem;
 	}
 
