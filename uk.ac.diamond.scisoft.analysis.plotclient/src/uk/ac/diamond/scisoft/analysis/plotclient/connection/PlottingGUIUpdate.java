@@ -1,4 +1,3 @@
-<<<<<<< dawn-1.9
 /*
  * Copyright (c) 2015 Diamond Light Source Ltd.
  *
@@ -31,33 +30,6 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 
 /**
  * AbstractPlotConnection class with gui update for regions
-=======
-package uk.ac.diamond.scisoft.analysis.plotclient.connection;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.dawnsci.analysis.dataset.roi.ROIList;
-import org.eclipse.dawnsci.analysis.dataset.roi.ROIUtils;
-import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
-import org.eclipse.dawnsci.plotting.api.region.IRegion;
-import org.eclipse.dawnsci.plotting.api.region.IRegionService;
-import org.eclipse.dawnsci.plotting.api.region.RegionUtils;
-import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
-import org.eclipse.swt.widgets.Display;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.analysis.plotclient.Activator;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
-
-/**
- * AbstractPlotConnection class with gui update for regions
- * @author wqk87977
->>>>>>> 685d076 Support region creation/update from jython with 1d on plotviews - SCI-5261
  *
  */
 public class PlottingGUIUpdate extends AbstractPlotConnection {
