@@ -38,7 +38,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.histogram.IPaletteService;
-import org.eclipse.dawnsci.plotting.api.histogram.functions.GlobalColourMaps;
 import org.eclipse.dawnsci.plotting.api.trace.IPaletteTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.action.Action;
@@ -269,7 +268,6 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 
 		imageGrid = new SWTImageGrid(canvas, plotViewName);
 		imageGrid.setThumbnailSize(getPreferenceImageSize());
-		GlobalColourMaps.InitializeColourMaps();
 		retainStateFromServer();
 
 		if (dirPath != null && dirPath.length() > 0) {
