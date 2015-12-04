@@ -130,6 +130,12 @@ public class FeedbackJob extends Job {
 						System.getProperty("user.name", "Unknown User"), subject,
 						messageBody.toString(), attachedFiles, monitor);
 			}
+			if (!emailvalue.contains("@"))
+				return new Status(IStatus.WARNING, "Format Problem",
+						"Please type in your email address before sending the feedback.");
+			if (messagevalue.equals(""))
+				return new Status(IStatus.WARNING, "Format Problem",
+						"Please type your feedback in the message area before sending the feedback.");
 			return new Status(IStatus.WARNING, "Format Problem",
 					"Please type in your email and the message body before sending the feedback.");
 		} catch (Exception e) {
