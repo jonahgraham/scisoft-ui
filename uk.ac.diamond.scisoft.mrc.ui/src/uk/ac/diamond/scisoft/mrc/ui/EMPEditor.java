@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * An editor part for providing a human 
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class EMPEditor extends MultiPageEditorPart {

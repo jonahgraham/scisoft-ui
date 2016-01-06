@@ -7,7 +7,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 
 /**
  * Gets the plot connection.
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class PlotConnectionFactory {

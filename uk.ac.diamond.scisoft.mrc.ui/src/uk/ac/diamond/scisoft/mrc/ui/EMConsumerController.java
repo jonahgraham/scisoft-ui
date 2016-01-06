@@ -62,7 +62,7 @@ import uk.ac.diamond.scisoft.mrc.ui.preference.EMConstants;
 /**
  * A view which starts and stops the consumers for the EM pipeline.
  * 
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class EMConsumerController extends ViewPart {
