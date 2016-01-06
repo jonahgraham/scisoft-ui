@@ -9,6 +9,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp;
 
+import org.dawnsci.plotting.views.ToolPageView;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
@@ -38,7 +39,7 @@ public class DiffractionViewerPerspective implements IPerspectiveFactory {
 		explorerLayout.addPlaceholder("org.dawb.workbench.views.imageMonitorView");
 		
 		IFolderLayout toolPageLayout = layout.createFolder("toolPageFolder", IPageLayout.RIGHT, 0.50f, layout.getEditorArea());
-		toolPageLayout.addView("org.dawb.workbench.plotting.views.toolPageView.fixed:org.dawb.workbench.plotting.tools.diffraction.Diffraction");
+		toolPageLayout.addView(ToolPageView.FIXED_VIEW_ID + ":org.dawb.workbench.plotting.tools.diffraction.Diffraction");
 		toolPageLayout.addPlaceholder("*");
 		
 		if (layout.getViewLayout("uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView") != null)
