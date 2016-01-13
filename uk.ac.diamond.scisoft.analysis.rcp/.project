@@ -5,7 +5,6 @@
 	<projects>
 		<project>tp</project>
 		<project>uk.ac.diamond.scisoft.analysis</project>
-		<project>uk.ac.gda.common.rcp</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
