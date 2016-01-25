@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.dawnsci.analysis.api.fitting.functions.IPeak;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPage;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
@@ -31,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.observable.IObserver;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
-import uk.ac.diamond.scisoft.analysis.fitting.functions.IPeak;
 import uk.ac.diamond.scisoft.analysis.plotclient.BeanScriptingManagerImpl;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
@@ -144,7 +144,7 @@ public abstract class AbstractPlotView extends ViewPart implements ISettablePlot
 	/**
 	 * Required if you want to make tools work with Abstract Plotting System.
 	 */
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Object getAdapter(final Class clazz) {
 		if (clazz == IToolPageSystem.class) {
