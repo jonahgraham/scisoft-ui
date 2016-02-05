@@ -18,12 +18,11 @@
 
 package uk.ac.diamond.scisoft.mappingexplorer.test;
 
-import junit.framework.Assert;
-
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.junit.Assert;
 import org.junit.Test;
 
 import uk.ac.diamond.scisoft.mappingexplorer.perspective.MappingExplorerPerspective;

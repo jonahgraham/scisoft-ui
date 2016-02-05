@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright (c) 2012 Diamond Light Source Ltd.
  *
  * All rights reserved. This program and the accompanying materials
@@ -11,11 +11,10 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import java.util.LinkedList;
 
-import junit.framework.Assert;
-
 import org.dawnsci.plotting.jreality.tick.Tick;
 import org.dawnsci.plotting.jreality.tick.TickFactory;
 import org.dawnsci.plotting.jreality.tick.TickFormatting;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TickFactoryTest {

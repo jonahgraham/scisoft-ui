@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright (c) 2012 Diamond Light Source Ltd.
  *
  * All rights reserved. This program and the accompanying materials
@@ -9,12 +9,11 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview;
 
-import junit.framework.AssertionFailedError;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.views.IViewDescriptor;
+import org.junit.AssumptionViolatedException;
 
 /**
  * Replaced by MockConfigElem
@@ -40,42 +39,42 @@ class MockViewDescriptor implements IViewDescriptor {
 
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-		throw new AssertionFailedError("Methods in MockViewDescriptor should not be called");
+		throw new AssumptionViolatedException("Methods in MockViewDescriptor should not be called");
 	}
 
 	@Override
 	public IViewPart createView() throws CoreException {
-		throw new AssertionFailedError("Methods in MockViewDescriptor should not be called");
+		throw new AssumptionViolatedException("Methods in MockViewDescriptor should not be called");
 	}
 
 	@Override
 	public String[] getCategoryPath() {
-		throw new AssertionFailedError("Methods in MockViewDescriptor should not be called");
+		throw new AssumptionViolatedException("Methods in MockViewDescriptor should not be called");
 	}
 
 	@Override
 	public String getDescription() {
-		throw new AssertionFailedError("Methods in MockViewDescriptor should not be called");
+		throw new AssumptionViolatedException("Methods in MockViewDescriptor should not be called");
 	}
 
 	@Override
 	public ImageDescriptor getImageDescriptor() {
-		throw new AssertionFailedError("Methods in MockViewDescriptor should not be called");
+		throw new AssumptionViolatedException("Methods in MockViewDescriptor should not be called");
 	}
 
 	@Override
 	public float getFastViewWidthRatio() {
-		throw new AssertionFailedError("Methods in MockViewDescriptor should not be called");
+		throw new AssumptionViolatedException("Methods in MockViewDescriptor should not be called");
 	}
 
 	@Override
 	public boolean getAllowMultiple() {
-		throw new AssertionFailedError("Methods in MockViewDescriptor should not be called");
+		throw new AssumptionViolatedException("Methods in MockViewDescriptor should not be called");
 	}
 
 	@Override
 	public boolean isRestorable() {
-		throw new AssertionFailedError("Methods in MockViewDescriptor should not be called");
+		throw new AssumptionViolatedException("Methods in MockViewDescriptor should not be called");
 	}
 
 }

@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright (c) 2012 Diamond Light Source Ltd.
  *
  * All rights reserved. This program and the accompanying materials
@@ -9,9 +9,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.utils;
 
-import junit.framework.Assert;
-
 import org.eclipse.dawnsci.plotting.api.jreality.util.JOGLGLSLShaderGenerator;
+import org.junit.Assert;
 import org.junit.Test;
 /**
  *

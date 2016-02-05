@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright (c) 2012 Diamond Light Source Ltd.
  *
  * All rights reserved. This program and the accompanying materials
@@ -9,11 +9,10 @@
 
 package uk.ac.diamond.scisoft.analysis.utils;
 
-import junit.framework.Assert;
-
 import org.dawnsci.plotting.jreality.util.JOGLChecker;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 

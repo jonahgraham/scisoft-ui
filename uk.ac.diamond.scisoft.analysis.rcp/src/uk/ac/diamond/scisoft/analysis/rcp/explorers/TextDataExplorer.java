@@ -33,6 +33,8 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -60,6 +62,7 @@ public class TextDataExplorer extends AbstractExplorer implements ISelectionProv
 	private ISelectionChangedListener listener;
 	private Display display = null;
 	private SelectionAdapter contextListener = null;
+	private Menu contextMenu;
 
 	public TextDataExplorer(Composite parent, IWorkbenchPartSite partSite, ISelectionChangedListener valueSelect) {
 		super(parent, partSite, valueSelect);
@@ -95,6 +98,34 @@ public class TextDataExplorer extends AbstractExplorer implements ISelectionProv
 		};
 
 		viewer.addSelectionChangedListener(listener);
+		final SelectionAdapter slistener = new SelectionAdapter() {
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				super.widgetDefaultSelected(e);
+			}
+		};
+
+		// add context menu
+		contextMenu = new Menu(viewer.getControl());
+		contextMenu.addMenuListener(new MenuListener() {
+			@Override
+			public void menuShown(MenuEvent e) {
+				// populate
+//				contextMenu.
+			}
+
+			@Override
+			public void menuHidden(MenuEvent e) {
+			}
+		});
+
+		// set selection first and then omit in SHOW listener
+
+		// NB preserve this order according to constants above
+		MenuItem errorsItem = new MenuItem(contextMenu, SWT.PUSH);
+		errorsItem.addSelectionListener(slistener);
+		errorsItem.setText("Assign as errors for...");
+		viewer.getTable().setMenu(contextMenu);
 
 		if (metaValueListener != null) {
 			final TextDataExplorer provider = this;
@@ -136,10 +167,13 @@ public class TextDataExplorer extends AbstractExplorer implements ISelectionProv
 				IDataset dataset = (IDataset) obj;
 				if (index == 0)
 					return dataset.getName();
-				if (index == 1)
-					return dataset.min().toString();
-				if (index == 2)
-					return dataset.max().toString();
+				try {
+					if (index == 1)
+						return dataset.min().toString();
+					if (index == 2)
+						return dataset.max().toString();
+				} catch (NullPointerException e) {
+				}
 				if (index == 3) {
 					String[] parts = dataset.elementClass().toString().split("\\.");
 					return parts[parts.length - 1];
