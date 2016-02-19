@@ -9,6 +9,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import org.dawb.common.ui.selection.SelectedTreeItemInfo;
@@ -193,7 +195,7 @@ public class HDF5TableTree extends Composite implements ISelectionProvider {
 	public static int countChildren(Object element, TreeFilter filter) {
 		int count = 0;
 		if (element instanceof Attribute) {
-			return 0;
+			// do nothing
 		}
 
 		if (element instanceof NodeLink) {
@@ -201,23 +203,27 @@ public class HDF5TableTree extends Composite implements ISelectionProvider {
 
 			Iterator<String> iter = node.getAttributeNameIterator();
 			while (iter.hasNext()) {
-				if (filter.select(iter.next()))
+				if (filter.select(iter.next())) {
 					count++;
+				}
+			}
+
+			if (node instanceof SymbolicNode) { // dereference link if possible
+				Node tNode = ((SymbolicNode) node).getNode();
+				if (tNode != null) {
+					node = tNode;
+				}
 			}
 
 			if (node instanceof GroupNode) {
 				GroupNode group = (GroupNode) node;
 				Iterator<String> nIter = group.getNodeNameIterator();
 				while (nIter.hasNext()) {
-					if (filter.select(nIter.next()))
+					if (filter.select(nIter.next())) {
 						count++;
+					}
 				}
 			}
-
-			if (node instanceof DataNode) {
-				// do nothing?
-			}
-
 		}
 		return count;
 	}
@@ -228,7 +234,12 @@ public class HDF5TableTree extends Composite implements ISelectionProvider {
 	 */
 	public void setInput(NodeLink tree) {
 		if (tViewer != null && tViewer.getContentProvider() != null) {
-		    tViewer.setInput(tree);
+			tViewer.setInput(tree);
+			HDF5LabelProvider lp = (HDF5LabelProvider) tViewer.getLabelProvider();
+			try {
+				lp.setSourceURI(new URI(filename));
+			} catch (URISyntaxException e) {
+			}
 //		    TODO decide whether this is needed
 //		    tViewer.getTree().setItemCount(countChildren(tree, treeFilter));
 		}
@@ -312,8 +323,6 @@ class HDF5LazyContentProvider implements ILazyTreeContentProvider {
 		}
 
 		Node node = ((NodeLink) element).getSource();
-		if (node == null)
-			return element;
 		return node;
 	}
 
@@ -321,8 +330,9 @@ class HDF5LazyContentProvider implements ILazyTreeContentProvider {
 	public void updateChildCount(Object element, int currentChildCount) {
 		// count number of nodes that will not be filtered out
 		int count = HDF5TableTree.countChildren(element, filter);
-		if (count != currentChildCount)
+		if (count != currentChildCount) {
 			viewer.setChildCount(element, count);
+		}
 	}
 
 	@Override
@@ -333,62 +343,41 @@ class HDF5LazyContentProvider implements ILazyTreeContentProvider {
 
 		assert parent instanceof NodeLink : "Not an attribute or a link";
 
-		Node pNode = ((NodeLink) parent).getDestination();
+		NodeLink pLink = (NodeLink) parent;
+		Node pNode = pLink.getDestination();
 
 		int count = 0;
 		Iterator<String> iter = pNode.getAttributeNameIterator();
 		while (iter.hasNext()) {
 			String name = iter.next();
 			if (filter.select(name)) {
-				if (index == count) {
+				if (index == count++) {
 					Attribute a = pNode.getAttribute(name);
 					viewer.replace(parent, index, a);
-					updateChildCount(a, -1);
+					viewer.setChildCount(a, 0);
 					return;
 				}
-				count++;
+			}
+		}
+
+		if (pNode instanceof SymbolicNode) { // dereference link if possible
+			NodeLink tLink = ((SymbolicNode) pNode).getNodeLink();
+			if (tLink != null) {
+				pNode = tLink.getDestination();
 			}
 		}
 
 		if (pNode instanceof GroupNode) {
 			for (NodeLink link : (GroupNode) pNode) {
-				if (link.isDestinationSymbolic()) {
-					SymbolicNode slink = (SymbolicNode) link.getDestination();
-					link = slink.getNodeLink();
-				}
-				if (link.isDestinationGroup()) {
-					String name = link.getName();
-					if (filter.select(name)) {
-						if (index == count) {
-							viewer.replace(parent, index, link);
-							updateChildCount(link, -1);
-							return;
-						}
+				String name = link.getName();
+				if (filter.select(name)) {
+					if (index == count++) {
+						viewer.replace(parent, index, link);
+						 updateChildCount(link, -1);
+						return;
 					}
-					count++;
 				}
 			}
-
-			for (NodeLink link : (GroupNode) pNode) {
-				if (link.isDestinationSymbolic()) {
-					SymbolicNode slink = (SymbolicNode) link.getDestination();
-					link = slink.getNodeLink();
-				}
-				if (link.isDestinationData()) {
-					String name = link.getName();
-					if (filter.select(name)) {
-						if (index == count) {
-							viewer.replace(parent, index, link);
-							updateChildCount(link, -1);
-							return;
-						}
-					}
-					count++;
-				}
-			}
-
-		} else if (pNode instanceof DataNode) {
-			// do nothing
 		}
 	}
 
@@ -402,14 +391,18 @@ class HDF5LazyContentProvider implements ILazyTreeContentProvider {
 }
 
 class HDF5LabelProvider implements ITableLabelProvider {
-//	private static final Logger logger = LoggerFactory.getLogger(HDF5LabelProvider.class);
-	
+	private URI treeURI;
+
 	@Override
 	public Image getColumnImage(Object element, int columnIndex) {
 		return null;
 	}
 
-	
+	public void setSourceURI(URI uri) {
+		treeURI = uri;
+	}
+
+
 	@Override
 	public String getColumnText(Object element, int columnIndex) {
 		String msg = "";
@@ -443,7 +436,7 @@ class HDF5LabelProvider implements ITableLabelProvider {
 			return msg;
 		}
 
-		assert element instanceof NodeLink : "Not an attribute or a link";
+		assert element instanceof NodeLink : "Not a link";
 
 		NodeLink link = (NodeLink) element;
 		Node node = link.getDestination();
@@ -458,7 +451,30 @@ class HDF5LabelProvider implements ITableLabelProvider {
 			break;
 		}
 
-		if (node instanceof DataNode) {
+		if (node instanceof SymbolicNode) { // dereference link if possible
+			Node tNode = ((SymbolicNode) node).getNode();
+			if (tNode != null) {
+				node = tNode;
+			}
+		}
+
+		if (node instanceof SymbolicNode) {
+			switch (columnIndex) {
+			case 1:
+				return "Link";
+			case 4:
+				String path = ((SymbolicNode) node).getPath();
+				if (path == null) {
+					return "Problem reading link";
+				}
+				msg = "Missing destination: '"  + path + "'";
+				URI uri = ((SymbolicNode) node).getSourceURI();
+				if (uri != null && !uri.getPath().equals(treeURI.getPath())) {
+					msg = msg + " in '" + uri + "'";
+				}
+				return msg;
+			}
+		} else if (node instanceof DataNode) {
 			DataNode dataset = (DataNode) node;
 
 			if (columnIndex == 1) { // class
