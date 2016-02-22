@@ -1410,7 +1410,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			Dataset[] mva = new Dataset[mvs.length];
 			for (int i = 0; i < mvs.length; i++) {
 				ILazyDataset m = mvs[i]; 
-				mva[i] = (m instanceof Dataset) ? (Dataset) m : DatasetUtils.convertToDataset(m);
+				mva[i] = m instanceof IDataset ? DatasetUtils.convertToDataset((IDataset) m) : null;
 			}
 			allMeta = DatasetUtils.concatenate(mva, 0);
 			allMeta.setName(mv.getName());

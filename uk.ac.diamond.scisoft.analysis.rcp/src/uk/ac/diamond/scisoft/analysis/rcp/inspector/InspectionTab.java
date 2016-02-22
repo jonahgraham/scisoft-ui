@@ -295,7 +295,7 @@ class PlotTab extends ATab {
 				public void widgetSelected(SelectionEvent e) {
 					if (plottingSystem != null) {
 						try {
-							final IToolPageSystem system = (IToolPageSystem)plottingSystem.getAdapter(IToolPageSystem.class);
+							final IToolPageSystem system = plottingSystem.getAdapter(IToolPageSystem.class);
 							system.setToolVisible("org.dawb.workbench.plotting.tools.windowTool", ToolPageRole.ROLE_3D, 
 													"org.dawb.workbench.plotting.views.toolPageView.3D");
 						} catch (Exception e1) {
@@ -740,7 +740,7 @@ class PlotTab extends ATab {
 		Dataset slicedData = null;
 		try {
 			if (dataset instanceof IDataset) {
-				slicedData = DatasetUtils.convertToDataset(dataset.getSliceView(slices));
+				slicedData = DatasetUtils.convertToDataset((IDataset) dataset.getSliceView(slices));
 			} else {
 				slicedData = DatasetUtils.convertToDataset(dataset.getSlice(monitor, slices));
 			}
@@ -756,7 +756,7 @@ class PlotTab extends ATab {
 		Dataset slicedData = null;
 		try {
 			if (dataset instanceof IDataset) {
-				slicedData = DatasetUtils.convertToDataset(dataset.getSliceView(start, stop, step));
+				slicedData = DatasetUtils.convertToDataset((IDataset) dataset.getSliceView(start, stop, step));
 			} else {
 				slicedData = DatasetUtils.convertToDataset(dataset.getSlice(monitor, start, stop, step));
 			}
@@ -1728,9 +1728,9 @@ class ScatterTab extends PlotTab {
 				}
 			} else {
 				IDataset z;
-				x = DatasetUtils.convertToDataset(axes.get(0).getValues());
-				y = DatasetUtils.convertToDataset(axes.get(1).getValues());
-				z = DatasetUtils.convertToDataset(axes.get(2).getValues());
+				x = slicedAxes.get(0);
+				y = slicedAxes.get(1);
+				z = slicedAxes.get(2);
 				if (reorderedData.getRank() == 1) {
 				} else {
 					List<? extends Dataset> grid = DatasetUtils.meshGrid(x, (Dataset) y, (Dataset) z);

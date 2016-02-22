@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
@@ -147,14 +146,16 @@ public class CSVUtils {
 		                                  ? Arrays.asList(dataSetNames)
 		                                  : null;
 		                                  
-		final Map<String, ILazyDataset> sortedData = new TreeMap<String, ILazyDataset>();
-		sortedData.putAll(dh.toLazyMap());
+		final Map<String, IDataset> sortedData = new TreeMap<String, IDataset>();
+		for (String n : dh.getNames()) {
+			sortedData.put(n, dh.getDataset(n));
+		}
 		if (requiredNames!=null) sortedData.keySet().retainAll(requiredNames);
 		
 		boolean is1DExport = false;
 	    int maxSize = Integer.MIN_VALUE;
 		for (String name : sortedData.keySet()) {
-			final ILazyDataset set = sortedData.get(name);
+			final IDataset set = sortedData.get(name);
 			if (set.getShape()==null)     continue;
 			if (set.getShape().length!=1) continue;
 			maxSize = Math.max(maxSize, set.getSize());
@@ -165,8 +166,8 @@ public class CSVUtils {
 		if (is1DExport) {
             get1DDataSetCVS(contents, sortedData, maxSize);
 		} else if (sortedData.size()==1){
-			final ILazyDataset dataset2d = sortedData.values().iterator().next();
-			if (dataset2d.getShape()[0]*dataset2d.getShape()[1]>64000) {
+			final IDataset dataset2d = sortedData.values().iterator().next();
+			if (dataset2d.getSize()>64000) {
 			    throw new Exception("The data contains an image "+dataset2d.getShape()[0]+"x"+dataset2d.getShape()[1]+" which cannot be converted to csv.");
 			}
 			get2DDataSetCVS(contents,dataset2d);
@@ -179,7 +180,7 @@ public class CSVUtils {
 	}
 
 
-	private static void get2DDataSetCVS(StringBuilder contents, ILazyDataset dataset2d) {
+	private static void get2DDataSetCVS(StringBuilder contents, IDataset dataset2d) {
 
 		final int xSize = dataset2d.getShape()[0];
 		final int ySize = dataset2d.getShape()[1];
@@ -196,7 +197,7 @@ public class CSVUtils {
 
 
 	private static void get1DDataSetCVS(final StringBuilder        contents,
-			                            final Map<String, ? extends ILazyDataset> sortedData,
+			                            final Map<String, ? extends IDataset> sortedData,
 			                            final int                  maxSize) {
 		
 		for (Iterator<String> it = sortedData.keySet().iterator(); it.hasNext(); ) {
@@ -214,9 +215,8 @@ public class CSVUtils {
 				
 				final String name = it.next();
 
-				final ILazyDataset set = sortedData.get(name);
-				final Dataset adset = DatasetUtils.convertToDataset(set);
-				final String value = (i<set.getSize()) ? String.valueOf(adset.getDouble(i)) : " ";
+				final Dataset adset = DatasetUtils.convertToDataset(sortedData.get(name));
+				final String value = (i<adset.getSize()) ? String.valueOf(adset.getDouble(i)) : " ";
 				contents.append(value);
 				if (it.hasNext()) contents.append(",");
 			}
