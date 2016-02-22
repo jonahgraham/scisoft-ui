@@ -1406,7 +1406,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		ILazyDataset[] mvs = metavalues.toArray(new ILazyDataset[0]);
 		ILazyDataset mv = mvs[0];
 		ILazyDataset allMeta;
-		if (mv instanceof Dataset && mv.getRank() == 1) { // concatenate 1D meta-values
+		if (mv instanceof IDataset && mv.getRank() == 1) { // concatenate 1D meta-values
 			Dataset[] mva = new Dataset[mvs.length];
 			for (int i = 0; i < mvs.length; i++) {
 				ILazyDataset m = mvs[i]; 
