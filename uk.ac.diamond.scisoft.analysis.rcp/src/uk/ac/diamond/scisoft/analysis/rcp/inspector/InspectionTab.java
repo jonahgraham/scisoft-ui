@@ -987,7 +987,7 @@ class PlotTab extends ATab {
 			try {
 				SDAPlotter.updatePlot(PLOTNAME, slicedAxes.get(0), reorderedData);
 			} catch (Exception e) {
-				logger.error("Could not plot 1d line");
+				logger.error("Could not plot 1d line", e);
 				return;
 			}
 
@@ -1076,7 +1076,7 @@ class PlotTab extends ATab {
 				else
 					SDAPlotter.surfacePlot(PLOTNAME, xAxisSlice, yAxisSlice, reorderedData);
 			} catch (Exception e) {
-				logger.error("Could not plot image or surface");
+				logger.error("Could not plot image or surface", e);
 			}
 			break;
 		case IMAGEXP:
@@ -1097,7 +1097,7 @@ class PlotTab extends ATab {
 			try {
 				SDAPlotter.volumePlot(VOLVIEWNAME, reorderedData);
 			} catch (Exception e) {
-				logger.error("Could not plot volume");
+				logger.error("Could not plot volume", e);
 			}
 			break;
 		case DATA1D:
