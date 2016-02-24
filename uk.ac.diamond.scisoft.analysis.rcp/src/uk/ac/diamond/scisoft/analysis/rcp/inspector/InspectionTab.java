@@ -1660,7 +1660,7 @@ class ScatterTab extends PlotTab {
 
 		// TODO cope with axis datasets that are >1 dimensions
 		Dataset x;
-		IDataset y;
+		Dataset y;
 		switch (itype) {
 		case POINTS1D:
 			x = slicedAxes.get(0);
@@ -1704,7 +1704,7 @@ class ScatterTab extends PlotTab {
 					return;
 				}
 				try {
-					SDAPlotter.scatter2DPlot(PLOTNAME, x.flatten(), ((Dataset) y).flatten(), reorderedData.flatten());
+					SDAPlotter.scatter2DPlot(PLOTNAME, x.flatten(), y.flatten(), reorderedData.flatten());
 				} catch (Exception e) {
 					logger.error("Could not plot 2d points");
 					return;
@@ -1727,13 +1727,13 @@ class ScatterTab extends PlotTab {
 					return;
 				}
 			} else {
-				IDataset z;
+				Dataset z;
 				x = slicedAxes.get(0);
 				y = slicedAxes.get(1);
 				z = slicedAxes.get(2);
 				if (reorderedData.getRank() == 1) {
 				} else {
-					List<? extends Dataset> grid = DatasetUtils.meshGrid(x, (Dataset) y, (Dataset) z);
+					List<? extends Dataset> grid = DatasetUtils.meshGrid(x, y, z);
 					x = grid.get(0);
 					y = grid.get(1);
 					z = grid.get(2);
@@ -1743,7 +1743,7 @@ class ScatterTab extends PlotTab {
 					return;
 				}
 				try {
-					SDAPlotter.scatter3DPlot(PLOTNAME, x.flatten(), ((Dataset) y).flatten(), ((Dataset) z).flatten(), reorderedData.flatten());
+					SDAPlotter.scatter3DPlot(PLOTNAME, x.flatten(), y.flatten(), z.flatten(), reorderedData.flatten());
 				} catch (Exception e) {
 					logger.error("Could not plot 3d points");
 					return;

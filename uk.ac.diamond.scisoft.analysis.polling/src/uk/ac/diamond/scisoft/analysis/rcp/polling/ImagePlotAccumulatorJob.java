@@ -40,7 +40,7 @@ public class ImagePlotAccumulatorJob extends FilenameReaderUpdateOnlyJob {
 				position++;
 			}			
 				
-			Dataset accumulator =  DatasetFactory.zeros((Dataset) images.get(0), Dataset.ARRAYFLOAT64);
+			Dataset accumulator =  DatasetFactory.zeros(images.get(0).getShape(), Dataset.ARRAYFLOAT64);
 			for(int i = 0; i < images.size(); i++) {
 				accumulator.iadd(images.get(i));
 			}

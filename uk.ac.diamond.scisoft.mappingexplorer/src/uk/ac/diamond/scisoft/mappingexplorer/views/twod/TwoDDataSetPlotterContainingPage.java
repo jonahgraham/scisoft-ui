@@ -30,6 +30,7 @@ import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.Slice;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
@@ -216,7 +217,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				}
 			});
 
-			final IToolPageSystem system = (IToolPageSystem)plottingSystem.getAdapter(IToolPageSystem.class);
+			final IToolPageSystem system = plottingSystem.getAdapter(IToolPageSystem.class);
 			system.addToolChangeListener(new IToolChangeListener() {
 
 				@Override
@@ -645,7 +646,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			}
 		}
 	};
-	private Dataset currentSlice;
+	private IDataset currentSlice;
 
 	@Override
 	public void dispose() {
@@ -729,7 +730,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				int[] shape = dataset.getShape();
 
 				if (radio1) {
-					currentSlice = (Dataset) dataset.getSlice(new Slice(scalerValue, scalerValue + 1),
+					currentSlice = dataset.getSlice(new Slice(scalerValue, scalerValue + 1),
 							new Slice(null), new Slice(null));
 					currentSlice.setShape(shape[1], shape[2]);
 
@@ -744,7 +745,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 					}
 				}
 				if (radio2) {
-					currentSlice = (Dataset) dataset.getSlice(new Slice(null), new Slice(scalerValue,
+					currentSlice = dataset.getSlice(new Slice(null), new Slice(scalerValue,
 							scalerValue + 1), new Slice(null));
 					currentSlice.setShape(shape[0], shape[2]);
 
@@ -759,7 +760,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 					}
 				}
 				if (radio3) {
-					currentSlice = (Dataset) dataset.getSlice(new Slice(null), new Slice(null), new Slice(
+					currentSlice = dataset.getSlice(new Slice(null), new Slice(null), new Slice(
 							scalerValue, scalerValue + 1));
 					currentSlice.setShape(shape[0], shape[1]);
 
@@ -783,7 +784,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 					xAxisValues = tmpA;
 
 					if (currentSlice != null) {
-						currentSlice = currentSlice.transpose();
+						currentSlice = DatasetUtils.convertToDataset(currentSlice).transpose();
 					}
 				}
 			} else if (mapping2DData != null) {
@@ -800,7 +801,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 					yAxisValues = new AxisValues(mapping2DData.getDimension1Values());
 				}
 
-				currentSlice = (Dataset) dataset.getSlice(new Slice(null), new Slice(null));
+				currentSlice = dataset.getSlice(new Slice(null), new Slice(null));
 			}
 
 			final String xLabel = xAxisLabel;
@@ -886,7 +887,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 				slice = currentSlice;
 			}
 			if (btnFlipAxis.getSelection()) {
-				slice = ((Dataset) slice).transpose();
+				slice = DatasetUtils.convertToDataset(slice).transpose();
 			}
 		} else {
 			slice = currentSlice;
@@ -1043,7 +1044,7 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			}
 			if (slice != null) {
 				if (btnFlipAxis.getSelection()) {
-					slice = ((Dataset) slice).transpose();
+					slice = DatasetUtils.convertToDataset(slice).transpose();
 				}
 			}
 		} else if (mapping2DData != null) {

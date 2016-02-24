@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
@@ -91,7 +92,7 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						for (ITrace t : oldTraces) {
 							if (t instanceof ILineTrace) {
 								String oyn = t.getName();
-								Dataset ox = (Dataset)((ILineTrace) t).getXData();
+								Dataset ox = DatasetUtils.convertToDataset(((ILineTrace) t).getXData());
 								String oxn = ox == null ? null : ox.getName();
 								if (oyn != null && oxn != null) {
 									for (DatasetWithAxisInformation d : plotData) {
@@ -126,7 +127,7 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						if (t instanceof ILineTrace) {
 							boolean used = false;
 							String oyn = t.getName();
-							Dataset x = (Dataset)((ILineTrace) t).getXData();
+							Dataset x = DatasetUtils.convertToDataset(((ILineTrace) t).getXData());
 							String oxn = x == null ? null : x.getName();
 							for (DatasetWithAxisInformation d : plotData) {
 								Dataset ny = d.getData();
