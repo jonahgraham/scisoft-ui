@@ -135,6 +135,9 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 				return label+"Not supported";
 			}
 			ILazyDataset data = dataset.getDataset();
+			if (data == null) {
+				return label + " is empty";
+			}
 			int[] shape = data.getShape();
 			// dimensions
 			for (int i : shape) {
