@@ -15,4 +15,4 @@ Require-Bundle: org.eclipse.ui,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.dawnsci.commandserver.core.application,
- org.slf4j;version="1.7.6"
+ org.slf4j;version="[1.7.2,2.0.0)"
