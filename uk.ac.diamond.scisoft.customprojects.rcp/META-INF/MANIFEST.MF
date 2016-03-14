@@ -13,7 +13,7 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.ui.navigator.resources,
- org.slf4j;version="[1.7.6,1.7.7)"
+ org.slf4j;version="[1.7.2,2.0.0)"
 Bundle-ClassPath: .
 Export-Package: uk.ac.diamond.scisoft.customprojects.rcp.natures,
  uk.ac.diamond.scisoft.customprojects.rcp.projects

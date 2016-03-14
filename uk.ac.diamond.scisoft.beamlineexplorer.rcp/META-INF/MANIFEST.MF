@@ -18,7 +18,7 @@ Import-Package: org.eclipse.dawnsci.analysis.api.dataset,
  org.eclipse.dawnsci.plotting.api.trace,
  org.eclipse.ui.intro.config,
  org.eclipse.ui.navigator.resources,
- org.slf4j;version="[1.7.6,1.7.7)"
+ org.slf4j;version="[1.7.2,2.0.0)"
 Bundle-ClassPath: .,
  lib/ojdbc6.jar
 Export-Package: uk.ac.diamond.scisoft.beamlineexplorer.rcp.natures,
