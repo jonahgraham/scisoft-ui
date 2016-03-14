@@ -187,7 +187,7 @@ public class EMConsumerController extends ViewPart {
 			
 	        try {
 				final ISubscriber<IHeartbeatListener> reader = service.createSubscriber(new URI(getURI()), IEventService.HEARTBEAT_TOPIC);
-				final IPublisher<KillBean>            killer = service.createPublisher(new URI(getURI()), IEventService.KILL_TOPIC);
+				final IPublisher<KillBean>            killer = service.createPublisher(new URI(getURI()), IEventService.CMD_TOPIC);
 				
 				reader.addListener(new IHeartbeatListener.Stub() {
 					@Override
