@@ -77,7 +77,8 @@ public class FeedbackProxy {
 				setProxySelector();
 			}
 			ProxySelector def = ProxySelector.getDefault();
-
+			if (def == null)
+				return null;
 			l = def.select(new URI("http://www.dawnsci.org/"));
 			ProxySelector.setDefault(null);
 		} catch (Exception e) {

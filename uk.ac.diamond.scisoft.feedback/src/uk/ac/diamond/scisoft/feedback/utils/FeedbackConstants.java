@@ -22,7 +22,7 @@ public class FeedbackConstants {
 	public static final String SUBJ_PREF = FeedbackConstants.class.getName() + ".subject";
 
 	public static final Image DELETE = Activator.getImageDescriptor("icons/delete_obj.png").createImage();
-	public static final String MAIL_TO = "dawnjira@diamond.ac.uk";
+	public static final String MAIL_TO = "scisoftjira@diamond.ac.uk";
 	public static final String DAWN_MAILING_LIST = "DAWN@JISCMAIL.AC.UK";
 
 	public static final String RECIPIENT_PROPERTY = "uk.ac.diamond.scisoft.feedback.recipient";
