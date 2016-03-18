@@ -48,18 +48,19 @@ public class FeedbackUtils {
 
 		FileChannel source = null;
 		FileChannel destination = null;
-
+		FileInputStream filesource = new FileInputStream(sourceFile);
+		FileOutputStream filedestination = new FileOutputStream(destFile);
 		try {
-			source = new FileInputStream(sourceFile).getChannel();
-			destination = new FileOutputStream(destFile).getChannel();
+			source = filesource.getChannel();
+			destination = filedestination.getChannel();
 			destination.transferFrom(source, 0, source.size());
 		} finally {
-			if (source != null) {
+			if (source != null)
 				source.close();
-			}
-			if (destination != null) {
+			if (destination != null)
 				destination.close();
-			}
+			filesource.close();
+			filedestination.close();
 		}
 	}
 
