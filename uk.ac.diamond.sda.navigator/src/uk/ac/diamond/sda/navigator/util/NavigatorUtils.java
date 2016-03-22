@@ -21,8 +21,8 @@ import ncsa.hdf.object.Dataset;
 import org.dawb.common.util.io.FileUtils;
 import org.eclipse.dawnsci.analysis.api.metadata.IExtendedMetadata;
 import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
-import org.eclipse.dawnsci.hdf5.HierarchicalDataFactory;
-import org.eclipse.dawnsci.hdf5.IHierarchicalDataFile;
+import org.eclipse.dawnsci.hdf.object.HierarchicalDataFactory;
+import org.eclipse.dawnsci.hdf.object.IHierarchicalDataFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
