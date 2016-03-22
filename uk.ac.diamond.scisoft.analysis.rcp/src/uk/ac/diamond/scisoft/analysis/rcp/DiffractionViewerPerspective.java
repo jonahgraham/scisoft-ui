@@ -25,7 +25,7 @@ public class DiffractionViewerPerspective implements IPerspectiveFactory {
 		layout.setEditorAreaVisible(true);
 
 		IFolderLayout navigatorLayout = layout.createFolder("navigatorFolder", IPageLayout.LEFT, 0.25f, layout.getEditorArea());
-		navigatorLayout.addView("uk.ac.diamond.sda.navigator.views.FileView");
+		navigatorLayout.addView("org.dawnsci.fileviewer.FileViewer");
 		navigatorLayout.addView("org.eclipse.ui.navigator.ProjectExplorer");
 
 		IFolderLayout metadataLayout = layout.createFolder("metadataFolder", IPageLayout.BOTTOM, 0.65f, "navigatorFolder");

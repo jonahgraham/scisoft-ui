@@ -27,7 +27,7 @@ public class JythonPerspective implements IPerspectiveFactory {
 		
 		IFolderLayout navigatorLayout = layout.createFolder("navigators", IPageLayout.LEFT, 0.15f, editorArea);
 		navigatorLayout.addView("org.python.pydev.navigator.view");
-		navigatorLayout.addView("uk.ac.diamond.sda.navigator.views.FileView");
+		navigatorLayout.addView("org.dawnsci.fileviewer.FileViewer");
 
 		// add plot and debug to the left
 		IFolderLayout debugLayout = layout.createFolder("debug", IPageLayout.RIGHT, 0.6f, editorArea);
