@@ -30,7 +30,7 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 		IFolderLayout navigatorLayout = layout.createFolder("navigators", IPageLayout.LEFT, 0.15f, editorArea);
 		String explorer = "org.eclipse.ui.navigator.ProjectExplorer";
 		navigatorLayout.addView(explorer);
-		navigatorLayout.addView("uk.ac.diamond.sda.navigator.views.FileView");
+		navigatorLayout.addView("org.dawnsci.fileviewer.FileViewer");
 		
 		if (layout.getViewLayout(explorer) != null)
 			layout.getViewLayout(explorer).setCloseable(false);
