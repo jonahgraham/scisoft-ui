@@ -49,7 +49,7 @@
 		</filter>
 	</logger>
 		
-	<logger name="ncsa.hdf" level="ERROR"/>
+	<logger name="hdf.hdf5lib" level="ERROR"/>
 	
 	<root>
 		<level value="ALL" />

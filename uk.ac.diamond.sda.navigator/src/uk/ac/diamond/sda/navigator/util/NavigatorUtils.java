@@ -16,8 +16,6 @@ import java.util.List;
 
 import javax.swing.tree.TreeNode;
 
-import ncsa.hdf.object.Dataset;
-
 import org.dawb.common.util.io.FileUtils;
 import org.eclipse.dawnsci.analysis.api.metadata.IExtendedMetadata;
 import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
@@ -26,6 +24,7 @@ import org.eclipse.dawnsci.hdf.object.IHierarchicalDataFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import hdf.object.Dataset;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 public class NavigatorUtils {

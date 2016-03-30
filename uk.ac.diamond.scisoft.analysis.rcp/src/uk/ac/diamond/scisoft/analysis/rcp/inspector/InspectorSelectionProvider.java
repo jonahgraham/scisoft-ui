@@ -11,8 +11,6 @@ package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import ncsa.hdf.object.HObject;
-
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
@@ -20,6 +18,7 @@ import org.eclipse.dawnsci.hdf5.editor.IH5DoubleClickSelectionProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
+import hdf.object.HObject;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5Utils;
 
