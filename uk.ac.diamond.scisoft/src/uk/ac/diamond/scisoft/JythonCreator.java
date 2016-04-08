@@ -329,7 +329,7 @@ public class JythonCreator implements IStartup {
 			PyDevAdditionalInterpreterSettings settings = new PyDevAdditionalInterpreterSettings();
 			Collection<String> envVariables = settings.getAdditionalEnvVariables();
 			if (libraryPath == null) {
-				logger.warn("{} not defined as no library paths were found!" + pathEnv);
+				logger.warn("{} not defined as no library paths were found!", pathEnv);
 			} else {
 				logPaths("Setting " + pathEnv + " for dynamic libraries", libraryPath);
 				envVariables.add(pathEnv + "=" + libraryPath);
@@ -340,7 +340,7 @@ public class JythonCreator implements IStartup {
 				String fbPathEnv = "DYLD_FALLBACK_LIBRARY_PATH";
 				String fbPath = System.getenv(fbPathEnv);
 				if (fbPath == null) {
-					logger.debug("{} not defined" + fbPathEnv);
+					logger.debug("{} not defined", fbPathEnv);
 				} else {
 					logPaths("For Mac OS X, setting " + fbPathEnv + " for dynamic libraries", fbPath);
 					envVariables.add(fbPathEnv + "=" + fbPath);
