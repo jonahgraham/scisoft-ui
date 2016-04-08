@@ -241,8 +241,7 @@ public class JythonCreator implements IStartup {
 			info.executableOrJar = executable;
 
 			final String osName = System.getProperty("os.name");
-			final boolean isMacOSX = osName.contains("Mac OS X");
-			final String pathEnv = isMacOSX ? "DYLD_LIBRARY_PATH" : (osName.contains("Windows") ? "PATH"
+			final String pathEnv = osName.contains("Mac OS X") ? "DYLD_LIBRARY_PATH" : (osName.contains("Windows") ? "PATH"
 					: "LD_LIBRARY_PATH");
 			logPaths("Library paths:", System.getenv(pathEnv));
 
@@ -333,18 +332,6 @@ public class JythonCreator implements IStartup {
 			} else {
 				logPaths("Setting " + pathEnv + " for dynamic libraries", libraryPath);
 				envVariables.add(pathEnv + "=" + libraryPath);
-			}
-
-			if (isMacOSX) {
-				// do we also add DYLD_VERSIONED_LIBRARY_PATH and DYLD_ROOT_PATH?
-				String fbPathEnv = "DYLD_FALLBACK_LIBRARY_PATH";
-				String fbPath = System.getenv(fbPathEnv);
-				if (fbPath == null) {
-					logger.debug("{} not defined", fbPathEnv);
-				} else {
-					logPaths("For Mac OS X, setting " + fbPathEnv + " for dynamic libraries", fbPath);
-					envVariables.add(fbPathEnv + "=" + fbPath);
-				}
 			}
 
 			String[] envVarsAlreadyIn = info.getEnvVariables();
