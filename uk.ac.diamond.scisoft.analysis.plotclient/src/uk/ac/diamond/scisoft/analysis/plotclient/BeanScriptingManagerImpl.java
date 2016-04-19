@@ -244,10 +244,10 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 		try {
 			guiBean = getPlotServer().getGuiState(viewName);
 		} catch (Exception e) {
-			logger.warn("Problem with getting GUI data from plot server");
+			logger.warn("Problem with getting GUI data from plot server", e);
 		}
 		if (guiBean == null) {
-			logger.error("This should not happen! View name '"+viewName+"' is not found.");
+			logger.error("This should not happen! View name '{}' is not found.", viewName);
 			guiBean = new GuiBean();
 		}
 		return guiBean;
