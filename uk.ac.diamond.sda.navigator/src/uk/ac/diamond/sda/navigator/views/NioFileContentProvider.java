@@ -193,7 +193,7 @@ class NioFileContentProvider implements IFileContentProvider {
 
 			ILoaderService lservice=null;
 			if (collapseDatacollections) {
-				lservice = (ILoaderService)PlatformUI.getWorkbench().getService(ILoaderService.class);
+				lservice = NavigatorRCPActivator.getService(ILoaderService.class);
 			}
 
 			// Faster way than File.list() in theory

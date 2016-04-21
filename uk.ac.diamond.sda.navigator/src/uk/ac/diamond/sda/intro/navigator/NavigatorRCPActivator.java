@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -24,7 +25,9 @@ public class NavigatorRCPActivator extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "uk.ac.diamond.sda.navigator"; //$NON-NLS-1$
 	  
 	// The shared instance
-	private static NavigatorRCPActivator NavigatorRCPActivator;  
+	private static NavigatorRCPActivator NavigatorRCPActivator;
+
+	private BundleContext context;  
 	/**
 	 * The constructor
 	 */
@@ -38,6 +41,7 @@ public class NavigatorRCPActivator extends AbstractUIPlugin {
 	 */
 	@Override
 	public void start(BundleContext context) throws Exception {
+		this.context = context;
 		super.start(context); 
 	}
 
@@ -47,6 +51,7 @@ public class NavigatorRCPActivator extends AbstractUIPlugin {
 	 */
 	@Override
 	public void stop(BundleContext context) throws Exception {
+		this.context = null;
 		NavigatorRCPActivator = null;
 		super.stop(context);  
 	}
@@ -134,4 +139,13 @@ public class NavigatorRCPActivator extends AbstractUIPlugin {
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
+	
+
+	public static <T> T getService(final Class<T> serviceClass) {
+		if (NavigatorRCPActivator.context == null) return null;
+		ServiceReference<T> ref = NavigatorRCPActivator.context.getServiceReference(serviceClass);
+		if (ref==null) return null;
+		return NavigatorRCPActivator.context.getService(ref);
+	}
+
 }

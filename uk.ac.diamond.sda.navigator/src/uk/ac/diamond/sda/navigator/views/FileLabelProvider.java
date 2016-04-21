@@ -180,7 +180,7 @@ class FileLabelProvider extends ColumnLabelProvider {
         final Set<String> stubs = prov.getStubs(node.getParent()); // TODO Allow for collapsed data collections.
         if (stubs==null || stubs.isEmpty()) return name;
 
-        if (lservice==null) lservice = (ILoaderService)PlatformUI.getWorkbench().getService(ILoaderService.class);
+        if (lservice==null) lservice = NavigatorRCPActivator.getService(ILoaderService.class);
         final Matcher matcher = lservice.getStackMatcher(name);
 
         if (matcher!=null && matcher.matches()) {

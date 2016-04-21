@@ -403,7 +403,7 @@ class ThreadingFileContentProvider implements IFileContentProvider {
 						
 						ILoaderService lservice=null;
 						if (collapseDatacollections) {
-						    lservice = (ILoaderService)PlatformUI.getWorkbench().getService(ILoaderService.class);
+						    lservice = NavigatorRCPActivator.getService(ILoaderService.class);
 						}
 						
 		    		    final Map<String, Path> files = new TreeMap<String, Path>(new SortNatural<String>(false));
