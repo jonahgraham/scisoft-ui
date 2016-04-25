@@ -52,10 +52,10 @@ public class HDF5Utils {
 			Attribute attr;
 			if (NexusTreeUtils.isNXClass(gNode, NexusTreeUtils.NX_DATA)) {
 				// check if group has signal attribute
-				String n = NexusTreeUtils.parseStringAttr(gNode, NexusTreeUtils.NX_SIGNAL);
+				String n = NexusTreeUtils.getFirstString(gNode.getAttribute(NexusTreeUtils.NX_SIGNAL));
 				if (n != null) {
 					if (gNode.containsDataNode(n)) {
-						dNode = gNode.getDataNode(n);						
+						dNode = gNode.getDataNode(n);
 					} else {
 						logger.warn("Signal attribute in group points to a missing dataset called {}", n);
 					}
