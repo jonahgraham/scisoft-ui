@@ -157,10 +157,11 @@ public class PlottingGUIUpdate extends AbstractPlotConnection {
 				}
 				if (list != null) {
 					for (IROI r : list) {
-						if (r == croi)
-							continue; // no need to update region
-
 						String n = r.getName();
+						if (r == croi || n.equals(rName)) {
+							continue; // no need to update current region
+						}
+
 						if (regNames.contains(n)) { // update ROI
 							IRegion region = plottingSystem.getRegion(n);
 							if (region != null)
