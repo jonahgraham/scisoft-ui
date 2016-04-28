@@ -22,7 +22,7 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 	 * ID used elsewhere, do not change
 	 */
 	public static final String ID = "uk.ac.diamond.scisoft.dataexplorationperspective";
-	final static String METADATAPAGE_ID = "org.dawb.common.ui.views.headerTableView";
+	final static String METADATAPAGE_ID = "org.dawb.common.ui.views.e4.headerTableView";
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();

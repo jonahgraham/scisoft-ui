@@ -17,7 +17,7 @@ import org.eclipse.ui.IViewLayout;
 
 public class DiffractionViewerPerspective implements IPerspectiveFactory {
 
-	static final String METADATAPAGE_ID = "org.dawb.common.ui.views.headerTableView";
+	static final String METADATAPAGE_ID = "org.dawb.common.ui.views.e4.headerTableView";
 	static final String ID = "uk.ac.diamond.scisoft.diffractionviewerperspective";
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
