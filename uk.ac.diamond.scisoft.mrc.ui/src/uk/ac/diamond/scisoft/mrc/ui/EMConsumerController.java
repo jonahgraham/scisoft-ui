@@ -189,7 +189,7 @@ public class EMConsumerController extends ViewPart {
 				final ISubscriber<IHeartbeatListener> reader = service.createSubscriber(new URI(getURI()), IEventService.HEARTBEAT_TOPIC);
 				final IPublisher<KillBean>            killer = service.createPublisher(new URI(getURI()), IEventService.CMD_TOPIC);
 				
-				reader.addListener(new IHeartbeatListener.Stub() {
+				reader.addListener(new IHeartbeatListener() {
 					@Override
 					public void heartbeatPerformed(HeartbeatEvent evt) {
 						
