@@ -125,7 +125,7 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 		int maxNumImagesInMemory = MAXMEMORYUSAGE / (MAXTHUMBWIDTH * MAXTHUMBHEIGHT * 4);
 		int visWidth = rect.width / MINTHUMBWIDTH;
 		int visHeight = rect.height / MINTHUMBHEIGHT;
-		monitor = new GridEntryMonitor(this, visWidth, visHeight, maxNumImagesInMemory,viewName);		
+		monitor = new GridEntryMonitor(this, visWidth, visHeight, maxNumImagesInMemory, new ThumbnailLoadService(viewName));
 		plotViews = ImageExplorerView.getRegisteredViews();
 		if (plotViews.size() == 0)
 			plotViews.add(DEFAULTPLOTVIEW);

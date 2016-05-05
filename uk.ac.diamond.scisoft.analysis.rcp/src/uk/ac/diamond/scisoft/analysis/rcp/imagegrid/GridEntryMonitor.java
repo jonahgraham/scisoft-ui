@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2012 Diamond Light Source Ltd.
+/*-
+ * Copyright (c) 2012-2016 Diamond Light Source Ltd.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -23,13 +23,12 @@ public class GridEntryMonitor {
 	private Rectangle fullCacheArea;
 	private Rectangle totalGridArea;
 	private ExecutorService execSvc = null;	
-	private ThumbnailLoadService service = null;
+	private IThumbnailLoadService service = null;
 	private final static int BUFFERWIDTH = 10;
 	private int totalImagesNumber = 0;
 	
 	public GridEntryMonitor(AbstractImageGrid grid,
-							int width, int height, int numImages,
-							String viewName) {
+							int width, int height, int numImages, IThumbnailLoadService service) {
 		this.grid = grid;
 		this.totalImagesNumber = numImages;
 		innerCacheArea = new Rectangle(0,0,width,height);
@@ -45,7 +44,7 @@ public class GridEntryMonitor {
 		fullCacheArea = new Rectangle(0,0,xDim,yDim);
 		
 		execSvc = Executors.newFixedThreadPool(2);
-		service = new ThumbnailLoadService(viewName);
+		this.service = service;
 		execSvc.execute(service);		
 	}
 	

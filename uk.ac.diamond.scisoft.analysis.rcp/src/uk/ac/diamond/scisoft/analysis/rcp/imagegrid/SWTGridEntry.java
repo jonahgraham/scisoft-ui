@@ -56,7 +56,7 @@ public class SWTGridEntry extends AbstractGridEntry {
 	/**
 	 * palette service used to retrieved the colour scheme
 	 */
-	private IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
+	private IPaletteService pservice = PlatformUI.getWorkbench().getService(IPaletteService.class);
 
 	public SWTGridEntry(String filename) {
 		super(filename);
@@ -292,7 +292,6 @@ public class SWTGridEntry extends AbstractGridEntry {
 					logger.debug(e.getMessage());
 				}
 			}
-			
 		});
 	}
 

@@ -35,7 +35,7 @@ import uk.ac.diamond.scisoft.analysis.utils.ImageThumbnailLoader;
 /**
  *
  */
-public class ThumbnailLoadService implements Runnable, IObserver {
+public class ThumbnailLoadService implements IThumbnailLoadService, IObserver {
 	transient private static final Logger logger = LoggerFactory.getLogger(ThumbnailLoadService.class);
 	
 	private boolean terminate = false;
@@ -139,6 +139,7 @@ public class ThumbnailLoadService implements Runnable, IObserver {
 			}
 		}		
 	}
+	@Override
 	public synchronized void addLoadJob(AbstractGridEntry entry, boolean highPriority) {
 		notify();
 		if (highPriority) {
@@ -152,12 +153,14 @@ public class ThumbnailLoadService implements Runnable, IObserver {
 		}
 	}
 
+	@Override
 	public synchronized void clearLowPriorityQueue() {
 		synchronized(lowPriorityQueue) {
 			lowPriorityQueue.clear();
 		}
 	}
 	
+	@Override
 	public synchronized void clearHighPriorityQueue() {
 		synchronized(highPriorityQueue) {
 			highPriorityQueue.clear();			
@@ -193,6 +196,7 @@ public class ThumbnailLoadService implements Runnable, IObserver {
 		}
 	}
 	
+	@Override
 	public synchronized void shutdown() {
 		notify();
 		synchronized(highPriorityQueue) {
