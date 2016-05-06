@@ -79,8 +79,8 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.imagegrid.ImagePlayBack;
+import uk.ac.diamond.scisoft.analysis.rcp.imagegrid.PlotServerSWTImageGrid;
 import uk.ac.diamond.scisoft.analysis.rcp.imagegrid.SWTGridEntry;
-import uk.ac.diamond.scisoft.analysis.rcp.imagegrid.SWTImageGrid;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ImageExplorerDirectoryChooseAction;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.ImageExplorerPreferencePage;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
@@ -112,7 +112,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 	private Image imgPlay;
 	private Image imgStill;
 	private Label lblLocation;
-	private SWTImageGrid imageGrid;
+	private PlotServerSWTImageGrid imageGrid;
 	private GuiBean guiBean = null;
 	private UUID plotID = null;
 	private final Semaphore locker = new Semaphore(1);
@@ -266,7 +266,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 		}
 		compHUD.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
 
-		imageGrid = new SWTImageGrid(canvas, plotViewName);
+		imageGrid = new PlotServerSWTImageGrid(canvas, plotViewName);
 		imageGrid.setThumbnailSize(getPreferenceImageSize());
 		retainStateFromServer();
 
@@ -351,7 +351,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 		site.getActionBars().getMenuManager().add(filterMenu);
 
 		//color submenus actions
-		final IPaletteService pservice = (IPaletteService)PlatformUI.getWorkbench().getService(IPaletteService.class);
+		final IPaletteService pservice = PlatformUI.getWorkbench().getService(IPaletteService.class);
 		final Collection<String> names = pservice.getColorSchemes();
 		String schemeName = getPreferenceColourMapChoice();
 
@@ -493,9 +493,9 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 				public void run() {
 					imageGrid.dispose();
 					if (gridDims.length == 1)
-						imageGrid = new SWTImageGrid(gridDims[0], gridDims[0], canvas, plotViewName);
+						imageGrid = new PlotServerSWTImageGrid(gridDims[0], gridDims[0], canvas, plotViewName);
 					else
-						imageGrid = new SWTImageGrid(gridDims[1], gridDims[0], canvas, plotViewName);
+						imageGrid = new PlotServerSWTImageGrid(gridDims[1], gridDims[0], canvas, plotViewName);
 					imageGrid.setThumbnailSize(getPreferenceImageSize());
 					locker.release();
 					canvas.redraw();
@@ -558,7 +558,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 		if (imageGrid != null)
 			imageGrid.dispose();
 
-		imageGrid = new SWTImageGrid(gridDim, gridDim, canvas, plotViewName);
+		imageGrid = new PlotServerSWTImageGrid(gridDim, gridDim, canvas, plotViewName);
 		imageGrid.setThumbnailSize(getPreferenceImageSize());
 		Iterator<String> iter = filesToLoad.iterator();
 		while (iter.hasNext()) {
