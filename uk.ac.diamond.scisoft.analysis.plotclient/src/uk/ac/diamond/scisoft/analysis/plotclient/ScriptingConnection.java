@@ -23,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.dawb.common.ui.util.DisplayUtils;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
@@ -295,7 +294,15 @@ public class ScriptingConnection implements IObservable {
 		if (plottingSystem == null || plottingSystem.isDisposed())
 			return;
 
-		DisplayUtils.runInDisplayThread(false, plottingSystem.getPlotComposite(),
+		/** Reverted part of commit ce03f352d29 as this bundle is required by the GDA Server
+		 * to support the Jython plotting. Using the org.dawb.common.ui runInDisplayThread method
+		 * instead of calling asyncExec directly introduces lots of UI/client dependencies 
+		 * into the GDA server which we are trying to avoid, hence the roll back.
+		 *  
+		 * @see https://github.com/DawnScience/scisoft-ui/commit/ce03f352d29c16ef5c3a67191b929ed7699c616c
+		 * for the original change
+		 */
+		plottingSystem.getPlotComposite().getDisplay().asyncExec(
 				new Runnable() {
 			@Override
 			public void run() {
