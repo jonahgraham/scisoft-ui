@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.scisoft.mappingexplorer.test;
 
-import uk.ac.diamond.scisoft.analysis.TestUtils;
-
 import java.io.File;
 import java.util.Arrays;
 
@@ -38,6 +36,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import uk.ac.diamond.scisoft.analysis.IOTestUtils;
 import uk.ac.diamond.scisoft.mappingexplorer.views.twod.TwoDMappingView;
 
 /**
@@ -114,7 +113,7 @@ public class DisplayAxisValuesPluginTest {
 	}
 
 	private File getSourceDirectory() {
-		String gdaLargeTestFilesLocation = TestUtils.getGDALargeTestFilesLocation();
+		String gdaLargeTestFilesLocation = IOTestUtils.getGDALargeTestFilesLocation();
 
 		return new File(gdaLargeTestFilesLocation + "Hdf5HelperTest/1.nxs");
 	}
