@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.apache.commons.math3.util.MultidimensionalCounter;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionPoint;
@@ -51,6 +50,7 @@ import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
 import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Maths;
+import org.eclipse.dawnsci.analysis.dataset.impl.PositionIterator;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
@@ -2054,14 +2054,11 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			
 			// Iterate over flat index in idxDataset to loop over all
 			// variable assignment combinations
-			
-			MultidimensionalCounter datasetCounter = new MultidimensionalCounter(idxDataset);
-			org.apache.commons.math3.util.MultidimensionalCounter.Iterator iter = datasetCounter.iterator();
+			PositionIterator iter = new PositionIterator(idxDataset);
 			d = new ArrayList<ILazyDataset>();
+			int[] datasetIdx = iter.getPos();
 			while (iter.hasNext()) {
-				iter.next();
 				HashMap<String, ILazyDataset> tmpMap = new HashMap<String, ILazyDataset>();
-				int[] datasetIdx = iter.getCounts();
 				for (int idx = 0; idx < datasetIdx.length; idx++) {
 					String tmpName = varNameList.get(idx);
 					ILazyDataset tmpVar = varMap.get(tmpName).get(datasetIdx[idx]); 
