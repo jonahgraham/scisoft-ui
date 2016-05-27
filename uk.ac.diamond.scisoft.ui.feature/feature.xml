@@ -54,11 +54,11 @@ limitations under the License.
          version="0.0.0"/>
 
    <includes
-         id="org.python.pydev.feature"
+         id="uk.ac.diamond.scisoft.core.feature"
          version="0.0.0"/>
 
    <includes
-         id="uk.ac.diamond.scisoft.core.feature"
+         id="org.dawnsci.python.feature"
          version="0.0.0"/>
 
    <plugin
