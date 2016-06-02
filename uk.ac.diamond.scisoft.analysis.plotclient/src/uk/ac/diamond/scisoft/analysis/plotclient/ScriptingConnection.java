@@ -392,8 +392,8 @@ public class ScriptingConnection implements IObservable {
 		try {
 			if (plotMode.equals(GuiPlotMode.EXPORT)) {
 				GuiBean bean = getGuiManager().getGUIInfo();
-				getPlottingSystem().savePlotting((String)bean.get(GuiParameters.SAVEPATH), 
-												(String)bean.get(GuiParameters.FILEFORMAT));
+				plottingSystem.savePlotting((String)bean.get(GuiParameters.SAVEPATH),
+						(String)bean.get(GuiParameters.FILEFORMAT));
 			} else if (plotMode.equals(GuiPlotMode.RESETAXES)) {
 				resetAxes();
 			} else {

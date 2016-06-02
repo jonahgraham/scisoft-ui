@@ -436,7 +436,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 
 	@Override
 	public void updatePlotMode(final GuiPlotMode plotMode) {
-		DisplayUtils.runInDisplayThread(true, parentComp, new Runnable() {
+		DisplayUtils.asyncExec(parentComp, new Runnable() {
 			@Override
 			public void run() {
 				GuiPlotMode oldMode = getPreviousMode();
