@@ -97,7 +97,7 @@ public class ImagePlayBack implements Runnable {
 	private void sendOffLoadRequest(String filename) {
 		if (!hasOpenedView) {
 			waitTillfinished = true;
-			DisplayUtils.runInDisplayThread(true, sldProgress, new Runnable() {
+			DisplayUtils.asyncExec(sldProgress, new Runnable() {
 					@Override
 					public void run() {
 						try {
@@ -226,7 +226,7 @@ public class ImagePlayBack implements Runnable {
 //			logger.debug("New file has been added "+newFile);
 			jobFiles.add(newFile);
 			allFiles.add(newFile);
-			DisplayUtils.runInDisplayThread(true, sldProgress, new Runnable() {
+			DisplayUtils.asyncExec(sldProgress, new Runnable() {
 				@Override
 				public void run() {
 					sldProgress.setMaximum(jobFiles.size());
