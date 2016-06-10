@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.dawnsci.slicing.tools.hyper.HyperType;
 import org.dawnsci.slicing.tools.hyper.HyperView;
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.Slice;
@@ -128,7 +129,7 @@ public class HyperTab extends PlotTab {
 	
 	
 	@Override
-	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
+	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) throws DatasetException {
 		if (dataset == null)
 			return;
 		

@@ -13,6 +13,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.Slice;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
@@ -59,14 +60,17 @@ public class AxisSlicer {
 		listener = new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
-				createAxisDataset();
-				composite.getDisplay().asyncExec(new Runnable() {
-					
-					@Override
-					public void run() {
-						init(false);
-					}
-				});
+				try {
+					createAxisDataset();
+					composite.getDisplay().asyncExec(new Runnable() {
+						
+						@Override
+						public void run() {
+							init(false);
+						}
+					});
+				} catch (DatasetException e) {
+				}
 			}
 		};
 	}
@@ -227,11 +231,14 @@ public class AxisSlicer {
 		axisSlices = properties;
 		mode = used;
 		axisData = axis;
-		createAxisDataset();
-		init(false);
+		try {
+			createAxisDataset();
+			init(false);
+		} catch (DatasetException e) {
+		}
 	}
 
-	private void createAxisDataset() {
+	private void createAxisDataset() throws DatasetException {
 		for (int i = 0; i < axisSlices.length; i++)
 			axisSlices[i].removePropertyChangeListener(listener);
 

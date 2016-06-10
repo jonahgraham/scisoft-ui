@@ -15,6 +15,7 @@ import java.util.Iterator;
 
 import org.dawb.common.ui.selection.SelectedTreeItemInfo;
 import org.dawb.common.ui.selection.SelectionUtils;
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
@@ -531,7 +532,11 @@ class HDF5LabelProvider implements ITableLabelProvider {
 				} else if (data == null || data.getSize() == 0) {
 					msg = "none available as dataset is zero-sized";
 				} else if (data.getSize() == 1) {
-					msg = data.getSlice().getString(0);
+					try {
+						msg = data.getSlice().getString(0);
+					} catch (DatasetException e) {
+						msg = "Could not read single-item dataset";
+					}
 					Attribute units = dataset.getAttribute("units");
 					if (units != null && units.isString()) {
 						msg += " " + units.getFirstElement();

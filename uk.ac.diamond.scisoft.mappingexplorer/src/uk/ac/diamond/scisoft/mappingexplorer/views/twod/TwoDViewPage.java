@@ -17,6 +17,7 @@
  */
 package uk.ac.diamond.scisoft.mappingexplorer.views.twod;
 
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
@@ -87,31 +88,35 @@ public class TwoDViewPage extends MappingPageBookViewPage implements IMappingVie
 
 	public void setMappingViewData(IMappingViewData data) {
 
-		if (data instanceof IMappingView2dData && ((IMappingView2dData) data).getDataSet() != null) {
-			IMappingView2dData dataIn3D = (IMappingView2dData) data;
-			if (!activePage.equals(twoDDataSetPlotterComposite)) {
-				twoDDataSetPlotterComposite.setMappingViewData(dataIn3D);
-				activePage.removeCompositeSelectionListener(pageSelectionListener);
+		try {
+			if (data instanceof IMappingView2dData && ((IMappingView2dData) data).getDataSet() != null) {
+				IMappingView2dData dataIn3D = (IMappingView2dData) data;
+				if (!activePage.equals(twoDDataSetPlotterComposite)) {
+					twoDDataSetPlotterComposite.setMappingViewData(dataIn3D);
+					activePage.removeCompositeSelectionListener(pageSelectionListener);
 
-				twoDDataSetPlotterComposite.addCompositeSelectionListener(pageSelectionListener);
-				try {
-					twoDDataSetPlotterComposite.initialPlot();
-				} catch (Exception e) {
-					logger.error("Initial plotting error in 3D view page {}", e);
+					twoDDataSetPlotterComposite.addCompositeSelectionListener(pageSelectionListener);
+					try {
+						twoDDataSetPlotterComposite.initialPlot();
+					} catch (Exception e) {
+						logger.error("Initial plotting error in 3D view page {}", e);
+					}
+				} else {
+					twoDDataSetPlotterComposite.setMappingViewData(dataIn3D);
+					try {
+						twoDDataSetPlotterComposite.initialPlot();
+					} catch (Exception e) {
+						logger.error("Initial plotting error in 3D view page {}", e);
+					}
 				}
+
+				activePage = twoDDataSetPlotterComposite;
 			} else {
-				twoDDataSetPlotterComposite.setMappingViewData(dataIn3D);
-				try {
-					twoDDataSetPlotterComposite.initialPlot();
-				} catch (Exception e) {
-					logger.error("Initial plotting error in 3D view page {}", e);
-				}
+				activePage.removeCompositeSelectionListener(pageSelectionListener);
+				activePage = blankPageComposite;
 			}
-
-			activePage = twoDDataSetPlotterComposite;
-		} else {
-			activePage.removeCompositeSelectionListener(pageSelectionListener);
-			activePage = blankPageComposite;
+		} catch (DatasetException e) {
+			throw new IllegalArgumentException("Could not get dataset", e);
 		}
 		pgBook.showPage(activePage);
 		fireNotifySelectionChanged(activePage.getSelection());

@@ -10,6 +10,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -30,13 +31,13 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.PlatformObject;
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.IMetadataProvider;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.ILazyLoader;
-import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
 import org.eclipse.dawnsci.analysis.api.metadata.MetadataType;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
@@ -1912,7 +1913,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			
 			@SuppressWarnings("unchecked")
 			@Override
-			public Dataset getDataset(IMonitor mon, SliceND slice) throws ScanFileHolderException {
+			public Dataset getDataset(IMonitor mon, SliceND slice) throws IOException {
 				
 				SymbolTable evalSymbolTable = eval.getSymbolTable();
 				HashMap<String, IDataset> dataSlices = new HashMap<String, IDataset>();
@@ -1921,7 +1922,12 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				while (itr.hasNext()) {
 					String varName = itr.next();
 					ILazyDataset lzd = varMapping.get(varName);	// TODO: This only works for SelectedFile objects
-					IDataset lzdSlice = lzd.getSlice(slice); 
+					IDataset lzdSlice;
+					try {
+						lzdSlice = lzd.getSlice(slice);
+					} catch (DatasetException e) {
+						throw new IOException(e);
+					} 
 					dataSlices.put(varName, lzdSlice);
 					// All datasets and slices should have the same shape
 					if (sliceShape == null) {
@@ -1974,10 +1980,15 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 					@Override
 					public Dataset getDataset(IMonitor mon, SliceND slice)
-							throws ScanFileHolderException {
+							throws IOException {
 						Dataset accDataset = null;
 						for (int idx = 0; idx < dataList.size(); idx++) {
-							Dataset tmpData = DatasetUtils.convertToDataset(dataList.get(idx).getSlice(slice));
+							Dataset tmpData;
+							try {
+								tmpData = DatasetUtils.convertToDataset(dataList.get(idx).getSlice(slice));
+							} catch (DatasetException e) {
+								throw new IOException(e);
+							}
 							if (accDataset == null) {
 								switch (mathOp) {
 								case ADD:

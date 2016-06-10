@@ -25,10 +25,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.Slice;
-import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
@@ -352,7 +352,12 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 				throw new IllegalArgumentException("Mapping View Data not available");
 			}
 
-			final ILazyDataset dataset = mappingViewData.getDataSet();
+			ILazyDataset dataset;
+			try {
+				dataset = mappingViewData.getDataSet();
+			} catch (DatasetException e1) {
+				return new Status(IStatus.ERROR, "uk.ac.diamond.scisoft.mappingexplorer", 0, "Could not get dataset", e1);
+			}
 			final int[] shape = dataset.getShape();
 			IDataset slice = null;
 			int[] finalShape = null;
@@ -414,7 +419,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 						}
 					});
 				}
-			} catch (ScanFileHolderException ex) {
+			} catch (DatasetException ex) {
 				logger.error("Error loading data from file during update", ex);
 			} catch (Exception e) {
 				logger.error("Error getting slice of data", e);

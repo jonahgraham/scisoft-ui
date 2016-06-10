@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.dawnsci.plotting.jreality.impl.DataSet3DPlot2DMulti;
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.Slice;
@@ -92,8 +93,9 @@ interface InspectionTab {
 	 * Show slice of dataset using tab configuration
 	 * @param monitor
 	 * @param slices
+	 * @exception DatasetException
 	 */
-	public void pushToView(IMonitor monitor, List<SliceProperty> slices);
+	public void pushToView(IMonitor monitor, List<SliceProperty> slices) throws DatasetException;
 
 	/**
 	 * @return true if tab can plot constant in place of dataset
@@ -690,7 +692,7 @@ class PlotTab extends ATab {
 		}
 	}
 
-	protected List<Dataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, boolean[] average, int[] order) {
+	protected List<Dataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, boolean[] average, int[] order) throws DatasetException {
 		List<Dataset> slicedAxes = new ArrayList<Dataset>();
 
 		boolean[] used = getUsedDims();
@@ -814,37 +816,40 @@ class PlotTab extends ATab {
 					}
 				}
 				
-				Dataset tmpSlice = DatasetUtils.convertToDataset(dataset.getSlice(tmpSlices));
-				Dataset errSlice = tmpSlice.getErrorBuffer(); // TODO remove when done internally
-				tmpSlice.setError(null);
-				if (meanAxis != -1) {
-					int[] tmpShape = tmpSlice.getShape();
-					tmpShape[meanAxis] = 1;
-					tmpSlice = tmpSlice.mean(meanAxis);
-					tmpSlice.setShape(tmpShape);
-					if (errSlice != null) {
-						int[] errShape = errSlice.getShape();
-						if (errShape[meanAxis] > 1) {
-							errShape[meanAxis] = 1;
-							Dataset n = errSlice.count(meanAxis);
-							errSlice = errSlice.mean(meanAxis);
-							errSlice.idivide(n);
-							errSlice.setShape(errShape);
+				try {
+					Dataset tmpSlice = DatasetUtils.convertToDataset(dataset.getSlice(tmpSlices));
+					Dataset errSlice = tmpSlice.getErrorBuffer(); // TODO remove when done internally
+					tmpSlice.setError(null);
+					if (meanAxis != -1) {
+						int[] tmpShape = tmpSlice.getShape();
+						tmpShape[meanAxis] = 1;
+						tmpSlice = tmpSlice.mean(meanAxis);
+						tmpSlice.setShape(tmpShape);
+						if (errSlice != null) {
+							int[] errShape = errSlice.getShape();
+							if (errShape[meanAxis] > 1) {
+								errShape[meanAxis] = 1;
+								Dataset n = errSlice.count(meanAxis);
+								errSlice = errSlice.mean(meanAxis);
+								errSlice.idivide(n);
+								errSlice.setShape(errShape);
+							}
 						}
 					}
-				}
-
-				if (averagedData != null)
-					averagedData.iadd(tmpSlice);
-				else
-					averagedData = tmpSlice;
-
-				if (errSlice != null) {
-					if (averagedError != null)
-						averagedError.iadd(errSlice);
+					if (averagedData != null)
+						averagedData.iadd(tmpSlice);
 					else
-						averagedError = errSlice;
+						averagedData = tmpSlice;
+
+					if (errSlice != null) {
+						if (averagedError != null)
+							averagedError.iadd(errSlice);
+						else
+							averagedError = errSlice;
+					}
+				} catch (DatasetException e) {
 				}
+
 				sliceIdx++;
 			}
 			if (averagedData == null)
@@ -944,7 +949,7 @@ class PlotTab extends ATab {
 	}
 
 	@Override
-	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
+	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) throws DatasetException {
 		if (dataset == null)
 			return;
 
@@ -1322,7 +1327,7 @@ class DataTab extends PlotTab {
 	}
 
 	@Override
-	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
+	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) throws DatasetException {
 		if (dataset == null)
 			return;
 
@@ -1614,7 +1619,7 @@ class ScatterTab extends PlotTab {
 	}
 
 	@Override
-	protected List<Dataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, boolean[] average, int[] order) {
+	protected List<Dataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, boolean[] average, int[] order) throws DatasetException {
 		if (daxes.size() != 1)
 			return super.sliceAxes(axes, slices, average, order);
 
@@ -1635,7 +1640,7 @@ class ScatterTab extends PlotTab {
 	}
 
 	@Override
-	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
+	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) throws DatasetException {
 		
 		if (dataset == null) return;
 
