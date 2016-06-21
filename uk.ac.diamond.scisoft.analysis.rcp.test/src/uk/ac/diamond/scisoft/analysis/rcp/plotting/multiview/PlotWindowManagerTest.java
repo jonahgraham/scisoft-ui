@@ -27,7 +27,6 @@ import org.eclipse.ui.PartInitException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import uk.ac.diamond.scisoft.analysis.MockPlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindow;
 import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;

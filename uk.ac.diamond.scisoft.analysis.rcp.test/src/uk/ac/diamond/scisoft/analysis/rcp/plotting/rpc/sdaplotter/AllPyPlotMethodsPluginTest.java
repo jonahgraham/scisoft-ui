@@ -24,16 +24,14 @@ import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.PythonHelper.PythonRunInfo;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.rpc.sdaplotter.ReDirectOverRpcPlotterImpl;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.RcpPlottingTestBase;
-import uk.ac.diamond.scisoft.analysis.rpc.sdaplotter.AllPyPlotMethodsTest;
-import uk.ac.diamond.scisoft.analysis.rpc.sdaplotter.ReDirectOverRpcPlotterImpl;
 
 /**
  * This runs each of the plot functions available in SDAPlotter as a plugin test. The purpose of this test is to make
  * sure nothing "blows" up. It is very hard to see if the correct thing has been plotted, and we already verify that
- * SDAPlotter is being called correctly in {@link AllPyPlotMethodsTest}
+ * SDAPlotter is being called correctly (see uk.ac.diamond.scisoft.analysis.rpc.sdaplotter.AllPyPlotMethodsTest)
  * 
- * @see AllPyPlotMethodsTest
  */
 public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 	private static PythonRunInfo pythonRunInfo;
