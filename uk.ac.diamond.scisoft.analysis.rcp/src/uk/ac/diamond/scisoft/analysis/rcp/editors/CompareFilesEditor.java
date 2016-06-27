@@ -35,6 +35,7 @@ import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.IMetadataProvider;
+import org.eclipse.dawnsci.analysis.api.dataset.MetadataException;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.ILazyLoader;
@@ -530,19 +531,19 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 
 		@Override
-		public IMetadata getMetadata() throws Exception {
+		public IMetadata getMetadata() throws MetadataException {
 			return metadata;
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public <T extends MetadataType> List<T> getMetadata(Class<T> clazz) throws Exception {
+		public <T extends MetadataType> List<T> getMetadata(Class<T> clazz) throws MetadataException {
 			if (IMetadata.class.isAssignableFrom(clazz)) {
 				List<T> result = new ArrayList<T>();
 				result.add((T) getMetadata());
 				return result;
 			}
-			throw new UnsupportedOperationException("getMetadata(clazz) does not currently support anything other than IMetadata");
+			throw new MetadataException("getMetadata(clazz) does not currently support anything other than IMetadata");
 			// If it should only support this, simply return null here, otherwise implement the method fully
 		}
 		
