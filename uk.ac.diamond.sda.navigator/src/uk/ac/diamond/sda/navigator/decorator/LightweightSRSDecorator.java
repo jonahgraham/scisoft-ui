@@ -55,7 +55,7 @@ public class LightweightSRSDecorator extends LabelProvider implements ILightweig
 				if (lazyData instanceof Dataset)
 					properties.add(new SRSTreeData(names[i], data.getDataset(i).min().toString(), 
 							data.getDataset(i).max().toString(),
-							data.getDataset(i).elementClass().toString(), ifile));
+							data.getDataset(i).getElementClass().toString(), ifile));
 				else {
 					properties.add(new SRSTreeData(names[i], "Not available", "Not available", "Not available", ifile));
 				}

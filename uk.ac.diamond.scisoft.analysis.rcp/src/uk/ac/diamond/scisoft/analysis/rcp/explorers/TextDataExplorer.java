@@ -175,7 +175,7 @@ public class TextDataExplorer extends AbstractExplorer implements ISelectionProv
 				} catch (NullPointerException e) {
 				}
 				if (index == 3) {
-					String[] parts = dataset.elementClass().toString().split("\\.");
+					String[] parts = dataset.getElementClass().toString().split("\\.");
 					return parts[parts.length - 1];
 				}
 			}
