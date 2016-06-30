@@ -32,6 +32,8 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
+
 /**
  * SWT Image implementation of a ImageGridEntry
  */
@@ -387,7 +389,12 @@ public class SWTGridEntry extends AbstractGridEntry {
 				toolTipText = (new java.io.File(filename)).getName();
 			}
 		} else {
-			// TODO
+			if (additionalInfo instanceof DatasetWithAxisInformation) {
+				DatasetWithAxisInformation datainfo = (DatasetWithAxisInformation) additionalInfo;
+				toolTipText = datainfo.getData().getName();
+			} else {
+				logger.debug("tool tip not supported");
+			}
 		}
 		return toolTipText;
 	}
