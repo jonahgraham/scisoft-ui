@@ -392,6 +392,8 @@ public class SWTGridEntry extends AbstractGridEntry {
 			if (additionalInfo instanceof DatasetWithAxisInformation) {
 				DatasetWithAxisInformation datainfo = (DatasetWithAxisInformation) additionalInfo;
 				toolTipText = datainfo.getData().getName();
+			} else if (additionalInfo instanceof IDataset){
+				toolTipText = ((IDataset) additionalInfo).getName();
 			} else {
 				logger.debug("tool tip not supported");
 			}
