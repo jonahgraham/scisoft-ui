@@ -35,6 +35,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.histogram.IPaletteService;
@@ -57,6 +59,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Scale;
@@ -71,12 +74,15 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
+import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
+import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.FileOperationBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GridImageEntry;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
+import uk.ac.diamond.scisoft.analysis.plotserver.RMIPlotServer;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.imagegrid.ImagePlayBack;
 import uk.ac.diamond.scisoft.analysis.rcp.imagegrid.PlotServerSWTImageGrid;
@@ -296,7 +302,8 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 					imageGrid.setThumbnailSize(getPreferenceImageSize());
 					String colourScheme = getPreferenceColourMapChoice();
 					for (GridImageEntry entry : images) {
-						SWTGridEntry gridEntry = new SWTGridEntry(entry.getFilename(), null, canvas, 
+						IDataset data = entry.getData();
+						SWTGridEntry gridEntry = new SWTGridEntry(entry.getFilename(), data, canvas, 
 								colourScheme, getPreferenceAutoContrastLo(), getPreferenceAutoContrastHi());
 						imageGrid.addEntry(gridEntry, entry.getGridColumnPos(), entry.getGridRowPos());
 					}
@@ -456,18 +463,19 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 		return imageGrid.getSelection();
 	}
 
-	private void processNewFile(GuiBean bean) {
+	private void processNewFile(DataBean bean) {
 		try {
 			locker.acquire();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		playback.addFile((String) bean.get(GuiParameters.FILENAME));
+		playback.addFile((String) bean.getGuiParameters().get(GuiParameters.FILENAME));
 		String colourScheme = getPreferenceColourMapChoice();
-		SWTGridEntry entry = new SWTGridEntry((String) bean.get(GuiParameters.FILENAME), null, canvas,
+
+		SWTGridEntry entry = new SWTGridEntry((String) bean.getGuiParameters().get(GuiParameters.FILENAME), bean.getData().get(0), canvas,
 				colourScheme, getPreferenceAutoContrastLo(), getPreferenceAutoContrastHi());
-		Integer xPos = (Integer) bean.get(GuiParameters.IMAGEGRIDXPOS);
-		Integer yPos = (Integer) bean.get(GuiParameters.IMAGEGRIDYPOS);
+		Integer xPos = (Integer) bean.getGuiParameters().get(GuiParameters.IMAGEGRIDXPOS);
+		Integer yPos = (Integer) bean.getGuiParameters().get(GuiParameters.IMAGEGRIDYPOS);
 		if (xPos != null && yPos != null)
 			imageGrid.addEntry(entry, xPos, yPos);
 		else
@@ -478,8 +486,8 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 			playback.moveToLast();
 	}
 
-	private void processNewGrid(GuiBean bean) {
-		final Integer[] gridDims = (Integer[]) bean.get(GuiParameters.IMAGEGRIDSIZE);
+	private void processNewGrid(DataBean bean) {
+		final Integer[] gridDims = (Integer[]) bean.getGuiParameters().get(GuiParameters.IMAGEGRIDSIZE);
 
 		if (gridDims != null && gridDims.length > 0) {
 			try {
@@ -505,55 +513,55 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 		cleanUpOnServer();
 	}
 
-	private void processGUIUpdate(GuiUpdate gu) {
-		if (gu.getGuiName().contains(plotViewName)) {
-			GuiBean bean = gu.getGuiData();
-			UUID id = (UUID) bean.get(GuiParameters.PLOTID);
-			if (id == null || plotID.compareTo(id) != 0) { // filter out own beans
-				if (guiBean == null)
-					guiBean = bean.copy(); // cache a local copy
-				else
-					guiBean.merge(bean); // or merge it
+	private void processUpdate(DataBean bean) {
+		if (bean == null)
+			return;
+		if (bean.getGuiParameters() == null)
+			return;
+		UUID id = (UUID) bean.getGuiParameters().get(GuiParameters.PLOTID);
+		if (id == null || plotID.compareTo(id) != 0) { // filter out own beans
+			if (guiBean == null)
+				guiBean = bean.getGuiParameters().copy(); // cache a local copy
+			else
+				guiBean.merge(bean.getGuiParameters()); // or merge it
 
-				if (bean.containsKey(GuiParameters.FILEOPERATION))
-					return;
+			if (bean.getGuiParameters().containsKey(GuiParameters.FILEOPERATION))
+				return;
 
-				if (bean.containsKey(GuiParameters.PLOTMODE)) {
-					GuiPlotMode plotMode = (GuiPlotMode) bean.get(GuiParameters.PLOTMODE);
-					if (plotMode.equals(GuiPlotMode.IMGEXPL)) {
-						if (bean.containsKey(GuiParameters.FILENAME)) {
-							if (filesToLoad == null)
-								filesToLoad = new ArrayList<String>();
-							filesToLoad.add((String) bean.get(GuiParameters.FILENAME));
-							processNewFile(bean);
-						} else if (bean.containsKey(GuiParameters.IMAGEGRIDSIZE)) {
-							if (filesToLoad == null)
-								filesToLoad = new ArrayList<String>();
-							else
-								filesToLoad.clear();
-							btnPlay.getDisplay().asyncExec(new Runnable() {
-
-								@Override
-								public void run() {
-									resetPlaying(true);
-								}
-							});
-							processNewGrid(bean);
-						}
+			if (bean.getGuiParameters().containsKey(GuiParameters.PLOTMODE)) {
+				GuiPlotMode plotMode = (GuiPlotMode) bean.getGuiParameters().get(GuiParameters.PLOTMODE);
+				if (plotMode.equals(GuiPlotMode.IMGEXPL)) {
+					if (bean.getGuiParameters().containsKey(GuiParameters.FILENAME)) {
+						if (filesToLoad == null)
+							filesToLoad = new ArrayList<String>();
+						filesToLoad.add((String) bean.getGuiParameters().get(GuiParameters.FILENAME));
+						processNewFile(bean);
+					} else if (bean.getGuiParameters().containsKey(GuiParameters.IMAGEGRIDSIZE)) {
+						if (filesToLoad == null)
+							filesToLoad = new ArrayList<String>();
+						else
+							filesToLoad.clear();
+						btnPlay.getDisplay().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								resetPlaying(true);
+							}
+						});
+						processNewGrid(bean);
 					}
-				} else if (bean.containsKey(GuiParameters.IMAGEGRIDLIVEVIEW)) {
-					String directory = (String) bean.get(GuiParameters.IMAGEGRIDLIVEVIEW);
-					spawnLoadJob(directory);
-					currentDir = directory;
-					isLive = true;
-					liveActive = true;
 				}
+			} else if (bean.getGuiParameters().containsKey(GuiParameters.IMAGEGRIDLIVEVIEW)) {
+				String directory = (String) bean.getGuiParameters().get(GuiParameters.IMAGEGRIDLIVEVIEW);
+				spawnLoadJob(directory);
+				currentDir = directory;
+				isLive = true;
+				liveActive = true;
 			}
 		}
 	}
 
 	private void processClientLocalUpdate() {
-		GuiBean bean = new GuiBean();
+		DataBean bean = new DataBean();
 		int gridDim = (int) Math.ceil(Math.sqrt(filesToLoad.size()));
 		if (imageGrid != null)
 			imageGrid.dispose();
@@ -563,7 +571,20 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 		Iterator<String> iter = filesToLoad.iterator();
 		while (iter.hasNext()) {
 			String filename = iter.next();
-			bean.put(GuiParameters.FILENAME, filename);
+			try {
+				IDataHolder holder = LoaderFactory.getData(filename);
+				IDataset data = holder.getDataset(0);
+				List<DatasetWithAxisInformation> datalist = new ArrayList<DatasetWithAxisInformation>();
+				DatasetWithAxisInformation d = new DatasetWithAxisInformation();
+				if (data != null) {
+					d.setData(data);
+					datalist.add(d);
+					bean.setData(datalist);
+				}
+			} catch (Exception e) {
+				logger.error("Error loading data with filename " + filename, e);
+			}
+			bean.putGuiParameter(GuiParameters.FILENAME, filename);
 			processNewFile(bean);
 		}
 		if (liveActive) {
@@ -608,9 +629,46 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 				processClientLocalUpdate();
 			}
 		} else {
-			if (changeCode instanceof GuiUpdate) {
-				GuiUpdate gu = (GuiUpdate) changeCode;
-				processGUIUpdate(gu);
+			if (source instanceof RMIPlotServer && changeCode instanceof String) {
+				String viewName = (String) changeCode;
+				if (!viewName.startsWith("Image Explorer"))
+					return;
+				RMIPlotServer server = (RMIPlotServer) source;
+				try {
+					String[] names = server.getGuiNames();
+					final DataBean bean = server.getData(names[0]);
+					// when imagegrid size is set it means we need to reset the grid
+					if(bean != null && bean.getGuiParameters().get(GuiParameters.IMAGEGRIDSIZE) != null) {
+						Display.getDefault().syncExec(new Runnable() {
+							@Override
+							public void run() {
+								Integer[] gridDim = (Integer[])bean.getGuiParameters().get(GuiParameters.IMAGEGRIDSIZE);
+								if (imageGrid != null)
+									imageGrid.dispose();
+								imageGrid = new PlotServerSWTImageGrid(gridDim[0], gridDim[1], canvas, plotViewName);
+								imageGrid.setThumbnailSize(getPreferenceImageSize());
+							}
+						});
+					}
+					if (bean != null) {
+						if (bean.getData().isEmpty()) {
+							// We try to load the data from the filename if data not in the databean
+							String filename = (String) bean.getGuiParameters().get(GuiParameters.FILENAME);
+							List<DatasetWithAxisInformation> data = new ArrayList<>();
+							DatasetWithAxisInformation dwai = new DatasetWithAxisInformation();
+							IDataHolder holder = LoaderFactory.getData(filename);
+							IDataset loadedData = holder.getDataset(0);
+							dwai.setData(loadedData);
+							data.add(dwai);
+							bean.setData(data);
+						}
+						processUpdate(bean);
+					} else {
+						throw new Exception("Databean is null. This image grid use is not supported.");
+					}
+				} catch (Exception e) {
+					logger.error("Error updating data from server: ", e);
+				}
 			}
 		}
 	}

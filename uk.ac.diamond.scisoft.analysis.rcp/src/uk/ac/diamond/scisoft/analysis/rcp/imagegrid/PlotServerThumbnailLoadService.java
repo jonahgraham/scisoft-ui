@@ -74,7 +74,7 @@ public class PlotServerThumbnailLoadService extends ThumbnailLoadService impleme
 
 	@Override
 	protected void loadAndCreateThumbnailImage(AbstractGridEntry entry) {
-		IDataset ds = ImageThumbnailLoader.loadImage(entry.getFilename(),true, false);
+		IDataset ds = ImageThumbnailLoader.loadImage(entry.getFilename(), entry.getAdditionalInfo(), true, false);
 		entry.createImage(ds);
 		locker.release();
 	}

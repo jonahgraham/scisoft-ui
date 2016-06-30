@@ -1219,11 +1219,11 @@ class PlotTab extends ATab {
 					}
 					
 					if (ids == 1) {
-						SDAPlotter.plotImageToGrid(explorerName, reorderedData, true);
+						SDAPlotter.plotImageToGrid(explorerName, reorderedData);
 					} else {
 						int gridX =  pos[dimGridX] - gridX0;
 						int gridY =  pos[dimGridY] - gridY0;
-						SDAPlotter.plotImageToGrid(explorerName, reorderedData, gridX, gridY, true);
+						SDAPlotter.plotImageToGrid(explorerName, reorderedData, gridX, gridY);
 					}
 					
 					if (!memoryOK)
