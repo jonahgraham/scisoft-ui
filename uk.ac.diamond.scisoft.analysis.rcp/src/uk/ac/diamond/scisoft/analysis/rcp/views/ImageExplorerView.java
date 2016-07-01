@@ -654,6 +654,8 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 						if (bean.getData().isEmpty()) {
 							// We try to load the data from the filename if data not in the databean
 							String filename = (String) bean.getGuiParameters().get(GuiParameters.FILENAME);
+							if (filename == null)
+								return;
 							List<DatasetWithAxisInformation> data = new ArrayList<>();
 							DatasetWithAxisInformation dwai = new DatasetWithAxisInformation();
 							IDataHolder holder = LoaderFactory.getData(filename);
