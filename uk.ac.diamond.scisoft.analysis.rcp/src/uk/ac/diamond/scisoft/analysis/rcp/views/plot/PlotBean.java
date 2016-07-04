@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.dawb.common.util.list.PrimitiveArrayEncoder;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
@@ -53,7 +54,7 @@ public class PlotBean {
 			return null;
 		final Map<String, Dataset> ret = new LinkedHashMap<String, Dataset>(data.size());
 		for (String name : data.keySet()) {
-			ret.put(name, new DoubleDataset(PrimitiveArrayEncoder.getDoubleArray(data.get(name))));
+			ret.put(name, DatasetFactory.createFromObject(PrimitiveArrayEncoder.getDoubleArray(data.get(name))));
 		}
 		return ret;
 	}
@@ -63,7 +64,7 @@ public class PlotBean {
 			data = new LinkedHashMap<String, String>(ds.size());
 		data.clear();
 		for (String name : ds.keySet()) {
-			data.put(name, PrimitiveArrayEncoder.getString(new DoubleDataset(ds.get(name)).getData()));
+			data.put(name, PrimitiveArrayEncoder.getString(ds.get(name).copy(DoubleDataset.class).getData()));
 		}
 	}
 	

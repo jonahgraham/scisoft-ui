@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
@@ -78,7 +79,7 @@ public class LightweightSRSDecorator extends LabelProvider implements ILightweig
 			data = dataLoader.loadFile();
 		} catch (ScanFileHolderException e) {
 			data = new DataHolder();
-			data.addDataset("Failed to load File", new DoubleDataset(1));
+			data.addDataset("Failed to load File", DatasetFactory.zeros(DoubleDataset.class, 1));
 			logger.warn("Failed to load srs file");
 		}
 	}

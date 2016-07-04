@@ -278,7 +278,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 	}
 
 	private void addPlaceholderFolderStack() {
-		DoubleDataset dataset = new DoubleDataset(1);
+		DoubleDataset dataset = DatasetFactory.zeros(DoubleDataset.class, 1);
 		dataset.setName(FOLDER_STACK);
 		data.addDataset(dataset.getName(), dataset);
 	}

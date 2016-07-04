@@ -30,7 +30,8 @@ import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.Slice;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -362,7 +363,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 			IDataset slice = null;
 			int[] finalShape = null;
 			String xAxislabel = null;
-			DoubleDataset axisValues = null;
+			Dataset axisValues = null;
 			try {
 				if (dim1Selection) {
 					slice = dataset.getSlice((IMonitor) null, new Slice(null), new Slice(stepper1Val,
@@ -371,8 +372,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 
 					xAxislabel = mappingViewData.getDimension1Label();
 					if (mappingViewData.getDimension1Values() != null) {
-						axisValues = new DoubleDataset(mappingViewData.getDimension1Values(),
-								new int[]{mappingViewData.getDimension1Values().length});
+						axisValues = DatasetFactory.createFromObject(mappingViewData.getDimension1Values());
 					}
 				} else if (dim2Selection) {
 					slice = dataset.getSlice((IMonitor) null,
@@ -381,8 +381,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 					finalShape = new int[] { shape[1] };
 					xAxislabel = mappingViewData.getDimension2Label();
 					if (mappingViewData.getDimension2Values() != null) {
-						axisValues = new DoubleDataset(mappingViewData.getDimension2Values(),
-								new int[]{mappingViewData.getDimension2Values().length});
+						axisValues = DatasetFactory.createFromObject(mappingViewData.getDimension2Values());
 					}
 				} else if (dim3Selection) {
 					slice = dataset.getSlice((IMonitor) null,
@@ -392,8 +391,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 					finalShape = new int[] { shape[2] };
 					xAxislabel = mappingViewData.getDimension3Label();
 					if (mappingViewData.getDimension3Values() != null) {
-						axisValues = new DoubleDataset(mappingViewData.getDimension3Values(),
-								new int[]{mappingViewData.getDimension3Values().length});
+						axisValues = DatasetFactory.createFromObject(mappingViewData.getDimension3Values());
 					}
 				}
 				final int[] shapeToplot = finalShape;

@@ -38,7 +38,7 @@ public class SRSFilePlotterJob extends FilenameReaderJob {
 			for (String name : dataPlotNames) {				
 				
 				Dataset[] acd = new Dataset[] { holder.getDataset(getJobParameters().get("XAxis")), holder.getDataset(name.trim()) };
-				CompoundDataset cdd = DatasetUtils.cast(acd, acd[0].getDtype());
+				CompoundDataset cdd = DatasetUtils.cast(acd, acd[0].getDType());
 				list.add(cdd);			
 			}
 			

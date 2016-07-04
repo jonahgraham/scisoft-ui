@@ -31,6 +31,7 @@ import org.eclipse.dawnsci.analysis.api.dataset.Slice;
 import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.PositionIterator;
@@ -1674,7 +1675,7 @@ class ScatterTab extends PlotTab {
 				logger.error("Could not match axis to data for scatter plot");
 				return;
 			}
-			IDataset size = useData ? y : new IntegerDataset(x.getSize()).fill(POINTSIZE);
+			IDataset size = useData ? y : DatasetFactory.zeros(IntegerDataset.class, x.getSize()).fill(POINTSIZE);
 			try {
 				SDAPlotter.scatter2DPlot(PLOTNAME, x.flatten(), y, size);
 			} catch (Exception e) {
@@ -1688,7 +1689,7 @@ class ScatterTab extends PlotTab {
 				y = slicedAxes.get(1).flatten();
 				int length = Math.min(x.getSize(), y.getSize());
 				Slice slice = new Slice(length);
-				reorderedData = new IntegerDataset(length).fill(POINTSIZE);
+				reorderedData = DatasetFactory.zeros(IntegerDataset.class, length).fill(POINTSIZE);
 				try {
 					SDAPlotter.scatter2DPlot(PLOTNAME, x.getSlice(slice), y.getSlice(slice), reorderedData);
 				} catch (Exception e) {
@@ -1724,7 +1725,7 @@ class ScatterTab extends PlotTab {
 				int length = Math.min(x.getSize(), y.getSize());
 				length = Math.min(length, z.getSize());
 				Slice slice = new Slice(length);
-				reorderedData = new IntegerDataset(length).fill(POINTSIZE);
+				reorderedData = DatasetFactory.zeros(IntegerDataset.class, length).fill(POINTSIZE);
 				try {
 					SDAPlotter.scatter3DPlot(PLOTNAME, x.getSlice(slice), y.getSlice(slice), z.getSlice(slice), reorderedData);
 				} catch (Exception e) {

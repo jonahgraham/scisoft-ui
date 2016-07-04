@@ -24,7 +24,8 @@ import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.Slice;
-import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -146,7 +147,7 @@ public class MappingViewPageProvider extends EditorPart {
 						for (long dim : readDataSet.dims) {
 							dims[count++] = (int) dim;
 						}
-						IntegerDataset integerDataset = new IntegerDataset(ds, dims);
+						Dataset integerDataset = DatasetFactory.createFromObject(ds, dims);
 
 
 						String dim0 = null;

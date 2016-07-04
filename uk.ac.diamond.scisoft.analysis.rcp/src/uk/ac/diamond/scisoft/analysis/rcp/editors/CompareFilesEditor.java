@@ -1631,7 +1631,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 
 		public void setIndex(int index) {
-			i = new IntegerDataset(new int[] {index}, null);
+			i = DatasetFactory.createFromObject(IntegerDataset.class, new int[] {index}, null);
 			i.setName(CompareFilesEditor.INDEX);
 		}
 
@@ -1994,14 +1994,14 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 								switch (mathOp) {
 								case ADD:
 								case AVR:
-									accDataset = DatasetFactory.zeros(tmpData.getShape(), tmpData.getDtype());
+									accDataset = DatasetFactory.zeros(tmpData.getShape(), tmpData.getDType());
 									break;
 								case MUL:
-									accDataset = DatasetFactory.ones(tmpData.getShape(), tmpData.getDtype());
+									accDataset = DatasetFactory.ones(tmpData.getShape(), tmpData.getDType());
 									break;
 								case MAX:
 								case MIN:
-									accDataset = DatasetFactory.zeros(tmpData.getShape(), tmpData.getDtype());
+									accDataset = DatasetFactory.zeros(tmpData.getShape(), tmpData.getDType());
 									IndexIterator iter = accDataset.getIterator();
 									tmpData.fillDataset(accDataset, iter);
 									break;
