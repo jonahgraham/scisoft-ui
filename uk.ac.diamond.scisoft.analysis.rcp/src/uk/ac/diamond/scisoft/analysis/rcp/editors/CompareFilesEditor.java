@@ -45,6 +45,7 @@ import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.AggregateDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DTypeUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
@@ -2037,7 +2038,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					}
 				};
 				List<ILazyDataset> res = new ArrayList<ILazyDataset>();
-				res.add(new LazyDataset(varMap.getName(), AbstractDataset.getDType(refData), refData
+				res.add(new LazyDataset(varMap.getName(), DTypeUtils.getDType(refData), refData
 						.getShape(), processingLoader));
 				return res;
 			}
