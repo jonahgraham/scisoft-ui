@@ -18,7 +18,7 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
+import org.eclipse.january.dataset.ILazyDataset;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;

@@ -17,8 +17,8 @@
  */
 package uk.ac.diamond.scisoft.mappingexplorer.views;
 
-import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
+import org.eclipse.january.dataset.DatasetException;
+import org.eclipse.january.dataset.ILazyDataset;
 
 /**
  * @author rsr31645

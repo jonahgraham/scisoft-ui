@@ -11,9 +11,9 @@ package uk.ac.diamond.scisoft.analysis.rcp.polling;
 
 import java.util.ArrayList;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.CompoundDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
+import org.eclipse.january.dataset.CompoundDataset;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetUtils;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;

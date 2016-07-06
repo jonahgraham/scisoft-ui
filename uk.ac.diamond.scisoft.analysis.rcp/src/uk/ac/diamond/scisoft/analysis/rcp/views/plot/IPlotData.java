@@ -12,7 +12,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.views.plot;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.january.dataset.Dataset;
 
 public interface IPlotData {
 

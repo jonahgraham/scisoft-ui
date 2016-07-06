@@ -17,7 +17,7 @@
  */
 package uk.ac.diamond.scisoft.mappingexplorer.views.twod;
 
-import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
+import org.eclipse.january.dataset.DatasetException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;

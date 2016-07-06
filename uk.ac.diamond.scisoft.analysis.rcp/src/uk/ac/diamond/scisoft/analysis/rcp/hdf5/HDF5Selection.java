@@ -11,7 +11,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
 
 import java.util.List;
 
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
+import org.eclipse.january.dataset.ILazyDataset;
 
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;

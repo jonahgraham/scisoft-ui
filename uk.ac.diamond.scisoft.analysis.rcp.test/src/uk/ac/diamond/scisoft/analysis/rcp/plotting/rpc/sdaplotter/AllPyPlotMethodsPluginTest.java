@@ -10,9 +10,9 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.rpc.sdaplotter;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IDataset;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;

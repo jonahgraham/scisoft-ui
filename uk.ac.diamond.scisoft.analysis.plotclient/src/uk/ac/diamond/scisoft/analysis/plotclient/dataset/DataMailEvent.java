@@ -4,7 +4,7 @@ import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.january.dataset.IDataset;
 
 /**
  * When something changes, we notify the data sent using

@@ -10,7 +10,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.january.dataset.Dataset;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.junit.Test;

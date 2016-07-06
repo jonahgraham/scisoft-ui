@@ -15,8 +15,8 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;

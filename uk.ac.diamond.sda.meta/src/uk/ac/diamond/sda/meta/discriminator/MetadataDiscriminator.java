@@ -9,7 +9,7 @@
 
 package uk.ac.diamond.sda.meta.discriminator;
 
-import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
+import org.eclipse.january.metadata.IMetadata;
 
 public class MetadataDiscriminator implements IMetadataDiscriminator {
 

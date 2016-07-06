@@ -11,7 +11,7 @@ package uk.ac.diamond.scisoft.imagegrid.gridentry;
 
 import java.io.Serializable;
 
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.january.dataset.IDataset;
 
 /**
  * A simple class more or less a placeholder that stores persistently over sessions

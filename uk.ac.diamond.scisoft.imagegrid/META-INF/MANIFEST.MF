@@ -4,15 +4,15 @@ Bundle-Name: Imagegrid
 Bundle-SymbolicName: uk.ac.diamond.scisoft.imagegrid;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.eclipse.dawnsci.analysis.api,
- org.eclipse.equinox.registry,
+Require-Bundle: org.eclipse.equinox.registry,
  org.eclipse.swt,
  org.eclipse.ui.ide,
  org.eclipse.dawnsci.plotting.api,
  org.eclipse.dawnsci.analysis.dataset,
  org.dawnsci.plotting.services,
  uk.ac.diamond.scisoft.analysis,
- org.dawb.common.ui
+ org.dawb.common.ui,
+ org.eclipse.january;bundle-version="1.0.0"
 Import-Package: org.slf4j
 Export-Package: uk.ac.diamond.scisoft.imagegrid,
  uk.ac.diamond.scisoft.imagegrid.gridentry,

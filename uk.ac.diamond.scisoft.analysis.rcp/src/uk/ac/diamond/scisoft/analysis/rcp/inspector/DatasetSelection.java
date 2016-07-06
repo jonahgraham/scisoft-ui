@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
+import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 /**

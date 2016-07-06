@@ -11,7 +11,7 @@ package uk.ac.diamond.sda.navigator.decorator;
 
 import static org.junit.Assert.assertEquals;
 
-import org.eclipse.dawnsci.analysis.api.metadata.IExtendedMetadata;
+import org.eclipse.january.metadata.IExtendedMetadata;
 import org.junit.Test;
 
 

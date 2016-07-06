@@ -13,12 +13,12 @@ import java.awt.Dimension;
 import java.io.IOException;
 
 import org.dawnsci.plotting.services.util.SWTImageUtils;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
-import org.eclipse.dawnsci.analysis.dataset.impl.RGBDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Stats;
 import org.eclipse.dawnsci.plotting.api.histogram.IPaletteService;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.RGBDataset;
+import org.eclipse.january.dataset.Stats;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;

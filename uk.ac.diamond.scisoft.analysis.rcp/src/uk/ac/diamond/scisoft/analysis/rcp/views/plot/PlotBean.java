@@ -13,9 +13,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.dawb.common.util.list.PrimitiveArrayEncoder;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 

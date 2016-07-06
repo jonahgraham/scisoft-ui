@@ -9,7 +9,7 @@
 
 package uk.ac.diamond.scisoft.imagegrid.gridentry;
 
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.january.dataset.IDataset;
 
 /**
  * An abstract entry for the ImageGridTable

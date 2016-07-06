@@ -11,9 +11,9 @@ package uk.ac.diamond.sda.navigator.actions;
 
 import org.dawb.common.services.ServiceManager;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
-import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.slicing.api.data.ITransferableDataObject;
 import org.eclipse.dawnsci.slicing.api.data.ITransferableDataService;
+import org.eclipse.january.IMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;

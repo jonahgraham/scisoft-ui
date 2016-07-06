@@ -10,8 +10,8 @@
 package uk.ac.diamond.sda.navigator.decorator;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.dawnsci.analysis.api.metadata.IExtendedMetadata;
-import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
+import org.eclipse.january.metadata.IExtendedMetadata;
+import org.eclipse.january.metadata.IMetadata;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;

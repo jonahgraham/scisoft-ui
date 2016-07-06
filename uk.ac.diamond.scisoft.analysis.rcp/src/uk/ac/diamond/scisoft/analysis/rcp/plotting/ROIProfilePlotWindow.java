@@ -11,7 +11,6 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import org.dawb.common.ui.util.DisplayUtils;
 import org.dawnsci.plotting.roi.ROIWidget;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PerimeterBoxROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
@@ -21,6 +20,7 @@ import org.eclipse.dawnsci.plotting.api.tool.AbstractToolPage;
 import org.eclipse.dawnsci.plotting.api.tool.IProfileToolPage;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.dawnsci.plotting.api.tool.ToolPageFactory;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
