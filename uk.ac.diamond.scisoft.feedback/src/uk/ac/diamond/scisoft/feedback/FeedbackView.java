@@ -57,7 +57,6 @@ import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.LogConstants;
 import uk.ac.diamond.scisoft.feedback.attachment.AttachedFileContentProvider;
 import uk.ac.diamond.scisoft.feedback.attachment.AttachedFileEditingSupport;
 import uk.ac.diamond.scisoft.feedback.attachment.AttachedFileLabelProvider;
@@ -90,6 +89,9 @@ public class FeedbackView extends ViewPart implements IPartListener {
 	private FeedbackJob feedbackJob;
 
 	private final String ATTACH_LABEL = "Attached Files";
+
+	private static final String USER_HOME_PROP = "user.home";
+	private static final String DAWNLOG_HTML = "dawnlog.html";
 
 	/**
 	 * The constructor.
@@ -428,8 +430,8 @@ public class FeedbackView extends ViewPart implements IPartListener {
 	}
 
 	private void autoAttachLogFile(List<File> attachedFiles) throws IllegalStateException {
-		String userhome = System.getProperty(LogConstants.USER_HOME_PROP);
-		File log = new File(userhome, LogConstants.DAWNLOG_HTML);
+		String userhome = System.getProperty(USER_HOME_PROP);
+		File log = new File(userhome, DAWNLOG_HTML);
 		long size = log.length();
 		if (log.exists() && size > 0 && size < FeedbackConstants.MAX_SIZE) {
 			if (!attachedFiles.contains(log)) {
