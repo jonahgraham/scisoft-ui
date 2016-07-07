@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Imagegrid
-Bundle-SymbolicName: uk.ac.diamond.scisoft.imagegrid
+Bundle-SymbolicName: uk.ac.diamond.scisoft.imagegrid;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.dawnsci.analysis.api,
@@ -18,3 +18,5 @@ Export-Package: uk.ac.diamond.scisoft.imagegrid,
  uk.ac.diamond.scisoft.imagegrid.gridentry,
  uk.ac.diamond.scisoft.imagegrid.thumbnail
 Service-Component: OSGI-INF/*.xml
+Bundle-Vendor: Diamond Light Source
+Bundle-ActivationPolicy: lazy
