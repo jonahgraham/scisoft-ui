@@ -78,7 +78,6 @@ import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.FileOperationBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.GridImageEntry;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
@@ -86,11 +85,12 @@ import uk.ac.diamond.scisoft.analysis.plotserver.RMIPlotServer;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.imagegrid.ImagePlayBack;
 import uk.ac.diamond.scisoft.analysis.rcp.imagegrid.PlotServerSWTImageGrid;
-import uk.ac.diamond.scisoft.analysis.rcp.imagegrid.SWTGridEntry;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ImageExplorerDirectoryChooseAction;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.ImageExplorerPreferencePage;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.CommandExecutor;
+import uk.ac.diamond.scisoft.imagegrid.gridentry.GridImageEntry;
+import uk.ac.diamond.scisoft.imagegrid.gridentry.SWTGridEntry;
 
 public class ImageExplorerView extends ViewPart implements IObserver, SelectionListener {
 

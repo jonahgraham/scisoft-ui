@@ -28,6 +28,8 @@ import uk.ac.diamond.scisoft.analysis.plotserver.FileOperationBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView;
+import uk.ac.diamond.scisoft.imagegrid.SWTImageGrid;
+import uk.ac.diamond.scisoft.imagegrid.gridentry.GridEntryMonitor;
 
 /**
  * An SWTImageGrid that uses the plot server/guibean mechanism

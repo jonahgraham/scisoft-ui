@@ -27,6 +27,8 @@ import uk.ac.diamond.scisoft.analysis.plotserver.FileOperationBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.utils.ImageThumbnailLoader;
+import uk.ac.diamond.scisoft.imagegrid.gridentry.AbstractGridEntry;
+import uk.ac.diamond.scisoft.imagegrid.thumbnail.ThumbnailLoadService;
 
 
 /**
