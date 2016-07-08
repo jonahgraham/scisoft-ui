@@ -303,7 +303,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		if (imageFilenames.size() > 1) {
  		    Collections.sort(imageFilenames, new SortNatural<String>(true));
 			ImageStackLoader loader = new ImageStackLoader(imageFilenames , mon);
-			LazyDataset lazyDataset = new LazyDataset(FOLDER_STACK, loader.getDtype(), loader.getShape(), loader);
+			LazyDataset lazyDataset = new LazyDataset(FOLDER_STACK, loader.getDType(), loader.getShape(), loader);
 			data.addDataset(lazyDataset.getName(), lazyDataset);
 		}
 		
