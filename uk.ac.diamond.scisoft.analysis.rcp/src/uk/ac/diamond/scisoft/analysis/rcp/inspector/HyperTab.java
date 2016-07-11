@@ -17,9 +17,9 @@ import java.util.List;
 
 import org.dawnsci.slicing.tools.hyper.HyperType;
 import org.dawnsci.slicing.tools.hyper.HyperView;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.IMonitor;
 import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetException;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.Slice;
