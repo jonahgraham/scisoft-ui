@@ -36,7 +36,6 @@ import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.IMonitor;
 import org.eclipse.january.MetadataException;
-import org.eclipse.january.dataset.AbstractDataset;
 import org.eclipse.january.dataset.AggregateDataset;
 import org.eclipse.january.dataset.DTypeUtils;
 import org.eclipse.january.dataset.Dataset;
@@ -50,6 +49,7 @@ import org.eclipse.january.dataset.IntegerDataset;
 import org.eclipse.january.dataset.LazyDataset;
 import org.eclipse.january.dataset.Maths;
 import org.eclipse.january.dataset.PositionIterator;
+import org.eclipse.january.dataset.ShapeUtils;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.january.io.ILazyLoader;
 import org.eclipse.january.metadata.IMetadata;
@@ -1189,7 +1189,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			for (int k = fileList.size() - 1; k >= 0 && j > 0; k--) {
 				SelectedFile f = fileList.get(k);
 				if (f.doUse() && f.hasData() && f.hasMetadataValue()) {
-					boolean ok = AbstractDataset.areShapesCompatible(s, shapes[j], axis);
+					boolean ok = ShapeUtils.areShapesCompatible(s, shapes[j], axis);
 					f.setDataOK(ok);
 					if (!ok) {
 						dataList.remove(j);
@@ -2101,7 +2101,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					if (tmpShape == null) {
 						tmpShape = sf.getDataset().get(0).getShape();	// All datasets should be the same shape 
 					} else {
-						if (!AbstractDataset.areShapesCompatible(tmpShape, sf.getDataset().get(0).getShape(), -1)) {
+						if (!ShapeUtils.areShapesCompatible(tmpShape, sf.getDataset().get(0).getShape(), -1)) {
 							return null;
 						}
 					}
