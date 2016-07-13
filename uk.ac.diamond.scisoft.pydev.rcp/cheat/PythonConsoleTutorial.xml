@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet
+      title="Python Console Tutorial">
+   	<intro>
+      	<description>
+        	This Tutorial will show you how to get a Python console up and running.
+    	</description>
+   	</intro>
+   	<item title="Open Python Perspective">
+   		<command required="true"
+   			serialization="org.eclipse.ui.perspectives.showPerspective(org.eclipse.ui.perspectives.showPerspective.perspectiveId=uk.ac.diamond.scisoft.jythonperspective)"/>
+   		<description>	
+   			The Python Perspective is set up to make using the Python console and all its features as easy as possible.
+   		</description>
+	</item>
+	<item title="Configure Python for use">
+   	   	<description>
+   	   		Python needs to be configured before it can be started.<br/><br/>
+   	   		To do this go to the preferences via the menu options <b>Window -> Preferences</b><br/><br/>
+   	   		In this select the options for <b>PyDev -> Interpreter-Python</b> 
+   	   		Now click on the Auto Config Button<br/><br/>
+   	   		Select the option which is most suitable, on Linux, pick python(not /usr/bin/python unless you have installed Numpy and Scipy manually), on windows, pick your specific python install, and on most OS's there is the option to install EPD free if you dont have a Python interpreter installed.  Now click OK<br/><br/>
+   	   		Next click the <b>Select All</b> button and then click OK<br/><br/>
+   	   		Finally click <b>OK</b> and a progress bar will start up, this may take some time, but the main thing is this configuration is only needed once, and is remembered in your workspace. 
+        </description>
+	</item>
+	<item title="Open the PyDev Console">
+   	   	<description>
+   	   		Fisrt reset the Python Perspective to make sure everything is set up correctly (Window -> Reset Perspective)<br/><br/>
+   			In the console view ( Should be bottom centre in a clean perspective) Click on the <b>&quot;Open Console&quot;</b>icon (The button at the top right of the Console View) and select <b>&quot;PyDev Console&quot;</b> from the available options.
+   			<br/><br/>Finally choose <b>&quot;Python Console&quot;</b> and then click <b>OK</b>
+        </description>
+	</item>
+	<item title="Import the Scisoftpy module">
+   	   	<description>	
+			The Scisoftpy module adds lots of functionality to the Python terminal, including numpy like array functionality, various loading mechanisms for lots of file types and plotting which is available in this framework.
+			<br/><br/>This is loaded as standard in the console, as it is likely to be needed, to find out about its functionalty type the following into the Console after the <b> >>> </b>
+			<br/><br/><b>help(dnp)</b> 
+        </description>
+	</item>
+	<item title="Plot a line using scisoftpy">
+   	   	<description>	
+			A useful tool which scisoftpy gives, is the ability to plot data. The following commands will create some data and then plot it to the "Plot 1" view which is to the right of the perspective.
+			<br/><br/><b>a = dnp.arange(0,10,0.1)</b>
+			<br/><b>b = dnp.sin(a)</b>
+			<br/><b>dnp.plot.line(a,b)</b>
+			<br/><br/>
+			This will show a plot of a sine curve
+        </description>
+	</item>
+	<item title="Plot an image using scisoftpy">
+   	   	<description>	
+			You can also use scisoftpy to plot images or 2D arrays of data using the following commands
+			<br/><br/><b>im = dnp.random.rand(100,100)</b>
+			<br/><b>dnp.plot.image(im)</b>
+			<br/><br/>This will give an image plot of some noise. 
+			<br/><br/>You can instead plot the same data as a surface by using the following command.
+			<br/><br/><b>dnp.plot.surface(im)</b>
+			<br/><br/>Use the mouse to rotate the surface plot as required.
+        </description>
+	</item>
+	
+</cheatsheet>

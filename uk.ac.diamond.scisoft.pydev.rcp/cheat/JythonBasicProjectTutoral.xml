@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet
+      title="Jython Basic Project Tutorial">
+   	<intro>
+      	<description>
+        	This Tutorial will show you how to get a Jython project working, and how to run and debug scripts
+    	</description>
+   	</intro>
+   	<item title="Open Python Perspective">
+   		<command required="true"
+   			serialization="org.eclipse.ui.perspectives.showPerspective(org.eclipse.ui.perspectives.showPerspective.perspectiveId=uk.ac.diamond.scisoft.jythonperspective)"/>
+   		<description>	
+   			The Python Perspective is set up to make using the Jython console and all its features as easy as possible.
+   		</description>
+	</item>
+	<item title="Create a Pydev Project">
+   	   	<description>
+   			Create an example Pydev project by using the following commands
+   			<br/><br/>File -> New -> PyDev Project
+   			<br/><br/>Give the project a name, such as <b>JythonTest</b> select the Jython project type and select the <b>Create 'src' folder and add it to the PYTHONPATH?</b> option, then click <b>Finish</b>.
+        	<br/><br/>You may be prompted to set up the Python interpreter or go to the Pydev perspective, in both cases say <b>No</b>. 
+        </description>
+	</item>
+	<item title="Create a simple script">
+   	   	<description>	
+   	   		Open the PyDev Package Explorer, and expand the new JythonTest project you have just created.
+			<br/><br/>Inside this project is a <b>src</b> directory, which is where your scripts should live, right click on this directory and choose
+			<br/><br/>New -> PyDev Module
+			<br/><br/>Leave the package field blank, but fill in the name with something like <b>plottest</b> and leave the template as <b>Empty</b> and press OK.
+			<br/><br/>This will open a new editor window called plottest, which is where the script will be written. Add the following code into this file under the initial comment
+			<br/><br/><b>import scisoftpy as dnp</b>
+			<br/><b>x = dnp.arange(0,10,0.1)</b>
+            <br/><b>y = dnp.sin(x)</b>
+    		<br/><b>dnp.plot.line(x,y)</b>
+    		<br/><b>y = dnp.sin(x+0.5)</b>
+    		<br/><b>dnp.plot.line(x,y)</b>
+    		<br/><b>y = dnp.sin(x+1.0)</b>
+    		<br/><b>dnp.plot.line(x,y)</b>
+			<br/><b>print("done")</b>
+			<br/><br/>Then save this work by clicking
+			<br/><br/>File -> Save
+			<br/><br/>or by pressing Ctrl-S
+        </description>
+	</item>
+	<item title="Running the Script">
+   	   	<description>	
+			Now we have the script written we want to run it, and this is done using the standard method described below.
+			<br/><br/>Right click on the python script 'plottest.py' in the PyDev Package Explorer and click on:
+			<br/><br/>Run As -> Jython Run
+			<br/><br/>Various test will appear in the console as things are set up, but you should see a sine plot appear in the <b>Plot 1</b> view as well as the 'done' statement at the bottom of the console which we asked to be printed in the script.
+        </description>
+	</item>
+	<item title="Running the script in debug mode">
+   	   	<description>	
+			One of the really powerful features of this environment is the ability to Debug code.  To do this you will need to say where you want the code to stop with a breakpoint.  This can be added by right clicking just to the left of a line of code and choosing <b>Add Breakpoint</b> 
+			<br/><br/>Add a breakpoint next to the <b>x = ...</b> line of code.
+			<br/><br/>Now right click on the file again in the pyDev Package Explorer and this time choose 
+			<br/><br/>Debug As -> Jython Run
+			<br/><br/>You will get prompted to Change perspective but in this case we don't want to so click <b>no</b>
+			<br/><br/>The code will have stopped on the <b>x = ...</b> line just as we requested, and a new view(Debug) will have been brought up,  Move this view to below the <b>Plot 1</b> view for the time being. 
+        </description>
+	</item>
+	<item title="Stepping with the Debugger">
+   	   	<description>	
+			To execute the next line of code you need to get the debugger to step forward, this is done by pressing the <b>step over</b> button at the top of the Debug view, or by pressing <b>F6</b> while the Editor is selected.  use one of these methods to step down to the second <b>y = ...</b> line.
+			<br/><br/>You should have seen the plot update when you asked the debugger to execute the <b>dnp.plot...</b> command.  Now finish off running the script by stepping through the rest of it.
+			<br/><br/>Once you have finished the Debug view will show that the process has terminated. 
+        </description>
+	</item>
+	<item title="Using the Debugging Perspective">
+   	   	<description>	
+			There is a special perspective which helps when Debugging, debug the script again, but this time when prompted change to the Debugging perspective.
+			<br/><br/>One of the main features of this Perspective is the <b>Variables</b> view.  This shows all the things which are in the namespace at the point where the debugger has stopped. Step through using the <b>step over</b> button or the <b>F6</b> key until the first plot command.
+			<br/><br/>Now look in the <b>Variables</b> view and you should see both the x and y variables, if you click on them some basic information about them will be displayed.  Now step forward a few more times, and you will see the y variable change, and this is highlighted in the view.
+        	<br/><br/>Run through the rest of the script using the <b>resume</b> button on the Debug view or <b>F8</b> in the editor window, and then return to the Python perspective through the button at the top of the main window, or 
+        	<br/><br/>Window -> Open Perspective -> Other -> Python
+        </description>
+	</item>
+</cheatsheet>

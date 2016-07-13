@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.diamond.scisoft.pydev.rcp.JythonPerspective"
+            icon="icons/jython.png"
+            id="uk.ac.diamond.scisoft.jythonperspective"
+            name="Python">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="*">
+         <perspectiveShortcut
+               id="org.python.pydev.ui.PythonPerspective">
+         </perspectiveShortcut>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.dawnsci.introRegister">
+      <introPageRegister
+            description="Opens the Pydev environment for programmatically opening, editing, analysing, saving and displaying data files"
+            icon="icons/python_intro.png"
+            id="uk.ac.diamond.scisoft.JythonPersp"
+            class="uk.ac.diamond.scisoft.pydev.rcp.JythonPerspectiveLaunch"
+            name="Python/Jython Scripting">
+      </introPageRegister>
+   </extension>
+   <extension
+         point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+      <category
+            id="uk.ac.diamond.scisoft.pydev.rcp.pythoncategory"
+            name="Python/Jython Scripting">
+      </category>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.pydev.rcp.pythoncategory"
+            composite="false"
+            contentFile="cheat/JythonConsoleTutorial.xml"
+            id="uk.ac.diamond.scisoft.pydev.rcp.JythonCheatsheet"
+            name="a) Jython Console Tutorial">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.pydev.rcp.pythoncategory"
+            composite="false"
+            contentFile="cheat/JythonBasicProjectTutoral.xml"
+            id="uk.ac.diamond.scisoft.pydev.rcp.jythonbasicprojecttutorial"
+            name="b) Jython Basic Project Tutorial">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.pydev.rcp.pythoncategory"
+            composite="false"
+            contentFile="cheat/PythonConsoleTutorial.xml"
+            id="uk.ac.diamond.scisoft.pydev.rcp.PythonCheatsheet"
+            name="Python Console Tutorial">
+      </cheatsheet>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="uk.ac.diamond.scisoft.analysis.rcp.adapters.HDF5Adaptable"
+            class="uk.ac.diamond.scisoft.pydev.rcp.adapters.HDF5AdapterFactory">
+         <adapter
+               type="org.python.pydev.shared_interactive_console.console.codegen.IScriptConsoleCodeGenerator">
+         </adapter>
+      </factory>
+   </extension>
+   <extension point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.debug.ui.VariableView?after=additions">
+         <menu
+               icon="icons/chart_curve.png"
+               label="Plot">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
+               </reference>
+            </visibleWhen>
+            <command
+                  commandId="uk.ac.diamond.scisoft.pydev.rcp.plot.line"
+                  icon="icons/chart_line.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="uk.ac.diamond.scisoft.pydev.rcp.plot.addline"
+                  icon="icons/chart_line.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="uk.ac.diamond.scisoft.pydev.rcp.plot.image"
+                  icon="icons/color_wheel.png"
+                  style="push">
+            </command>
+         </menu>
+         <command
+               commandId="uk.ac.diamond.scisoft.pydev.rcp.save.hdf5"
+               icon="icons/picture_save.png"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
+               </reference>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.debug.ui.ExpressionView?after=additions">
+         <menu
+               icon="icons/chart_curve.png"
+               label="Plot Watch Expression">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
+               </reference>
+            </visibleWhen>
+            <command
+                  commandId="uk.ac.diamond.scisoft.pydev.rcp.plot.line"
+                  icon="icons/chart_line.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="uk.ac.diamond.scisoft.pydev.rcp.plot.addline"
+                  icon="icons/chart_line.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="uk.ac.diamond.scisoft.pydev.rcp.plot.image"
+                  icon="icons/color_wheel.png"
+                  style="push">
+            </command>
+         </menu>
+         <command
+               commandId="uk.ac.diamond.scisoft.pydev.rcp.save.hdf5"
+               icon="icons/picture_save.png"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
+               </reference>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+            <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+        <toolbar id="org.dawnsci.python.rpc.pydev.toolbar">
+           <command commandId="uk.ac.diamond.scisoft.pydev.rcp.injectPyDevConsole" icon="icons/application_osx_terminal.png" id="uk.ac.diamond.scisoft.pydev.rcp.toolbar.command" style="pulldown" 
+                    tooltip="Open Pydev console">
+              <visibleWhen>
+                 <or>
+                 <with variable="activePart">
+                   <instanceof value="org.eclipse.dawnsci.plotting.api.views.ISettablePlotView">
+                   </instanceof>
+                 </with>
+                 <with variable="activePartId">
+                  <equals value="org.dawb.workbench.editors.ImageEditor"/>
+                 </with>
+                 <with variable="activePartId">
+                  <equals value="org.dawb.workbench.editor.H5Editor"/>
+                 </with>
+                 <with variable="activePartId">
+                  <equals value="org.dawb.workbench.editors.AsciiEditor"/>
+                 </with>
+                 </or>
+              </visibleWhen>
+           </command>
+        </toolbar>
+     </menuContribution>
+     <menuContribution locationURI="menu:uk.ac.diamond.scisoft.pydev.rcp.toolbar.command">
+        <command commandId="uk.ac.diamond.scisoft.pydev.rcp.createNewConsoleCommand" label="Create new Pydev Console" style="push">
+        </command>
+        <command commandId="uk.ac.diamond.scisoft.pydev.rcp.getViewnameCommand" label="Set current plot as default" style="push">
+        </command>
+        <command
+              commandId="uk.ac.diamond.scisoft.pydev.rcp.injectDataPyDevConsole"
+              label="Open data slice in console"
+              style="push">
+        </command>
+        <command
+              commandId="uk.ac.diamond.scisoft.pydev.rcp.injectGuiBeanCommand"
+              label="Get Guibean in console"
+              style="push">
+              <visibleWhen>
+                 <with variable="activePart">
+                   <instanceof value="org.eclipse.dawnsci.plotting.api.views.ISettablePlotView">
+                   </instanceof>
+                 </with>
+               </visibleWhen>
+        </command>
+     </menuContribution>
+     <menuContribution
+           allPopups="false"
+           locationURI="toolbar:org.eclipse.ui.console.ConsoleView">
+        <command
+              commandId="uk.ac.diamond.scisoft.pydev.rcp.createNewConsoleCommand"
+              icon="icons/application_osx_terminal.png"
+              label="Create new Pydev Console"
+              style="push">
+        </command>
+     </menuContribution>
+    </extension>
+   <extension point="org.eclipse.ui.handlers">
+      <handler
+            class="uk.ac.diamond.scisoft.pydev.rcp.handlers.PydevDebugPlottingLineCommandHandler"
+            commandId="uk.ac.diamond.scisoft.pydev.rcp.plot.line">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.pydev.rcp.handlers.PydevDebugPlottingAddLineCommandHandler"
+            commandId="uk.ac.diamond.scisoft.pydev.rcp.plot.addline">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.pydev.rcp.handlers.PydevDebugPlottingImageCommandHandler"
+            commandId="uk.ac.diamond.scisoft.pydev.rcp.plot.image">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.pydev.rcp.handlers.PydevDebugSaveHDF5CommandHandler"
+            commandId="uk.ac.diamond.scisoft.pydev.rcp.save.hdf5">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.pydev.rcp.handlers.PydevInjectCreateNewConsoleHandler"
+            commandId="uk.ac.diamond.scisoft.pydev.rcp.createNewConsoleCommand">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.pydev.rcp.handlers.PydevInjectSetupScisoftPyHandler"
+            commandId="uk.ac.diamond.scisoft.pydev.rcp.setupScisoftpyCommand">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.pydev.rcp.handlers.PydevInjectViewnameHandler"
+            commandId="uk.ac.diamond.scisoft.pydev.rcp.getViewnameCommand">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.pydev.rcp.handlers.PydevInjectGetGuiBeanHandler"
+            commandId="uk.ac.diamond.scisoft.pydev.rcp.injectGuiBeanCommand">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.pydev.rcp.handlers.PydevInjectConsoleHandler"
+            commandId="uk.ac.diamond.scisoft.pydev.rcp.injectPyDevConsole">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.pydev.rcp.handlers.PydevInjectDataHandler"
+            commandId="uk.ac.diamond.scisoft.pydev.rcp.injectDataPyDevConsole">
+      </handler>
+    </extension>
+    <extension point="org.eclipse.ui.commands">
+      <command
+            description="Plot Selection as Line"
+            id="uk.ac.diamond.scisoft.pydev.rcp.plot.line"
+            name="Line">
+      </command>
+      <command
+            description="Plot Selection as Additional Line"
+            id="uk.ac.diamond.scisoft.pydev.rcp.plot.addline"
+            name="Add Line">
+      </command>
+      <command
+            description="Plot Selection as Image"
+            id="uk.ac.diamond.scisoft.pydev.rcp.plot.image"
+            name="Image">
+      </command>
+      <command
+            description="Save a dataset as an HDF5"
+            id="uk.ac.diamond.scisoft.pydev.rcp.save.hdf5"
+            name="Save As HDF5">
+      </command>
+      <command
+            description="Inject commands into active console, prompts to open a PyDev console if none active"
+            id="uk.ac.diamond.scisoft.pydev.rcp.injectPyDevConsole"
+            name="Open PyDev Console">
+      </command>
+      <command
+            id="uk.ac.diamond.scisoft.pydev.rcp.injectGuiBeanCommand"
+            name="Get Guibean in Pydev console">
+      </command>
+      <command
+            id="uk.ac.diamond.scisoft.pydev.rcp.setupScisoftpyCommand"
+            name="Set up ScisoftPy">
+      </command>
+      <command
+            id="uk.ac.diamond.scisoft.pydev.rcp.createNewConsoleCommand"
+            name="Create new Pydev console">
+      </command>
+      <command
+            id="uk.ac.diamond.scisoft.pydev.rcp.getViewnameCommand"
+            name="Set current Plot as default">
+      </command>
+      <command
+            description="Open current data slice in pydev console"
+            id="uk.ac.diamond.scisoft.pydev.rcp.injectDataPyDevConsole"
+            name="Open data slice in console">
+      </command>
+    </extension>
+</plugin>

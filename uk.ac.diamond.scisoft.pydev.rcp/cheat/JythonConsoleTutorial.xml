@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet
+      title="Jython Console Tutorial">
+   	<intro>
+      	<description>
+        	This Tutorial will show you how to get a Jython console up and running.
+    	</description>
+   	</intro>
+   	<item title="Open Python Perspective">
+   		<command required="true"
+   			serialization="org.eclipse.ui.perspectives.showPerspective(org.eclipse.ui.perspectives.showPerspective.perspectiveId=uk.ac.diamond.scisoft.jythonperspective)"/>
+   		<description>	
+   			The Python Perspective is set up to make using the Jython console and all its features as easy as possible.
+   		</description>
+	</item>
+	<item title="Open the PyDev Console">
+   	   	<description>
+   			In the console view ( Should be bottom centre in a clean perspective) Click on the <b>&quot;Open Console&quot;</b>icon (The button at the top right of the Console View) and select <b>&quot;PyDev Console&quot;</b> from the available options.
+   			<br/><br/>Finally choose <b>&quot;Jython Console&quot;</b> and then click <b>OK</b>
+        </description>
+	</item>
+	<item title="Import the Scisoftpy module">
+   	   	<description>	
+			The Scisoftpy module adds lots of functionality to the Jython terminal, including numpy like array functionality, various loading mechanisms for lots of file types and plotting which is available in this framework.
+			<br/><br/>The scisoftpy module is imported automatically when the Jython console is started (import scisoftpy as dnp). The Jython console will have some text in it and a prompt (like this <b>>>></b>) for input.			
+			<br/><br/>At this prompt type the following 
+			<br/><br/><b>help(dnp)</b> 
+			<br/><br/>to see some of the available commands in the scisoftpy module.
+        </description>
+	</item>
+	<item title="Plot a line using scisoftpy">
+   	   	<description>	
+			A useful tool which scisoftpy gives, is the ability to plot data. The following commands will create some data and then plot it to the "Plot 1" view which is to the right of the perspective.
+			<br/><br/><b>a = dnp.arange(0,10,0.1)</b>
+			<br/><b>b = dnp.sin(a)</b>
+			<br/><b>dnp.plot.line(a,b)</b>
+			<br/><br/>
+			This will show a plot of a sine curve
+        </description>
+	</item>
+	<item title="Plot an image using scisoftpy">
+   	   	<description>	
+			You can also use scisoftpy to plot images or 2D arrays of data using the following commands
+			<br/><br/><b>im = dnp.random.rand(100,100)</b>
+			<br/><b>dnp.plot.image(im)</b>
+			<br/><br/>This will give an image plot of some noise. 
+			<br/><br/>You can instead plot the same data as a surface by using the following command.
+			<br/><br/><b>dnp.plot.surface(im)</b>
+			<br/><br/>Use the mouse to rotate the surface plot as required.
+        </description>
+	</item>
+	
+</cheatsheet>
