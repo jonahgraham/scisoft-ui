@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package uk.ac.diamond.scisoft.pydev.rcp.actions;
+package uk.ac.diamond.scisoft.analysis.rcp.actions;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @deprecated Use {@link PydevInjectConsoleHandler} which is a fully
+ * @deprecated Use uk.ac.diamond.scisoft.pydev.rcp.handlers.PydevInjectConsoleHandler which is a fully
  *             parameterised Handler
  */
 @Deprecated
