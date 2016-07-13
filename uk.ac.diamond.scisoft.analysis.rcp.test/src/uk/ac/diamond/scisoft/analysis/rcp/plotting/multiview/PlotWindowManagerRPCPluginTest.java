@@ -9,6 +9,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview;
 
+import org.eclipse.dawnsci.analysis.api.rpc.AnalysisRpcException;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.ui.IWorkbenchPage;
 import org.junit.AfterClass;
@@ -16,9 +17,7 @@ import org.junit.BeforeClass;
 
 import uk.ac.diamond.scisoft.analysis.AnalysisRpcClientProvider;
 import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.MultiPlotViewTestBase.ThreadRunner.ThreadRunnable;
-import uk.ac.diamond.scisoft.analysis.rpc.AnalysisRpcException;
 
 /**
  * Concrete class that tests RPC connection from within same JVM

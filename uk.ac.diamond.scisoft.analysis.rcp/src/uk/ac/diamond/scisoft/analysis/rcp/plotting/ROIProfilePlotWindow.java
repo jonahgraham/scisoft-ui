@@ -454,7 +454,7 @@ public class ROIProfilePlotWindow extends AbstractPlotWindow {
 					clearPlot();
 					setPreviousMode(GuiPlotMode.EMPTY);
 				}
-				addScriptingAction();
+//				addScriptingAction();
 				addDuplicateAction();
 			}
 		});

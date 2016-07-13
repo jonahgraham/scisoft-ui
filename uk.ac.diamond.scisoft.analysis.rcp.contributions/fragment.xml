@@ -181,12 +181,6 @@
             id="uk.ac.diamond.scisoft.dataexplorationperspective"
             name="DExplore">
       </perspective>
-      <perspective
-            class="uk.ac.diamond.scisoft.analysis.rcp.JythonPerspective"
-            icon="icons/jython.png"
-            id="uk.ac.diamond.scisoft.jythonperspective"
-            name="Python">
-      </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
@@ -197,9 +191,6 @@
          </perspectiveShortcut>
          <perspectiveShortcut
                id="uk.ac.diamond.scisoft.diffractionviewerperspective">
-         </perspectiveShortcut>
-         <perspectiveShortcut
-               id="org.python.pydev.ui.PythonPerspective">
          </perspectiveShortcut>
       </perspectiveExtension>
    </extension>
@@ -841,34 +832,9 @@
             class="uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspectiveLaunch"
             name="DEXPLORE">
       </introPageRegister>
-      <introPageRegister
-            description="Opens the Pydev environment for programmatically opening, editing, analysing, saving and displaying data files"
-            icon="icons/python_intro.png"
-            id="uk.ac.diamond.scisoft.JythonPersp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.JythonPerspectiveLaunch"
-            name="Python/Jython Scripting">
-      </introPageRegister>
    </extension>
    <extension
          point="org.eclipse.ui.cheatsheets.cheatSheetContent">
-      <category
-            id="uk.ac.diamond.scisoft.analysis.rcp.pythoncategory"
-            name="Python/Jython Scripting">
-      </category>
-      <cheatsheet
-            category="uk.ac.diamond.scisoft.analysis.rcp.pythoncategory"
-            composite="false"
-            contentFile="cheat/JythonConsoleTutorial.xml"
-            id="uk.ac.diamond.scisoft.analysis.rcp.JythonCheatsheet"
-            name="a) Jython Console Tutorial">
-      </cheatsheet>
-      <cheatsheet
-            category="uk.ac.diamond.scisoft.analysis.rcp.pythoncategory"
-            composite="false"
-            contentFile="cheat/JythonBasicProjectTutoral.xml"
-            id="uk.ac.diamond.scisoft.analysis.rcp.jythonbasicprojecttutorial"
-            name="b) Jython Basic Project Tutorial">
-      </cheatsheet>
       <category
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.DExploreCategory"
             name="Data Exploration Tutorials">
@@ -940,13 +906,6 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.cheatsheet.printing"
             name="Printing">
       </cheatsheet>
-      <cheatsheet
-            category="uk.ac.diamond.scisoft.analysis.rcp.pythoncategory"
-            composite="false"
-            contentFile="cheat/PythonConsoleTutorial.xml"
-            id="uk.ac.diamond.scisoft.analysis.rcp.PythonCheatsheet"
-            name="Python Console Tutorial">
-      </cheatsheet>
    </extension>
    <extension
          point="org.eclipse.core.variables.dynamicVariables">
@@ -970,16 +929,6 @@
       </variable>
    </extension>
    <extension
-         point="org.eclipse.core.runtime.adapters">
-      <factory
-            adaptableType="uk.ac.diamond.scisoft.analysis.rcp.adapters.HDF5Adaptable"
-            class="uk.ac.diamond.scisoft.analysis.rcp.adapters.HDF5AdapterFactory">
-         <adapter
-               type="org.python.pydev.shared_interactive_console.console.codegen.IScriptConsoleCodeGenerator">
-         </adapter>
-      </factory>
-   </extension>
-   <extension
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
             icon="icons/project_reel.png"
@@ -997,130 +946,4 @@
          </run>
       </runtime>
    </extension>
-
-    <extension point="org.eclipse.ui.menus">
-      <menuContribution
-            allPopups="false"
-            locationURI="popup:org.eclipse.debug.ui.VariableView?after=additions">
-         <menu
-               icon="icons/chart_curve.png"
-               label="Plot">
-            <visibleWhen
-                  checkEnabled="false">
-               <reference
-                     definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
-               </reference>
-            </visibleWhen>
-            <command
-                  commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.line"
-                  icon="icons/chart_line.png"
-                  style="push">
-            </command>
-            <command
-                  commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.addline"
-                  icon="icons/chart_line.png"
-                  style="push">
-            </command>
-            <command
-                  commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.image"
-                  icon="icons/color_wheel.png"
-                  style="push">
-            </command>
-         </menu>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.save.hdf5"
-               icon="icons/picture_save.png"
-               style="push">
-            <visibleWhen
-                  checkEnabled="false">
-               <reference
-                     definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
-               </reference>
-            </visibleWhen>
-         </command>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="popup:org.eclipse.debug.ui.ExpressionView?after=additions">
-         <menu
-               icon="icons/chart_curve.png"
-               label="Plot Watch Expression">
-            <visibleWhen
-                  checkEnabled="false">
-               <reference
-                     definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
-               </reference>
-            </visibleWhen>
-            <command
-                  commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.line"
-                  icon="icons/chart_line.png"
-                  style="push">
-            </command>
-            <command
-                  commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.addline"
-                  icon="icons/chart_line.png"
-                  style="push">
-            </command>
-            <command
-                  commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.image"
-                  icon="icons/color_wheel.png"
-                  style="push">
-            </command>
-         </menu>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.save.hdf5"
-               icon="icons/picture_save.png"
-               style="push">
-            <visibleWhen
-                  checkEnabled="false">
-               <reference
-                     definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
-               </reference>
-            </visibleWhen>
-         </command>
-      </menuContribution>
-    </extension>
-    <extension point="org.eclipse.ui.handlers">
-      <handler
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.pydev.PydevDebugPlottingLineCommandHandler"
-            commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.line">
-      </handler>
-      <handler
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.pydev.PydevDebugPlottingAddLineCommandHandler"
-            commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.addline">
-      </handler>
-      <handler
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.pydev.PydevDebugPlottingImageCommandHandler"
-            commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.image">
-      </handler>
-      <handler
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.pydev.PydevDebugSaveHDF5CommandHandler"
-            commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.save.hdf5">
-      </handler>
-    </extension>
-    <extension point="org.eclipse.ui.commands">
-      <command
-            description="Plot Selection as Line"
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.line"
-            name="Line">
-      </command>
-      <command
-            description="Plot Selection as Additional Line"
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.addline"
-            name="Add Line">
-      </command>
-      <command
-            description="Plot Selection as Image"
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.plot.image"
-            name="Image">
-      </command>
-      <command
-            description="Save a dataset as an HDF5"
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.save.hdf5"
-            name="Save As HDF5">
-      </command>
-    </extension>
-
-
-
 </fragment>

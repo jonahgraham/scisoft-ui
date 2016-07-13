@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Diamond Light Source Ltd.
+ * Copyright (c) 2012-2016 Diamond Light Source Ltd.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -9,10 +9,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.dawnsci.python.rpc.action.InjectPyDevConsole;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -58,9 +54,6 @@ public abstract class AbstractPlotWindow extends ScriptingConnection implements 
 	private boolean exclusiveToolars = false;
 
 	private CommandContributionItem duplicateWindowCCI;
-	private CommandContributionItem openPyDevConsoleCCI;
-	private CommandContributionItem updateDefaultPlotCCI;
-	private CommandContributionItem getPlotBeanCCI;
 	private CommandContributionItem clearPlotCCI;
 
 	/**
@@ -153,52 +146,6 @@ public abstract class AbstractPlotWindow extends ScriptingConnection implements 
 	}
 
 	/**
-	 * Method to create the scripting actions
-	 * for DatasetPlotter and LightWeightPlottingSystem
-	 */
-	protected void addScriptingAction(){
-		if (openPyDevConsoleCCI == null) {
-			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow(), null, InjectPyDevConsole.COMMAND_ID,
-					CommandContributionItem.STYLE_PUSH);
-			ccip.label = "Open New Plot Scripting";
-			ccip.icon = AnalysisRCPActivator.getImageDescriptor("icons/application_osx_terminal.png");
-			Map<String, String> params = new HashMap<String, String>();
-			params.put(InjectPyDevConsole.CREATE_NEW_CONSOLE_PARAM, Boolean.TRUE.toString());
-			params.put(InjectPyDevConsole.VIEW_NAME_PARAM, name);
-			params.put(InjectPyDevConsole.SETUP_SCISOFTPY_PARAM,
-					InjectPyDevConsole.SetupScisoftpy.ALWAYS.toString());
-			ccip.parameters = params;
-			openPyDevConsoleCCI = new CommandContributionItem(ccip);
-		}
-
-		if (updateDefaultPlotCCI == null) {
-			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow(), null, InjectPyDevConsole.COMMAND_ID,
-					CommandContributionItem.STYLE_PUSH);
-			ccip.label = "Set Current Plot As Scripting Default";
-			Map<String, String> params = new HashMap<String, String>();
-			params.put(InjectPyDevConsole.VIEW_NAME_PARAM, name);
-			ccip.parameters = params;
-			updateDefaultPlotCCI = new CommandContributionItem(ccip);
-		}
-
-		if (getPlotBeanCCI == null) {
-			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow(), null, InjectPyDevConsole.COMMAND_ID,
-					CommandContributionItem.STYLE_PUSH);
-			ccip.label = "Get Plot Bean in Plot Scripting";
-			Map<String, String> params = new HashMap<String, String>();
-			params.put(InjectPyDevConsole.INJECT_COMMANDS_PARAM, "bean=dnp.plot.getbean('" + name + "')");
-			ccip.parameters = params;
-			getPlotBeanCCI = new CommandContributionItem(ccip);
-		}
-		bars.getMenuManager().add(openPyDevConsoleCCI);
-		bars.getMenuManager().add(updateDefaultPlotCCI);
-		bars.getMenuManager().add(getPlotBeanCCI);
-	}
-
-	/**
 	 * Remove the actions previously created
 	 */
 	protected void removePreviousActions() {
@@ -224,7 +171,6 @@ public abstract class AbstractPlotWindow extends ScriptingConnection implements 
 	protected void changePlotMode(GuiPlotMode plotMode) {
 		
 		super.changePlotMode(plotMode);		
-		addScriptingAction();
 		addDuplicateAction();
 		addClearAction();
 	}
