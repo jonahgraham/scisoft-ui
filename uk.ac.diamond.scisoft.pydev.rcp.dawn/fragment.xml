@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<fragment>
+    <extension
+         point="org.dawnsci.introRegister">
+      <introPageRegister
+            description="Opens the Pydev environment for programmatically opening, editing, analysing, saving and displaying data files"
+            icon="icons/python_intro.png"
+            id="uk.ac.diamond.scisoft.JythonPersp"
+            class="uk.ac.diamond.scisoft.pydev.rcp.JythonPerspectiveLaunch"
+            name="Python/Jython Scripting">
+      </introPageRegister>
+   </extension>
+   <extension
+         point="org.eclipse.ui.intro.configExtension">
+      <configExtension
+            configId="org.dawnsci.intro.universalConfig"
+            content="intro/introContribution.xml">
+      </configExtension>
+   </extension>
+</fragment>
