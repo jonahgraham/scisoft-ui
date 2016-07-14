@@ -53,10 +53,6 @@ limitations under the License.
          id="uk.ac.diamond.scisoft.core.feature"
          version="0.0.0"/>
 
-   <includes
-         id="org.dawnsci.python.feature"
-         version="0.0.0"/>
-
    <plugin
          id="uk.ac.diamond.scisoft.analysis.rcp"
          download-size="0"
