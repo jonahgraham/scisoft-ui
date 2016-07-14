@@ -5,14 +5,6 @@
        		<link label="DEXPLORE" url="http://org.eclipse.ui.intro/runAction?pluginId=org.dawnsci.intro&amp;class=org.dawnsci.intro.actions.OpenPerspectiveAction&amp;name=uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspectiveLaunch" id="dexplore" style-id="content-link">
           		<text>More advanced data exploring, with many options for how the data is shown. The Data Exploring perspective is suitable for viewing line traces, images and multidimensional data. Also contains features for comparing data from multiple files and connecting the plot to a Python/Jython interpreter</text>
        		</link>
-       		<!-- 
-       		<link label="DIVA" url="http://org.eclipse.ui.intro/runAction?pluginId=org.dawnsci.intro&amp;class=org.dawnsci.intro.actions.OpenPerspectiveAction&amp;name=uk.ac.diamond.scisoft.analysis.rcp.DiffractionViewerPerspectiveLaunch" id="diva" style-id="content-link">
-          		<text>Opens the diffraction view perspective for viewing and analysing diffraction images</text>
-       		</link>
-       		-->
-       		<link label="Python/Jython Scripting" url="http://org.eclipse.ui.intro/runAction?pluginId=org.dawnsci.intro&amp;class=org.dawnsci.intro.actions.OpenPerspectiveAction&amp;name=uk.ac.diamond.scisoft.analysis.rcp.JythonPerspectiveLaunch" id="python" style-id="content-link">
-          		<text>Opens the Pydev environment for programmatically opening, editing, analysing, saving and displaying data files</text>
-       		</link>
        	</group>
     </extensionContent>
 </introContent>
