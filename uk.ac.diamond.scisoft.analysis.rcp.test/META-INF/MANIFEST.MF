@@ -11,7 +11,4 @@ Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)",
  uk.ac.diamond.scisoft.analysis,
  uk.ac.diamond.scisoft.analysis.plotserver
 Import-Package: org.apache.commons.lang.builder;version="2.5.0",
- org.dawb.common.ui.util,
- org.python.core,
- org.python.util,
- uk.ac.diamond.scisoft.python
+ org.dawb.common.ui.util
