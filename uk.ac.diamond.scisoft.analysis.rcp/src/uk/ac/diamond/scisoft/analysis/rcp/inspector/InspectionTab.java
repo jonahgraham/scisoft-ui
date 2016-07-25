@@ -24,18 +24,20 @@ import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.dawnsci.plotting.jreality.impl.DataSet3DPlot2DMulti;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.Slice;
-import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
-import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
-import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.PositionIterator;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
+import org.eclipse.january.DatasetException;
+import org.eclipse.january.IMonitor;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.ILazyDataset;
+import org.eclipse.january.dataset.IntegerDataset;
+import org.eclipse.january.dataset.PositionIterator;
+import org.eclipse.january.dataset.Slice;
+import org.eclipse.january.metadata.IMetadata;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -92,8 +94,9 @@ interface InspectionTab {
 	 * Show slice of dataset using tab configuration
 	 * @param monitor
 	 * @param slices
+	 * @exception DatasetException
 	 */
-	public void pushToView(IMonitor monitor, List<SliceProperty> slices);
+	public void pushToView(IMonitor monitor, List<SliceProperty> slices) throws DatasetException;
 
 	/**
 	 * @return true if tab can plot constant in place of dataset
@@ -690,7 +693,7 @@ class PlotTab extends ATab {
 		}
 	}
 
-	protected List<Dataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, boolean[] average, int[] order) {
+	protected List<Dataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, boolean[] average, int[] order) throws DatasetException {
 		List<Dataset> slicedAxes = new ArrayList<Dataset>();
 
 		boolean[] used = getUsedDims();
@@ -814,37 +817,40 @@ class PlotTab extends ATab {
 					}
 				}
 				
-				Dataset tmpSlice = DatasetUtils.convertToDataset(dataset.getSlice(tmpSlices));
-				Dataset errSlice = tmpSlice.getErrorBuffer(); // TODO remove when done internally
-				tmpSlice.setError(null);
-				if (meanAxis != -1) {
-					int[] tmpShape = tmpSlice.getShape();
-					tmpShape[meanAxis] = 1;
-					tmpSlice = tmpSlice.mean(meanAxis);
-					tmpSlice.setShape(tmpShape);
-					if (errSlice != null) {
-						int[] errShape = errSlice.getShape();
-						if (errShape[meanAxis] > 1) {
-							errShape[meanAxis] = 1;
-							Dataset n = errSlice.count(meanAxis);
-							errSlice = errSlice.mean(meanAxis);
-							errSlice.idivide(n);
-							errSlice.setShape(errShape);
+				try {
+					Dataset tmpSlice = DatasetUtils.convertToDataset(dataset.getSlice(tmpSlices));
+					Dataset errSlice = tmpSlice.getErrorBuffer(); // TODO remove when done internally
+					tmpSlice.setError(null);
+					if (meanAxis != -1) {
+						int[] tmpShape = tmpSlice.getShape();
+						tmpShape[meanAxis] = 1;
+						tmpSlice = tmpSlice.mean(meanAxis);
+						tmpSlice.setShape(tmpShape);
+						if (errSlice != null) {
+							int[] errShape = errSlice.getShape();
+							if (errShape[meanAxis] > 1) {
+								errShape[meanAxis] = 1;
+								Dataset n = errSlice.count(meanAxis);
+								errSlice = errSlice.mean(meanAxis);
+								errSlice.idivide(n);
+								errSlice.setShape(errShape);
+							}
 						}
 					}
-				}
-
-				if (averagedData != null)
-					averagedData.iadd(tmpSlice);
-				else
-					averagedData = tmpSlice;
-
-				if (errSlice != null) {
-					if (averagedError != null)
-						averagedError.iadd(errSlice);
+					if (averagedData != null)
+						averagedData.iadd(tmpSlice);
 					else
-						averagedError = errSlice;
+						averagedData = tmpSlice;
+
+					if (errSlice != null) {
+						if (averagedError != null)
+							averagedError.iadd(errSlice);
+						else
+							averagedError = errSlice;
+					}
+				} catch (DatasetException e) {
 				}
+
 				sliceIdx++;
 			}
 			if (averagedData == null)
@@ -944,7 +950,7 @@ class PlotTab extends ATab {
 	}
 
 	@Override
-	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
+	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) throws DatasetException {
 		if (dataset == null)
 			return;
 
@@ -1322,7 +1328,7 @@ class DataTab extends PlotTab {
 	}
 
 	@Override
-	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
+	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) throws DatasetException {
 		if (dataset == null)
 			return;
 
@@ -1614,7 +1620,7 @@ class ScatterTab extends PlotTab {
 	}
 
 	@Override
-	protected List<Dataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, boolean[] average, int[] order) {
+	protected List<Dataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, boolean[] average, int[] order) throws DatasetException {
 		if (daxes.size() != 1)
 			return super.sliceAxes(axes, slices, average, order);
 
@@ -1635,7 +1641,7 @@ class ScatterTab extends PlotTab {
 	}
 
 	@Override
-	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
+	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) throws DatasetException {
 		
 		if (dataset == null) return;
 
@@ -1669,7 +1675,7 @@ class ScatterTab extends PlotTab {
 				logger.error("Could not match axis to data for scatter plot");
 				return;
 			}
-			IDataset size = useData ? y : new IntegerDataset(x.getSize()).fill(POINTSIZE);
+			IDataset size = useData ? y : DatasetFactory.zeros(IntegerDataset.class, x.getSize()).fill(POINTSIZE);
 			try {
 				SDAPlotter.scatter2DPlot(PLOTNAME, x.flatten(), y, size);
 			} catch (Exception e) {
@@ -1683,7 +1689,7 @@ class ScatterTab extends PlotTab {
 				y = slicedAxes.get(1).flatten();
 				int length = Math.min(x.getSize(), y.getSize());
 				Slice slice = new Slice(length);
-				reorderedData = new IntegerDataset(length).fill(POINTSIZE);
+				reorderedData = DatasetFactory.zeros(IntegerDataset.class, length).fill(POINTSIZE);
 				try {
 					SDAPlotter.scatter2DPlot(PLOTNAME, x.getSlice(slice), y.getSlice(slice), reorderedData);
 				} catch (Exception e) {
@@ -1719,7 +1725,7 @@ class ScatterTab extends PlotTab {
 				int length = Math.min(x.getSize(), y.getSize());
 				length = Math.min(length, z.getSize());
 				Slice slice = new Slice(length);
-				reorderedData = new IntegerDataset(length).fill(POINTSIZE);
+				reorderedData = DatasetFactory.zeros(IntegerDataset.class, length).fill(POINTSIZE);
 				try {
 					SDAPlotter.scatter3DPlot(PLOTNAME, x.getSlice(slice), y.getSlice(slice), z.getSlice(slice), reorderedData);
 				} catch (Exception e) {

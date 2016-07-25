@@ -10,6 +10,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -30,27 +31,29 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.PlatformObject;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.IMetadataProvider;
-import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
-import org.eclipse.dawnsci.analysis.api.io.ILazyLoader;
-import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
-import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
-import org.eclipse.dawnsci.analysis.api.metadata.MetadataType;
-import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
-import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.AggregateDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
-import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
-import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.LazyDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Maths;
-import org.eclipse.dawnsci.analysis.dataset.impl.PositionIterator;
+import org.eclipse.january.DatasetException;
+import org.eclipse.january.IMonitor;
+import org.eclipse.january.MetadataException;
+import org.eclipse.january.dataset.AggregateDataset;
+import org.eclipse.january.dataset.DTypeUtils;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.ILazyDataset;
+import org.eclipse.january.dataset.IMetadataProvider;
+import org.eclipse.january.dataset.IndexIterator;
+import org.eclipse.january.dataset.IntegerDataset;
+import org.eclipse.january.dataset.LazyDataset;
+import org.eclipse.january.dataset.Maths;
+import org.eclipse.january.dataset.PositionIterator;
+import org.eclipse.january.dataset.ShapeUtils;
+import org.eclipse.january.dataset.SliceND;
+import org.eclipse.january.io.ILazyLoader;
+import org.eclipse.january.metadata.IMetadata;
+import org.eclipse.january.metadata.MetadataType;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
@@ -529,19 +532,19 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 
 		@Override
-		public IMetadata getMetadata() throws Exception {
+		public IMetadata getMetadata() throws MetadataException {
 			return metadata;
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public <T extends MetadataType> List<T> getMetadata(Class<T> clazz) throws Exception {
+		public <T extends MetadataType> List<T> getMetadata(Class<T> clazz) throws MetadataException {
 			if (IMetadata.class.isAssignableFrom(clazz)) {
 				List<T> result = new ArrayList<T>();
 				result.add((T) getMetadata());
 				return result;
 			}
-			throw new UnsupportedOperationException("getMetadata(clazz) does not currently support anything other than IMetadata");
+			throw new MetadataException("getMetadata(clazz) does not currently support anything other than IMetadata");
 			// If it should only support this, simply return null here, otherwise implement the method fully
 		}
 		
@@ -1186,7 +1189,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			for (int k = fileList.size() - 1; k >= 0 && j > 0; k--) {
 				SelectedFile f = fileList.get(k);
 				if (f.doUse() && f.hasData() && f.hasMetadataValue()) {
-					boolean ok = AbstractDataset.areShapesCompatible(s, shapes[j], axis);
+					boolean ok = ShapeUtils.areShapesCompatible(s, shapes[j], axis);
 					f.setDataOK(ok);
 					if (!ok) {
 						dataList.remove(j);
@@ -1629,7 +1632,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 
 		public void setIndex(int index) {
-			i = new IntegerDataset(new int[] {index}, null);
+			i = DatasetFactory.createFromObject(IntegerDataset.class, new int[] {index}, null);
 			i.setName(CompareFilesEditor.INDEX);
 		}
 
@@ -1912,7 +1915,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			
 			@SuppressWarnings("unchecked")
 			@Override
-			public Dataset getDataset(IMonitor mon, SliceND slice) throws ScanFileHolderException {
+			public Dataset getDataset(IMonitor mon, SliceND slice) throws IOException {
 				
 				SymbolTable evalSymbolTable = eval.getSymbolTable();
 				HashMap<String, IDataset> dataSlices = new HashMap<String, IDataset>();
@@ -1921,7 +1924,12 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				while (itr.hasNext()) {
 					String varName = itr.next();
 					ILazyDataset lzd = varMapping.get(varName);	// TODO: This only works for SelectedFile objects
-					IDataset lzdSlice = lzd.getSlice(slice); 
+					IDataset lzdSlice;
+					try {
+						lzdSlice = lzd.getSlice(slice);
+					} catch (DatasetException e) {
+						throw new IOException(e);
+					} 
 					dataSlices.put(varName, lzdSlice);
 					// All datasets and slices should have the same shape
 					if (sliceShape == null) {
@@ -1974,22 +1982,27 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 					@Override
 					public Dataset getDataset(IMonitor mon, SliceND slice)
-							throws ScanFileHolderException {
+							throws IOException {
 						Dataset accDataset = null;
 						for (int idx = 0; idx < dataList.size(); idx++) {
-							Dataset tmpData = DatasetUtils.convertToDataset(dataList.get(idx).getSlice(slice));
+							Dataset tmpData;
+							try {
+								tmpData = DatasetUtils.convertToDataset(dataList.get(idx).getSlice(slice));
+							} catch (DatasetException e) {
+								throw new IOException(e);
+							}
 							if (accDataset == null) {
 								switch (mathOp) {
 								case ADD:
 								case AVR:
-									accDataset = DatasetFactory.zeros(tmpData.getShape(), tmpData.getDtype());
+									accDataset = DatasetFactory.zeros(tmpData.getShape(), tmpData.getDType());
 									break;
 								case MUL:
-									accDataset = DatasetFactory.ones(tmpData.getShape(), tmpData.getDtype());
+									accDataset = DatasetFactory.ones(tmpData.getShape(), tmpData.getDType());
 									break;
 								case MAX:
 								case MIN:
-									accDataset = DatasetFactory.zeros(tmpData.getShape(), tmpData.getDtype());
+									accDataset = DatasetFactory.zeros(tmpData.getShape(), tmpData.getDType());
 									IndexIterator iter = accDataset.getIterator();
 									tmpData.fillDataset(accDataset, iter);
 									break;
@@ -2025,7 +2038,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					}
 				};
 				List<ILazyDataset> res = new ArrayList<ILazyDataset>();
-				res.add(new LazyDataset(varMap.getName(), AbstractDataset.getDType(refData), refData
+				res.add(new LazyDataset(varMap.getName(), DTypeUtils.getDType(refData), refData
 						.getShape(), processingLoader));
 				return res;
 			}
@@ -2088,7 +2101,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					if (tmpShape == null) {
 						tmpShape = sf.getDataset().get(0).getShape();	// All datasets should be the same shape 
 					} else {
-						if (!AbstractDataset.areShapesCompatible(tmpShape, sf.getDataset().get(0).getShape(), -1)) {
+						if (!ShapeUtils.areShapesCompatible(tmpShape, sf.getDataset().get(0).getShape(), -1)) {
 							return null;
 						}
 					}

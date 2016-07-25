@@ -21,15 +21,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
-import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
-import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.LazyDataset;
+import org.eclipse.january.IMonitor;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.ILazyDataset;
+import org.eclipse.january.dataset.LazyDataset;
+import org.eclipse.january.metadata.IMetadata;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -158,7 +158,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 				if (index == 2)
 					return dataset.max().toString();
 				if (index == 3) {
-					String[] parts = dataset.elementClass().toString().split("\\.");
+					String[] parts = dataset.getElementClass().toString().split("\\.");
 					return parts[parts.length - 1];
 				}
 			}
@@ -278,7 +278,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 	}
 
 	private void addPlaceholderFolderStack() {
-		DoubleDataset dataset = new DoubleDataset(1);
+		DoubleDataset dataset = DatasetFactory.zeros(DoubleDataset.class, 1);
 		dataset.setName(FOLDER_STACK);
 		data.addDataset(dataset.getName(), dataset);
 	}
@@ -303,7 +303,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		if (imageFilenames.size() > 1) {
  		    Collections.sort(imageFilenames, new SortNatural<String>(true));
 			ImageStackLoader loader = new ImageStackLoader(imageFilenames , mon);
-			LazyDataset lazyDataset = new LazyDataset(FOLDER_STACK, loader.getDtype(), loader.getShape(), loader);
+			LazyDataset lazyDataset = new LazyDataset(FOLDER_STACK, loader.getDType(), loader.getShape(), loader);
 			data.addDataset(lazyDataset.getName(), lazyDataset);
 		}
 		

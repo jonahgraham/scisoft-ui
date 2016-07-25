@@ -25,16 +25,17 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.Slice;
-import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
-import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.january.DatasetException;
+import org.eclipse.january.IMonitor;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.ILazyDataset;
+import org.eclipse.january.dataset.Slice;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
@@ -352,12 +353,17 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 				throw new IllegalArgumentException("Mapping View Data not available");
 			}
 
-			final ILazyDataset dataset = mappingViewData.getDataSet();
+			ILazyDataset dataset;
+			try {
+				dataset = mappingViewData.getDataSet();
+			} catch (DatasetException e1) {
+				return new Status(IStatus.ERROR, "uk.ac.diamond.scisoft.mappingexplorer", 0, "Could not get dataset", e1);
+			}
 			final int[] shape = dataset.getShape();
 			IDataset slice = null;
 			int[] finalShape = null;
 			String xAxislabel = null;
-			DoubleDataset axisValues = null;
+			Dataset axisValues = null;
 			try {
 				if (dim1Selection) {
 					slice = dataset.getSlice((IMonitor) null, new Slice(null), new Slice(stepper1Val,
@@ -366,8 +372,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 
 					xAxislabel = mappingViewData.getDimension1Label();
 					if (mappingViewData.getDimension1Values() != null) {
-						axisValues = new DoubleDataset(mappingViewData.getDimension1Values(),
-								new int[]{mappingViewData.getDimension1Values().length});
+						axisValues = DatasetFactory.createFromObject(mappingViewData.getDimension1Values());
 					}
 				} else if (dim2Selection) {
 					slice = dataset.getSlice((IMonitor) null,
@@ -376,8 +381,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 					finalShape = new int[] { shape[1] };
 					xAxislabel = mappingViewData.getDimension2Label();
 					if (mappingViewData.getDimension2Values() != null) {
-						axisValues = new DoubleDataset(mappingViewData.getDimension2Values(),
-								new int[]{mappingViewData.getDimension2Values().length});
+						axisValues = DatasetFactory.createFromObject(mappingViewData.getDimension2Values());
 					}
 				} else if (dim3Selection) {
 					slice = dataset.getSlice((IMonitor) null,
@@ -387,8 +391,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 					finalShape = new int[] { shape[2] };
 					xAxislabel = mappingViewData.getDimension3Label();
 					if (mappingViewData.getDimension3Values() != null) {
-						axisValues = new DoubleDataset(mappingViewData.getDimension3Values(),
-								new int[]{mappingViewData.getDimension3Values().length});
+						axisValues = DatasetFactory.createFromObject(mappingViewData.getDimension3Values());
 					}
 				}
 				final int[] shapeToplot = finalShape;
@@ -414,7 +417,7 @@ public class OneD3DViewPageComposite extends BaseViewPageComposite {
 						}
 					});
 				}
-			} catch (ScanFileHolderException ex) {
+			} catch (DatasetException ex) {
 				logger.error("Error loading data from file during update", ex);
 			} catch (Exception e) {
 				logger.error("Error getting slice of data", e);

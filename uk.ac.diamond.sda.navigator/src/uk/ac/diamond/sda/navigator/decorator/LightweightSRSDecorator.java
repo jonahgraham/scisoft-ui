@@ -13,10 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -55,7 +56,7 @@ public class LightweightSRSDecorator extends LabelProvider implements ILightweig
 				if (lazyData instanceof Dataset)
 					properties.add(new SRSTreeData(names[i], data.getDataset(i).min().toString(), 
 							data.getDataset(i).max().toString(),
-							data.getDataset(i).elementClass().toString(), ifile));
+							data.getDataset(i).getElementClass().toString(), ifile));
 				else {
 					properties.add(new SRSTreeData(names[i], "Not available", "Not available", "Not available", ifile));
 				}
@@ -78,7 +79,7 @@ public class LightweightSRSDecorator extends LabelProvider implements ILightweig
 			data = dataLoader.loadFile();
 		} catch (ScanFileHolderException e) {
 			data = new DataHolder();
-			data.addDataset("Failed to load File", new DoubleDataset(1));
+			data.addDataset("Failed to load File", DatasetFactory.zeros(DoubleDataset.class, 1));
 			logger.warn("Failed to load srs file");
 		}
 	}

@@ -19,10 +19,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
@@ -65,7 +66,7 @@ public class PlotUtils {
 		if (yDataSets==null) {
 			ys = new ArrayList<Dataset>(1);
 			ys.add(xDataSet);
-			x = DoubleDataset.createRange(ys.get(0).getSize());
+			x = DatasetFactory.createRange(DoubleDataset.class, ys.get(0).getSize());
 		} else {
 			x  = xDataSet;
 			ys = yDataSets;
@@ -94,7 +95,7 @@ public class PlotUtils {
 					
 					// TODO use PM3D for z, currently hard codes something, in process of fixing.
 					if (PlotMode.PM3D==plotMode) {
-						final Dataset z = new DoubleDataset(new double[]{-15,1,200});
+						final Dataset z = DatasetFactory.createFromObject(new double[]{-15,1,200});
 						dataBean.addAxis(AxisMapBean.ZAXIS, z);
 					}
 

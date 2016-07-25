@@ -10,7 +10,7 @@
 package uk.ac.diamond.sda.meta.discriminator;
 
 import org.eclipse.dawnsci.analysis.api.metadata.IDiffractionMetadata;
-import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
+import org.eclipse.january.metadata.IMetadata;
 
 public class DiffractionMetadataDiscriminator implements IMetadataDiscriminator {
 

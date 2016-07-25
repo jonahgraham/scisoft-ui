@@ -27,11 +27,7 @@ import java.util.List;
 
 import org.dawnsci.plotting.jreality.overlay.Overlay1DConsumer;
 import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.fitting.functions.IPeak;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DAppearance;
@@ -43,6 +39,10 @@ import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayProvider;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayType;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.primitives.PrimitiveType;
 import org.eclipse.dawnsci.plotting.api.jreality.util.PlotColorUtility;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
@@ -299,7 +299,7 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 	}
 
 	private void plotDataSets(IDataset[] dataSets) {
-		DoubleDataset axis = DoubleDataset.createRange(dataSets[0].getSize());
+		DoubleDataset axis = DatasetFactory.createRange(DoubleDataset.class, dataSets[0].getSize());
 		axis.imultiply(DiffractionViewer.lineStep);
 		this.axis.setValues(axis);
 
@@ -356,7 +356,7 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 				compFunc.addFunction(fp);
 			}
 			plottingData.add(dataSets);
-			plottingData.add(compFunc.calculateValues(DoubleDataset.createRange(dataSets.getSize())));
+			plottingData.add(compFunc.calculateValues(DatasetFactory.createRange(DoubleDataset.class, dataSets.getSize())));
 
 			try {
 				lpPlotter.replaceAllPlots(plottingData);

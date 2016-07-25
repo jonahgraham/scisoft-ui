@@ -34,16 +34,16 @@ import org.dawnsci.plotting.jreality.tick.TickFormatting;
 import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
 import org.eclipse.dawnsci.analysis.api.downsample.DownsampleMode;
 import org.eclipse.dawnsci.analysis.dataset.function.Downsample;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Stats;
 import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
 import org.eclipse.dawnsci.plotting.api.jreality.core.ScaleType;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DAppearance;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DGraphTable;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DStyles;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.PlotException;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.Stats;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -611,10 +611,10 @@ public class HistogramView extends ViewPart implements SelectionListener,
 		
 		double maxValue = histograms.get(0).max().doubleValue();
 		int currentSize = histograms.get(0).getSize();
-		DoubleDataset redChannel = new DoubleDataset(currentSize);
-		DoubleDataset greenChannel = new DoubleDataset(currentSize);
-		DoubleDataset blueChannel = new DoubleDataset(currentSize);
-		DoubleDataset alphaChannel = new DoubleDataset(currentSize);
+		DoubleDataset redChannel = DatasetFactory.zeros(DoubleDataset.class, currentSize);
+		DoubleDataset greenChannel = DatasetFactory.zeros(DoubleDataset.class, currentSize);
+		DoubleDataset blueChannel = DatasetFactory.zeros(DoubleDataset.class, currentSize);
+		DoubleDataset alphaChannel = DatasetFactory.zeros(DoubleDataset.class, currentSize);
 		for (int i = 0; i < currentSize; i++) {
 			double value = i / (double) currentSize;
 			double redvalue = redFunc.getPoint(value);

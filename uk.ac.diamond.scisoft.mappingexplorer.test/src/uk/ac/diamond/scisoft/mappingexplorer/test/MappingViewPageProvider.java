@@ -20,10 +20,12 @@ package uk.ac.diamond.scisoft.mappingexplorer.test;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.Slice;
-import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
+import org.eclipse.january.DatasetException;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.ILazyDataset;
+import org.eclipse.january.dataset.Slice;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -145,7 +147,7 @@ public class MappingViewPageProvider extends EditorPart {
 						for (long dim : readDataSet.dims) {
 							dims[count++] = (int) dim;
 						}
-						IntegerDataset integerDataset = new IntegerDataset(ds, dims);
+						Dataset integerDataset = DatasetFactory.createFromObject(ds, dims);
 
 
 						String dim0 = null;
@@ -217,7 +219,7 @@ public class MappingViewPageProvider extends EditorPart {
 		}
 
 		@Override
-		public ILazyDataset getDataSet() {
+		public ILazyDataset getDataSet() throws DatasetException {
 			if (ds.getShape().length > 2) {
 				int[] shape = ds.getShape();
 				IDataset slice = ds.getSlice(new Slice(null), new Slice(null), new Slice(0, 1));

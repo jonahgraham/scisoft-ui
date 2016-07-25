@@ -19,10 +19,6 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 import java.util.Arrays;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.dawnsci.analysis.dataset.impl.BooleanDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
-import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
 import org.eclipse.dawnsci.analysis.dataset.roi.MaskingBean;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay2DConsumer;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay2DProvider2;
@@ -30,6 +26,11 @@ import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayImage;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayProvider;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayType;
 import org.eclipse.dawnsci.plotting.api.jreality.tool.IImagePositionEvent;
+import org.eclipse.january.dataset.BooleanDataset;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.IndexIterator;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -259,7 +260,7 @@ public class MaskCreator extends SidePlot implements Overlay2DConsumer {
 	public void imageStart(IImagePositionEvent event) {
 		save();
 		if (maskDataSet == null || !maskDataSet.isCompatibleWith(mainDataSet)) {
-			maskDataSet = new BooleanDataset(mainDataSet.getShape());
+			maskDataSet = DatasetFactory.zeros(BooleanDataset.class, mainDataSet.getShape());
 			maskDataSet.setName("mask");
 			maskDataSet.fill(true);
 		}
@@ -443,7 +444,7 @@ public class MaskCreator extends SidePlot implements Overlay2DConsumer {
 		final int[] pos = bogusIterator.getPos();
 		
 		if (maskDataSet == null || !maskDataSet.isCompatibleWith(mainDataSet)) {
-			maskDataSet = new BooleanDataset(mainDataSet.getShape());
+			maskDataSet = DatasetFactory.zeros(BooleanDataset.class, mainDataSet.getShape());
 			maskDataSet.setName("mask");
 			maskDataSet.fill(true);
 		}

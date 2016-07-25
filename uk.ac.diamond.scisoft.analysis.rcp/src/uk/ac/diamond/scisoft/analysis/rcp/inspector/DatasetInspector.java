@@ -21,10 +21,11 @@ import java.util.Map.Entry;
 
 import org.dawb.common.ui.monitor.ProgressMonitorWrapper;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.Slice;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.january.DatasetException;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.ILazyDataset;
+import org.eclipse.january.dataset.Slice;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -298,7 +299,11 @@ public class DatasetInspector extends Composite {
 		public void run(IProgressMonitor monitor) {
 			if (!isNull()) {
 				tab.stopInspection();
-				tab.pushToView(new ProgressMonitorWrapper(monitor), slices);
+				try {
+					tab.pushToView(new ProgressMonitorWrapper(monitor), slices);
+				} catch (DatasetException e) {
+					logger.error("Problem slicing a lazy dataset", e);
+				}
 			}
 		}
 

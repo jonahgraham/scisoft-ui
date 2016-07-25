@@ -10,7 +10,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.monitor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
+import org.eclipse.january.IMonitor;
 
 
 /**

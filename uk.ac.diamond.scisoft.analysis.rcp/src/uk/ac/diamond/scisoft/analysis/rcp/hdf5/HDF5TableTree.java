@@ -15,14 +15,15 @@ import java.util.Iterator;
 
 import org.dawb.common.ui.selection.SelectedTreeItemInfo;
 import org.dawb.common.ui.selection.SelectionUtils;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.SymbolicNode;
+import org.eclipse.january.DatasetException;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILazyTreeContentProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -531,7 +532,11 @@ class HDF5LabelProvider implements ITableLabelProvider {
 				} else if (data == null || data.getSize() == 0) {
 					msg = "none available as dataset is zero-sized";
 				} else if (data.getSize() == 1) {
-					msg = data.getSlice().getString(0);
+					try {
+						msg = data.getSlice().getString(0);
+					} catch (DatasetException e) {
+						msg = "Could not read single-item dataset";
+					}
 					Attribute units = dataset.getAttribute("units");
 					if (units != null && units.isString()) {
 						msg += " " + units.getFirstElement();

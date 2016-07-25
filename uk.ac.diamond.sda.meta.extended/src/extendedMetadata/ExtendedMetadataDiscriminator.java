@@ -9,8 +9,8 @@
 
 package extendedMetadata;
 
-import org.eclipse.dawnsci.analysis.api.metadata.IExtendedMetadata;
-import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
+import org.eclipse.january.metadata.IExtendedMetadata;
+import org.eclipse.january.metadata.IMetadata;
 
 import uk.ac.diamond.sda.meta.discriminator.IMetadataDiscriminator;
 

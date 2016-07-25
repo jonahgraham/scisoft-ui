@@ -17,7 +17,8 @@
  */
 package uk.ac.diamond.scisoft.mappingexplorer.views;
 
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
+import org.eclipse.january.DatasetException;
+import org.eclipse.january.dataset.ILazyDataset;
 
 /**
  * @author rsr31645
@@ -26,7 +27,7 @@ public interface IMappingViewData {
 	/**
 	 * @return {@link ILazyDataset} - should essentially be a 2D or 3D dataset
 	 */
-	ILazyDataset getDataSet();
+	ILazyDataset getDataSet() throws DatasetException;
 
 	/**
 	 * @return the label to be attached to the first dimension

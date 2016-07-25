@@ -30,8 +30,8 @@ import org.dawb.common.util.list.SortNatural;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
-import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
-import org.eclipse.dawnsci.analysis.api.metadata.Metadata;
+import org.eclipse.january.metadata.IMetadata;
+import org.eclipse.january.metadata.Metadata;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -111,7 +111,9 @@ public class DataSetComparisionDialog extends Dialog {
 			label.setLayoutData(gridData);
 		}
 		
-		dataSetPlotView.setMetaData(new Metadata(getNames()));
+		IMetadata md = new Metadata();
+		md.addNames(getNames());
+		dataSetPlotView.setMetaData(md);
 		dataSetPlotView.createPartControl(container);
 
 		if (isAllDataSets) {
@@ -127,7 +129,9 @@ public class DataSetComparisionDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				isAllDataSets = btnShowAllData.getSelection();
-				dataSetPlotView.setMetaData(new Metadata(getNames()));
+				IMetadata md = new Metadata();
+				md.addNames(getNames());
+				dataSetPlotView.setMetaData(md);
 				dataSetPlotView.refresh();
 			}
 		});

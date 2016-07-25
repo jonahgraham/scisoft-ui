@@ -18,12 +18,12 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;
@@ -580,8 +580,7 @@ public class QStatMonitorView extends ViewPart {
 		 */
 		private void plotResults() {
 			if (!timeList.isEmpty()) {
-				DoubleDataset timeDataset = (DoubleDataset) DoubleDataset
-						.createFromList(timeList);
+				DoubleDataset timeDataset = DatasetFactory.createFromList(DoubleDataset.class, timeList);
 				timeDataset.setName("Time (mins)");
 
 				Dataset[] datasetArr = getDataToPlot();
@@ -591,7 +590,7 @@ public class QStatMonitorView extends ViewPart {
 		}
 
 		private Dataset getIntegerDataset(ArrayList<Integer> list, String name) {
-			Dataset dataset = IntegerDataset.createFromList(list);
+			Dataset dataset = DatasetFactory.createFromList(list);
 			dataset.setName(name);
 			return dataset;
 		}

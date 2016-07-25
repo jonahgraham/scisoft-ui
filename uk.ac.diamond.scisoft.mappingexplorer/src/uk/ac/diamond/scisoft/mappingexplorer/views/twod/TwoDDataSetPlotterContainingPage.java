@@ -25,12 +25,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.Slice;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
@@ -53,6 +48,11 @@ import org.eclipse.dawnsci.plotting.api.trace.ITraceListener;
 import org.eclipse.dawnsci.plotting.api.trace.TraceEvent;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.january.DatasetException;
+import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.ILazyDataset;
+import org.eclipse.january.dataset.Slice;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
@@ -725,102 +725,105 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 			String xAxisLabel = null;
 			String yAxisLabel = null;
 
-			if (mapping3DData != null) {
-				ILazyDataset dataset = mapping3DData.getDataSet();
-				int[] shape = dataset.getShape();
-
-				if (radio1) {
-					currentSlice = dataset.getSlice(new Slice(scalerValue, scalerValue + 1),
-							new Slice(null), new Slice(null));
-					currentSlice.setShape(shape[1], shape[2]);
-
-					xAxisLabel = mapping3DData.getDimension3Label();
-					yAxisLabel = mapping3DData.getDimension2Label();
-
-					if (mapping3DData.getDimension3Values() != null) {
-						xAxisValues = new AxisValues(mapping3DData.getDimension3Values());
-					}
-					if (mapping3DData.getDimension2Values() != null) {
-						yAxisValues = new AxisValues(mapping3DData.getDimension2Values());
-					}
-				}
-				if (radio2) {
-					currentSlice = dataset.getSlice(new Slice(null), new Slice(scalerValue,
-							scalerValue + 1), new Slice(null));
-					currentSlice.setShape(shape[0], shape[2]);
-
-					xAxisLabel = mapping3DData.getDimension3Label();
-					yAxisLabel = mapping3DData.getDimension1Label();
-
-					if (mapping3DData.getDimension3Values() != null) {
-						xAxisValues = new AxisValues(mapping3DData.getDimension3Values());
-					}
-					if (mapping3DData.getDimension1Values() != null) {
-						yAxisValues = new AxisValues(mapping3DData.getDimension1Values());
-					}
-				}
-				if (radio3) {
-					currentSlice = dataset.getSlice(new Slice(null), new Slice(null), new Slice(
-							scalerValue, scalerValue + 1));
-					currentSlice.setShape(shape[0], shape[1]);
-
-					xAxisLabel = mapping3DData.getDimension2Label();
-					yAxisLabel = mapping3DData.getDimension1Label();
-
-					if (mapping3DData.getDimension2Values() != null) {
-						xAxisValues = new AxisValues(mapping3DData.getDimension2Values());
-					}
-					if (mapping3DData.getDimension1Values() != null) {
-						yAxisValues = new AxisValues(mapping3DData.getDimension1Values());
-					}
-				}
-				if (isFlip) {
-					String tmp = yAxisLabel;
-					yAxisLabel = xAxisLabel;
-					xAxisLabel = tmp;
-
-					AxisValues tmpA = yAxisValues;
-					yAxisValues = xAxisValues;
-					xAxisValues = tmpA;
-
-					if (currentSlice != null) {
-						currentSlice = DatasetUtils.convertToDataset(currentSlice).transpose();
-					}
-				}
-			} else if (mapping2DData != null) {
-				ILazyDataset dataset = mapping2DData.getDataSet();
-
-				xAxisLabel = mapping2DData.getDimension2Label();
-				yAxisLabel = mapping2DData.getDimension1Label();
-
-				if (mapping2DData.getDimension2Values() != null) {
-					xAxisValues = new AxisValues(mapping2DData.getDimension2Values());
-				}
-
-				if (mapping2DData.getDimension1Values() != null) {
-					yAxisValues = new AxisValues(mapping2DData.getDimension1Values());
-				}
-
-				currentSlice = dataset.getSlice(new Slice(null), new Slice(null));
-			}
-
-			final String xLabel = xAxisLabel;
-			final String yLabel = yAxisLabel;
-			if (!jobDisplay.isDisposed()) {
-				jobDisplay.asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						if (currentSlice != null) {
-							plottingSystem.updatePlot2D(currentSlice, null, new NullProgressMonitor());
+			try {
+				if (mapping3DData != null) {
+					ILazyDataset dataset = mapping3DData.getDataSet();
+					int[] shape = dataset.getShape();
+	
+					if (radio1) {
+						currentSlice = dataset.getSlice(new Slice(scalerValue, scalerValue + 1),
+								new Slice(null), new Slice(null));
+						currentSlice.setShape(shape[1], shape[2]);
+	
+						xAxisLabel = mapping3DData.getDimension3Label();
+						yAxisLabel = mapping3DData.getDimension2Label();
+	
+						if (mapping3DData.getDimension3Values() != null) {
+							xAxisValues = new AxisValues(mapping3DData.getDimension3Values());
 						}
-						plottingSystem.getSelectedXAxis().setTitle(xLabel);
-						plottingSystem.getSelectedYAxis().setTitle(yLabel);
+						if (mapping3DData.getDimension2Values() != null) {
+							yAxisValues = new AxisValues(mapping3DData.getDimension2Values());
+						}
 					}
-				});
+					if (radio2) {
+						currentSlice = dataset.getSlice(new Slice(null), new Slice(scalerValue,
+								scalerValue + 1), new Slice(null));
+						currentSlice.setShape(shape[0], shape[2]);
+	
+						xAxisLabel = mapping3DData.getDimension3Label();
+						yAxisLabel = mapping3DData.getDimension1Label();
+	
+						if (mapping3DData.getDimension3Values() != null) {
+							xAxisValues = new AxisValues(mapping3DData.getDimension3Values());
+						}
+						if (mapping3DData.getDimension1Values() != null) {
+							yAxisValues = new AxisValues(mapping3DData.getDimension1Values());
+						}
+					}
+					if (radio3) {
+						currentSlice = dataset.getSlice(new Slice(null), new Slice(null), new Slice(
+								scalerValue, scalerValue + 1));
+						currentSlice.setShape(shape[0], shape[1]);
+	
+						xAxisLabel = mapping3DData.getDimension2Label();
+						yAxisLabel = mapping3DData.getDimension1Label();
+	
+						if (mapping3DData.getDimension2Values() != null) {
+							xAxisValues = new AxisValues(mapping3DData.getDimension2Values());
+						}
+						if (mapping3DData.getDimension1Values() != null) {
+							yAxisValues = new AxisValues(mapping3DData.getDimension1Values());
+						}
+					}
+					if (isFlip) {
+						String tmp = yAxisLabel;
+						yAxisLabel = xAxisLabel;
+						xAxisLabel = tmp;
+	
+						AxisValues tmpA = yAxisValues;
+						yAxisValues = xAxisValues;
+						xAxisValues = tmpA;
+	
+						if (currentSlice != null) {
+							currentSlice = DatasetUtils.convertToDataset(currentSlice).transpose();
+						}
+					}
+				} else if (mapping2DData != null) {
+					ILazyDataset dataset = mapping2DData.getDataSet();
+	
+					xAxisLabel = mapping2DData.getDimension2Label();
+					yAxisLabel = mapping2DData.getDimension1Label();
+	
+					if (mapping2DData.getDimension2Values() != null) {
+						xAxisValues = new AxisValues(mapping2DData.getDimension2Values());
+					}
+	
+					if (mapping2DData.getDimension1Values() != null) {
+						yAxisValues = new AxisValues(mapping2DData.getDimension1Values());
+					}
+	
+					currentSlice = dataset.getSlice(new Slice(null), new Slice(null));
+				}
+	
+				final String xLabel = xAxisLabel;
+				final String yLabel = yAxisLabel;
+				if (!jobDisplay.isDisposed()) {
+					jobDisplay.asyncExec(new Runnable() {
+	
+						@Override
+						public void run() {
+							if (currentSlice != null) {
+								plottingSystem.updatePlot2D(currentSlice, null, new NullProgressMonitor());
+							}
+							plottingSystem.getSelectedXAxis().setTitle(xLabel);
+							plottingSystem.getSelectedYAxis().setTitle(yLabel);
+						}
+					});
+				}
+				notifyAreaSelectedChanged();
+			} catch (DatasetException e) {
+				return new Status(IStatus.ERROR, "uk.ac.diamond.scisoft.mappingexplorer", 0, "Could not get data from lazy dataset", e);
 			}
-			notifyAreaSelectedChanged();
-
 			return Status.OK_STATUS;
 		}
 	}
@@ -1014,14 +1017,21 @@ public class TwoDDataSetPlotterContainingPage extends BaseViewPageComposite {
 
 	@Override
 	public HistogramDataUpdate getHistogramDataUpdate() {
-		IDataset slice = getEntireDataSlice();
+		IDataset slice;
+		try {
+			slice = getEntireDataSlice();
+		} catch (DatasetException e) {
+			logger.error("Could not get data from lazy dataset", e);
+			return null;
+		}
 		return new HistogramDataUpdate(slice);
 	}
 
 	/**
 	 * @return slice of the entire dataset
+	 * @throws DatasetException 
 	 */
-	protected IDataset getEntireDataSlice() {
+	protected IDataset getEntireDataSlice() throws DatasetException {
 		IDataset slice = null;
 		if (mapping3DData != null) {
 			int[] shape = mapping3DData.getDataSet().getShape();
