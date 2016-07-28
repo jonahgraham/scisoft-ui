@@ -490,5 +490,26 @@ public class FeedbackView extends ViewPart implements IPartListener {
 			tableViewer.refresh();
 		}
 	}
+	
+	/**
+	 * Allow other views to programmatically set the contents of the email field
+	 */
+	public void setEmail(String text){
+		emailAddress.setText(text);
+	}
+	
+	/**
+	 * Allow other views to programmatically set the contents of the subject field
+	 */
+	public void setSubject(String text){
+		subjectText.setText(text);
+	}
+	
+	/**
+	 * Allow other views to programmatically set the contents of the message field
+	 */
+	public void setMessage(String text){
+		messageText.setText(text);
+	}
 
 }
