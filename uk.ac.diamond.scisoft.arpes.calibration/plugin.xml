@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="uk.ac.diamond.scisoft.arpes.calibration.wizard"
+            name="Arpes">
+      </category>
+      <wizard
+            category="uk.ac.diamond.scisoft.arpes.calibration.wizard"
+            class="uk.ac.diamond.scisoft.arpes.calibration.wizards.GoldCalibrationWizard"
+            id="uk.ac.diamond.scisoft.arpes.calibration.GoldCalibrationWizard"
+            name="Gold Calibration Wizard">
+      </wizard>
+   </extension>
+   <!--
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            id="uk.ac.diamond.scisoft.arpes.calibration.calibrationContribution"
+            objectClass="org.eclipse.core.resources.IFile">
+         <action
+               class="uk.ac.diamond.scisoft.arpes.calibration.GoldCalibrationWizardHandler"
+               enablesFor="+"
+               icon="icons/ARPES_icon.png"
+               id="uk.ac.diamond.scisoft.arpes.calibration.calibrationWizardOpen"
+               label="Gold Calibration...">
+         </action>
+      </objectContribution>
+   </extension>
+-->
+</plugin>
