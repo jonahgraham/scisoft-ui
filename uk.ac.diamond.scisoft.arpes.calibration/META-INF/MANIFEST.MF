@@ -5,8 +5,7 @@ Bundle-SymbolicName: uk.ac.diamond.scisoft.arpes.calibration;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: uk.ac.diamond.scisoft.arpes.calibration.Activator
 Bundle-Vendor: Diamond Light Source
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.dawnsci.plotting.api,
  org.dawb.common.ui,
  org.eclipse.dawnsci.analysis.api,
