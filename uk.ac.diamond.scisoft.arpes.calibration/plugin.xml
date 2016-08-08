@@ -3,15 +3,11 @@
 <plugin>
    <extension
          point="org.eclipse.ui.newWizards">
-      <category
-            id="uk.ac.diamond.scisoft.arpes.calibration.wizard"
-            name="Arpes">
-      </category>
       <wizard
-            category="uk.ac.diamond.scisoft.arpes.calibration.wizard"
             class="uk.ac.diamond.scisoft.arpes.calibration.wizards.GoldCalibrationWizard"
+            icon="icons/ARPES_icon.png"
             id="uk.ac.diamond.scisoft.arpes.calibration.GoldCalibrationWizard"
-            name="Gold Calibration Wizard">
+            name="ARPES Gold Calibration Wizard">
       </wizard>
    </extension>
    <!--
