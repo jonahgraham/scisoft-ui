@@ -201,7 +201,7 @@ public class GoldCalibrationPageOne extends CalibrationWizardPage {
 	}
 
 	@Override
-	public boolean runProcess() {
+	public boolean runProcess() throws InterruptedException {
 		System.out.println("Page 1");
 		return true;
 	}

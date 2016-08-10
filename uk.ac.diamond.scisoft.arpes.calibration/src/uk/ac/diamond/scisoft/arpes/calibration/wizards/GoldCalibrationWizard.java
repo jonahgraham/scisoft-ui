@@ -10,6 +10,7 @@ import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.Slice;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.IPageChangingListener;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.dialogs.PageChangingEvent;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -45,14 +46,24 @@ public class GoldCalibrationWizard extends Wizard implements INewWizard {
 	public static final String FIT_PARAMETER = "fit_parameter_";
 	public static final String FUNCTION_NAME = "fermi";
 	public static final String FUNCTION_FITTEDMU = "Fitted Mu";
-	public static final String TEMPERATURE = "/entry1/sample/temperature";
+	public static final String TEMPERATURE_PATH = "/entry1/sample/temperature";
 	public static final String PREVIOUS_PAGE = "previous";
-	public static final String MU_DATA = "Mu";
 	public static final String SAVE_PATH = "File save path";
-	public static final String RESIDUALS_DATA = "residuals";
-	public static final String FWHM_DATA = "fwhm";
-	public static final String FITTED = "fitted";
-	public static final String FUNCTION_FITTEDMU_DATA = "fitted data";
+	public static final String OVERWRITE = "overwrite";
+
+	/**
+	 * saved data
+	 */
+	public static final String MU_DATA = "/entry/calibration/mu";
+	public static final String RESIDUALS_DATA = "/entry/calibration/residuals";
+	public static final String FWHM_DATA = "/entry/calibration/fwhm";
+	public static final String FITTED = "/entry/calibration/fitted";
+	public static final String FUNCTION_FITTEDMU_DATA = "/entry/calibration/fittedMu";
+	public static final String BACKGROUND = "/entry/calibration/background";
+	public static final String BACKGROUND_SLOPE = "/entry/calibration/backround_slope";
+	public static final String FERMI_EDGE_STEP_HEIGHT = "/entry/calibration/fermi_edge_step_height";
+	public static final String TEMPERATURE = "/entry/calibration/temperature";
+
 	protected GoldCalibrationPageOne one;
 	protected GoldCalibrationPageTwo two;
 	protected GoldCalibrationPageThree three;
@@ -80,8 +91,15 @@ public class GoldCalibrationWizard extends Wizard implements INewWizard {
 		CalibrationWizardPage page = (CalibrationWizardPage) getContainer().getCurrentPage();
 		// if last page
 		if (page.getPageNumber() == 5) {
-			if (page.runProcess())
-				return true;
+			try {
+				if (page.runProcess())
+					return true;
+			} catch (InterruptedException e) {
+				String errorMessage = e.getMessage();
+				MessageDialog dialog = new MessageDialog(getShell(), "Saving process interrupted", null, errorMessage,
+						MessageDialog.ERROR, new String[] { "OK" }, 0);
+				dialog.open();
+			}
 		}
 		return false;
 	}
@@ -117,8 +135,15 @@ public class GoldCalibrationWizard extends Wizard implements INewWizard {
 				if (event.getSelectedPage() instanceof CalibrationWizardPage) {
 					CalibrationWizardPage page = (CalibrationWizardPage) event.getSelectedPage();
 					// not the last page
-					if (isProcessOKToRun && page.getPageNumber() != 5)
-						page.runProcess();
+					if (isProcessOKToRun && page.getPageNumber() != 5) {
+						try {
+							page.runProcess();
+						} catch (InterruptedException e) {
+							MessageDialog dialog = new MessageDialog(getShell(), "Calibrating process interrupted", null,
+									e.getMessage(), MessageDialog.WARNING, new String[] { "OK" }, 0);
+							dialog.open();
+						}
+					}
 				}
 			}
 		};
@@ -133,17 +158,17 @@ public class GoldCalibrationWizard extends Wizard implements INewWizard {
 					isProcessOKToRun = true;
 			}
 		};
-		
+
 		addPage(one);
 		addPage(two);
 		addPage(three);
 		addPage(four);
 		addPage(five);
-		
+
 		Object selected = selection.getFirstElement();
 		String path = "";
 		if (selected instanceof IFile) {
-			IFile ifile = (IFile)selected;
+			IFile ifile = (IFile) selected;
 			path = ifile.getLocation().toOSString();
 		} else if (selected instanceof File) {
 			File file = (File) selected;
@@ -155,22 +180,25 @@ public class GoldCalibrationWizard extends Wizard implements INewWizard {
 	private void setData(String path) {
 		try {
 			IDataHolder holder = LoaderFactory.getData(path);
-//			String[] names = holder.getNames();
+			// String[] names = holder.getNames();
 			ILazyDataset data = holder.getLazyDataset(DATANAME);
 			IDataset slicedData = data.getSlice(new Slice(0, data.getShape()[0], data.getShape()[1])).squeeze();
 			ILazyDataset xaxis = holder.getLazyDataset(XAXIS_DATANAME);
-			IDataset slicedXaxis = xaxis.getSlice(new Slice(0, xaxis.getShape()[0], xaxis.getElementsPerItem())).squeeze();
+			IDataset slicedXaxis = xaxis.getSlice(new Slice(0, xaxis.getShape()[0], xaxis.getElementsPerItem()))
+					.squeeze();
 			ILazyDataset yaxis = holder.getLazyDataset(YAXIS_DATANAME);
-			IDataset slicedYaxis = yaxis.getSlice(new Slice(0, yaxis.getShape()[0], yaxis.getElementsPerItem())).squeeze();
+			IDataset slicedYaxis = yaxis.getSlice(new Slice(0, yaxis.getShape()[0], yaxis.getElementsPerItem()))
+					.squeeze();
 			slicedXaxis.setName("energy");
 			slicedYaxis.setName("angle");
-			ILazyDataset temp = holder.getLazyDataset(TEMPERATURE);
-			double temperature = temp.getSlice(new Slice(0, temp.getShape()[0], temp.getElementsPerItem())).getDouble(0);
+			ILazyDataset temp = holder.getLazyDataset(TEMPERATURE_PATH);
+			double temperature = temp.getSlice(new Slice(0, temp.getShape()[0], temp.getElementsPerItem()))
+					.getDouble(0);
 
 			calibrationData.addList(DATANAME, slicedData);
 			calibrationData.addList(XAXIS_DATANAME, slicedXaxis);
 			calibrationData.addList(YAXIS_DATANAME, slicedYaxis);
-			calibrationData.addUserObject(TEMPERATURE, temperature);
+			calibrationData.addUserObject(TEMPERATURE_PATH, temperature);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -179,7 +207,7 @@ public class GoldCalibrationWizard extends Wizard implements INewWizard {
 
 	@Override
 	public boolean canFinish() {
-		CalibrationWizardPage page = (CalibrationWizardPage)getContainer().getCurrentPage();
+		CalibrationWizardPage page = (CalibrationWizardPage) getContainer().getCurrentPage();
 		if (page.getPageNumber() == 5)
 			return true;
 		return false;

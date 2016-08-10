@@ -1,5 +1,6 @@
 package uk.ac.diamond.scisoft.arpes.calibration;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -10,12 +11,15 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.NexusTreeUtils;
 import uk.ac.diamond.scisoft.arpes.calibration.wizards.GoldCalibrationWizard;
 
 public class CalibrationSaver implements IRunnableWithProgress {
 
+	private static final Logger logger = LoggerFactory.getLogger(CalibrationSaver.class);
 	private DataMessageComponent calibrationData;
 	private NexusFile nexus;
 
@@ -25,9 +29,17 @@ public class CalibrationSaver implements IRunnableWithProgress {
 
 	@Override
 	public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-		monitor.beginTask("", 8);
+		monitor.beginTask("Saving calibration data...", 8);
 		try {
 			String filePath = (String) calibrationData.getUserObject(GoldCalibrationWizard.SAVE_PATH);
+			File file = new File(filePath);
+			// check if overwite flag is true
+			boolean isOverwrite = (boolean) calibrationData.getUserObject(GoldCalibrationWizard.OVERWRITE);
+			if (!isOverwrite && file.exists()) {
+				throw new InterruptedException("File already exist! please check the 'Overwrite' option.");
+			} else if (isOverwrite && file.exists()) {
+				file.delete();
+			}
 			nexus = ServiceHolder.getNexusFactory().newNexusFile(filePath);
 			nexus.openToWrite(true);
 			// save raw data
@@ -36,42 +48,48 @@ public class CalibrationSaver implements IRunnableWithProgress {
 			IDataset yaxis = (IDataset) calibrationData.getList(GoldCalibrationWizard.YAXIS_DATANAME);
 			saveData(data, xaxis, yaxis, "/entry/calibration/analyser");
 			monitor.worked(1);
-			// save background
 			
+			IDataset angleaxis = (IDataset) calibrationData.getList(GoldCalibrationWizard.ANGLE_AXIS);
+
+			// save background
+			IDataset backgroundData = (IDataset) calibrationData.getList(GoldCalibrationWizard.BACKGROUND);
+			saveData(backgroundData, angleaxis, null, GoldCalibrationWizard.BACKGROUND);
 			monitor.worked(1);
 			// save background slope
-			
+			IDataset backgroundSlopeData = (IDataset) calibrationData.getList(GoldCalibrationWizard.BACKGROUND_SLOPE);
+			saveData(backgroundSlopeData, angleaxis, null, GoldCalibrationWizard.BACKGROUND_SLOPE);
 			monitor.worked(1);
 			// save fermi_edge_step_height
-			
+			IDataset fermiEdgeStepHeightData = (IDataset) calibrationData.getList(GoldCalibrationWizard.FERMI_EDGE_STEP_HEIGHT);
+			saveData(fermiEdgeStepHeightData, angleaxis, null, GoldCalibrationWizard.FERMI_EDGE_STEP_HEIGHT);
 			monitor.worked(1);
 			// save fitted
 			IDataset fitteddata = (IDataset) calibrationData.getList(GoldCalibrationWizard.FITTED);
 			IDataset energaxis = (IDataset) calibrationData.getList(GoldCalibrationWizard.ENERGY_AXIS);
-			IDataset angleaxis = (IDataset) calibrationData.getList(GoldCalibrationWizard.ANGLE_AXIS);
-			saveData(fitteddata, energaxis, angleaxis, "/entry/calibration/fitted");
+			saveData(fitteddata, energaxis, angleaxis, GoldCalibrationWizard.FITTED);
 			monitor.worked(1);
 			// save fittedMu
 			IDataset fittedMu = (IDataset) calibrationData.getList(GoldCalibrationWizard.FUNCTION_FITTEDMU_DATA);
-			saveData(fittedMu, angleaxis, null, "/entry/calibration/fittedMu");
+			saveData(fittedMu, angleaxis, null, GoldCalibrationWizard.FUNCTION_FITTEDMU_DATA);
 			monitor.worked(1);
 			// save fwhm
-			
+			IDataset fwhmData = (IDataset) calibrationData.getList(GoldCalibrationWizard.FWHM_DATA);
+			saveData(fwhmData, angleaxis, null, GoldCalibrationWizard.FWHM_DATA);
 			monitor.worked(1);
 			// save mu
 			IDataset muData = (IDataset) calibrationData.getList(GoldCalibrationWizard.MU_DATA);
-			saveData(muData, angleaxis, null, "/entry/calibration/mu");
+			saveData(muData, angleaxis, null, GoldCalibrationWizard.MU_DATA);
 			monitor.worked(1);
 			// save residuals
 			IDataset residualsData = (IDataset) calibrationData.getList(GoldCalibrationWizard.RESIDUALS_DATA);
-			saveData(residualsData, angleaxis, null, "/entry/calibration/residuals");
+			saveData(residualsData, angleaxis, null, GoldCalibrationWizard.RESIDUALS_DATA);
 			monitor.worked(1);
 			// save temperature
 			IDataset temperatureData = (IDataset) calibrationData.getList(GoldCalibrationWizard.TEMPERATURE);
-			saveData(temperatureData, angleaxis, null, "/entry/calibration/temperature");
+			saveData(temperatureData, angleaxis, null, GoldCalibrationWizard.TEMPERATURE);
 			monitor.worked(1);
 		} catch (NexusException e) {
-			// TODO Auto-generated catch block
+			logger.error("Error writing to Nexus file:" + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			if (nexus != null)

@@ -40,7 +40,7 @@ public class GoldCalibrationPageFour extends FunctionFittingCalibrationWizardPag
 	}
 
 	@Override
-	public boolean runProcess() {
+	public boolean runProcess() throws InterruptedException {
 		System.out.println("Page 4");
 		return true;
 	}

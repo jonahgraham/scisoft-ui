@@ -56,7 +56,7 @@ public class GoldCalibrationPageTwo extends FunctionFittingCalibrationWizardPage
 	}
 
 	@Override
-	public boolean runProcess() {
+	public boolean runProcess() throws InterruptedException {
 		System.out.println("Page 2");
 		return true;
 	}

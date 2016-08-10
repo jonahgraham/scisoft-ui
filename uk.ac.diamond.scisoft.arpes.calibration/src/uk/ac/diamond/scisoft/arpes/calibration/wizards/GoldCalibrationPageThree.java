@@ -112,11 +112,11 @@ public class GoldCalibrationPageThree extends CalibrationWizardPage {
 	}
 
 	@Override
-	public boolean runProcess() {
+	public boolean runProcess() throws InterruptedException {
 		System.out.println("Page 3");
 		try {
 			getContainer().run(true, true, fitterWithProgress);
-		} catch (InvocationTargetException | InterruptedException e) {
+		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 			return false;
 		}

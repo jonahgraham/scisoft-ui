@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.dawnsci.analysis.api.message.DataMessageComponent;
 import org.eclipse.emf.common.ui.dialogs.WorkspaceResourceDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.fieldassist.ContentProposalAdapter;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.richbeans.widgets.content.FileContentProposalProvider;
@@ -28,19 +29,18 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.arpes.calibration.Activator;
 import uk.ac.diamond.scisoft.arpes.calibration.CalibrationSaver;
 
 public class GoldCalibrationPageFive extends CalibrationWizardPage {
+	
+	private static final Logger logger = LoggerFactory.getLogger(GoldCalibrationPageFive.class);
 	private DataMessageComponent calibrationData;
 	private String path;
-	private Label txtLabel;
 	private Text txtPath;
-	private Button resourceButton;
-	private Button fileButton;
-	private Button overwrite;
-	protected boolean isOverwrite;
 	private CalibrationSaver saveWithProgress;
 
 	public GoldCalibrationPageFive(DataMessageComponent calibrationData) {
@@ -56,7 +56,7 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 		Composite container = new Composite(parent, SWT.NULL);
 		container.setLayout(new GridLayout(3, false));
 
-		txtLabel = new Label(container, SWT.NULL);
+		Label txtLabel = new Label(container, SWT.NULL);
 		txtLabel.setText("Calibration file path and name to save:");
 		txtLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 3, 1));
 
@@ -78,7 +78,7 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 			}
 		});
 
-		resourceButton = new Button(container, SWT.PUSH);
+		Button resourceButton = new Button(container, SWT.PUSH);
 		resourceButton.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
 		resourceButton.setImage(Activator.getImageDescriptor("icons/Project-data.png").createImage());
 		resourceButton.setToolTipText("Browse to file inside a project");
@@ -90,7 +90,7 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 		});
 		resourceButton.setEnabled(true);
 
-		fileButton = new Button(container, SWT.PUSH);
+		Button fileButton = new Button(container, SWT.PUSH);
 		fileButton.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
 		fileButton.setImage(Activator.getImageDescriptor("icons/folder.png").createImage());
 		fileButton.setToolTipText("Browse to an external file");
@@ -101,17 +101,14 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 			}
 		});
 
-//		final Label filler = new Label(container, SWT.NONE);
-//		filler.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-		overwrite = new Button(container, SWT.CHECK);
+		final Button overwrite = new Button(container, SWT.CHECK);
 		overwrite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
 		overwrite.setToolTipText("Overwrite existing file(s) of the same name during processing.");
 		overwrite.setText("Overwrite file if it already exists");
 		overwrite.setSelection(true);
 		overwrite.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				isOverwrite = overwrite.getSelection();
+				calibrationData.addUserObject(GoldCalibrationWizard.OVERWRITE, overwrite.getSelection());
 			}
 		});
 
@@ -203,21 +200,19 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 			return null;
 		}
 	}
-	// @Override
-	// public void setVisible(boolean visible) {
-	// if (visible) {
-	//
-	// }
-	// super.setVisible(visible);
-	// }
 
 	@Override
-	public boolean runProcess() {
+	public boolean runProcess() throws InterruptedException {
 		System.out.println("Page 5");
 		try {
 			getContainer().run(true, true, saveWithProgress);
-		} catch (InvocationTargetException | InterruptedException e) {
-			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			logger.error(e.getMessage());
+			return false;
+		} catch (InterruptedException e) {
+			MessageDialog dialog = new MessageDialog(getShell(), "Saving process interrupted", null, e.getMessage(),
+					MessageDialog.ERROR, new String[] { "OK" }, 0);
+			dialog.open();
 			return false;
 		}
 		return true;

@@ -12,7 +12,7 @@ public abstract class CalibrationWizardPage extends WizardPage {
 	 * This Method is called when a page is changed
 	 * @return true if process was successful
 	 */
-	public abstract boolean runProcess();
+	public abstract boolean runProcess() throws InterruptedException;
 
 	/**
 	 * Returns the page number

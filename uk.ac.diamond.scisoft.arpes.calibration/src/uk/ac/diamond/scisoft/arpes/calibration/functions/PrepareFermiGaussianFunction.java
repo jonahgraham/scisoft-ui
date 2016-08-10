@@ -25,7 +25,7 @@ public class PrepareFermiGaussianFunction {
 
 		Double temperatureValue = 10.0;
 		try {
-			temperatureValue = (Double) calibrationData.getUserObject(GoldCalibrationWizard.TEMPERATURE);
+			temperatureValue = (Double) calibrationData.getUserObject(GoldCalibrationWizard.TEMPERATURE_PATH);
 		} catch (Exception e) {
 			// TODO: Should log something.
 		}

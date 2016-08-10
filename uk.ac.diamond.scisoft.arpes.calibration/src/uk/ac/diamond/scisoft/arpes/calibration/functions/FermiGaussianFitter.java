@@ -237,6 +237,7 @@ public class FermiGaussianFitter {
 					parametersDS.get(p).set(fitResult.getParameter(p).getValue(), position);
 				}
 
+				// mu
 				try {
 					IPlottingSystem<?> muSystem = (IPlottingSystem<?>) calibrationData
 							.getUserObject(GoldCalibrationWizard.MU_SYSTEM);
@@ -246,7 +247,15 @@ public class FermiGaussianFitter {
 				} catch (Exception e) {
 					logger.debug("Something happend during the Mu update process", e);
 				}
-
+				// temperature
+				calibrationData.addList(GoldCalibrationWizard.TEMPERATURE, parametersDS.get(1));
+				// background slope
+				calibrationData.addList(GoldCalibrationWizard.BACKGROUND_SLOPE, parametersDS.get(2));
+				// fermi edge step height
+				calibrationData.addList(GoldCalibrationWizard.FERMI_EDGE_STEP_HEIGHT, parametersDS.get(3));
+				// background
+				calibrationData.addList(GoldCalibrationWizard.BACKGROUND, parametersDS.get(4));
+				// fwhm
 				try {
 					IPlottingSystem<?> resolutionSystem = (IPlottingSystem<?>) calibrationData
 							.getUserObject(GoldCalibrationWizard.RESOLUTION_SYSTEM);
@@ -261,9 +270,9 @@ public class FermiGaussianFitter {
 				DoubleDataset resultFunctionDS = fitResult.calculateValues(xAxisDS);
 				functionsDS.setSlice(resultFunctionDS, start, stop, null);
 
+				// residuals
 				Dataset residual = Maths.subtract(slice, resultFunctionDS);
 				residual.ipower(2);
-
 				residualsDS.set(residual.sum(), position);
 				try {
 					IPlottingSystem<?> residualsSystem = (IPlottingSystem<?>) calibrationData
@@ -276,6 +285,9 @@ public class FermiGaussianFitter {
 				} catch (Exception e) {
 					logger.debug("Something happend during the residuals update process", e);
 				}
+				// fitted data/image
+				calibrationData.addList(GoldCalibrationWizard.FITTED, functionsDS);
+
 				if (monitor != null && monitor.isCancelled()) {
 					throw new InterruptedException("Thread interrupted");
 				}
