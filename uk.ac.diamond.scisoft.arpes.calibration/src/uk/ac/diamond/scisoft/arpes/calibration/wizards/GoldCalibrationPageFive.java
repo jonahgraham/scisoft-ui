@@ -54,14 +54,11 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 	@Override
 	public void createControl(Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL);
-		GridLayout layout = new GridLayout();
-		container.setLayout(layout);
-		layout.numColumns = 4;
-//		layout.verticalSpacing = 9;
+		container.setLayout(new GridLayout(3, false));
 
 		txtLabel = new Label(container, SWT.NULL);
 		txtLabel.setText("Calibration file path and name to save:");
-		txtLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		txtLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 3, 1));
 
 		txtPath = new Text(container, SWT.BORDER);
 		txtPath.setEditable(true);
@@ -71,7 +68,9 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 		ad.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
 		if (path != null)
 			txtPath.setText(path);
-		txtPath.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		GridData gridData = new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1);
+		gridData.widthHint = 650;
+		txtPath.setLayoutData(gridData);
 		txtPath.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
@@ -80,6 +79,7 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 		});
 
 		resourceButton = new Button(container, SWT.PUSH);
+		resourceButton.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
 		resourceButton.setImage(Activator.getImageDescriptor("icons/Project-data.png").createImage());
 		resourceButton.setToolTipText("Browse to file inside a project");
 		resourceButton.addSelectionListener(new SelectionAdapter() {
@@ -91,6 +91,7 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 		resourceButton.setEnabled(true);
 
 		fileButton = new Button(container, SWT.PUSH);
+		fileButton.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
 		fileButton.setImage(Activator.getImageDescriptor("icons/folder.png").createImage());
 		fileButton.setToolTipText("Browse to an external file");
 		fileButton.addSelectionListener(new SelectionAdapter() {
@@ -100,8 +101,8 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 			}
 		});
 
-		final Label filler = new Label(container, SWT.NONE);
-		filler.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+//		final Label filler = new Label(container, SWT.NONE);
+//		filler.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		overwrite = new Button(container, SWT.CHECK);
 		overwrite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));

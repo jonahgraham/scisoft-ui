@@ -25,6 +25,7 @@ import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -97,11 +98,14 @@ public class GoldCalibrationPageOne extends CalibrationWizardPage {
 		perimeterProfile.setToolId(String.valueOf(perimeterProfile.hashCode()));
 		perimeterProfile.createControl(toolComp);
 		perimeterProfile.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+//		perimeterProfile.setPlotAveraging(true);
 		perimeterProfile.activate();
-		perimeterProfile.setPlotAveraging(true);
 
 		setControl(sashForm);
 		setPageComplete(false);
+		// Force the shell size
+		Point size = getShell().computeSize(750, 650);
+		getShell().setSize(size);
 	}
 
 	private IROIListener roiListener = new IROIListener.Stub() {
