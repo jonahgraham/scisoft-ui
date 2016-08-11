@@ -15,7 +15,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import uk.ac.diamond.scisoft.arpes.calibration.utils.ArpesFileEnabled;
+import uk.ac.diamond.scisoft.arpes.calibration.views.ARPESFilePreview;
 import uk.ac.diamond.scisoft.arpes.calibration.wizards.GoldCalibrationWizard;
 
 public class GoldCalibrationWizardHandler extends AbstractHandler {
@@ -55,7 +55,7 @@ public class GoldCalibrationWizardHandler extends AbstractHandler {
 				File file = (File) selected;
 				path = file.getPath();
 			}
-			return ArpesFileEnabled.isArpesFile(path, null);
+			return ARPESFilePreview.isArpesFile(path, null);
 		}
 
 		return false;

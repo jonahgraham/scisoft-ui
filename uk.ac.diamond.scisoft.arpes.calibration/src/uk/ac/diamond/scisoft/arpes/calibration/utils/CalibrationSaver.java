@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.NexusTreeUtils;
-import uk.ac.diamond.scisoft.arpes.calibration.wizards.GoldCalibrationWizard;
 
 public class CalibrationSaver implements IRunnableWithProgress {
 
@@ -31,10 +30,10 @@ public class CalibrationSaver implements IRunnableWithProgress {
 	public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 		monitor.beginTask("Saving calibration data...", 8);
 		try {
-			String filePath = (String) calibrationData.getUserObject(GoldCalibrationWizard.SAVE_PATH);
+			String filePath = (String) calibrationData.getUserObject(ARPESCalibrationConstants.SAVE_PATH);
 			File file = new File(filePath);
 			// check if overwite flag is true
-			boolean isOverwrite = (boolean) calibrationData.getUserObject(GoldCalibrationWizard.OVERWRITE);
+			boolean isOverwrite = (boolean) calibrationData.getUserObject(ARPESCalibrationConstants.OVERWRITE);
 			if (!isOverwrite && file.exists()) {
 				throw new InterruptedException("File already exist! please check the 'Overwrite' option.");
 			} else if (isOverwrite && file.exists()) {
@@ -43,50 +42,50 @@ public class CalibrationSaver implements IRunnableWithProgress {
 			nexus = ServiceHolder.getNexusFactory().newNexusFile(filePath);
 			nexus.openToWrite(true);
 			// save raw data
-			IDataset data = (IDataset) calibrationData.getList(GoldCalibrationWizard.DATANAME);
-			IDataset xaxis = (IDataset) calibrationData.getList(GoldCalibrationWizard.XAXIS_DATANAME);
-			IDataset yaxis = (IDataset) calibrationData.getList(GoldCalibrationWizard.YAXIS_DATANAME);
+			IDataset data = (IDataset) calibrationData.getList(ARPESCalibrationConstants.DATANAME);
+			IDataset xaxis = (IDataset) calibrationData.getList(ARPESCalibrationConstants.XAXIS_DATANAME);
+			IDataset yaxis = (IDataset) calibrationData.getList(ARPESCalibrationConstants.YAXIS_DATANAME);
 			saveData(data, xaxis, yaxis, "/entry/calibration/analyser");
 			monitor.worked(1);
 			
-			IDataset angleaxis = (IDataset) calibrationData.getList(GoldCalibrationWizard.ANGLE_AXIS);
+			IDataset angleaxis = (IDataset) calibrationData.getList(ARPESCalibrationConstants.ANGLE_AXIS);
 
 			// save background
-			IDataset backgroundData = (IDataset) calibrationData.getList(GoldCalibrationWizard.BACKGROUND);
-			saveData(backgroundData, angleaxis, null, GoldCalibrationWizard.BACKGROUND);
+			IDataset backgroundData = (IDataset) calibrationData.getList(ARPESCalibrationConstants.BACKGROUND);
+			saveData(backgroundData, angleaxis, null, ARPESCalibrationConstants.BACKGROUND);
 			monitor.worked(1);
 			// save background slope
-			IDataset backgroundSlopeData = (IDataset) calibrationData.getList(GoldCalibrationWizard.BACKGROUND_SLOPE);
-			saveData(backgroundSlopeData, angleaxis, null, GoldCalibrationWizard.BACKGROUND_SLOPE);
+			IDataset backgroundSlopeData = (IDataset) calibrationData.getList(ARPESCalibrationConstants.BACKGROUND_SLOPE);
+			saveData(backgroundSlopeData, angleaxis, null, ARPESCalibrationConstants.BACKGROUND_SLOPE);
 			monitor.worked(1);
 			// save fermi_edge_step_height
-			IDataset fermiEdgeStepHeightData = (IDataset) calibrationData.getList(GoldCalibrationWizard.FERMI_EDGE_STEP_HEIGHT);
-			saveData(fermiEdgeStepHeightData, angleaxis, null, GoldCalibrationWizard.FERMI_EDGE_STEP_HEIGHT);
+			IDataset fermiEdgeStepHeightData = (IDataset) calibrationData.getList(ARPESCalibrationConstants.FERMI_EDGE_STEP_HEIGHT);
+			saveData(fermiEdgeStepHeightData, angleaxis, null, ARPESCalibrationConstants.FERMI_EDGE_STEP_HEIGHT);
 			monitor.worked(1);
 			// save fitted
-			IDataset fitteddata = (IDataset) calibrationData.getList(GoldCalibrationWizard.FITTED);
-			IDataset energaxis = (IDataset) calibrationData.getList(GoldCalibrationWizard.ENERGY_AXIS);
-			saveData(fitteddata, energaxis, angleaxis, GoldCalibrationWizard.FITTED);
+			IDataset fitteddata = (IDataset) calibrationData.getList(ARPESCalibrationConstants.FITTED);
+			IDataset energaxis = (IDataset) calibrationData.getList(ARPESCalibrationConstants.ENERGY_AXIS);
+			saveData(fitteddata, energaxis, angleaxis, ARPESCalibrationConstants.FITTED);
 			monitor.worked(1);
 			// save fittedMu
-			IDataset fittedMu = (IDataset) calibrationData.getList(GoldCalibrationWizard.FUNCTION_FITTEDMU_DATA);
-			saveData(fittedMu, yaxis, null, GoldCalibrationWizard.FUNCTION_FITTEDMU_DATA);
+			IDataset fittedMu = (IDataset) calibrationData.getList(ARPESCalibrationConstants.FUNCTION_FITTEDMU_DATA);
+			saveData(fittedMu, yaxis, null, ARPESCalibrationConstants.FUNCTION_FITTEDMU_DATA);
 			monitor.worked(1);
 			// save fwhm
-			IDataset fwhmData = (IDataset) calibrationData.getList(GoldCalibrationWizard.FWHM_DATA);
-			saveData(fwhmData, angleaxis, null, GoldCalibrationWizard.FWHM_DATA);
+			IDataset fwhmData = (IDataset) calibrationData.getList(ARPESCalibrationConstants.FWHM_DATA);
+			saveData(fwhmData, angleaxis, null, ARPESCalibrationConstants.FWHM_DATA);
 			monitor.worked(1);
 			// save mu
-			IDataset muData = (IDataset) calibrationData.getList(GoldCalibrationWizard.MU_DATA);
-			saveData(muData, angleaxis, null, GoldCalibrationWizard.MU_DATA);
+			IDataset muData = (IDataset) calibrationData.getList(ARPESCalibrationConstants.MU_DATA);
+			saveData(muData, angleaxis, null, ARPESCalibrationConstants.MU_DATA);
 			monitor.worked(1);
 			// save residuals
-			IDataset residualsData = (IDataset) calibrationData.getList(GoldCalibrationWizard.RESIDUALS_DATA);
-			saveData(residualsData, angleaxis, null, GoldCalibrationWizard.RESIDUALS_DATA);
+			IDataset residualsData = (IDataset) calibrationData.getList(ARPESCalibrationConstants.RESIDUALS_DATA);
+			saveData(residualsData, angleaxis, null, ARPESCalibrationConstants.RESIDUALS_DATA);
 			monitor.worked(1);
 			// save temperature
-			IDataset temperatureData = (IDataset) calibrationData.getList(GoldCalibrationWizard.TEMPERATURE);
-			saveData(temperatureData, angleaxis, null, GoldCalibrationWizard.TEMPERATURE);
+			IDataset temperatureData = (IDataset) calibrationData.getList(ARPESCalibrationConstants.TEMPERATURE);
+			saveData(temperatureData, angleaxis, null, ARPESCalibrationConstants.TEMPERATURE);
 			monitor.worked(1);
 		} catch (NexusException e) {
 			logger.error("Error writing to Nexus file:" + e.getMessage());

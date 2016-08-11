@@ -68,6 +68,22 @@
             name="ARPES Analysis">
       </category>
    </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <e4view
+            allowMultiple="false"
+            category="uk.ac.diamond.scisoft.arpes.calibration.ArpesCategory"
+            class="uk.ac.diamond.scisoft.arpes.calibration.views.ARPESFilePreview"
+            icon="icons/ARPES_icon.png"
+            id="uk.ac.diamond.scisoft.arpes.calibration.e4.ARPESPreview"
+            name="ARPES Preview"
+            restorable="true">
+      </e4view>
+      <category
+            id="uk.ac.diamond.scisoft.arpes.calibration.ArpesCategory"
+            name="ARPES">
+      </category>
+   </extension>
    <!--
    <extension
          point="org.eclipse.ui.popupMenus">

@@ -7,7 +7,7 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.Maths;
 
 import uk.ac.diamond.scisoft.analysis.fitting.functions.FermiGauss;
-import uk.ac.diamond.scisoft.arpes.calibration.wizards.GoldCalibrationWizard;
+import uk.ac.diamond.scisoft.arpes.calibration.utils.ARPESCalibrationConstants;
 
 public class PrepareFermiGaussianFunction {
 	private static final Integer FIT_DIRECTION = 1;
@@ -16,16 +16,16 @@ public class PrepareFermiGaussianFunction {
 	public PrepareFermiGaussianFunction(DataMessageComponent calibrationData) {
 		Integer fitDim = FIT_DIRECTION;
 		// get the required datasets
-		Dataset dataDS = DatasetFactory.createFromObject(calibrationData.getList(GoldCalibrationWizard.REGION_DATANAME));
+		Dataset dataDS = DatasetFactory.createFromObject(calibrationData.getList(ARPESCalibrationConstants.REGION_DATANAME));
 		int[] shape = dataDS.getShape();
 		
-		Dataset xAxisDS = DatasetFactory.createFromObject(calibrationData.getList(GoldCalibrationWizard.ENERGY_AXIS));
+		Dataset xAxisDS = DatasetFactory.createFromObject(calibrationData.getList(ARPESCalibrationConstants.ENERGY_AXIS));
 		if (xAxisDS == null)
 			xAxisDS = DatasetFactory.createRange(shape[fitDim], 0, -1, Dataset.FLOAT64);
 
 		Double temperatureValue = 10.0;
 		try {
-			temperatureValue = (Double) calibrationData.getUserObject(GoldCalibrationWizard.TEMPERATURE_PATH);
+			temperatureValue = (Double) calibrationData.getUserObject(ARPESCalibrationConstants.TEMPERATURE_PATH);
 		} catch (Exception e) {
 			// TODO: Should log something.
 		}

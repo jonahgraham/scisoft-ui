@@ -17,6 +17,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.scisoft.arpes.calibration.functions.FermiGaussianFitter;
+import uk.ac.diamond.scisoft.arpes.calibration.utils.ARPESCalibrationConstants;
 
 public class GoldCalibrationPageThree extends CalibrationWizardPage {
 	private DataMessageComponent calibrationData;
@@ -61,10 +62,10 @@ public class GoldCalibrationPageThree extends CalibrationWizardPage {
 			e1.printStackTrace();
 		}
 		ActionBarWrapper actionBarWrapper = ActionBarWrapper.createActionBars(sysComp, null);
-		fitUpdateSystem.createPlotPart(sysComp, GoldCalibrationWizard.FIT_UPDATE_SYSTEM, actionBarWrapper, PlotType.XY, null);
+		fitUpdateSystem.createPlotPart(sysComp, ARPESCalibrationConstants.FIT_UPDATE_SYSTEM, actionBarWrapper, PlotType.XY, null);
 		fitUpdateSystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		fitUpdateSystem.setTitle("FitUpdate");
-		calibrationData.addUserObject(GoldCalibrationWizard.FIT_UPDATE_SYSTEM, fitUpdateSystem);
+		calibrationData.addUserObject(ARPESCalibrationConstants.FIT_UPDATE_SYSTEM, fitUpdateSystem);
 
 		// create Resolution plotting system
 		sysComp = new Composite(sashForm2, SWT.NONE);
@@ -75,10 +76,10 @@ public class GoldCalibrationPageThree extends CalibrationWizardPage {
 			e1.printStackTrace();
 		}
 		actionBarWrapper = ActionBarWrapper.createActionBars(sysComp, null);
-		resolutionSystem.createPlotPart(sysComp, GoldCalibrationWizard.RESOLUTION_SYSTEM, actionBarWrapper, PlotType.XY, null);
+		resolutionSystem.createPlotPart(sysComp, ARPESCalibrationConstants.RESOLUTION_SYSTEM, actionBarWrapper, PlotType.XY, null);
 		resolutionSystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		resolutionSystem.setTitle("Resolution");
-		calibrationData.addUserObject(GoldCalibrationWizard.RESOLUTION_SYSTEM, resolutionSystem);
+		calibrationData.addUserObject(ARPESCalibrationConstants.RESOLUTION_SYSTEM, resolutionSystem);
 
 		// create fitupdate plotting system
 		sysComp = new Composite(sashForm3, SWT.NONE);
@@ -89,10 +90,10 @@ public class GoldCalibrationPageThree extends CalibrationWizardPage {
 			e1.printStackTrace();
 		}
 		actionBarWrapper = ActionBarWrapper.createActionBars(sysComp, null);
-		muSystem.createPlotPart(sysComp, GoldCalibrationWizard.MU_SYSTEM, actionBarWrapper, PlotType.XY, null);
+		muSystem.createPlotPart(sysComp, ARPESCalibrationConstants.MU_SYSTEM, actionBarWrapper, PlotType.XY, null);
 		muSystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		muSystem.setTitle("Mu");
-		calibrationData.addUserObject(GoldCalibrationWizard.MU_SYSTEM, muSystem);
+		calibrationData.addUserObject(ARPESCalibrationConstants.MU_SYSTEM, muSystem);
 
 		// create Resolution plotting system
 		sysComp = new Composite(sashForm3, SWT.NONE);
@@ -103,10 +104,10 @@ public class GoldCalibrationPageThree extends CalibrationWizardPage {
 			e1.printStackTrace();
 		}
 		actionBarWrapper = ActionBarWrapper.createActionBars(sysComp, null);
-		residualsSystem.createPlotPart(sysComp, GoldCalibrationWizard.RESIDUALS_SYSTEM, actionBarWrapper, PlotType.XY, null);
+		residualsSystem.createPlotPart(sysComp, ARPESCalibrationConstants.RESIDUALS_SYSTEM, actionBarWrapper, PlotType.XY, null);
 		residualsSystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		residualsSystem.setTitle("Residuals");
-		calibrationData.addUserObject(GoldCalibrationWizard.RESIDUALS_SYSTEM, residualsSystem);
+		calibrationData.addUserObject(ARPESCalibrationConstants.RESIDUALS_SYSTEM, residualsSystem);
 
 		setControl(sashForm);
 	}

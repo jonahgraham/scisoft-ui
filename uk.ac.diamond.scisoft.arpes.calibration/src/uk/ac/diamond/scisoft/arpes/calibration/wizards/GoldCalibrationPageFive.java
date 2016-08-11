@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.arpes.calibration.Activator;
+import uk.ac.diamond.scisoft.arpes.calibration.utils.ARPESCalibrationConstants;
 import uk.ac.diamond.scisoft.arpes.calibration.utils.CalibrationSaver;
 
 public class GoldCalibrationPageFive extends CalibrationWizardPage {
@@ -108,10 +109,10 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 		overwrite.setSelection(true);
 		overwrite.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				calibrationData.addUserObject(GoldCalibrationWizard.OVERWRITE, overwrite.getSelection());
+				calibrationData.addUserObject(ARPESCalibrationConstants.OVERWRITE, overwrite.getSelection());
 			}
 		});
-		calibrationData.addUserObject(GoldCalibrationWizard.OVERWRITE, overwrite.getSelection());
+		calibrationData.addUserObject(ARPESCalibrationConstants.OVERWRITE, overwrite.getSelection());
 
 		setControl(container);
 
@@ -135,7 +136,7 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 			this.path = res[0].getFullPath().toOSString();
 			txtPath.setText(this.path);
 		}
-		calibrationData.addUserObject(GoldCalibrationWizard.SAVE_PATH, getAbsoluteFilePath());
+		calibrationData.addUserObject(ARPESCalibrationConstants.SAVE_PATH, getAbsoluteFilePath());
 	}
 
 	private IResource getIResource() {
@@ -174,7 +175,7 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 		if (path != null) {
 			this.path = path;
 			txtPath.setText(this.path);
-			calibrationData.addUserObject(GoldCalibrationWizard.SAVE_PATH, getAbsoluteFilePath());
+			calibrationData.addUserObject(ARPESCalibrationConstants.SAVE_PATH, getAbsoluteFilePath());
 		}
 	}
 

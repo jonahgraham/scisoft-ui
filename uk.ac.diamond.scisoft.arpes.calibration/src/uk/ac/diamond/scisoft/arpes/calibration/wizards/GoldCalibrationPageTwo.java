@@ -12,6 +12,7 @@ import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
 
 import uk.ac.diamond.scisoft.arpes.calibration.functions.PrepareFermiGaussianFunction;
+import uk.ac.diamond.scisoft.arpes.calibration.utils.ARPESCalibrationConstants;
 
 public class GoldCalibrationPageTwo extends FunctionFittingCalibrationWizardPage {
 
@@ -24,8 +25,8 @@ public class GoldCalibrationPageTwo extends FunctionFittingCalibrationWizardPage
 		if (visible) {
 			setFunction();
 			// when page is visible, update plot with correct data, axis and region
-			IDataset xaxisData = (IDataset)calibrationData.getList(GoldCalibrationWizard.ENERGY_AXIS);
-			IDataset data = (IDataset)calibrationData.getList(GoldCalibrationWizard.AVERAGE_DATANAME);
+			IDataset xaxisData = (IDataset)calibrationData.getList(ARPESCalibrationConstants.ENERGY_AXIS);
+			IDataset data = (IDataset)calibrationData.getList(ARPESCalibrationConstants.AVERAGE_DATANAME);
 			if (system.getTraces().isEmpty())
 				setFitRegion(xaxisData);
 			system.updatePlot1D(xaxisData,  Arrays.asList(new IDataset[] { data }), null);
@@ -39,11 +40,11 @@ public class GoldCalibrationPageTwo extends FunctionFittingCalibrationWizardPage
 	 * Set mean dataset based on regionDataset
 	 */
 	private void setMean() {
-		IDataset iregionDataset = (IDataset)calibrationData.getList(GoldCalibrationWizard.REGION_DATANAME);
+		IDataset iregionDataset = (IDataset)calibrationData.getList(ARPESCalibrationConstants.REGION_DATANAME);
 		Dataset regionDataset = DatasetUtils.cast(iregionDataset, DTypeUtils.getDType(iregionDataset));
 		Dataset meanDataset = regionDataset.mean(0);
 		meanDataset.setName(iregionDataset.getName()+"_mean");
-		calibrationData.addList(GoldCalibrationWizard.MEAN_DATANAME, meanDataset);
+		calibrationData.addList(ARPESCalibrationConstants.MEAN_DATANAME, meanDataset);
 	}
 
 	private void setFunction() {
@@ -68,6 +69,6 @@ public class GoldCalibrationPageTwo extends FunctionFittingCalibrationWizardPage
 
 	@Override
 	public String getFunctionName() {
-		return GoldCalibrationWizard.FUNCTION_NAME;
+		return ARPESCalibrationConstants.FUNCTION_NAME;
 	}
 }

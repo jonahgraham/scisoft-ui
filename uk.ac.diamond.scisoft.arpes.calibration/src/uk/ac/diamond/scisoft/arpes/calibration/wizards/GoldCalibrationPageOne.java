@@ -31,6 +31,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
+import uk.ac.diamond.scisoft.arpes.calibration.utils.ARPESCalibrationConstants;
 
 public class GoldCalibrationPageOne extends CalibrationWizardPage {
 	private IPlottingSystem<Composite> system;
@@ -63,9 +64,9 @@ public class GoldCalibrationPageOne extends CalibrationWizardPage {
 		system.createPlotPart(sysComp, "Page One System", actionBarWrapper, PlotType.IMAGE, null);
 		system.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
-		IDataset data = (IDataset) calibrationData.getList(GoldCalibrationWizard.DATANAME);
-		IDataset xAxis = (IDataset) calibrationData.getList(GoldCalibrationWizard.XAXIS_DATANAME);
-		IDataset yAxis = (IDataset) calibrationData.getList(GoldCalibrationWizard.YAXIS_DATANAME);
+		IDataset data = (IDataset) calibrationData.getList(ARPESCalibrationConstants.DATANAME);
+		IDataset xAxis = (IDataset) calibrationData.getList(ARPESCalibrationConstants.XAXIS_DATANAME);
+		IDataset yAxis = (IDataset) calibrationData.getList(ARPESCalibrationConstants.YAXIS_DATANAME);
 		List<IDataset> axes = new ArrayList<IDataset>();
 		axes.add(xAxis);
 		axes.add(yAxis);
@@ -130,20 +131,20 @@ public class GoldCalibrationPageOne extends CalibrationWizardPage {
 	}
 
 	private void updateModel(IROI roi) {
-		calibrationData.addROI(GoldCalibrationWizard.REGION_NAME, roi);
-		IDataset data = (IDataset) calibrationData.getList(GoldCalibrationWizard.DATANAME);
+		calibrationData.addROI(ARPESCalibrationConstants.REGION_NAME, roi);
+		IDataset data = (IDataset) calibrationData.getList(ARPESCalibrationConstants.DATANAME);
 		Dataset id = DatasetUtils.convertToDataset(data);
 		IDataset averageData = ROIProfile.boxMean(id, null, (RectangularROI) roi, true)[0];
 		averageData.setName("Intensity");
-		calibrationData.addList(GoldCalibrationWizard.AVERAGE_DATANAME, averageData);
+		calibrationData.addList(ARPESCalibrationConstants.AVERAGE_DATANAME, averageData);
 
 		IDataset regionDataset = getRegionData((RectangularROI)roi);
-		calibrationData.addList(GoldCalibrationWizard.REGION_DATANAME, regionDataset);
+		calibrationData.addList(ARPESCalibrationConstants.REGION_DATANAME, regionDataset);
 		List<IDataset> axes = getSliceAxes((IImageTrace)system.getTraces().iterator().next(), (RectangularROI)roi);
 		IDataset xaxisData = axes.get(0);
 		IDataset yaxisData = axes.get(1);
-		calibrationData.addList(GoldCalibrationWizard.ENERGY_AXIS, xaxisData);
-		calibrationData.addList(GoldCalibrationWizard.ANGLE_AXIS, yaxisData);
+		calibrationData.addList(ARPESCalibrationConstants.ENERGY_AXIS, xaxisData);
+		calibrationData.addList(ARPESCalibrationConstants.ANGLE_AXIS, yaxisData);
 		setPageComplete(true);
 	}
 
@@ -190,7 +191,7 @@ public class GoldCalibrationPageOne extends CalibrationWizardPage {
 		int yStop = (int) roi.getEndPoint()[1];
 		int xStop = (int) roi.getEndPoint()[0];
 		
-		IDataset data = (IDataset)calibrationData.getList(GoldCalibrationWizard.DATANAME);
+		IDataset data = (IDataset)calibrationData.getList(ARPESCalibrationConstants.DATANAME);
 		IDataset dataRegion = data.clone();
 
 		dataRegion = dataRegion.getSlice(new int[] { yStart, xStart }, new int[] { yStop, xStop },

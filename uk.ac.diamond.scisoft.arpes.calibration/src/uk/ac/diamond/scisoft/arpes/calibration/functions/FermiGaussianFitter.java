@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.fitting.Fitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.AFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.FermiGauss;
-import uk.ac.diamond.scisoft.arpes.calibration.wizards.GoldCalibrationWizard;
+import uk.ac.diamond.scisoft.arpes.calibration.utils.ARPESCalibrationConstants;
 
 public class FermiGaussianFitter {
 
@@ -46,15 +46,15 @@ public class FermiGaussianFitter {
 	public void fit(IMonitor monitor) {
 		Integer fitDim = FIT_DIRECTION;
 
-		Dataset dataDS = DatasetFactory.createFromObject(calibrationData.getList(GoldCalibrationWizard.REGION_DATANAME));
+		Dataset dataDS = DatasetFactory.createFromObject(calibrationData.getList(ARPESCalibrationConstants.REGION_DATANAME));
 
 		int[] shape = dataDS.getShape();
-		IFunction fitFunction = calibrationData.getFunction(GoldCalibrationWizard.FUNCTION_NAME);
-		Dataset xAxisDS = DatasetFactory.createFromObject(calibrationData.getList(GoldCalibrationWizard.ENERGY_AXIS));
+		IFunction fitFunction = calibrationData.getFunction(ARPESCalibrationConstants.FUNCTION_NAME);
+		Dataset xAxisDS = DatasetFactory.createFromObject(calibrationData.getList(ARPESCalibrationConstants.ENERGY_AXIS));
 		if (xAxisDS == null)
 			xAxisDS = DatasetFactory.createRange(shape[fitDim], 0, -1, Dataset.FLOAT64);
 
-		Dataset anglesAxisDS = DatasetFactory.createFromObject(calibrationData.getList(GoldCalibrationWizard.ANGLE_AXIS));
+		Dataset anglesAxisDS = DatasetFactory.createFromObject(calibrationData.getList(ARPESCalibrationConstants.ANGLE_AXIS));
 		if (anglesAxisDS == null)
 			anglesAxisDS = DatasetFactory.createRange(shape[Math.abs(fitDim - 1)], 0, -1, Dataset.FLOAT64);
 
@@ -147,10 +147,10 @@ public class FermiGaussianFitter {
 		}
 		shutDownExecutor(executorService, monitor);
 
-		calibrationData.addList(GoldCalibrationWizard.FIT_IMAGE, functionsDS);
-		calibrationData.addList(GoldCalibrationWizard.FIT_RESIDUALS, residualDS);
+		calibrationData.addList(ARPESCalibrationConstants.FIT_IMAGE, functionsDS);
+		calibrationData.addList(ARPESCalibrationConstants.FIT_RESIDUALS, residualDS);
 		for (int i = 0; i < fitFunction.getNoOfParameters(); i++) {
-			calibrationData.addList(GoldCalibrationWizard.FIT_PARAMETER + i, parametersDS.get(i));
+			calibrationData.addList(ARPESCalibrationConstants.FIT_PARAMETER + i, parametersDS.get(i));
 		}
 	}
 
@@ -240,29 +240,29 @@ public class FermiGaussianFitter {
 				// mu
 				try {
 					IPlottingSystem<?> muSystem = (IPlottingSystem<?>) calibrationData
-							.getUserObject(GoldCalibrationWizard.MU_SYSTEM);
+							.getUserObject(ARPESCalibrationConstants.MU_SYSTEM);
 					muSystem.updatePlot1D(anglesAxisDS, Arrays.asList(new IDataset[] { parametersDS.get(0) }), null);
 					muSystem.repaint();
-					calibrationData.addList(GoldCalibrationWizard.MU_DATA, parametersDS.get(0));
+					calibrationData.addList(ARPESCalibrationConstants.MU_DATA, parametersDS.get(0));
 				} catch (Exception e) {
 					logger.debug("Something happend during the Mu update process", e);
 				}
 				// temperature
-				calibrationData.addList(GoldCalibrationWizard.TEMPERATURE, parametersDS.get(1));
+				calibrationData.addList(ARPESCalibrationConstants.TEMPERATURE, parametersDS.get(1));
 				// background slope
-				calibrationData.addList(GoldCalibrationWizard.BACKGROUND_SLOPE, parametersDS.get(2));
+				calibrationData.addList(ARPESCalibrationConstants.BACKGROUND_SLOPE, parametersDS.get(2));
 				// fermi edge step height
-				calibrationData.addList(GoldCalibrationWizard.FERMI_EDGE_STEP_HEIGHT, parametersDS.get(3));
+				calibrationData.addList(ARPESCalibrationConstants.FERMI_EDGE_STEP_HEIGHT, parametersDS.get(3));
 				// background
-				calibrationData.addList(GoldCalibrationWizard.BACKGROUND, parametersDS.get(4));
+				calibrationData.addList(ARPESCalibrationConstants.BACKGROUND, parametersDS.get(4));
 				// fwhm
 				try {
 					IPlottingSystem<?> resolutionSystem = (IPlottingSystem<?>) calibrationData
-							.getUserObject(GoldCalibrationWizard.RESOLUTION_SYSTEM);
+							.getUserObject(ARPESCalibrationConstants.RESOLUTION_SYSTEM);
 					resolutionSystem.updatePlot1D(anglesAxisDS, Arrays.asList(new IDataset[] { parametersDS.get(5) }),
 							null);
 					resolutionSystem.repaint();
-					calibrationData.addList(GoldCalibrationWizard.FWHM_DATA, parametersDS.get(5));
+					calibrationData.addList(ARPESCalibrationConstants.FWHM_DATA, parametersDS.get(5));
 				} catch (Exception e) {
 					logger.debug("Something happend during the resolution update process", e);
 				}
@@ -276,17 +276,17 @@ public class FermiGaussianFitter {
 				residualsDS.set(residual.sum(), position);
 				try {
 					IPlottingSystem<?> residualsSystem = (IPlottingSystem<?>) calibrationData
-							.getUserObject(GoldCalibrationWizard.RESIDUALS_SYSTEM);
+							.getUserObject(ARPESCalibrationConstants.RESIDUALS_SYSTEM);
 					IDataset residuals = DatasetUtils.cast(residualsDS, residualsDS.getDType());
 					residuals.setName("residuals");
 					residualsSystem.updatePlot1D(anglesAxisDS, Arrays.asList(new IDataset[] { residuals }), null);
 					residualsSystem.repaint();
-					calibrationData.addList(GoldCalibrationWizard.RESIDUALS_DATA, residuals);
+					calibrationData.addList(ARPESCalibrationConstants.RESIDUALS_DATA, residuals);
 				} catch (Exception e) {
 					logger.debug("Something happend during the residuals update process", e);
 				}
 				// fitted data/image
-				calibrationData.addList(GoldCalibrationWizard.FITTED, functionsDS);
+				calibrationData.addList(ARPESCalibrationConstants.FITTED, functionsDS);
 
 				if (monitor != null && monitor.isCancelled()) {
 					throw new InterruptedException("Thread interrupted");
@@ -428,7 +428,7 @@ public class FermiGaussianFitter {
 	}
 
 	private void plotFunction(AFunction fitFunction, IDataset xAxis, IDataset values) {
-		String plotName = GoldCalibrationWizard.FIT_UPDATE_SYSTEM;
+		String plotName = ARPESCalibrationConstants.FIT_UPDATE_SYSTEM;
 		if (!plotName.isEmpty()) {
 			try {
 				Dataset fermiDS = fitFunction.calculateValues(xAxis);

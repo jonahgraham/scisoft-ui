@@ -10,6 +10,7 @@ import org.eclipse.january.dataset.IDataset;
 
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Quadratic;
 import uk.ac.diamond.scisoft.arpes.calibration.functions.FunctionToDataset;
+import uk.ac.diamond.scisoft.arpes.calibration.utils.ARPESCalibrationConstants;
 
 public class GoldCalibrationPageFour extends FunctionFittingCalibrationWizardPage {
 
@@ -22,8 +23,8 @@ public class GoldCalibrationPageFour extends FunctionFittingCalibrationWizardPag
 		if (visible) {
 			setFunction();
 			// when page is visible, update plot with correct data, axis and region
-			IDataset xaxisData = (IDataset)calibrationData.getList(GoldCalibrationWizard.ANGLE_AXIS);
-			IDataset data = (IDataset)calibrationData.getList(GoldCalibrationWizard.MU_DATA);
+			IDataset xaxisData = (IDataset)calibrationData.getList(ARPESCalibrationConstants.ANGLE_AXIS);
+			IDataset data = (IDataset)calibrationData.getList(ARPESCalibrationConstants.MU_DATA);
 			if (system.getTraces().isEmpty())
 				setFitRegion(xaxisData);
 			system.updatePlot1D(xaxisData,  Arrays.asList(new IDataset[] { data }), null);
@@ -56,15 +57,15 @@ public class GoldCalibrationPageFour extends FunctionFittingCalibrationWizardPag
 	 */
 	@Override
 	protected void saveFittedMuData(IFunction function) {
-		IDataset seedData = (IDataset) calibrationData.getList(GoldCalibrationWizard.MU_DATA);
-		IDataset seedAxisData = (IDataset) calibrationData.getList(GoldCalibrationWizard.YAXIS_DATANAME);
+		IDataset seedData = (IDataset) calibrationData.getList(ARPESCalibrationConstants.MU_DATA);
+		IDataset seedAxisData = (IDataset) calibrationData.getList(ARPESCalibrationConstants.YAXIS_DATANAME);
 		FunctionToDataset fToData = new FunctionToDataset(function, seedData, seedAxisData);
 		IDataset functionDataset = fToData.getDataset();
-		calibrationData.addList(GoldCalibrationWizard.FUNCTION_FITTEDMU_DATA, functionDataset);
+		calibrationData.addList(ARPESCalibrationConstants.FUNCTION_FITTEDMU_DATA, functionDataset);
 	}
 
 	@Override
 	public String getFunctionName() {
-		return GoldCalibrationWizard.FUNCTION_FITTEDMU;
+		return ARPESCalibrationConstants.FUNCTION_FITTEDMU;
 	}
 }
