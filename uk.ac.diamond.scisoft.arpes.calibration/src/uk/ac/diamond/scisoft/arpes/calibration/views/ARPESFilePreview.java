@@ -68,7 +68,7 @@ public class ARPESFilePreview {
 		lblSelectedFile.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblSelectedFile.setText("Selected File");
 
-		Text txtSelectedFile = new Text(composite_1, SWT.BORDER);
+		txtSelectedFile = new Text(composite_1, SWT.BORDER);
 		txtSelectedFile.setText("Selected File");
 		txtSelectedFile.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
