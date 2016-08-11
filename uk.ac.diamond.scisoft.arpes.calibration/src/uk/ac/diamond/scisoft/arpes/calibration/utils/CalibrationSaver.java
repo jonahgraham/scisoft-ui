@@ -1,4 +1,4 @@
-package uk.ac.diamond.scisoft.arpes.calibration;
+package uk.ac.diamond.scisoft.arpes.calibration.utils;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;

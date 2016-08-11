@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.arpes.calibration.Activator;
-import uk.ac.diamond.scisoft.arpes.calibration.CalibrationSaver;
+import uk.ac.diamond.scisoft.arpes.calibration.utils.CalibrationSaver;
 
 public class GoldCalibrationPageFive extends CalibrationWizardPage {
 	
