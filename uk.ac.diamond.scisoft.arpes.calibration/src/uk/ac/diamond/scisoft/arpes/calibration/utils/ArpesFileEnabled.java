@@ -27,7 +27,8 @@ public class ArpesFileEnabled {
 			IDataHolder holder = service.getData(filename, true, monitor);
 			ILazyDataset lazy = holder.getLazyDataset("/entry1/instrument/analyser/data");
 			return lazy!=null;
-		} catch (Exception e1) {
+		} catch (Exception e) {
+			logger.error(e.getMessage());
 			return false;
 
 		}
