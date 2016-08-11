@@ -111,6 +111,7 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 				calibrationData.addUserObject(GoldCalibrationWizard.OVERWRITE, overwrite.getSelection());
 			}
 		});
+		calibrationData.addUserObject(GoldCalibrationWizard.OVERWRITE, overwrite.getSelection());
 
 		setControl(container);
 
