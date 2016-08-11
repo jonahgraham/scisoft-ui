@@ -70,7 +70,7 @@ public class CalibrationSaver implements IRunnableWithProgress {
 			monitor.worked(1);
 			// save fittedMu
 			IDataset fittedMu = (IDataset) calibrationData.getList(GoldCalibrationWizard.FUNCTION_FITTEDMU_DATA);
-			saveData(fittedMu, angleaxis, null, GoldCalibrationWizard.FUNCTION_FITTEDMU_DATA);
+			saveData(fittedMu, yaxis, null, GoldCalibrationWizard.FUNCTION_FITTEDMU_DATA);
 			monitor.worked(1);
 			// save fwhm
 			IDataset fwhmData = (IDataset) calibrationData.getList(GoldCalibrationWizard.FWHM_DATA);

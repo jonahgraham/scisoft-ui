@@ -57,7 +57,7 @@ public class GoldCalibrationPageFour extends FunctionFittingCalibrationWizardPag
 	@Override
 	protected void saveFittedMuData(IFunction function) {
 		IDataset seedData = (IDataset) calibrationData.getList(GoldCalibrationWizard.MU_DATA);
-		IDataset seedAxisData = (IDataset) calibrationData.getList(GoldCalibrationWizard.ANGLE_AXIS);
+		IDataset seedAxisData = (IDataset) calibrationData.getList(GoldCalibrationWizard.YAXIS_DATANAME);
 		FunctionToDataset fToData = new FunctionToDataset(function, seedData, seedAxisData);
 		IDataset functionDataset = fToData.getDataset();
 		calibrationData.addList(GoldCalibrationWizard.FUNCTION_FITTEDMU_DATA, functionDataset);
