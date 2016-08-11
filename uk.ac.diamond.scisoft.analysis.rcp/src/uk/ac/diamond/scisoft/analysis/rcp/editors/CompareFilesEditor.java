@@ -538,9 +538,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public <T extends MetadataType> List<T> getMetadata(Class<T> clazz) throws MetadataException {
+		public <S extends MetadataType, T extends S> List<S> getMetadata(Class<T> clazz) throws MetadataException {
 			if (IMetadata.class.isAssignableFrom(clazz)) {
-				List<T> result = new ArrayList<T>();
+				List<S> result = new ArrayList<S>();
 				result.add((T) getMetadata());
 				return result;
 			}
@@ -549,9 +549,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 		
 		@Override
-		public <T extends MetadataType> T getFirstMetadata(Class<T> clazz) {
+		public <S extends MetadataType, T extends S> S getFirstMetadata(Class<T> clazz) {
 			try {
-				List<T> ml = getMetadata(clazz);
+				List<S> ml = getMetadata(clazz);
 				if (ml == null) return null;
 				return ml.isEmpty() ? null : ml.get(0);
 			} catch (Exception e) {
