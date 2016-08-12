@@ -31,11 +31,15 @@ import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.arpes.calibration.utils.ARPESCalibrationConstants;
 
 public class GoldCalibrationWizard extends Wizard implements INewWizard {
+
+	private static final Logger logger = LoggerFactory.getLogger(GoldCalibrationWizard.class);
 
 	protected GoldCalibrationPageOne one;
 	protected GoldCalibrationPageTwo two;
@@ -112,6 +116,7 @@ public class GoldCalibrationWizard extends Wizard implements INewWizard {
 						try {
 							page.runProcess();
 						} catch (InterruptedException e) {
+							logger.debug("Run process interrupted:" + e.getMessage());
 							MessageDialog dialog = new MessageDialog(getShell(), "Calibrating process interrupted", null,
 									e.getMessage(), MessageDialog.WARNING, new String[] { "OK" }, 0);
 							dialog.open();
@@ -173,8 +178,7 @@ public class GoldCalibrationWizard extends Wizard implements INewWizard {
 			calibrationData.addList(ARPESCalibrationConstants.YAXIS_DATANAME, slicedYaxis);
 			calibrationData.addUserObject(ARPESCalibrationConstants.TEMPERATURE_PATH, temperature);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Error setting up data:" + e.getMessage());
 		}
 	}
 
