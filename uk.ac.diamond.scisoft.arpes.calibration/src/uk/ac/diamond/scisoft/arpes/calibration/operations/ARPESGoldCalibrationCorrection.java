@@ -31,7 +31,7 @@ public class ARPESGoldCalibrationCorrection extends AbstractOperation<ARPESGoldC
 	
 	@Override
 	public String getId() {
-		return "uk.ac.diamond.scisoft.analysis.processing.operations.ARPESGoldCalibrationCorrection";
+		return "uk.ac.diamond.scisoft.arpes.calibration.operations.ARPESGoldCalibrationCorrection";
 	}
 
 	@Override

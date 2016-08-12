@@ -27,7 +27,7 @@ public class ARPESAxisConversion extends AbstractOperationBase<ARPESAxisConversi
 	
 	@Override
 	public String getId() {
-		return "uk.ac.diamond.scisoft.analysis.processing.operations.ARPESAxisConversion";
+		return "uk.ac.diamond.scisoft.arpes.calibration.operations.ARPESAxisConversion";
 	}
 
 	@Override
