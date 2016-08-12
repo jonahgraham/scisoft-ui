@@ -25,11 +25,15 @@ import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.Slice;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
@@ -45,6 +49,8 @@ public class ARPESFilePreview {
 
 	private Text txtSelectedFile;
 	private IPlottingSystem<Composite> thumbnailPlot;
+
+	private String path;
 
 	public ARPESFilePreview() {
 		try {
@@ -71,9 +77,21 @@ public class ARPESFilePreview {
 		txtSelectedFile = new Text(composite_1, SWT.BORDER);
 		txtSelectedFile.setText("Selected File");
 		txtSelectedFile.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		txtSelectedFile.setEditable(false);
 
 		Button btnNewButton_2 = new Button(composite_1, SWT.NONE);
 		btnNewButton_2.setText("...");
+		btnNewButton_2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				FileDialog dialog = new FileDialog(Display.getDefault().getActiveShell(), SWT.NONE);
+//				dialog.setFilterExtensions(new String[] {".nxs", ".hdf", ".hdf5"});
+				dialog.setText("Choose a Nexus file");
+				path = dialog.open();
+				txtSelectedFile.setText(path);
+				plotFile(path);
+			}
+		});
 
 		Composite composite_2 = new Composite(parent, SWT.NONE);
 		composite_2.setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -107,37 +125,41 @@ public class ARPESFilePreview {
 			}
 			if (filename != null) {
 				if (isArpesFile(filename, null)) {
-					try {
-						txtSelectedFile.setText(filename);
-						IDataHolder data = LoaderFactory.getData(filename);
-						Map<String, ILazyDataset> map = data.toLazyMap();
-						ILazyDataset value = map.get(ARPESCalibrationConstants.DATA_NODE);
-						value = value.getSlice(new Slice(1)).squeeze();
-						ILazyDataset energies = map.get(ARPESCalibrationConstants.ENERGY_NODE);
-						ILazyDataset angles = map.get(ARPESCalibrationConstants.ANGLE_NODE);
-						thumbnailPlot.clear();
-						if (value.getShape().length == 2) {
-							Dataset image = DatasetUtils.sliceAndConvertLazyDataset(value);
-							ArrayList<IDataset> axes = new ArrayList<IDataset>(2);
-							if (energies == null) {
-								axes.add(null);
-							} else {
-								axes.add(DatasetUtils.sliceAndConvertLazyDataset(energies));
-							}
-							if (angles == null) {
-								axes.add(null);
-							} else {
-								axes.add(DatasetUtils.sliceAndConvertLazyDataset(angles));
-							}
-							thumbnailPlot.updatePlot2D(image, axes, null);
-						} else {
-							logger.warn("Dataset not the right shape for showing in the preview");
-						}
-					} catch (Exception e) {
-						logger.error("Something went wrong when creating a overview plot", e);
-					}
+					txtSelectedFile.setText(filename);
+					plotFile(filename);
 				}
 			}
+		}
+	}
+
+	private void plotFile(String filename) {
+		try {
+			IDataHolder data = LoaderFactory.getData(filename);
+			Map<String, ILazyDataset> map = data.toLazyMap();
+			ILazyDataset value = map.get(ARPESCalibrationConstants.DATA_NODE);
+			value = value.getSlice(new Slice(1)).squeeze();
+			ILazyDataset energies = map.get(ARPESCalibrationConstants.ENERGY_NODE);
+			ILazyDataset angles = map.get(ARPESCalibrationConstants.ANGLE_NODE);
+			thumbnailPlot.clear();
+			if (value.getShape().length == 2) {
+				Dataset image = DatasetUtils.sliceAndConvertLazyDataset(value);
+				ArrayList<IDataset> axes = new ArrayList<IDataset>(2);
+				if (energies == null) {
+					axes.add(null);
+				} else {
+					axes.add(DatasetUtils.sliceAndConvertLazyDataset(energies));
+				}
+				if (angles == null) {
+					axes.add(null);
+				} else {
+					axes.add(DatasetUtils.sliceAndConvertLazyDataset(angles));
+				}
+				thumbnailPlot.updatePlot2D(image, axes, null);
+			} else {
+				logger.warn("Dataset not the right shape for showing in the preview");
+			}
+		} catch (Exception e) {
+			logger.error("Something went wrong when creating a overview plot", e);
 		}
 	}
 
