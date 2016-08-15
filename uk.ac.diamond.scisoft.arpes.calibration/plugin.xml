@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            class="uk.ac.diamond.scisoft.arpes.calibration.wizards.GoldCalibrationWizard"
+            icon="icons/ARPES_icon.png"
+            id="uk.ac.diamond.scisoft.arpes.calibration.GoldCalibrationWizard"
+            name="ARPES Gold Calibration Wizard">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
+         <command
+               commandId="uk.ac.diamond.scisoft.arpes.calibration.goldCalibrationCommand"
+               icon="icons/ARPES_icon.png"
+               label="ARPES Gold Calibration Wizard"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.dawnsci.fileviewer.FileViewer?after=additions">
+         <command
+               commandId="uk.ac.diamond.scisoft.arpes.calibration.goldCalibrationCommand"
+               icon="icons/ARPES_icon.png"
+               label="ARPES Gold Calibration Wizard"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.arpes.calibration.handlers.GoldCalibrationWizardHandler"
+            id="uk.ac.diamond.scisoft.arpes.calibration.goldCalibrationCommand"
+            name="ARPES Gold Calibration Wizard">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.dawnsci.analysis.api.operation">
+      <operation
+            category="uk.ac.diamond.scisoft.arpes.calibration.operations.ARPESanalysisCategory"
+            class="uk.ac.diamond.scisoft.arpes.calibration.operations.ARPESGoldCalibrationCorrection"
+            description="ARPES Gold Calibration Correction"
+            icon="icons/fit.png"
+            id="uk.ac.diamond.scisoft.arpes.calibration.operations.ARPESGoldCalibrationCorrection"
+            model="uk.ac.diamond.scisoft.arpes.calibration.operations.ARPESGoldCalibrationCorrectionModel"
+            name="ARPES Gold Calibration Correction"
+            visible="true">
+      </operation>
+      <operation
+            category="uk.ac.diamond.scisoft.arpes.calibration.operations.ARPESanalysisCategory"
+            class="uk.ac.diamond.scisoft.arpes.calibration.operations.ARPESAxisConversion"
+            description="ARPES Axis Conversion"
+            icon="icons/downsamp.png"
+            id="uk.ac.diamond.scisoft.arpes.calibration.operations.ARPESAxisConversion"
+            model="uk.ac.diamond.scisoft.arpes.calibration.operations.ARPESAxisConversionModel"
+            name="ARPES Axis Conversion"
+            visible="true">
+      </operation>
+      <category
+            id="uk.ac.diamond.scisoft.arpes.calibration.operations.ARPESanalysisCategory"
+            name="ARPES Analysis">
+      </category>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <e4view
+            allowMultiple="false"
+            category="uk.ac.diamond.scisoft.arpes.calibration.ArpesCategory"
+            class="uk.ac.diamond.scisoft.arpes.calibration.views.ARPESFilePreview"
+            icon="icons/ARPES_icon.png"
+            id="uk.ac.diamond.scisoft.arpes.calibration.e4.ARPESPreview"
+            name="ARPES Preview"
+            restorable="true">
+      </e4view>
+      <category
+            id="uk.ac.diamond.scisoft.arpes.calibration.ArpesCategory"
+            name="ARPES">
+      </category>
+   </extension>
+   <!--
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            id="uk.ac.diamond.scisoft.arpes.calibration.contribution1"
+            objectClass="org.eclipse.core.resources.IFile">
+         <menu
+               id="uk.ac.diamond.scisoft.arpes.calibration.menu1"
+               label="ARPES"
+               path="additions">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               class="uk.ac.diamond.scisoft.arpes.calibration.handlers.NewAction"
+               enablesFor="1"
+               id="uk.ac.diamond.scisoft.arpes.calibration.newAction"
+               label="Open ARPES Gold Calibration Wizard"
+               menubarPath="uk.ac.diamond.scisoft.arpes.calibration.menu1/group1">
+         </action>
+      </objectContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+   </extension>-->
+</plugin>
