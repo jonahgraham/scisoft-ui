@@ -202,7 +202,7 @@ public class JythonCreator implements IStartup {
 					"-jar", executable,
 					FileUtils.getFileAbsolutePath(script)};
 			File workingDir = new File(System.getProperty("java.io.tmpdir"));
-//			logger.debug("Cache and working dirs are {} and {}", cachePath, workingDir);
+			logger.debug("Cache and working dirs are {} and {}", cachePath, workingDir);
 			IPythonNature nature = null;
 
 			String outputString = "";
