@@ -157,10 +157,11 @@ public class JythonCreator implements IStartup {
 			if (cachePath == null || cachePath.length() == 0) {
 				final String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
 				final File cacheDir = new File(workspace, ".jython_cachedir");
-				if (!cacheDir.exists())
-					cacheDir.mkdirs();
 				cachePath = cacheDir.getAbsolutePath();
-				pyStore.setValue(IInterpreterManager.JYTHON_CACHE_DIR, cacheDir.getAbsolutePath());
+				if (!cacheDir.exists() && !cacheDir.mkdirs()) {
+					logger.error("Could not create Jython cache directory: {}", cachePath);
+				}
+				pyStore.setValue(IInterpreterManager.JYTHON_CACHE_DIR, cachePath);
 			}
 			System.setProperty("python.cachedir", cachePath);
 
