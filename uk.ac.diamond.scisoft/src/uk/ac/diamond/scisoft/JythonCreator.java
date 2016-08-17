@@ -154,14 +154,17 @@ public class JythonCreator implements IStartup {
 			// Set cache directory to something not in the installation directory
 			IPreferenceStore pyStore = PydevPrefs.getPreferenceStore();
 			String cachePath = pyStore.getString(IInterpreterManager.JYTHON_CACHE_DIR);
+			final File cacheDir;
 			if (cachePath == null || cachePath.length() == 0) {
 				final String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
-				final File cacheDir = new File(workspace, ".jython_cachedir");
+				cacheDir = new File(workspace, ".jython_cachedir");
 				cachePath = cacheDir.getAbsolutePath();
-				if (!cacheDir.exists() && !cacheDir.mkdirs()) {
-					logger.error("Could not create Jython cache directory: {}", cachePath);
-				}
 				pyStore.setValue(IInterpreterManager.JYTHON_CACHE_DIR, cachePath);
+			} else {
+				cacheDir = new File(cachePath);
+			}
+			if (!cacheDir.exists() && !cacheDir.mkdirs()) {
+				logger.error("Could not create Jython cache directory: {}", cachePath);
 			}
 			System.setProperty("python.cachedir", cachePath);
 
@@ -203,7 +206,7 @@ public class JythonCreator implements IStartup {
 					"-jar", executable,
 					FileUtils.getFileAbsolutePath(script)};
 			File workingDir = new File(System.getProperty("java.io.tmpdir"));
-			logger.debug("Cache and working dirs are {} and {}", cachePath, workingDir);
+			logger.debug("Cache and tmp working dirs are {} and {}", cachePath, workingDir);
 			IPythonNature nature = null;
 
 			String outputString = "";
