@@ -9,6 +9,7 @@
 package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -229,7 +230,8 @@ class Plotting1DUI extends PlottingGUIUpdate {
 							}
 						}
 						i++;
-						Collection<ITrace> newTraces = plottingSystem.createPlot1D(nx, yl, null, null);
+						plottingSystem.resetAxes();
+						Collection<ITrace> newTraces = plottingSystem.createPlot1D(nx, yl, Arrays.asList(ny.getName()), ny.getName() + " against " + nx.getName(), null);
 						for (ITrace iTrace : newTraces) {
 							final ILineTrace lineTrace = (ILineTrace) iTrace;
 							lineTrace.setTraceType(TraceType.SOLID_LINE);
