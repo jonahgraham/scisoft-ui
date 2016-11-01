@@ -374,11 +374,16 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 	@Override
 	public void dispose() {
-		explorer.dispose();
-		sashComp.dispose();
-		viewer.getControl().dispose();
-		expressionViewer.getControl().dispose();
-		variableViewer.getControl().dispose();
+		if (explorer != null)
+			explorer.dispose();
+		if (sashComp != null)
+			sashComp.dispose();
+		if (viewer != null)
+			viewer.getControl().dispose();
+		if (expressionViewer != null)
+			expressionViewer.getControl().dispose();
+		if (variableViewer != null)
+			variableViewer.getControl().dispose();
 
 		super.dispose();
 	}
