@@ -908,27 +908,6 @@
       </cheatsheet>
    </extension>
    <extension
-         point="org.eclipse.core.variables.dynamicVariables">
-      <variable
-            description="Listening TCP/IP port for the Analysis RPC Server"
-            name="scisoft_rpc_port"
-            resolver="uk.ac.diamond.scisoft.analysis.rcp.variables.AnalysisRpcPortDynamicVariableResolver"
-            supportsArgument="false">
-      </variable>
-      <variable
-            description="Listening TCP/IP port for the RMI Server"
-            name="scisoft_rmi_port"
-            resolver="uk.ac.diamond.scisoft.analysis.rcp.variables.RMIPortDynamicVariableResolver"
-            supportsArgument="false">
-      </variable>
-      <variable
-            description="Temporary files location when using Analysis RPC"
-            name="scisoft_rpc_temp"
-            resolver="uk.ac.diamond.scisoft.analysis.rcp.variables.AnaylsisRpcTempFileLocationDynamicVariableResolver"
-            supportsArgument="false">
-      </variable>
-   </extension>
-   <extension
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
             icon="icons/project_reel.png"

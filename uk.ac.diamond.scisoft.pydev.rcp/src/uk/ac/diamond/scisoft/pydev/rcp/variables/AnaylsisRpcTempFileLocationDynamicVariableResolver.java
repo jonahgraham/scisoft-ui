@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Diamond Light Source Ltd.
+ * Copyright (c) 2012-2016 Diamond Light Source Ltd.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -7,18 +7,23 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.variables;
+package uk.ac.diamond.scisoft.pydev.rcp.variables;
+
+import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.variables.IDynamicVariable;
 import org.eclipse.core.variables.IDynamicVariableResolver;
-import org.eclipse.dawnsci.analysis.api.RMIServerProvider;
 
-public class RMIPortDynamicVariableResolver implements IDynamicVariableResolver {
+import uk.ac.diamond.scisoft.analysis.rpc.FlatteningService;
+
+public class AnaylsisRpcTempFileLocationDynamicVariableResolver implements IDynamicVariableResolver {
 
 	@Override
 	public String resolveValue(IDynamicVariable variable, String argument) throws CoreException {
-		return Integer.toString(RMIServerProvider.getInstance().getPort());
+		File tempLocation = FlatteningService.getFlattener().getTempLocation();
+		if (tempLocation != null)
+			return tempLocation.toString();
+		return "";
 	}
-
 }

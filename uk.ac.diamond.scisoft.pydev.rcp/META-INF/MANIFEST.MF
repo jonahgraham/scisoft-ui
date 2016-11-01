@@ -19,5 +19,7 @@ Require-Bundle: org.eclipse.jface,
  org.eclipse.debug.core,
  org.eclipse.equinox.registry,
  org.dawnsci.python.rpc,
- org.eclipse.dawnsci.plotting.api
+ org.eclipse.dawnsci.plotting.api,
+ org.eclipse.core.variables,
+ uk.ac.diamond.scisoft.analysis.xmlrpc
 Bundle-ActivationPolicy: lazy
