@@ -817,23 +817,6 @@
       </content-type>
    </extension>
    <extension
-         point="org.dawnsci.introRegister">
-      <introPageRegister
-            description="Opens the diffraction view perspective for viewing and analysing diffraction images"
-            icon="icons/diva_intro.png"
-            id="uk.ac.diamond.scisoft.intro.DiffractionViewerPersp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.DiffractionViewerPerspectiveLaunch"
-            name="DIVA">
-      </introPageRegister>
-      <introPageRegister
-            description="Opens the Data Explorer perspective for viewing data files"
-            icon="icons/dexplore_intro.png"
-            id="uk.ac.diamond.scisoft.intro.DataExplorationPersp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspectiveLaunch"
-            name="DEXPLORE">
-      </introPageRegister>
-   </extension>
-   <extension
          point="org.eclipse.ui.cheatsheets.cheatSheetContent">
       <category
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.DExploreCategory"
