@@ -294,12 +294,6 @@
             supportsArgument="false">
       </variable>
       <variable
-            description="Listening TCP/IP port for the RMI Server"
-            name="scisoft_rmi_port"
-            resolver="uk.ac.diamond.scisoft.pydev.rcp.variables.RMIPortDynamicVariableResolver"
-            supportsArgument="false">
-      </variable>
-      <variable
             description="Temporary files location when using Analysis RPC"
             name="scisoft_rpc_temp"
             resolver="uk.ac.diamond.scisoft.pydev.rcp.variables.AnaylsisRpcTempFileLocationDynamicVariableResolver"

@@ -925,4 +925,13 @@
          </run>
       </runtime>
    </extension>
+   <extension
+         point="org.eclipse.core.variables.dynamicVariables">
+      <variable
+            description="Listening TCP/IP port for the RMI Server"
+            name="scisoft_rmi_port"
+            resolver="uk.ac.diamond.scisoft.analysis.rcp.variables.RMIPortDynamicVariableResolver"
+            supportsArgument="false">
+      </variable>
+   </extension>
 </fragment>
