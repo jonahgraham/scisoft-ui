@@ -248,10 +248,7 @@ public class FermiGaussianFitter {
 
 				// mu
 				try {
-					IPlottingSystem<?> muSystem = (IPlottingSystem<?>) calibrationData
-							.getUserObject(ARPESCalibrationConstants.MU_SYSTEM);
-					muSystem.updatePlot1D(anglesAxisDS, Arrays.asList(new IDataset[] { parametersDS.get(0) }), null);
-					muSystem.repaint();
+					plot(ARPESCalibrationConstants.MU_SYSTEM, anglesAxisDS, parametersDS.get(0));
 					calibrationData.addList(ARPESCalibrationConstants.MU_DATA, parametersDS.get(0));
 				} catch (Exception e) {
 					logger.debug("Something happend during the Mu update process", e);
@@ -266,11 +263,7 @@ public class FermiGaussianFitter {
 				calibrationData.addList(ARPESCalibrationConstants.BACKGROUND, parametersDS.get(4));
 				// fwhm
 				try {
-					IPlottingSystem<?> resolutionSystem = (IPlottingSystem<?>) calibrationData
-							.getUserObject(ARPESCalibrationConstants.RESOLUTION_SYSTEM);
-					resolutionSystem.updatePlot1D(anglesAxisDS, Arrays.asList(new IDataset[] { parametersDS.get(5) }),
-							null);
-					resolutionSystem.repaint();
+					plot(ARPESCalibrationConstants.RESOLUTION_SYSTEM, anglesAxisDS, parametersDS.get(5));
 					calibrationData.addList(ARPESCalibrationConstants.FWHM_DATA, parametersDS.get(5));
 				} catch (Exception e) {
 					logger.debug("Something happend during the resolution update process", e);
@@ -284,12 +277,9 @@ public class FermiGaussianFitter {
 				residual.ipower(2);
 				residualsDS.set(residual.sum(), position);
 				try {
-					IPlottingSystem<?> residualsSystem = (IPlottingSystem<?>) calibrationData
-							.getUserObject(ARPESCalibrationConstants.RESIDUALS_SYSTEM);
 					IDataset residuals = DatasetUtils.cast(residualsDS, residualsDS.getDType());
 					residuals.setName("residuals");
-					residualsSystem.updatePlot1D(anglesAxisDS, Arrays.asList(new IDataset[] { residuals }), null);
-					residualsSystem.repaint();
+					plot(ARPESCalibrationConstants.RESIDUALS_SYSTEM, anglesAxisDS, residuals);
 					calibrationData.addList(ARPESCalibrationConstants.RESIDUALS_DATA, residuals);
 				} catch (Exception e) {
 					logger.debug("Something happend during the residuals update process", e);
@@ -448,6 +438,14 @@ public class FermiGaussianFitter {
 		} catch (Exception e) {
 			// Not an important issue, as its just for display, and doesn't
 			// affect the result.
+		}
+	}
+
+	private void plot(String plotName, IDataset xdata, IDataset data) {
+		IPlottingSystem<?> system = (IPlottingSystem<?>) calibrationData.getUserObject(plotName);
+		if (system != null) {
+			system.updatePlot1D(xdata, Arrays.asList(new IDataset[] { data }), null);
+			system.repaint();
 		}
 	}
 }
