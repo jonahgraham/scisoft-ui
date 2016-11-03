@@ -9,6 +9,7 @@
 package uk.ac.diamond.scisoft.arpes.calibration.wizards;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.dawb.common.ui.widgets.ActionBarWrapper;
@@ -26,7 +27,6 @@ import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.dawnsci.plotting.api.tool.ToolPageFactory;
-import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
@@ -146,25 +146,28 @@ public class GoldCalibrationPageOne extends CalibrationWizardPage {
 		averageData.setName("Intensity");
 		calibrationData.addList(ARPESCalibrationConstants.AVERAGE_DATANAME, averageData);
 
-		IDataset regionDataset = getRegionData((RectangularROI)roi);
+		IDataset regionDataset = getRegionData((RectangularROI)roi, calibrationData);
 		calibrationData.addList(ARPESCalibrationConstants.REGION_DATANAME, regionDataset);
-		List<IDataset> axes = getSliceAxes((IImageTrace)system.getTraces().iterator().next(), (RectangularROI)roi);
-		IDataset xaxisData = axes.get(0);
-		IDataset yaxisData = axes.get(1);
+		IDataset xaxis = (IDataset) calibrationData.getList(ARPESCalibrationConstants.XAXIS_DATANAME);
+		IDataset yaxis = (IDataset) calibrationData.getList(ARPESCalibrationConstants.YAXIS_DATANAME);
+		List<IDataset> dataAxes = Arrays.asList(new IDataset[] { xaxis, yaxis });
+		List<IDataset> slicedAxes = getSliceAxes(dataAxes, (RectangularROI)roi);
+		IDataset xaxisData = slicedAxes.get(0);
+		IDataset yaxisData = slicedAxes.get(1);
 		calibrationData.addList(ARPESCalibrationConstants.ENERGY_AXIS, xaxisData);
 		calibrationData.addList(ARPESCalibrationConstants.ANGLE_AXIS, yaxisData);
 		setPageComplete(true);
 	}
 
-	private List<IDataset> getSliceAxes(IImageTrace image, RectangularROI bounds) {
-		int yInc = bounds.getPoint()[1]<bounds.getEndPoint()[1] ? 1 : -1;
-		int xInc = bounds.getPoint()[0]<bounds.getEndPoint()[0] ? 1 : -1;
+	public static List<IDataset> getSliceAxes(List<IDataset> dataAxes, RectangularROI bounds) {
+		int yInc = bounds.getPoint()[1] < bounds.getEndPoint()[1] ? 1 : -1;
+		int xInc = bounds.getPoint()[0] < bounds.getEndPoint()[0] ? 1 : -1;
 		Dataset yLabels = null;
 		Dataset xLabels = null;
-		if (image.getAxes()!=null && image.getAxes().size() > 0) {
-			Dataset xl = DatasetUtils.convertToDataset(image.getAxes().get(0));
+		if (dataAxes != null && dataAxes.size() > 0) {
+			Dataset xl = DatasetUtils.convertToDataset(dataAxes.get(0));
 			if (xl!=null) xLabels = getLabelsFromLabels(xl, bounds, 0);
-			Dataset yl = DatasetUtils.convertToDataset(image.getAxes().get(1));
+			Dataset yl = DatasetUtils.convertToDataset(dataAxes.get(1));
 			if (yl!=null) yLabels = getLabelsFromLabels(yl, bounds, 1);
 		}
 
@@ -178,7 +181,7 @@ public class GoldCalibrationPageOne extends CalibrationWizardPage {
 		return axes;
 	}
 
-	private Dataset getLabelsFromLabels(Dataset xl, RectangularROI bounds, int axisIndex) {
+	private static Dataset getLabelsFromLabels(Dataset xl, RectangularROI bounds, int axisIndex) {
 		try {
 			int fromIndex = (int)bounds.getPoint()[axisIndex];
 			int toIndex   = (int)bounds.getEndPoint()[axisIndex];
@@ -190,7 +193,15 @@ public class GoldCalibrationPageOne extends CalibrationWizardPage {
 		}
 	}
 
-	private IDataset getRegionData(RectangularROI roi) {
+	/**
+	 * Returns the sliced region data given a ROI and the calibrationData (where
+	 * the data is)
+	 * 
+	 * @param roi
+	 * @param calibrationData
+	 * @return
+	 */
+	public static IDataset getRegionData(RectangularROI roi, DataMessageComponent calibrationData) {
 		final int yInc = roi.getPoint()[1] < roi.getEndPoint()[1] ? 1 : -1;
 		final int xInc = roi.getPoint()[0] < roi.getEndPoint()[0] ? 1 : -1;
 
