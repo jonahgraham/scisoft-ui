@@ -437,17 +437,17 @@ public class FermiGaussianFitter {
 	}
 
 	private void plotFunction(AFunction fitFunction, IDataset xAxis, IDataset values) {
-		String plotName = ARPESCalibrationConstants.FIT_UPDATE_SYSTEM;
-		if (!plotName.isEmpty()) {
-			try {
-				Dataset fermiDS = fitFunction.calculateValues(xAxis);
-				IPlottingSystem<?> fitUpdateSystem = (IPlottingSystem<?>) calibrationData.getUserObject(plotName);
+		try {
+			Dataset fermiDS = fitFunction.calculateValues(xAxis);
+			String plotName = ARPESCalibrationConstants.FIT_UPDATE_SYSTEM;
+			IPlottingSystem<?> fitUpdateSystem = (IPlottingSystem<?>) calibrationData.getUserObject(plotName);
+			if (fitUpdateSystem != null) {
 				fitUpdateSystem.clear();
 				fitUpdateSystem.updatePlot1D(xAxis, Arrays.asList(new IDataset[] { fermiDS, values }), null);
-			} catch (Exception e) {
-				// Not an important issue, as its just for display, and doesn't
-				// affect the result.
 			}
+		} catch (Exception e) {
+			// Not an important issue, as its just for display, and doesn't
+			// affect the result.
 		}
 	}
 }
