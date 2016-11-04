@@ -167,14 +167,14 @@ public class FermiGaussianFitter {
 		try {
 			logger.debug("attempt to shutdown executor");
 			executorService.shutdown();
-			while (!executorService.awaitTermination(200, TimeUnit.MILLISECONDS)){
-//			executorService.awaitTermination(10, TimeUnit.HOURS);
-				if (monitor.isCancelled()) break;
+			while (!executorService.awaitTermination(200, TimeUnit.MILLISECONDS)) {
+				// executorService.awaitTermination(10, TimeUnit.HOURS);
+				if (monitor != null && monitor.isCancelled())
+					break;
 			}
-			} catch (InterruptedException e) {
+		} catch (InterruptedException e) {
 			logger.debug("tasks interrupted:" + e.getMessage());
-		} 
-		finally {
+		} finally {
 			if (!executorService.isTerminated()) {
 				logger.debug("cancel non-finished tasks");
 			}

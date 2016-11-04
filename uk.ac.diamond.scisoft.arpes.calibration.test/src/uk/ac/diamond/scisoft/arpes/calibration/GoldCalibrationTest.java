@@ -1,20 +1,15 @@
 package uk.ac.diamond.scisoft.arpes.calibration;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import org.dawb.common.ui.monitor.ProgressMonitorWrapper;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.message.DataMessageComponent;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
@@ -22,7 +17,6 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.Slice;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.fitting.functions.FermiGauss;
@@ -37,10 +31,9 @@ public class GoldCalibrationTest {
 
 	@Before
 	public void prepare() {
-		IDataHolder holder;
 		try {
 			// load data
-			holder = LoaderFactory.getData(getTestFilePath("i05-4856.nxs"));
+			IDataHolder holder = LoaderFactory.getData(getTestFilePath("i05-4856.nxs"));
 			ILazyDataset data = holder.getLazyDataset(ARPESCalibrationConstants.DATANAME);
 			IDataset slicedData = data.getSlice(new Slice(0, data.getShape()[0], data.getShape()[1])).squeeze();
 			ILazyDataset xaxis = holder.getLazyDataset(ARPESCalibrationConstants.XAXIS_DATANAME);
@@ -61,14 +54,7 @@ public class GoldCalibrationTest {
 			// set roi
 			RectangularROI roi = new RectangularROI(new double[] { 538, 143 }, new double[] { 705, 815 });
 			calibrationData.addROI(ARPESCalibrationConstants.REGION_NAME, roi);
-			// set average
-			Dataset id = DatasetUtils.convertToDataset(slicedData);
-			IDataset averageData = ROIProfile.boxMean(id, null, (RectangularROI) roi, true)[0];
-			averageData.setName("Intensity");
-			calibrationData.addList(ARPESCalibrationConstants.AVERAGE_DATANAME, averageData);
-			// set region data
-			IDataset regionDataset = GoldCalibrationPageOne.getRegionData((RectangularROI)roi, calibrationData);
-			calibrationData.addList(ARPESCalibrationConstants.REGION_DATANAME, regionDataset);
+
 			// set axes
 			List<IDataset> dataAxes = Arrays.asList(new IDataset[] { slicedXaxis, slicedYaxis });
 			List<IDataset> axes = GoldCalibrationPageOne.getSliceAxes(dataAxes, (RectangularROI)roi);
@@ -76,17 +62,30 @@ public class GoldCalibrationTest {
 			IDataset yaxisData = axes.get(1);
 			calibrationData.addList(ARPESCalibrationConstants.ENERGY_AXIS, xaxisData);
 			calibrationData.addList(ARPESCalibrationConstants.ANGLE_AXIS, yaxisData);
-			
-			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	@Ignore
 	@Test
 	public void fitTest() {
+		// set average
+		IDataset slicedData = (IDataset) calibrationData.getList(ARPESCalibrationConstants.DATANAME);
+		Dataset id = DatasetUtils.convertToDataset(slicedData);
+		IROI roi = calibrationData.getROI(ARPESCalibrationConstants.REGION_NAME);
+		IDataset averageData = ROIProfile.boxMean(id, null, (RectangularROI) roi, true)[0];
+		averageData.setName("Intensity");
+		assertEquals("average data has the expected shape", 167, averageData.getShape()[0]);
+
+		calibrationData.addList(ARPESCalibrationConstants.AVERAGE_DATANAME, averageData);
+
+		// set region data
+		IDataset regionDataset = GoldCalibrationPageOne.getRegionData((RectangularROI) roi, calibrationData);
+		assertEquals("Region dataset has the expected starting value", 1915.0, regionDataset.getDouble(0, 0), 0);
+		assertEquals("Region dataset has the expected ending value", 295.0, regionDataset.getDouble(671, 166), 0);
+
+		calibrationData.addList(ARPESCalibrationConstants.REGION_DATANAME, regionDataset);
+
 		// set function with best fit for the ROI selected
 		FermiGauss fg = new FermiGauss();
 		// mu=65.67865
@@ -122,39 +121,60 @@ public class GoldCalibrationTest {
 		fg.setName("fermi");
 		calibrationData.addFunction(fg.getName(), fg);
 		// run the fermi fitter
-		final FermiGaussianFitter fitter = new FermiGaussianFitter(calibrationData);
-		Job fitterJob = new Job("FitterJob") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				fitter.fit(new ProgressMonitorWrapper(monitor));
-				return Status.OK_STATUS;
-			}
-		};
-		fitterJob.addJobChangeListener(new JobChangeAdapter() {
-			@Override
-			public void done(IJobChangeEvent event) {
+		FermiGaussianFitter fitter = new FermiGaussianFitter(calibrationData);
+		fitter.fit(null);
 
-				IDataset muData = (IDataset)calibrationData.getList(ARPESCalibrationConstants.MU_DATA);
-				// temperature
-				IDataset tempData = (IDataset)calibrationData.getList(ARPESCalibrationConstants.TEMPERATURE);
-				// background slope
-				IDataset bngSlope = (IDataset)calibrationData.getList(ARPESCalibrationConstants.BACKGROUND_SLOPE);
-				// fermi edge step height
-				IDataset fermiEdge = (IDataset)calibrationData.getList(ARPESCalibrationConstants.FERMI_EDGE_STEP_HEIGHT);
-				// background
-				IDataset bng = (IDataset)calibrationData.getList(ARPESCalibrationConstants.BACKGROUND);
-				IDataset fwhm = (IDataset)calibrationData.getList(ARPESCalibrationConstants.FWHM_DATA);
+		IDataset muData = (IDataset) calibrationData.getList(ARPESCalibrationConstants.MU_DATA);
+		assertThat("mu data has been created", muData != null);
+//		assertEquals("Mu data has the expected starting value", 65.65554, muData.getDouble(0), 0.00001);
+//		assertEquals("Mu data has the expected ending value", 65.66521, muData.getDouble(671), 0.00001);
+		// temperature
+		IDataset tempData = (IDataset) calibrationData.getList(ARPESCalibrationConstants.TEMPERATURE);
+		assertThat("tempData data has been created", tempData != null);
+		assertEquals("Temp data has the expected starting value", 5.3737, tempData.getDouble(0), 0);
+		assertEquals("Temp data has the expected ending value", 5.3737, tempData.getDouble(671), 0);
+		// background slope
+		IDataset bngSlope = (IDataset) calibrationData.getList(ARPESCalibrationConstants.BACKGROUND_SLOPE);
+		assertThat("bngSlope data has been created", bngSlope != null);
+//		assertEquals("Background slope data has the expected starting value", -2129.20444, bngSlope.getDouble(0), 0.00001);
+//		assertEquals("Background slope data has the expected ending value", -2264.33415, bngSlope.getDouble(671), 0.00001);
+		// fermi edge step height
+		IDataset fermiEdge = (IDataset) calibrationData.getList(ARPESCalibrationConstants.FERMI_EDGE_STEP_HEIGHT);
+		assertThat("fermiEdge data has been created", fermiEdge != null);
+//		assertEquals("fermiEdge data has the expected starting value", 1127.93651, fermiEdge.getDouble(0), 0.00001);
+//		assertEquals("fermiEdge data has the expected ending value", 1063.13730, fermiEdge.getDouble(671), 0.00001);
 
-				IDataset residuals = (IDataset)calibrationData.getList(ARPESCalibrationConstants.RESIDUALS_DATA);
-				IDataset fitted = (IDataset)calibrationData.getList(ARPESCalibrationConstants.FITTED);
-				IDataset fitImage = (IDataset)calibrationData.getList(ARPESCalibrationConstants.FIT_IMAGE);
-				IDataset fitResiduals = (IDataset)calibrationData.getList(ARPESCalibrationConstants.FIT_RESIDUALS);
-				
-				assertThat("fitter has finished", true);
-				System.out.println();
-			}
-		});
-		fitterJob.schedule();
+		// background
+		IDataset bng = (IDataset) calibrationData.getList(ARPESCalibrationConstants.BACKGROUND);
+		assertThat("bng data has been created", bng != null);
+//		assertEquals("Background data has the expected starting value", 315.39261, bng.getDouble(0), 0.00001);
+//		assertEquals("Background data has the expected ending value", 315.10838, bng.getDouble(671), 0.00001);
+
+		IDataset fwhm = (IDataset) calibrationData.getList(ARPESCalibrationConstants.FWHM_DATA);
+		assertThat("fwhm data has been created", fwhm != null);
+//		assertEquals("Background slope data has the expected starting value", 0.004061, fwhm.getDouble(0), 0.00001);
+//		assertEquals("Background slope data has the expected ending value", 0.0044011, fwhm.getDouble(671), 0.00001);
+
+		IDataset residuals = (IDataset) calibrationData.getList(ARPESCalibrationConstants.RESIDUALS_DATA);
+		assertThat("residuals data has been created", residuals != null);
+//		assertEquals("fwhm data has the expected starting value", 4282014.76809, residuals.getDouble(0), 0.00001);
+//		assertEquals("fwhm data has the expected ending value", 1024781.35223, residuals.getDouble(671), 0.00001);
+
+		IDataset fitted = (IDataset) calibrationData.getList(ARPESCalibrationConstants.FITTED);
+		assertThat("fitted data has been created", fitted != null);
+//		assertEquals("fitted data has the expected starting value", 1749.2519, fitted.getDouble(0, 0), 0.0001);
+//		assertEquals("fitted data has the expected ending value", 315.10838, fitted.getDouble(671, 166), 0.0001);
+
+		IDataset fitImage = (IDataset) calibrationData.getList(ARPESCalibrationConstants.FIT_IMAGE);
+		assertThat("fitImage data has been created", fitImage != null);
+//		assertEquals("fitImage data has the expected starting value", 1709.677016, fitImage.getDouble(0, 0), 0.0001);
+//		assertEquals("fitImage data has the expected ending value", 315.10838, fitImage.getDouble(671, 166), 0.0001);
+
+		IDataset fitResiduals = (IDataset) calibrationData.getList(ARPESCalibrationConstants.FIT_RESIDUALS);
+		assertThat("fitResiduals data has been created", fitResiduals != null);
+//		assertEquals("fitResiduals data has the expected starting value", 4282014.7680, fitResiduals.getDouble(0), 0.00001);
+//		assertEquals("fitResiduals data has the expected ending value", 1024781.35223, fitResiduals.getDouble(671), 0.00001);
+
 	}
 
 	private String getTestFilePath(String fileName) {
