@@ -22,7 +22,6 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
-//import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,21 +42,11 @@ class Plotting1DUI extends PlottingGUIUpdate {
 	private static final int LEGEND_LIMIT = 5; // maximum number of lines for legend otherwise it is not shown
 
 	/**
-	 * Colour idx
-	 */
-	private int idx;
-	/**
-	 * trace colour
-	 */
-//	private Color plotColor;
-
-	/**
 	 * Constructor of a plotting 1D 
 	 * @param plottingSystem plotting system
 	 */
 	public Plotting1DUI(IPlottingSystem<?> plottingSystem) {
 		super(plottingSystem);
-		idx = 0;
 	}
 
 	private static boolean isStringOK(String s) {
@@ -156,11 +145,6 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						plottingSystem.autoscaleAxes();
 					logger.debug("Plot 1D updated");
 				} else {
-					// increment the colour
-//					int index = traces;
-					if (idx > 15) idx = 0; // There are 15 default colours.
-//					plotColor = ColorUtility.getSwtColour(index > ColorUtility.getSize() ? idx++ : index);
-
 					List<IAxis> axes = plottingSystem.getAxes();
 					Map<String, Dataset> axisData = dbPlot.getAxisData();
 					int i = 0; // number of plots
@@ -235,8 +219,6 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						for (ITrace iTrace : newTraces) {
 							final ILineTrace lineTrace = (ILineTrace) iTrace;
 							lineTrace.setTraceType(TraceType.SOLID_LINE);
-							// if (plotColor != null)
-							// lineTrace.setTraceColor(plotColor);
 						}
 						yl.clear();
 					}
