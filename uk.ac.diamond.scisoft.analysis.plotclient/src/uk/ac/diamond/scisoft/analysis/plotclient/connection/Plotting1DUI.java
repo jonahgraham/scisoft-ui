@@ -148,14 +148,18 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						plottingSystem.autoscaleAxes();
 					logger.debug("Plot 1D updated");
 				} else {
+					IAxis firstXAxis = null;
+					IAxis firstYAxis = null;
 					List<IAxis> axes = plottingSystem.getAxes();
 					for (IAxis a : axes) {
 						a.setVisible(false);
+						if (firstYAxis == null && a.isYAxis()) {
+							firstYAxis = a;
+						}
 					}
 					Map<String, Dataset> axisData = dbPlot.getAxisData();
 					int i = 0; // number of plots
 					boolean against = true;
-					IAxis firstAxis = null;
 
 					Set<String> oldTraceNames = null;
 					if (GuiParameters.PLOTOP_ADD.equals(plotOperation)) {
@@ -196,9 +200,9 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						ax.setVisible(true);
 						plottingSystem.setSelectedXAxis(ax);
 						if (!hasTitle) {
-							if (firstAxis == null) {
-								firstAxis = ax;
-							} else if (ax != firstAxis) {
+							if (firstXAxis == null) {
+								firstXAxis = ax;
+							} else if (ax != firstXAxis) {
 								against = false;
 							}
 						}
@@ -211,8 +215,12 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						if (ay == null || !ay.isYAxis()) {
 							// help!
 							System.err.println("Haven't found y axis " + an);
-							ay = plottingSystem.createAxis(an, true, AxisOperation.LEFT);
-							axes.add(ay);
+							ay = firstYAxis;
+							if (ay == null) {
+								ay = plottingSystem.createAxis(an, true, AxisOperation.LEFT);
+								axes.add(ay);
+								firstYAxis = ay;
+							}
 						}
 						ay.setVisible(true);
 						plottingSystem.setSelectedYAxis(ay);
@@ -249,7 +257,7 @@ class Plotting1DUI extends PlottingGUIUpdate {
 					}
 
 					if (!hasTitle && isStringOK(title)) {
-						title = "Plot of " + title + (against && firstAxis != null ? " against "  + firstAxis.getTitle() : "");
+						title = "Plot of " + title + (against && firstXAxis != null ? " against "  + firstXAxis.getTitle() : "");
 					}
 					plottingSystem.setTitle(title);
 					if (plotData.size() > 1) {
