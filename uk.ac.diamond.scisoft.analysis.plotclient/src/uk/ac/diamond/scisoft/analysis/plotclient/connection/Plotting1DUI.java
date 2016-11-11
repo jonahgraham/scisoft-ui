@@ -11,17 +11,19 @@ package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.TraceType;
+import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
-import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +56,7 @@ class Plotting1DUI extends PlottingGUIUpdate {
 	}
 
 	@Override
-	public void processPlotUpdate(final DataBean dbPlot, boolean isUpdate) {
+	public void processPlotUpdate(final DataBean dbPlot, final boolean isUpdate) {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -115,9 +117,10 @@ class Plotting1DUI extends PlottingGUIUpdate {
 					List<ITrace> unused = new ArrayList<ITrace>();
 					for (ITrace t : oldTraces) {
 						if (t instanceof ILineTrace) {
+							ILineTrace lt = (ILineTrace) t;
 							boolean used = false;
-							String oyn = t.getName();
-							Dataset x = DatasetUtils.convertToDataset(((ILineTrace) t).getXData());
+							String oyn = lt.getName();
+							Dataset x = DatasetUtils.convertToDataset(lt.getXData());
 							String oxn = x == null ? null : x.getName();
 							for (DatasetWithAxisInformation d : plotData) {
 								Dataset ny = d.getData();
@@ -126,8 +129,8 @@ class Plotting1DUI extends PlottingGUIUpdate {
 								String nxn = nx.getName();
 								if (oyn != null && oyn.equals(nyn)) {
 									if (oxn != null && oxn.equals(nxn)) {
-										((ILineTrace) t).setData(nx, ny);
-										((ILineTrace) t).repaint();
+										lt.setData(nx, ny);
+										lt.repaint();
 										used = true;
 										break;
 									}
@@ -153,7 +156,21 @@ class Plotting1DUI extends PlottingGUIUpdate {
 					int i = 0; // number of plots
 					boolean against = true;
 					IAxis firstAxis = null;
+
+					Set<String> oldTraceNames = null;
+					if (GuiParameters.PLOTOP_ADD.equals(plotOperation)) {
+						oldTraceNames = new HashSet<>();
+						for (ITrace t : oldTraces) {
+							oldTraceNames.add(t.getName());
+						}
+					}
 					for (DatasetWithAxisInformation d : plotData) {
+						if (oldTraceNames != null) {
+							if (oldTraceNames.contains(d.getData().getName())) {
+								continue;
+							}
+						}
+
 						String[] names = d.getAxisMap().getAxisNames();
 						String id = d.getAxisMap().getAxisID()[0];
 						String an;
