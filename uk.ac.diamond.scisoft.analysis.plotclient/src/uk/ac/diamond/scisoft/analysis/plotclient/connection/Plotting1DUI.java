@@ -11,17 +11,19 @@ package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.TraceType;
+import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
-import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +56,7 @@ class Plotting1DUI extends PlottingGUIUpdate {
 	}
 
 	@Override
-	public void processPlotUpdate(final DataBean dbPlot, boolean isUpdate) {
+	public void processPlotUpdate(final DataBean dbPlot, final boolean isUpdate) {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -115,9 +117,10 @@ class Plotting1DUI extends PlottingGUIUpdate {
 					List<ITrace> unused = new ArrayList<ITrace>();
 					for (ITrace t : oldTraces) {
 						if (t instanceof ILineTrace) {
+							ILineTrace lt = (ILineTrace) t;
 							boolean used = false;
-							String oyn = t.getName();
-							Dataset x = DatasetUtils.convertToDataset(((ILineTrace) t).getXData());
+							String oyn = lt.getName();
+							Dataset x = DatasetUtils.convertToDataset(lt.getXData());
 							String oxn = x == null ? null : x.getName();
 							for (DatasetWithAxisInformation d : plotData) {
 								Dataset ny = d.getData();
@@ -126,8 +129,8 @@ class Plotting1DUI extends PlottingGUIUpdate {
 								String nxn = nx.getName();
 								if (oyn != null && oyn.equals(nyn)) {
 									if (oxn != null && oxn.equals(nxn)) {
-										((ILineTrace) t).setData(nx, ny);
-										((ILineTrace) t).repaint();
+										lt.setData(nx, ny);
+										lt.repaint();
 										used = true;
 										break;
 									}
@@ -145,22 +148,42 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						plottingSystem.autoscaleAxes();
 					logger.debug("Plot 1D updated");
 				} else {
+					IAxis firstXAxis = null;
+					IAxis firstYAxis = null;
 					List<IAxis> axes = plottingSystem.getAxes();
+					for (IAxis a : axes) {
+						a.setVisible(false);
+						if (firstYAxis == null && a.isYAxis()) {
+							firstYAxis = a;
+						}
+					}
 					Map<String, Dataset> axisData = dbPlot.getAxisData();
 					int i = 0; // number of plots
 					boolean against = true;
-					IAxis firstAxis = null;
-					ArrayList<IDataset> yl = new ArrayList<IDataset>();
+
+					Set<String> oldTraceNames = null;
+					if (GuiParameters.PLOTOP_ADD.equals(plotOperation)) {
+						oldTraceNames = new HashSet<>();
+						for (ITrace t : oldTraces) {
+							oldTraceNames.add(t.getName());
+						}
+					}
 					for (DatasetWithAxisInformation d : plotData) {
+						if (oldTraceNames != null) {
+							if (oldTraceNames.contains(d.getData().getName())) {
+								continue;
+							}
+						}
+
 						String[] names = d.getAxisMap().getAxisNames();
 						String id = d.getAxisMap().getAxisID()[0];
 						String an;
-						an = names[0];
+						an = names[0]; // x axis name
 						if (!isStringOK(an)) {
 							an = AxisMapBean.XAXIS;
 						}
 						Dataset nx = axisData.get(id);
-						String n = nx.getName();
+						String n = nx.getName(); // x axis dataset name
 						IAxis ax = findAxis(axes, an);
 						if (ax == null || ax.isYAxis()) {
 							if (isStringOK(n)) {
@@ -174,11 +197,12 @@ class Plotting1DUI extends PlottingGUIUpdate {
 								axes.add(ax);
 							}
 						}
+						ax.setVisible(true);
 						plottingSystem.setSelectedXAxis(ax);
 						if (!hasTitle) {
-							if (firstAxis == null) {
-								firstAxis = ax;
-							} else if (ax != firstAxis) {
+							if (firstXAxis == null) {
+								firstXAxis = ax;
+							} else if (ax != firstXAxis) {
 								against = false;
 							}
 						}
@@ -191,13 +215,17 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						if (ay == null || !ay.isYAxis()) {
 							// help!
 							System.err.println("Haven't found y axis " + an);
-							ay = plottingSystem.createAxis(an, true, AxisOperation.LEFT);
-							axes.add(ay);
+							ay = firstYAxis;
+							if (ay == null) {
+								ay = plottingSystem.createAxis(an, true, AxisOperation.LEFT);
+								axes.add(ay);
+								firstYAxis = ay;
+							}
 						}
+						ay.setVisible(true);
 						plottingSystem.setSelectedYAxis(ay);
 
 						Dataset ny = d.getData();
-						yl.add(ny);
 						String nyn = ny.getName();
 						// set a name to the data if none
 						if (!isStringOK(nyn)) {
@@ -213,20 +241,28 @@ class Plotting1DUI extends PlottingGUIUpdate {
 								title += "...";
 							}
 						}
-						i++;
-						plottingSystem.resetAxes();
-						Collection<ITrace> newTraces = plottingSystem.createPlot1D(nx, yl, Arrays.asList(ny.getName()), ny.getName() + " against " + nx.getName(), null);
-						for (ITrace iTrace : newTraces) {
-							final ILineTrace lineTrace = (ILineTrace) iTrace;
-							lineTrace.setTraceType(TraceType.SOLID_LINE);
+						ILineTrace newTrace;
+						if (i == 0) {
+							List<IDataset> yl = new ArrayList<>();
+							yl.add(ny);
+							Collection<ITrace> newTraces = plottingSystem.createPlot1D(nx, yl, null, null);
+							newTrace = (ILineTrace) newTraces.iterator().next();
+						} else {
+							newTrace = plottingSystem.createLineTrace("" + i);
+							plottingSystem.addTrace(newTrace);
 						}
-						yl.clear();
+						newTrace.setData(nx, ny);
+						newTrace.setTraceType(TraceType.SOLID_LINE);
+						i++;
 					}
 
 					if (!hasTitle && isStringOK(title)) {
-						title = "Plot of " + title + (against && firstAxis != null ? " against "  + firstAxis.getTitle() : "");
+						title = "Plot of " + title + (against && firstXAxis != null ? " against "  + firstXAxis.getTitle() : "");
 					}
 					plottingSystem.setTitle(title);
+					if (plotData.size() > 1) {
+						plottingSystem.autoscaleAxes();
+					}
 
 					logger.debug("Plot 1D created");
 				}
