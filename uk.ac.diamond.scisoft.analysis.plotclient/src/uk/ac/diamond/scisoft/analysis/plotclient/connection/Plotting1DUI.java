@@ -9,7 +9,6 @@
 package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +41,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 class Plotting1DUI extends PlottingGUIUpdate {
 	private static final Logger logger = LoggerFactory.getLogger(Plotting1DUI.class);
 	private static final int LEGEND_LIMIT = 5; // maximum number of lines for legend otherwise it is not shown
+	private static final int TITLE_LIMIT = 3; // maximum number of lines for title to show
 
 	/**
 	 * Constructor of a plotting 1D 
@@ -49,10 +49,6 @@ class Plotting1DUI extends PlottingGUIUpdate {
 	 */
 	public Plotting1DUI(IPlottingSystem<?> plottingSystem) {
 		super(plottingSystem);
-	}
-
-	private static boolean isStringOK(String s) {
-		return s != null && s.trim().length() > 0;
 	}
 
 	@Override
@@ -104,9 +100,22 @@ class Plotting1DUI extends PlottingGUIUpdate {
 					}
 
 					if (!useOldTraces) {
+						// remove all lines and associated y axes
+						List<IAxis> axes = plottingSystem.getAxes();
+
 						for (ITrace t : oldTraces) {
 							if (t instanceof ILineTrace) {
 								plottingSystem.removeTrace(t);
+								String tn = t.getName();
+								for (IAxis a : axes) {
+									if (a.isYAxis() && tn.equals(a.getTitle())) {
+										IAxis r = plottingSystem.removeAxis(a); // NB does not remove primary axes
+										if (r != null) {
+											axes.remove(r);
+										}
+										break;
+									}
+								}
 							}
 						}
 						traces = 0;
@@ -148,51 +157,57 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						plottingSystem.autoscaleAxes();
 					logger.debug("Plot 1D updated");
 				} else {
-					IAxis firstXAxis = null;
-					IAxis firstYAxis = null;
-					List<IAxis> axes = plottingSystem.getAxes();
-					for (IAxis a : axes) {
-						a.setVisible(false);
-						if (firstYAxis == null && a.isYAxis()) {
-							firstYAxis = a;
-						}
-					}
-					Map<String, Dataset> axisData = dbPlot.getAxisData();
-					int i = 0; // number of plots
-					boolean against = true;
-
-					Set<String> oldTraceNames = null;
+					// populate when adding lines to plot
+					Set<String> oldTraceNames = new HashSet<>();
 					if (GuiParameters.PLOTOP_ADD.equals(plotOperation)) {
-						oldTraceNames = new HashSet<>();
 						for (ITrace t : oldTraces) {
 							oldTraceNames.add(t.getName());
 						}
 					}
+
+					boolean resetAxes = oldTraceNames.isEmpty(); // only reset when no old traces
+					IAxis firstXAxis = null;
+					IAxis firstYAxis = null;
+					List<IAxis> axes = plottingSystem.getAxes();
+					for (IAxis a : axes) {
+						if (firstXAxis == null && !a.isYAxis()) {
+							firstXAxis = a;
+						}
+						if (firstYAxis == null && a.isYAxis()) {
+							firstYAxis = a;
+						}
+						if (resetAxes) { 
+							a.setVisible(false);
+						}
+					}
+
+					Map<String, Dataset> axisData = dbPlot.getAxisData();
+					int i = traces; // number of plots
+					boolean against = true;
+
 					for (DatasetWithAxisInformation d : plotData) {
-						if (oldTraceNames != null) {
-							if (oldTraceNames.contains(d.getData().getName())) {
-								continue;
-							}
+						Dataset ny = d.getData();
+						String nyn = ny.getName();
+						if (oldTraceNames.contains(nyn)) {
+							continue;
 						}
 
-						String[] names = d.getAxisMap().getAxisNames();
+						String[] names = d.getAxisMap().getAxisNames(); // nulls default to first axes
 						String id = d.getAxisMap().getAxisID()[0];
 						String an;
+
 						an = names[0]; // x axis name
-						if (!isStringOK(an)) {
-							an = AxisMapBean.XAXIS;
-						}
+						IAxis ax = an == null ? firstXAxis : findAxis(false, axes, an);
 						Dataset nx = axisData.get(id);
 						String n = nx.getName(); // x axis dataset name
-						IAxis ax = findAxis(axes, an);
-						if (ax == null || ax.isYAxis()) {
-							if (isStringOK(n)) {
+						
+						if (ax == null) {
+							if (!isEmpty(n)) { // try dataset name
 								an = n; // override axis name with dataset's name
-								ax = findAxis(axes, an); // in case of overwrite by plotting system
+								ax = findAxis(false, axes, an); // in case of overwrite by plotting system
 							}
-							if (ax == null || ax.isYAxis()) {
-								// help!
-								System.err.println("Haven't found x axis " + an);
+							if (ax == null) {
+								logger.debug("Haven't found x axis {}", an);
 								ax = plottingSystem.createAxis(an, false, AxisOperation.BOTTOM);
 								axes.add(ax);
 							}
@@ -200,44 +215,42 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						ax.setVisible(true);
 						plottingSystem.setSelectedXAxis(ax);
 						if (!hasTitle) {
-							if (firstXAxis == null) {
-								firstXAxis = ax;
-							} else if (ax != firstXAxis) {
-								against = false;
+							if (AxisMapBean.XAXIS.equals(ax.getTitle())) {
+								against = false; // don't use against when using "X-Axis"
 							}
 						}
 
 						an = names[1];
-						if (!isStringOK(an)) {
-							an = AxisMapBean.YAXIS;
-						}
-						IAxis ay = findAxis(axes, an);
-						if (ay == null || !ay.isYAxis()) {
-							// help!
-							System.err.println("Haven't found y axis " + an);
-							ay = firstYAxis;
+						IAxis ay = an == null ? firstYAxis : findAxis(true, axes, an);
+
+						if (ay == null) {
+							if (AxisMapBean.YAXIS.equals(an)) { // if "Y-Axis" has been renamed
+								ay = firstYAxis;
+							}
 							if (ay == null) {
+								logger.debug("Haven't found y axis {}", an);
 								ay = plottingSystem.createAxis(an, true, AxisOperation.LEFT);
 								axes.add(ay);
-								firstYAxis = ay;
 							}
 						}
 						ay.setVisible(true);
 						plottingSystem.setSelectedYAxis(ay);
 
-						Dataset ny = d.getData();
-						String nyn = ny.getName();
 						// set a name to the data if none
-						if (!isStringOK(nyn)) {
-							nyn = "Plot " + i;
+						if (isEmpty(nyn)) {
+							int nt = i;
+							do {
+								nyn = "Line " + nt++;
+							} while (oldTraceNames.contains(nyn));
 							ny.setName(nyn);
 						}
+
 						if (!hasTitle) {
 							if (i == 0) {
 								title = nyn;
-							} else if (i < 3) {
+							} else if (i < TITLE_LIMIT) {
 								title += ", " + nyn;
-							} else if (i == 3) {
+							} else if (i == TITLE_LIMIT) {
 								title += "...";
 							}
 						}
@@ -248,7 +261,7 @@ class Plotting1DUI extends PlottingGUIUpdate {
 							Collection<ITrace> newTraces = plottingSystem.createPlot1D(nx, yl, null, null);
 							newTrace = (ILineTrace) newTraces.iterator().next();
 						} else {
-							newTrace = plottingSystem.createLineTrace("" + i);
+							newTrace = plottingSystem.createLineTrace(nyn);
 							plottingSystem.addTrace(newTrace);
 						}
 						newTrace.setData(nx, ny);
@@ -256,8 +269,8 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						i++;
 					}
 
-					if (!hasTitle && isStringOK(title)) {
-						title = "Plot of " + title + (against && firstXAxis != null ? " against "  + firstXAxis.getTitle() : "");
+					if (!hasTitle) {
+						title = "Plot of " + title + (against ? " against "  + firstXAxis.getTitle() : "");
 					}
 					plottingSystem.setTitle(title);
 					if (plotData.size() > 1) {
@@ -270,13 +283,17 @@ class Plotting1DUI extends PlottingGUIUpdate {
 		});
 	}
 
-	private static IAxis findAxis(List<IAxis> axes, String n) {
+	private static boolean isEmpty(String s) {
+		return s.trim().isEmpty();
+	}
+
+	private static IAxis findAxis(boolean isY, List<IAxis> axes, String n) {
 		if (n == null) {
 			return null;
 		}
 		for (IAxis a : axes) {
 			String t = a.getTitle();
-			if (n.equals(t)) {
+			if (n.equals(t) && a.isYAxis() == isY) {
 				return a;
 			}
 		}
