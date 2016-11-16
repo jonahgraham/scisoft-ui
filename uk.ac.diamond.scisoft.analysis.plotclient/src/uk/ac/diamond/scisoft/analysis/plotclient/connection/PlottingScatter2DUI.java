@@ -10,10 +10,7 @@
 package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
@@ -47,14 +44,12 @@ class PlottingScatter2DUI extends AbstractPlotConnection {
 				Collection<DatasetWithAxisInformation> plotData = dbPlot.getData();
 				if (plotData != null) {
 					Iterator<DatasetWithAxisInformation> iter = plotData.iterator();
-					final List<Dataset> yDatasets = Collections.synchronizedList(new LinkedList<Dataset>());
 
 					int counter = 0;
 
 					while (iter.hasNext()) {
 						DatasetWithAxisInformation dataSetAxis = iter.next();
 						Dataset data = dataSetAxis.getData();
-						yDatasets.add(data);
 
 						Dataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS + Integer.toString(counter));
 						Dataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS + Integer.toString(counter));
@@ -68,7 +63,10 @@ class PlottingScatter2DUI extends AbstractPlotConnection {
 						scatterPlotPoints.setTraceType(TraceType.POINT);
 						scatterPlotPoints.setTraceColor(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
 						scatterPlotPoints.setPointStyle(PointStyle.FILLED_CIRCLE);
-						scatterPlotPoints.setPointSize(6);
+						// TODO accommodate different sizes
+						// For now, try value from data (nb, can barely see unless > 1)
+						int size = Math.max(2, (int) Math.abs(data.getDouble(new int[data.getRank()])));
+						scatterPlotPoints.setPointSize(size);
 						scatterPlotPoints.setName(xAxisValues.getName());
 						scatterPlotPoints.setData(xAxisValues, yAxisValues);
 						plottingSystem.addTrace(scatterPlotPoints);
