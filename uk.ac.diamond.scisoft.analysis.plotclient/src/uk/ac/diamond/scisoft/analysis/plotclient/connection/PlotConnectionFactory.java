@@ -35,6 +35,7 @@ public class PlotConnectionFactory {
 			plotUI = new Plotting2DUI(plottingSystem);
 		} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
 //			plottingSystem.setPlotType(PlotType.SCATTER2D);
+			plottingSystem.setPlotType(PlotType.XY);
 			plotUI = new PlottingScatter2DUI(plottingSystem);
 		} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
 			plottingSystem.setPlotType(PlotType.XY_SCATTER_3D);
