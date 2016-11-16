@@ -70,9 +70,7 @@ class Plotting1DUI extends PlottingGUIUpdate {
 				boolean useOldTraces = false;
 				final int plots = plotData.size();
 				if (GuiParameters.PLOTOP_NONE.equals(plotOperation) || GuiParameters.PLOTOP_UPDATE.equals(plotOperation)) {
-					if (plots > LEGEND_LIMIT) {
-						plottingSystem.setShowLegend(false);
-					}
+					plottingSystem.setShowLegend(plots <= LEGEND_LIMIT);
 
 					// check if same lines are being plotted
 					if (plots <= traces) {
