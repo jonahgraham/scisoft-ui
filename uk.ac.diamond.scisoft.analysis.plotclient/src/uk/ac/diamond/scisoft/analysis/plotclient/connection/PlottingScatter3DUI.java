@@ -9,11 +9,9 @@
 
 package uk.ac.diamond.scisoft.analysis.plotclient.connection;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.january.dataset.Dataset;
@@ -62,19 +60,8 @@ class PlottingScatter3DUI extends AbstractPlotConnection {
 					datasets.add(xAxisValues);
 					datasets.add(yAxisValues);
 					datasets.add(zAxisValues);
-					Map<String, Dataset> axisData = dbPlot.getAxisData();
-					ArrayList<IDataset> yl = new ArrayList<IDataset>();
-					String[] axesIDs = plotData.get(0).getAxisMap().getAxisID();
-					String id = axesIDs == null ? AxisMapBean.XAXIS :
-						plotData.get(0).getAxisMap().getAxisID()[0];
-					Dataset nx = axisData.get(id);
-					List<IDataset> xDatasets = new ArrayList<IDataset>(1);
-					xDatasets.add(nx);
-					for (DatasetWithAxisInformation d : plotData) {
-						Dataset ny = d.getData();
-						yl.add(ny);
-					}
-					plottingSystem.createPlot1D(nx, datasets, null, null);
+					Dataset data = plotData.size() > 0 ? plotData.get(0).getData() : null;
+					plottingSystem.createPlot1D(data, datasets, null, null);
 					logger.debug("Plot Scatter 3D created");
 				} else {
 					logger.error("Cannot plot data with NULL axes");
