@@ -241,6 +241,13 @@ class Plotting1DUI extends PlottingGUIUpdate {
 								nyn = "Line " + nt++;
 							} while (oldTraceNames.contains(nyn));
 							ny.setName(nyn);
+						} else { // work around limit of plotting system and traces of same name
+							String orig = nyn;
+							int j = 1;
+							while (plottingSystem.getTrace(nyn) != null) {
+								nyn = String.format("%s (%d)", orig, j++);
+							}
+							ny.setName(nyn);
 						}
 
 						if (!hasTitle) {
