@@ -33,7 +33,6 @@ import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -112,9 +111,7 @@ public class GoldCalibrationPageOne extends CalibrationWizardPage {
 
 		setControl(sashForm);
 		setPageComplete(false);
-		// Force the shell size
-		Point size = getShell().computeSize(750, 650);
-		getShell().setSize(size);
+		getShell().pack();
 	}
 
 	private IROIListener roiListener = new IROIListener.Stub() {

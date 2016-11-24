@@ -125,6 +125,7 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 		setControl(container);
 
 		setPageComplete(false);
+		getShell().pack();
 	}
 
 	private void handleResourceBrowse() {

@@ -118,6 +118,7 @@ public class GoldCalibrationPageThree extends CalibrationWizardPage {
 		calibrationData.addUserObject(ARPESCalibrationConstants.RESIDUALS_SYSTEM, residualsSystem);
 
 		setControl(sashForm);
+		getShell().pack();
 	}
 
 	@Override

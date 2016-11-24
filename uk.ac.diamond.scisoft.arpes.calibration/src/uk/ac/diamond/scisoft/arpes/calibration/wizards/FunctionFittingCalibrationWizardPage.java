@@ -97,6 +97,7 @@ public abstract class FunctionFittingCalibrationWizardPage extends CalibrationWi
 		});
 		setControl(sashForm);
 		setPageComplete(false);
+		getShell().pack();
 	}
 
 	/**
