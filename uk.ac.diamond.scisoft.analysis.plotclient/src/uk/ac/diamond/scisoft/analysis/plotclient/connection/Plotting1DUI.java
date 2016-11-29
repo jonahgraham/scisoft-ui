@@ -205,9 +205,15 @@ class Plotting1DUI extends PlottingGUIUpdate {
 								ax = findAxis(false, axes, an); // in case of overwrite by plotting system
 							}
 							if (ax == null) {
-								logger.debug("Haven't found x axis {}", an);
-								ax = plottingSystem.createAxis(an, false, AxisOperation.BOTTOM);
-								axes.add(ax);
+								if (plots == 1) {
+									logger.debug("Renaming solo x axis to {}", an);
+									firstXAxis.setTitle(an);
+									ax = firstXAxis;
+								} else {
+									logger.debug("Haven't found x axis {}", an);
+									ax = plottingSystem.createAxis(an, false, AxisOperation.BOTTOM);
+									axes.add(ax);
+								}
 							}
 						}
 						ax.setVisible(true);
@@ -226,9 +232,15 @@ class Plotting1DUI extends PlottingGUIUpdate {
 								ay = firstYAxis;
 							}
 							if (ay == null) {
-								logger.debug("Haven't found y axis {}", an);
-								ay = plottingSystem.createAxis(an, true, AxisOperation.LEFT);
-								axes.add(ay);
+								if (plots == 1) {
+									logger.debug("Renaming solo y axis to {}", an);
+									firstYAxis.setTitle(an);
+									ay = firstYAxis;
+								} else {
+									logger.debug("Haven't found y axis {}", an);
+									ay = plottingSystem.createAxis(an, true, AxisOperation.LEFT);
+									axes.add(ay);
+								}
 							}
 						}
 						ay.setVisible(true);
