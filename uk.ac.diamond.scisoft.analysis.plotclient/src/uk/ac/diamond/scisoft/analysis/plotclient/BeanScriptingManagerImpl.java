@@ -118,14 +118,16 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 						if (beanLocation != null) {
 							event.setDataBeanAvailable(null);
 							try {
-								final DataBean dataBean;
-								dataBean = getPlotServer().getData(beanLocation);
+								DataBean dataBean = getPlotServer().getData(beanLocation);
 	
 								if (dataBean == null) continue;
-	
+								dataBean = dataBean.copy();
+
 								// update the GUI if needed
 								GuiBean guiBean = event.getGuiBean();
-								if (guiBean == null) guiBean = new GuiBean();
+								if (guiBean == null) {
+									guiBean = new GuiBean();
+								}
 
 								// do not add plot mode as this is done in plot window
 								if (dataBean.getGuiParameters() != null) {
