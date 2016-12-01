@@ -9,22 +9,23 @@
 
 package uk.ac.diamond.scisoft.analysis.plotclient;
 
+import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 
 public class PlotEvent {
 
 	private GuiBean guiBean;
 	private GuiBean stashedGuiBean;
-	private String          dataBeanAvailable;
+	private DataBean dataBean;
 
 	public GuiBean getGuiBean() {
 		return guiBean;
 	}
-	public String getDataBeanAvailable() {
-		return dataBeanAvailable;
+	public DataBean getDataBean() {
+		return dataBean;
 	}
-	public void setDataBeanAvailable(String dataBeanAvailable) {
-		this.dataBeanAvailable = dataBeanAvailable;
+	public void setDataBean(DataBean dataBean) {
+		this.dataBean = dataBean;
 	}
 	public void setGuiBean(GuiBean guiBean) {
 		this.guiBean = guiBean;

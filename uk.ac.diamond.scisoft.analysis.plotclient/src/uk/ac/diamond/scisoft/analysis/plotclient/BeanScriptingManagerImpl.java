@@ -105,7 +105,7 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 						}
 						
 						GuiBean bean = event.getStashedGuiBean();
-						String beanLocation = event.getDataBeanAvailable();
+						DataBean dataBean = event.getDataBean();
 	
 						// if there is a stashedGUIBean to update then do that update first
 						if (bean != null) {
@@ -113,36 +113,23 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 							if (window != null)
 								window.processGUIUpdate(bean);
 						}
-	
+
 						// once the guiBean has been sorted out, see if there is any need to update the dataBean
-						if (beanLocation != null) {
-							event.setDataBeanAvailable(null);
-							try {
-								DataBean dataBean = getPlotServer().getData(beanLocation);
-	
-								if (dataBean == null) continue;
-								dataBean = dataBean.copy();
-
-								// update the GUI if needed
+						if (dataBean != null) {
+							event.setDataBean(null);
+							if (window != null) {
 								GuiBean guiBean = event.getGuiBean();
-								if (guiBean == null) {
-									guiBean = new GuiBean();
+								if (guiBean != null) {
+									// update the GUI if needed
+									window.processGUIUpdate(guiBean);
 								}
 
-								// do not add plot mode as this is done in plot window
-								if (dataBean.getGuiParameters() != null) {
-									guiBean.merge(dataBean.getGuiParameters());
-								}
-								if (window != null) {
-									window.processPlotUpdate(dataBean);
-								}
-								notifyDataObservers(dataBean, null);
-							} catch (Exception e) {
-								logger.error("There has been an issue retrieving the databean from the plotserver", e);
+								window.processPlotUpdate(dataBean);
 							}
+							notifyDataObservers(dataBean, null);
 						}
 					} catch (Throwable ne) {
-						logger.debug("Exception raised in plot server job");
+						logger.debug("Exception raised in plot server job", ne);
 						continue; // We still keep going until the part is disposed
 					}
 				}
@@ -202,9 +189,18 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 
 		if (changeCode instanceof String && changeCode.equals(viewName)) {
 			logger.debug("Getting a plot data update for {}; thd {} {}",  viewName, thd.getId(), thd.getName());
-			GuiBean     guiBean = getGUIBean();
+			GuiBean guiBean = getGUIBean();
 			final PlotEvent evt = new PlotEvent();
-			evt.setDataBeanAvailable(viewName);
+			try {
+				DataBean dataBean = getPlotServer().getData(viewName);
+				if (dataBean != null) {
+					dataBean = dataBean.copy(); // need to make a (shallow) copy otherwise changes get out of sync
+					logger.info("BSM copied data bean ({}) {}", dataBean.getData().size(), dataBean);
+				}
+				evt.setDataBean(dataBean);
+			} catch (Exception e) {
+				logger.error("There has been an issue retrieving the databean from the plotserver", e);
+			}
 			evt.setGuiBean(guiBean);
 			offer(evt);
 		} else if (changeCode instanceof GuiUpdate) {
@@ -295,8 +291,7 @@ public class BeanScriptingManagerImpl implements IBeanScriptingManager, IObserve
 		try {
 			getPlotServer().updateGui(viewName, guiBean);
 		} catch (Exception e) {
-			logger.warn("Problem with updating plot server with GUI data");
-			e.printStackTrace();
+			logger.warn("Problem with updating plot server with GUI data", e);
 		}
 	}
 
