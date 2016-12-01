@@ -18,13 +18,12 @@ package uk.ac.diamond.scisoft.analysis.plotclient;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
+import org.eclipse.dawnsci.plotting.api.axis.AxisUtils;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.eclipse.swt.widgets.Composite;
@@ -287,9 +286,6 @@ public class ScriptingConnection implements IObservable {
 		}
 	}
 
-	// this map is needed as axes from the plotting system get their titles changed
-	private Map<IAxis, String> axes = new LinkedHashMap<IAxis, String>();
-
 	private void processAxisOperation(final AxisOperation operation) {
 		if (plottingSystem == null || plottingSystem.isDisposed())
 			return;
@@ -306,55 +302,27 @@ public class ScriptingConnection implements IObservable {
 				new Runnable() {
 			@Override
 			public void run() {
-				final List<IAxis> pAxes = plottingSystem.getAxes();
-				if (axes.size() != 0 && axes.size() != pAxes.size()) {
-					logger.warn("Axes are out of synch! {} cf {}", axes, pAxes);
-					axes.clear();
-				}
-				if (axes.size() == 0) {
-					for (IAxis i : pAxes) {
-						String t = i.getTitle();
-						if (i.isPrimaryAxis()) {
-							if (t == null || t.length() == 0) { // override if empty
-								t = i.isYAxis() ? "Y-Axis" : "X-Axis";
-							}
-						}
-						axes.put(i, t);
-					}
-				}
 				String title = operation.getTitle();
 				String type = operation.getOperationType();
 				IAxis a = null;
-				if (axes.containsValue(title)) {
-					for (IAxis i : axes.keySet()) {
-						if (title.equals(axes.get(i))) {
-							a = i;
-							break;
-						}
-					}
-				}
 				if (type.equals(AxisOperation.CREATE)) {
 					boolean isYAxis = operation.isYAxis();
+					a = AxisUtils.findAxis(isYAxis, title, plottingSystem);
+					int side = operation.getSide();
 					if (a != null) {
-						if (isYAxis == a.isYAxis()) {
-							logger.warn("Axis already exists: {}", title);
-							return;
-						}
-						logger.debug("Axis is opposite orientation already exists");
+						logger.warn("Axis already exists: {}", title);
+						return;
 					}
-					a = plottingSystem.createAxis(title, isYAxis, operation.getSide());
-					axes.put(a, title);
+					a = plottingSystem.createAxis(title, isYAxis, side);
 					logger.trace("Created: {}", title);
 					return;
 				} else if (type.equals(AxisOperation.RENAMEX)) {
 					a = plottingSystem.getSelectedXAxis();
 					a.setTitle(title);
-					axes.put(a, title);
 					logger.trace("Renamed x: {}", title);
 				} else if (type.equals(AxisOperation.RENAMEY)) {
 					a = plottingSystem.getSelectedYAxis();
 					a.setTitle(title);
-					axes.put(a, title);
 					logger.trace("Renamed y: {}", title);
 				}
 			}
