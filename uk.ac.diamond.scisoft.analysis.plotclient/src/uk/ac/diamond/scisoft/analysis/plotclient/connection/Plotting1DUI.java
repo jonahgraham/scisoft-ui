@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.axis.AxisUtils;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.TraceType;
@@ -166,8 +167,7 @@ class Plotting1DUI extends PlottingGUIUpdate {
 					boolean resetAxes = oldTraceNames.isEmpty(); // only reset when no old traces
 					IAxis firstXAxis = null;
 					IAxis firstYAxis = null;
-					List<IAxis> axes = plottingSystem.getAxes();
-					for (IAxis a : axes) {
+					for (IAxis a : plottingSystem.getAxes()) {
 						if (firstXAxis == null && !a.isYAxis()) {
 							firstXAxis = a;
 						}
@@ -195,14 +195,14 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						String an;
 
 						an = names[0]; // x axis name
-						IAxis ax = an == null ? firstXAxis : findAxis(false, axes, an);
+						IAxis ax = an == null ? firstXAxis : AxisUtils.findXAxis(an, plottingSystem);
 						Dataset nx = axisData.get(id);
 						String n = nx.getName(); // x axis dataset name
 						
 						if (ax == null) {
 							if (!isEmpty(n)) { // try dataset name
 								an = n; // override axis name with dataset's name
-								ax = findAxis(false, axes, an); // in case of overwrite by plotting system
+								ax = AxisUtils.findXAxis(an, plottingSystem); // in case of overwrite by plotting system
 							}
 							if (ax == null) {
 								if (plots == 1) {
@@ -212,7 +212,6 @@ class Plotting1DUI extends PlottingGUIUpdate {
 								} else {
 									logger.debug("Haven't found x axis {}", an);
 									ax = plottingSystem.createAxis(an, false, AxisOperation.BOTTOM);
-									axes.add(ax);
 								}
 							}
 						}
@@ -225,7 +224,7 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						}
 
 						an = names[1];
-						IAxis ay = an == null ? firstYAxis : findAxis(true, axes, an);
+						IAxis ay = an == null ? firstYAxis : AxisUtils.findYAxis(an, plottingSystem);
 
 						if (ay == null) {
 							if (AxisMapBean.YAXIS.equals(an)) { // if "Y-Axis" has been renamed
@@ -239,7 +238,6 @@ class Plotting1DUI extends PlottingGUIUpdate {
 								} else {
 									logger.debug("Haven't found y axis {}", an);
 									ay = plottingSystem.createAxis(an, true, AxisOperation.LEFT);
-									axes.add(ay);
 								}
 							}
 						}
@@ -303,19 +301,4 @@ class Plotting1DUI extends PlottingGUIUpdate {
 	private static boolean isEmpty(String s) {
 		return s.trim().isEmpty();
 	}
-
-	private static IAxis findAxis(boolean isY, List<IAxis> axes, String n) {
-		if (n == null) {
-			return null;
-		}
-		for (IAxis a : axes) {
-			String t = a.getTitle();
-			if (n.equals(t) && a.isYAxis() == isY) {
-				return a;
-			}
-		}
-
-		return null;
-	}
-
 }
