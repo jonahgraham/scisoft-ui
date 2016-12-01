@@ -164,21 +164,14 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						}
 					}
 
-					boolean resetAxes = oldTraceNames.isEmpty(); // only reset when no old traces
-					IAxis firstXAxis = null;
-					IAxis firstYAxis = null;
-					for (IAxis a : plottingSystem.getAxes()) {
-						if (firstXAxis == null && !a.isYAxis()) {
-							firstXAxis = a;
-						}
-						if (firstYAxis == null && a.isYAxis()) {
-							firstYAxis = a;
-						}
-						if (resetAxes) { 
+					if (oldTraceNames.isEmpty()) { // only reset when no old traces
+						for (IAxis a : plottingSystem.getAxes()) {
 							a.setVisible(false);
 						}
 					}
 
+					IAxis firstXAxis = plottingSystem.getSelectedXAxis();
+					IAxis firstYAxis = plottingSystem.getSelectedYAxis();
 					Map<String, Dataset> axisData = dbPlot.getAxisData();
 					int i = traces; // number of plots
 					boolean against = true;
