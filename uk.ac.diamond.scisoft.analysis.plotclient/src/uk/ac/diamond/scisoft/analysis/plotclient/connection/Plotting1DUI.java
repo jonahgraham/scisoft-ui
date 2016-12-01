@@ -61,10 +61,6 @@ class Plotting1DUI extends PlottingGUIUpdate {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				List<DatasetWithAxisInformation> plotData = dbPlot.getData();
-				if (plotData == null)
-					return;
-
 				GuiBean gb = dbPlot.getGuiParameters();
 				String title = gb == null ? null : (String) gb.get(GuiParameters.TITLE);
 				boolean hasTitle = title != null;
