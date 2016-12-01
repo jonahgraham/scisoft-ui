@@ -75,7 +75,7 @@ public class PrepareFermiGaussianFunction {
 		fg.getParameter(5).setLowerLimit(0.001);
 		fg.getParameter(5).setUpperLimit(0.1);
 		
-		fg.setName("fermi");
+		fg.setName(fg.getName());
 
 		// Update the names of the axis so that plotting works more nicely later on
 		// xAxisDS.setName("Energy");

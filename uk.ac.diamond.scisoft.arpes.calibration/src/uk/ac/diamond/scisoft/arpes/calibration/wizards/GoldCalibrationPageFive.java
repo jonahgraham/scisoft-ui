@@ -71,13 +71,15 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 
 		txtPath = new Text(container, SWT.BORDER);
 		txtPath.setEditable(true);
-
+		// set default name
+		String filepath = (String) calibrationData.getUserObject(ARPESCalibrationConstants.FILE_PATH);
+		path = filepath.split("\\.").length > 0 ? (filepath.split("\\.")[0] + "_calib.nxs") :  null;
 		FileContentProposalProvider prov = new FileContentProposalProvider();
 		ContentProposalAdapter ad = new ContentProposalAdapter(txtPath, new TextContentAdapter(), prov, null, null);
 		ad.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
 		if (path != null)
 			txtPath.setText(path);
-		GridData gridData = new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1);
+		GridData gridData = new GridData(SWT.LEFT, SWT.FILL, false, false, 2, 1);
 		gridData.widthHint = 650;
 		txtPath.setLayoutData(gridData);
 		txtPath.addModifyListener(new ModifyListener() {
@@ -87,17 +89,17 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 			}
 		});
 
-		Button resourceButton = new Button(container, SWT.PUSH);
-		resourceButton.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
-		resourceButton.setImage(Activator.getImageDescriptor("icons/Project-data.png").createImage());
-		resourceButton.setToolTipText("Browse to file inside a project");
-		resourceButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				handleResourceBrowse();
-			}
-		});
-		resourceButton.setEnabled(true);
+//		Button resourceButton = new Button(container, SWT.PUSH);
+//		resourceButton.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
+//		resourceButton.setImage(Activator.getImageDescriptor("icons/Project-data.png").createImage());
+//		resourceButton.setToolTipText("Browse to file inside a project");
+//		resourceButton.addSelectionListener(new SelectionAdapter() {
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				handleResourceBrowse();
+//			}
+//		});
+//		resourceButton.setEnabled(true);
 
 		Button fileButton = new Button(container, SWT.PUSH);
 		fileButton.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
@@ -106,7 +108,7 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 		fileButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				handleFileBrowse();
+				handleFileBrowse(path);
 			}
 		});
 
@@ -128,6 +130,7 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 		getShell().pack();
 	}
 
+	@SuppressWarnings("unused")
 	private void handleResourceBrowse() {
 		IResource[] res = null;
 //		if (newFile) {
@@ -163,11 +166,10 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 		return res;
 	}
 
-	private void handleFileBrowse() {
+	private void handleFileBrowse(String filePath) {
 		String path = null;
 		final FileDialog dialog = new FileDialog(Display.getDefault().getActiveShell(), SWT.SAVE);
 		dialog.setText("Choose file");
-		final String filePath = getAbsoluteFilePath();
 		if (filePath != null) {
 			final File file = new File(filePath);
 			if (file.exists()) {
@@ -180,11 +182,15 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 			}
 
 		}
+		String savefolder = filePath.substring(0, filePath.lastIndexOf(File.separator));
+		dialog.setFilterPath(savefolder);
+		String savename = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
+		dialog.setFileName(savename);
 		path = dialog.open();
 		if (path != null) {
 			this.path = path;
 			txtPath.setText(this.path);
-			calibrationData.addUserObject(ARPESCalibrationConstants.SAVE_PATH, getAbsoluteFilePath());
+			calibrationData.addUserObject(ARPESCalibrationConstants.SAVE_PATH, path);
 		}
 	}
 
@@ -197,7 +203,8 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 			IResource res = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
 			if (res != null)
 				return res.getLocation().toOSString();
-			final File file = new File(path);
+			String savepath = path.substring(0, path.lastIndexOf(File.separator));
+			final File file = new File(savepath);
 			String parDir = file.getParent();
 			IContainer folder = (IContainer) ResourcesPlugin.getWorkspace().getRoot().findMember(parDir);
 			if (folder != null) {
