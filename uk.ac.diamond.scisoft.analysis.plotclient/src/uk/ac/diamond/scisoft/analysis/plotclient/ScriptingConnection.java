@@ -120,7 +120,13 @@ public class ScriptingConnection implements IObservable {
 			updatePlotMode(bean);
 			
 			final PlotEvent evt = new PlotEvent();
-			evt.setDataBeanAvailable(name);
+			if (manager instanceof BeanScriptingManagerImpl) {
+				try {
+					evt.setDataBean(((BeanScriptingManagerImpl) manager).getPlotServer().getData(name));
+				} catch (Exception e) {
+					logger.warn("Could not retrieve plot data from server", e);
+				}
+			}
 			evt.setStashedGuiBean(manager.getGUIInfo());
 			man.offer(evt);
 
