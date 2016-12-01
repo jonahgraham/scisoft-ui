@@ -173,6 +173,7 @@ public class GoldCalibrationWizard extends Wizard implements INewWizard {
 			double temperature = temp.getSlice(new Slice(0, temp.getShape()[0], temp.getElementsPerItem()))
 					.getDouble(0);
 
+			calibrationData.addUserObject(ARPESCalibrationConstants.FILE_PATH, path);
 			calibrationData.addList(ARPESCalibrationConstants.DATANAME, slicedData);
 			calibrationData.addList(ARPESCalibrationConstants.XAXIS_DATANAME, slicedXaxis);
 			calibrationData.addList(ARPESCalibrationConstants.YAXIS_DATANAME, slicedYaxis);

@@ -18,6 +18,7 @@ public class ARPESCalibrationConstants {
 	 * WIZARD constants
 	 *
 	 */
+	public static final String FILE_PATH = "Gold calibration File name";
 	public static final String DATANAME = "/entry1/analyser/data";
 	public static final String XAXIS_DATANAME = "/entry1/analyser/energies";
 	public static final String YAXIS_DATANAME = "/entry1/analyser/angles";
