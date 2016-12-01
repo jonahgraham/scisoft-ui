@@ -54,6 +54,10 @@ class Plotting1DUI extends PlottingGUIUpdate {
 
 	@Override
 	public void processPlotUpdate(final DataBean dbPlot, final boolean isUpdate) {
+		final List<DatasetWithAxisInformation> plotData = dbPlot.getData();
+		if (plotData == null)
+			return;
+
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -273,8 +277,10 @@ class Plotting1DUI extends PlottingGUIUpdate {
 						if (i == 0) {
 							List<IDataset> yl = new ArrayList<>();
 							yl.add(ny);
+							String oan = ay.getTitle();
 							Collection<ITrace> newTraces = plottingSystem.createPlot1D(nx, yl, null, null);
 							newTrace = (ILineTrace) newTraces.iterator().next();
+							ay.setTitle(oan); // workaround the rename that is needed by data browser (grr!)
 						} else {
 							newTrace = plottingSystem.createLineTrace(nyn);
 							plottingSystem.addTrace(newTrace);
