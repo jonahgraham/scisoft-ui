@@ -181,6 +181,9 @@ public class ARPESFilePreview {
 		ILoaderService service = Activator.getService(ILoaderService.class);
 		try {
 			IDataHolder holder = service.getData(filename, true, monitor);
+			if (holder == null)
+				return false;
+
 			ILazyDataset lazy = holder.getLazyDataset(ARPESCalibrationConstants.DATA_NODE);
 			return lazy!=null;
 		} catch (Exception e) {
