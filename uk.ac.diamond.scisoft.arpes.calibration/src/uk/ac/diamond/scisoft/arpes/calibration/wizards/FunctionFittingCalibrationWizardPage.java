@@ -93,6 +93,7 @@ public abstract class FunctionFittingCalibrationWizardPage extends CalibrationWi
 				IFunction function = functions.get(functionName);
 				calibrationData.addFunction(getFunctionName(), function);
 				saveFittedMuData(function);
+				setPageComplete(true);
 			}
 		});
 		setControl(sashForm);

@@ -77,8 +77,10 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 		FileContentProposalProvider prov = new FileContentProposalProvider();
 		ContentProposalAdapter ad = new ContentProposalAdapter(txtPath, new TextContentAdapter(), prov, null, null);
 		ad.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
-		if (path != null)
+		if (path != null) {
 			txtPath.setText(path);
+			calibrationData.addUserObject(ARPESCalibrationConstants.SAVE_PATH, path);
+		}
 		GridData gridData = new GridData(SWT.LEFT, SWT.FILL, false, false, 2, 1);
 		gridData.widthHint = 650;
 		txtPath.setLayoutData(gridData);
