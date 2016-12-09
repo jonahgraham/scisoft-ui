@@ -25,7 +25,9 @@ import uk.ac.diamond.scisoft.arpes.calibration.utils.ARPESCalibrationConstants;
 public class GoldCalibrationPageTwo extends FunctionFittingCalibrationWizardPage {
 
 	public GoldCalibrationPageTwo(DataMessageComponent calibrationData) {
-		super(calibrationData, "Fermi Fitting", "Set up the Fermi function fitting");
+		super(calibrationData, "Fermi Fitting", "Set up the Fermi function fitting. Press the \"Update All\" button "
+				+ "to update the fitted parameters. This will save the Fitted Function parameters and use them "
+				+ "in the Convolution process of the next page.");
 	}
 
 	@Override
@@ -39,7 +41,6 @@ public class GoldCalibrationPageTwo extends FunctionFittingCalibrationWizardPage
 				setFitRegion(xaxisData);
 			system.updatePlot1D(xaxisData,  Arrays.asList(new IDataset[] { data }), null);
 			setMean();
-			setPageComplete(true);
 		}
 		super.setVisible(visible);
 	}

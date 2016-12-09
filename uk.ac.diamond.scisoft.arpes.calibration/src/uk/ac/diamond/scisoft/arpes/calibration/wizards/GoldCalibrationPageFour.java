@@ -23,7 +23,7 @@ import uk.ac.diamond.scisoft.arpes.calibration.utils.ARPESCalibrationConstants;
 public class GoldCalibrationPageFour extends FunctionFittingCalibrationWizardPage {
 
 	public GoldCalibrationPageFour(DataMessageComponent calibrationData) {
-		super(calibrationData, "Quadratic Fermi Edge Fitting", "Specify the function to fit the Fermi Edge with");
+		super(calibrationData, "Quadratic Fermi Edge Fitting", "Specify the function to fit the Fermi Edge with. Press \"Update All\" after fitting the plot in order to update the fitted parameters and go to the next page.");
 	}
 
 	@Override
@@ -36,7 +36,6 @@ public class GoldCalibrationPageFour extends FunctionFittingCalibrationWizardPag
 			if (system.getTraces().isEmpty())
 				setFitRegion(xaxisData);
 			system.updatePlot1D(xaxisData,  Arrays.asList(new IDataset[] { data }), null);
-			setPageComplete(true);
 		}
 		super.setVisible(visible);
 	}
