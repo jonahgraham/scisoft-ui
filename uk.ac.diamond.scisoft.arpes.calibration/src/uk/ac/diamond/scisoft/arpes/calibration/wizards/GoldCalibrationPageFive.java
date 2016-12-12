@@ -73,7 +73,11 @@ public class GoldCalibrationPageFive extends CalibrationWizardPage {
 		txtPath.setEditable(true);
 		// set default name
 		String filepath = (String) calibrationData.getUserObject(ARPESCalibrationConstants.FILE_PATH);
-		path = filepath.split("\\.").length > 0 ? (filepath.split("\\.")[0] + "_calib.nxs") :  null;
+		String[] tmp = filepath.split(File.separator);
+		String name = tmp.length > 0 ? tmp[tmp.length - 1] : filepath;
+		String savedname = name.split("\\.")[0] + "_calib.nxs";
+		String folder = filepath.substring(0, filepath.lastIndexOf(File.separator) + 1);
+		path = folder + savedname;
 		FileContentProposalProvider prov = new FileContentProposalProvider();
 		ContentProposalAdapter ad = new ContentProposalAdapter(txtPath, new TextContentAdapter(), prov, null, null);
 		ad.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
