@@ -9,6 +9,7 @@
 package uk.ac.diamond.scisoft.arpes.calibration;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -78,6 +79,16 @@ public class Activator extends AbstractUIPlugin {
 		if (ref == null)
 			return null;
 		return plugin.context.getService(ref);
+	}
+
+	/**
+	 * Creates the image, this should be disposed later.
+	 * @param path
+	 * @return Image
+	 */
+	public static Image getImage(String path) {
+		ImageDescriptor des = imageDescriptorFromPlugin(PLUGIN_ID, path);
+		return des.createImage();
 	}
 
 }

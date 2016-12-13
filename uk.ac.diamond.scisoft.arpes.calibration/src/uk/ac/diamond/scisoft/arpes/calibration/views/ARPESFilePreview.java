@@ -17,12 +17,15 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.eclipse.core.commands.ParameterizedCommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.e4.core.commands.ECommandService;
+import org.eclipse.e4.core.commands.EHandlerService;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.january.IMonitor;
@@ -44,11 +47,14 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.arpes.calibration.Activator;
+import uk.ac.diamond.scisoft.arpes.calibration.handlers.E4GoldCalibrationHandler;
 import uk.ac.diamond.scisoft.arpes.calibration.utils.ARPESCalibrationConstants;
 
 public class ARPESFilePreview {
@@ -59,6 +65,14 @@ public class ARPESFilePreview {
 	private IPlottingSystem<Composite> thumbnailPlot;
 
 	private String path;
+
+	@Inject
+	private ECommandService commandService;
+
+	@Inject
+	private EHandlerService handlerService;
+
+	private ToolItem launchWizardToolItem;
 
 	public ARPESFilePreview() {
 		try {
@@ -71,6 +85,21 @@ public class ARPESFilePreview {
 	@PostConstruct
 	public Composite createPartControl(Composite parent) {
 		parent.setLayout(new GridLayout(1, false));
+
+		// create the toolbar with its action/command (done programmatically until Full e4 is supported)
+		ToolBar bar = new ToolBar(parent, SWT.NONE);
+		bar.setBackground(parent.getBackground());
+		launchWizardToolItem = new ToolItem(bar, SWT.NONE);
+		launchWizardToolItem.setToolTipText("Launch ARPES Gold CalibrationWizard");
+		launchWizardToolItem.setImage(Activator.getImage("icons/ARPES_icon.png"));
+		launchWizardToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				ParameterizedCommand myCommand = commandService.createCommand("uk.ac.diamond.scisoft.arpes.calibration.E4GoldCalibrationCommand", null);
+				handlerService.activateHandler("uk.ac.diamond.scisoft.arpes.calibration.E4GoldCalibrationCommand", new E4GoldCalibrationHandler(event));
+				handlerService.executeHandler(myCommand);
+			}
+		});
 
 		Composite composite_1 = new Composite(parent, SWT.NONE);
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -132,10 +161,14 @@ public class ARPESFilePreview {
 				}
 			}
 			if (filename != null) {
-				if (isArpesFile(filename, null)) {
-					txtSelectedFile.setText(filename);
+				boolean isArpesFile = isArpesFile(filename, null);
+				if (isArpesFile) {
+					if (txtSelectedFile != null)
+						txtSelectedFile.setText(filename);
 					plotFile(filename);
 				}
+				if (launchWizardToolItem != null)
+					launchWizardToolItem.setEnabled(isArpesFile);
 			}
 		}
 	}
