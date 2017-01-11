@@ -820,7 +820,7 @@ class PlotTab extends ATab {
 				try {
 					Dataset tmpSlice = DatasetUtils.convertToDataset(dataset.getSlice(tmpSlices));
 					Dataset errSlice = tmpSlice.getErrorBuffer(); // TODO remove when done internally
-					tmpSlice.setError(null);
+					tmpSlice.setErrors(null);
 					if (meanAxis != -1) {
 						int[] tmpShape = tmpSlice.getShape();
 						tmpShape[meanAxis] = 1;
