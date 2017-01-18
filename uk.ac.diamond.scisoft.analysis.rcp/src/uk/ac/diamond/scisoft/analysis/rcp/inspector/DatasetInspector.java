@@ -607,7 +607,7 @@ public class DatasetInspector extends Composite {
 					axis.setName(AbstractExplorer.DIM_PREFIX + (i+1));
 					AxisChoice newChoice = new AxisChoice(axis);
 					newChoice.setAxisNumber(i);
-					aSel.addChoice(newChoice, aSel.getMaxOrder() + 1);
+					aSel.addChoice(newChoice, 0);
 					inspection.addDatasetAxis(aSel);
 				}
 			}

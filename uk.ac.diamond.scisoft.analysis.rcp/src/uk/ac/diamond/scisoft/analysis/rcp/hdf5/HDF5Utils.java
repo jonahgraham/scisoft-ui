@@ -130,7 +130,7 @@ public class HDF5Utils {
 					axis.setName(AbstractExplorer.DIM_PREFIX + (i + 1));
 					AxisChoice newChoice = new AxisChoice(axis);
 					newChoice.setAxisNumber(i);
-					sel.addChoice(newChoice, sel.getMaxOrder() + 1);
+					sel.addChoice(newChoice, 0);
 				}
 			}
 		} catch (Exception e) {

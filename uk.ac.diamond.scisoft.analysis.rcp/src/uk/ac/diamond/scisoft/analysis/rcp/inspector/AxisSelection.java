@@ -11,7 +11,6 @@ package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -204,7 +203,7 @@ public class AxisSelection extends InspectorProperty implements Iterable<String>
 	/**
 	 * Add axis choice with given order and sets choice to first
 	 * @param axis
-	 * @param order (can be zero to denote last)
+	 * @param order (can be zero to denote first)
 	 */
 	public void addChoice(AxisChoice axis, int order) {
 		String name = axis.getName();
@@ -217,7 +216,7 @@ public class AxisSelection extends InspectorProperty implements Iterable<String>
 	 * Add axis choice with given name and order and sets choice to first
 	 * @param name
 	 * @param axis
-	 * @param order (can be zero to denote last)
+	 * @param order (can be zero to denote first)
 	 */
 	public void addChoice(String name, AxisChoice axis, int order) {
 		AxisSelData a;
@@ -238,8 +237,8 @@ public class AxisSelection extends InspectorProperty implements Iterable<String>
 
 		a.setOrder(order);
 		if (order == 0) {
-			names.add(name);
-			asData.add(a);
+			names.add(0, name);
+			asData.add(0, a);
 		} else {
 			orderPredicate.setOrder(order); // find first >= order
 			Object first = CollectionUtils.find(asData, orderPredicate);
@@ -449,15 +448,6 @@ public class AxisSelection extends InspectorProperty implements Iterable<String>
 	public AxisChoice getSelectedAxis() {
 		AxisSelData a = (AxisSelData) CollectionUtils.find(asData, axisSelectionPredicate);
 		return (a == null) ? null : a.getData();
-	}
-
-	/**
-	 * @return maximum order
-	 */
-	@SuppressWarnings({ "unchecked" })
-	public int getMaxOrder() {
-		List<Integer> orders = (List<Integer>) CollectionUtils.collect(asData, orderTransformer);
-		return orders.size() > 0 ? (Integer) Collections.max(orders) : 0;
 	}
 
 	/**
