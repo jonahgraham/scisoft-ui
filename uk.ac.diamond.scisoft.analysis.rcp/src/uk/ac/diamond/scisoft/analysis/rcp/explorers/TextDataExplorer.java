@@ -310,22 +310,23 @@ public class TextDataExplorer extends AbstractExplorer implements ISelectionProv
 			AxisSelection axisSelection = new AxisSelection(len, j);
 			axes.add(axisSelection);
 	
+			for (int i = 0, imax = data.size(); i < imax; i++) {
+				ILazyDataset ldataset = data.getLazyDataset(i);
+				if (ldataset.equals(d))
+					continue;
+				if (ArrayUtils.contains(ldataset.getShape(), len)) {
+					AxisChoice newChoice = new AxisChoice(ldataset);
+					newChoice.setAxisNumber(j);
+					axisSelection.addChoice(newChoice, i + 1);
+				}
+			}
+
 			Dataset autoAxis = DatasetFactory.createRange(len, Dataset.INT32);
 			autoAxis.setName(AbstractExplorer.DIM_PREFIX + (j+1));
 			AxisChoice newChoice = new AxisChoice(autoAxis);
 			newChoice.setAxisNumber(j);
 			axisSelection.addChoice(newChoice, 0);
 	
-			for (int i = 0, imax = data.size(); i < imax; i++) {
-				ILazyDataset ldataset = data.getLazyDataset(i);
-				if (ldataset.equals(d))
-					continue;
-				if (ArrayUtils.contains(ldataset.getShape(), len)) {
-					newChoice = new AxisChoice(ldataset);
-					newChoice.setAxisNumber(j);
-					axisSelection.addChoice(newChoice, i + 1);
-				}
-			}
 		}
 	
 		return axes;
