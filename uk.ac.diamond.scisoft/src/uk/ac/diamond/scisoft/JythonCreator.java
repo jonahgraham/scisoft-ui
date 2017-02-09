@@ -58,6 +58,16 @@ public class JythonCreator implements IStartup {
 	@Override
 	public void earlyStartup() {
 
+		// We do nothing on the GDA Server for JythonCreator it 
+		// should not be run and is not in the product when p45 is run.
+		// However some people have reported that they think it is run.
+		// To be sure I suggest we test for it in this class.
+		
+		// Currently all GDA properties in the somewhat inaccessible
+		// LocalProperties are also exported to System properties 
+		// with the prefix "GDA/".
+		if (System.getProperty("GDA/gda.instrument")!=null) return; // We do not need to create Jython on a GDA server.
+		
 		// initialiseInterpreter only when 
 		// loader factory and function factory plugins 
 		// are known.
