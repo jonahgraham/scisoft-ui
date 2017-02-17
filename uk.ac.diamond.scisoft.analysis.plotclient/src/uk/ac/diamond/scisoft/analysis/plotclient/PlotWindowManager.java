@@ -44,6 +44,7 @@ import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.plotclient.rpc.AnalysisRpcSyncExecDispatcher;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
+import org.apache.commons.lang.StringUtils;
 
 public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBeingObserved {
 	
@@ -118,9 +119,16 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 					for (int k = 0; k < config.length; k++) {
 						String name = config[k].getName();
 						if (name.equals("view")) {
-							String className = config[k].getAttribute("class");
-							// if a PlotView
-							if (className.equals(PLOTVIEW_PATH)) {
+							final String className = getClassName(config[k]);
+							if (className == null) {
+								// If id is available, use this to help identify the view in question
+								final String id = config[k].getAttribute("id");
+								final String message = "View"
+										+ (!StringUtils.isEmpty(id) ? " with id \"" + id + "\"": "")
+										+ " has no class name: ignoring";
+								logger.warn(message);
+							} else if (className.equals(PLOTVIEW_PATH)) {
+								// Plot view - add to list
 								plotViews.add(config[k]);
 							}
 						}
@@ -129,6 +137,26 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 			}
 		}
 		return plotViews;
+	}
+	
+	private static String getClassName(final IConfigurationElement configElement) {
+		// First, try to find class as an attribute. 
+		String className = configElement.getAttribute("class");
+
+		if (StringUtils.isEmpty(className)) {
+			// In some circumstances, such as when creating a view class with parameters
+			// with <class class=...>, the class attribute can be null.
+			// For this reason, it may be better to create the view using a factory class,
+			// but we can try to drill down and see if there is a class name anyway.
+			for (IConfigurationElement child : configElement.getChildren("class")) {
+				className = child.getAttribute("class");
+				if (!StringUtils.isEmpty(className)) {
+					break;
+				}
+			}
+		}
+		
+		return className;
 	}
 
 	/**
