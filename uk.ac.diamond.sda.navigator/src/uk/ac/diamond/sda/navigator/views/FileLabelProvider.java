@@ -21,9 +21,10 @@ import java.util.regex.Matcher;
 import org.dawb.common.services.ServiceManager;
 import org.dawb.common.util.io.FileUtils;
 import org.dawnsci.io.h5.H5Loader;
+import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
-import org.eclipse.dawnsci.hdf.object.HierarchicalDataFactory;
-import org.eclipse.dawnsci.hdf.object.IHierarchicalDataFile;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.plotting.api.image.IFileIconService;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -34,13 +35,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.scisoft.analysis.utils.OSUtils;
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 import uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferenceConstants;
 import uk.ac.diamond.sda.navigator.util.NIOUtils;
 import uk.ac.diamond.sda.navigator.util.NavigatorUtils;
+import uk.ac.diamond.sda.navigator.util.ServiceHolder;
 
 class FileLabelProvider extends ColumnLabelProvider {
 
@@ -195,7 +196,6 @@ class FileLabelProvider extends ColumnLabelProvider {
 
 	private Map<Path, Map<Integer, String>> attributes;
 
-	
 	private Map<Integer, String> getH5Attributes(Path node) throws Exception {
 		
 		if (Files.isDirectory(node))          return null;
@@ -203,31 +203,31 @@ class FileLabelProvider extends ColumnLabelProvider {
 		
 		if (attributes==null) attributes = new HashMap<Path, Map<Integer, String>>(89);
 		if (attributes.containsKey(node)) return attributes.get(node);
-		
-		try (IHierarchicalDataFile h5File = HierarchicalDataFactory.getReader(node.toAbsolutePath().toString())) {
-			
-			final Map<Integer, String> attr = new HashMap<Integer,String>(3);
-			attributes.put(node, attr);
-			
-			String comment;
-			try {
-				comment = NavigatorUtils.getHDF5Title(node.toAbsolutePath().toString(), h5File);
-			} catch (Exception e) {
-				comment = "N/A";
-			}
-			attr.put(4, comment);
-			
-			String scanCmd;
-			try {
-				scanCmd = NavigatorUtils.getHDF5ScanCommand(node.toAbsolutePath().toString(), h5File);
-			} catch (Exception e) {
-				e.printStackTrace();
-				scanCmd = "N/A";
-			}
-			attr.put(5, scanCmd);
 
-			return attr;
+		IDataHolder dh = ServiceHolder.getLoaderService().getData(node.toAbsolutePath().toString(), null);
+		Tree tree = dh.getTree();
+		GroupNode rootnode = tree.getGroupNode();
+		final Map<Integer, String> attr = new HashMap<Integer, String>(3);
+		attributes.put(node, attr);
+
+		String comment;
+		try {
+			comment = NavigatorUtils.getHDF5Title(node.toAbsolutePath().toString(), rootnode);
+		} catch (Exception e) {
+			comment = "N/A";
 		}
+		attr.put(4, comment);
+
+		String scanCmd;
+		try {
+			scanCmd = NavigatorUtils.getHDF5ScanCommand(node.toAbsolutePath().toString(), rootnode);
+		} catch (Exception e) {
+			e.printStackTrace();
+			scanCmd = "N/A";
+		}
+		attr.put(5, scanCmd);
+
+		return attr;
 	}
 
 	@Override

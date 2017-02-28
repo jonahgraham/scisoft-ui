@@ -11,20 +11,20 @@ package uk.ac.diamond.sda.navigator.util;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.tree.TreeNode;
-
 import org.dawb.common.util.io.FileUtils;
-import org.eclipse.dawnsci.hdf.object.HierarchicalDataFactory;
-import org.eclipse.dawnsci.hdf.object.IHierarchicalDataFile;
+import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.january.metadata.IExtendedMetadata;
 import org.eclipse.january.metadata.IMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import hdf.object.Dataset;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 public class NavigatorUtils {
@@ -89,39 +89,38 @@ public class NavigatorUtils {
 		List<String> scans = new ArrayList<String>();
 		List<String> titles = new ArrayList<String>();
 
-		IHierarchicalDataFile file = null;
+		IDataHolder dh = null;
 		try {
-			file = HierarchicalDataFactory.getReader(fullpath);
+			dh = ServiceHolder.getLoaderService().getData(fullpath, null);
 		} catch (Exception e) {
 			logger.debug("HDF5 file Reading Exception:", e);
 			return results;
 		}
-		if (file == null) return null;
-		Enumeration<?> rootEntries = file.getNode().children();
-		while (rootEntries.hasMoreElements()) {
-			Object elem = rootEntries.nextElement();
-			TreeNode node = (TreeNode) elem;
-			String entryName = node.toString();
-
-			//read scan command
-			Dataset scanCmdData;
+		if (dh == null)
+			return results;
+		Tree tree = dh.getTree();
+		GroupNode rootnode = tree.getGroupNode();
+		Iterator<String> iterator = rootnode.getNodeNameIterator();
+		while (iterator.hasNext()) {
+			String entryName = iterator.next();
+			entryName = !entryName.startsWith("/") ? "/" + entryName : entryName;
 			try {
-				scanCmdData = (Dataset) file.getData(entryName + "/" + scanCmdName);
-
+				//read scan command
+				NodeLink scanCmdLink = rootnode.findNodeLink(entryName + "/" + scanCmdName);
+				DataNode scanCmdData = scanCmdLink != null ? (DataNode)scanCmdLink.getDestination(): null;
 				if (scanCmdData != null) {
-					Object val = scanCmdData.read();
-					String[] scan = (String[]) val;
-					scans.add(scan[0]);
+					String scanstr = scanCmdData.getString();
+					scans.add(scanstr);
 					if (scans.size() > titles.size() + 1)
 						titles.add(null); // bulk out list
 				}
 
 				// read title
-				Dataset titleData = (Dataset) file.getData(entryName + "/" + titleName);
+				NodeLink titleLink = rootnode.findNodeLink(entryName + "/" + titleName);
+				DataNode titleData = titleLink != null ? (DataNode) titleLink.getDestination() : null;
 				if (titleData != null) {
-					Object val = titleData.read();
-					String[] title = (String[]) val;
-					titles.add(title[0]);
+					String titlestr = titleData.getString();
+					titles.add(titlestr);
 					if (titles.size() > scans.size() + 1)
 						scans.add(null);
 				}
@@ -162,11 +161,6 @@ public class NavigatorUtils {
 			}
 			results[1][i] = str == null ? "" : System.getProperty("line.separator")+"ScanCmd" + (i+1) + ": " + str;
 		}
-		try {
-			file.close();
-		} catch (Exception e) {
-			logger.debug("Error closing HDF5 file:", e);
-		}
 		return results;
 	}
 
@@ -184,11 +178,11 @@ public class NavigatorUtils {
 	 * Method that returns of the Scan Command of the nxs file being looked at.<br>
 	 * If there are more than one scan command, it returns the first one<br>
 	 * @param fullpath
-	 * @param h5File 
+	 * @param rootnode 
 	 * @return the Scan command as a String 
 	 */
-	public static String getHDF5ScanCommand(String fullpath, IHierarchicalDataFile h5File) {
-		return getHDF5ScanCommandOrTitle(fullpath, scanCmdName, h5File);
+	public static String getHDF5ScanCommand(String fullpath, GroupNode rootnode) {
+		return getHDF5ScanCommandOrTitle(fullpath, scanCmdName, rootnode);
 	}
 
 	public static String getHDF5Title(String fullpath) {
@@ -198,14 +192,14 @@ public class NavigatorUtils {
 	 * Method that returns the title of the nxs file being looked at.<br>
 	 * If there are more than one title, it returns the first one<br>
 	 * @param fullpath
-	 * @param h5File 
+	 * @param rootnode 
 	 * @return a String 
 	 */
-	public static String getHDF5Title(String fullpath, IHierarchicalDataFile h5File) {
-		return getHDF5ScanCommandOrTitle(fullpath, titleName, h5File);
+	public static String getHDF5Title(String fullpath, GroupNode rootnode) {
+		return getHDF5ScanCommandOrTitle(fullpath, titleName, rootnode);
 	}
 
-	private static String getHDF5ScanCommandOrTitle(String fullpath, String type, IHierarchicalDataFile h5File) {
+	private static String getHDF5ScanCommandOrTitle(String fullpath, String type, GroupNode rootnode) {
 		// make it work just for nxs and hdf5 files
 		if(!fullpath.endsWith(".hdf5") 
 				&& !fullpath.endsWith(".hdf")
@@ -215,28 +209,41 @@ public class NavigatorUtils {
 		String result = "N/A";
 		List<String> comments = new ArrayList<String>();
 
-		if (h5File == null)
+		if (rootnode == null)
 			return result;
-		Enumeration<?> rootEntries = h5File.getNode().children();
-		if (!rootEntries.hasMoreElements())
-			return result;
-		Object elem = rootEntries.nextElement();
-		TreeNode node = (TreeNode) elem;
-		String entryName = node.toString();
-
-		// read scan command /title
-		Dataset commentData;
-		try {
-			commentData = (Dataset) h5File.getData(entryName + "/" + type);
-			if (commentData != null) {
-				Object val = commentData.read();
-				String[] comment = (String[]) val;
-				comments.add(comment[0]);
+		
+		Iterator<String> iterator = rootnode.getNodeNameIterator();
+		if (iterator.hasNext()) {
+			String entryName = iterator.next();
+			DataNode scanCmdData = rootnode.getDataNode(entryName + "/" + type);
+			if (scanCmdData != null) {
+				String scanstr = scanCmdData.getString();
+				if (scanstr != null)
+					comments.add(scanstr);
 			}
-		} catch (Exception e) {
-			logger.error("Error getting data from HDF5 tree:", e);
-			return "";
+		} else {
+			return result;
 		}
+//		Enumeration<?> rootEntries = rootnode.getNode().children();
+//		if (!rootEntries.hasMoreElements())
+//			return result;
+//		Object elem = rootEntries.nextElement();
+//		TreeNode node = (TreeNode) elem;
+//		String entryName = node.toString();
+//
+//		// read scan command /title
+//		Dataset commentData;
+//		try {
+//			commentData = (Dataset) rootnode.getData(entryName + "/" + type);
+//			if (commentData != null) {
+//				Object val = commentData.read();
+//				String[] comment = (String[]) val;
+//				comments.add(comment[0]);
+//			}
+//		} catch (Exception e) {
+//			logger.error("Error getting data from HDF5 tree:", e);
+//			return "";
+//		}
 
 
 		int s = comments.size();
