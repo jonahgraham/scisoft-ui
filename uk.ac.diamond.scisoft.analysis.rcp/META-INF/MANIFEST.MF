@@ -30,7 +30,6 @@ Require-Bundle: org.eclipse.ui,
  org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
  org.dawb.common.util,
  org.eclipse.dawnsci.hdf5.editor;bundle-version="1.2.0",
- hdf.object;bundle-version="[2.9.0,3.0.0)",
  uk.ac.diamond.scisoft.analysis.plotclient;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.imagegrid
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

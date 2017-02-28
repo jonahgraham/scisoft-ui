@@ -10,6 +10,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
@@ -18,7 +19,6 @@ import org.eclipse.dawnsci.hdf5.editor.IH5DoubleClickSelectionProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
-import hdf.object.HObject;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5Utils;
 
@@ -34,24 +34,39 @@ public class InspectorSelectionProvider implements IH5DoubleClickSelectionProvid
 
 	@Override
 	public ISelection getSelection(ISelection selection, String filePath) throws Exception {
-		
-    
-		
-		final Object node = selection instanceof IStructuredSelection
-				          ? ((IStructuredSelection)selection).getFirstElement()
-				          : null;
-				          
-	    if (node==null) return null;
-	    if (!(node instanceof DefaultMutableTreeNode)) return null;
-	    
-	    final DefaultMutableTreeNode dNode = (DefaultMutableTreeNode)node;
-	    if (!(dNode.getUserObject() instanceof HObject)) return null;
-	    final HObject linkPath = (HObject)dNode.getUserObject();
 
-	    IDataHolder holder = LoaderFactory.getData(filePath);
-	    Tree     tree   = holder.getTree();
-	    String nodePath = linkPath.getFullName();
-	    NodeLink link   = tree.findNodeLink(nodePath);
+		final Object node = selection instanceof IStructuredSelection
+				? ((IStructuredSelection) selection).getFirstElement() : null;
+
+		if (node == null)
+			return null;
+		if (!(node instanceof DefaultMutableTreeNode))
+			return null;
+
+		final DefaultMutableTreeNode dNode = (DefaultMutableTreeNode) node;
+		TreeNode[] path = dNode.getPath();
+		int level = dNode.getLevel();
+		String nodePath = getPath(path, level);
+
+		IDataHolder holder = LoaderFactory.getData(filePath);
+		Tree tree = holder.getTree();
+		NodeLink link = tree.findNodeLink(nodePath);
 		return HDF5Utils.createDatasetSelection(filePath, nodePath, link);
+	}
+
+	/**
+	 * Returns the path of the node (without the root) given a treenode and the level of the node
+	 * 
+	 * @param path
+	 * @param level
+	 * @return path
+	 */
+	private String getPath(TreeNode[] path, int level) {
+		String nodepath = "/";
+		for (int i = 1; i <= level; i++) {
+			nodepath = nodepath + path[i].toString() + "/";
+		}
+		nodepath = nodepath.substring(0, nodepath.length() - 1);
+		return nodepath;
 	}
 }
