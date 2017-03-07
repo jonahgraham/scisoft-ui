@@ -9,10 +9,16 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 
+import java.util.List;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.hdf5.editor.IH5DoubleClickSelectionProvider;
@@ -40,18 +46,34 @@ public class InspectorSelectionProvider implements IH5DoubleClickSelectionProvid
 
 		if (node == null)
 			return null;
-		if (!(node instanceof DefaultMutableTreeNode))
-			return null;
+		if (node instanceof NodeLink) {
+			NodeLink link = (NodeLink) node;
+			Node selectedNode = link.getDestination();
+			DataNode dnode = null;
+			if (selectedNode instanceof DataNode) {
+				dnode = (DataNode) selectedNode;
+			} else if (selectedNode instanceof GroupNode) {
+				GroupNode gnode = (GroupNode) selectedNode;
+				List<DataNode> datanodes = gnode.getDataNodes();
+				dnode = datanodes.get(0);
+			}
+			Attribute attribute = dnode != null? dnode.getAttribute("target") : null;
+			String nodePath = attribute != null ? attribute.toString() : "";
+			if(nodePath.equals(""))
+					return null;
+			return HDF5Utils.createDatasetSelection(filePath, nodePath, link);
+		} else if (node instanceof DefaultMutableTreeNode) {
+			final DefaultMutableTreeNode dNode = (DefaultMutableTreeNode) node;
+			TreeNode[] path = dNode.getPath();
+			int level = dNode.getLevel();
+			String nodePath = getPath(path, level);
 
-		final DefaultMutableTreeNode dNode = (DefaultMutableTreeNode) node;
-		TreeNode[] path = dNode.getPath();
-		int level = dNode.getLevel();
-		String nodePath = getPath(path, level);
-
-		IDataHolder holder = LoaderFactory.getData(filePath);
-		Tree tree = holder.getTree();
-		NodeLink link = tree.findNodeLink(nodePath);
-		return HDF5Utils.createDatasetSelection(filePath, nodePath, link);
+			IDataHolder holder = LoaderFactory.getData(filePath);
+			Tree tree = holder.getTree();
+			NodeLink link = tree.findNodeLink(nodePath);
+			return HDF5Utils.createDatasetSelection(filePath, nodePath, link);
+		}
+		return null;
 	}
 
 	/**
