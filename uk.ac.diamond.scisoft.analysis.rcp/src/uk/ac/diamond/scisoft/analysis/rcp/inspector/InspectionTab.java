@@ -1368,7 +1368,7 @@ class DataTab extends PlotTab {
 					DatasetTableView tableView = getDatasetTableView();
 					if (tableView == null)
 						return;
-					tableView.setData(reorderedData.reshape(reorderedData.getShape()[0], 1), rAxisSlice, null);		
+					tableView.setData(reorderedData.reshape(reorderedData.getShape()[0], 1), rAxisSlice, null);
 				}
 			});
 			break;
@@ -1410,7 +1410,9 @@ class DataTab extends PlotTab {
 
 		// check if Dataset Table View is open
 		try {
-			view = (DatasetTableView) site.getPage().showView(DatasetTableView.ID, null, IWorkbenchPage.VIEW_CREATE);
+			IWorkbenchPage page = site.getPage();
+			view = (DatasetTableView) page.showView(DatasetTableView.ID, null, IWorkbenchPage.VIEW_CREATE);
+			page.bringToTop(view);
 		} catch (PartInitException e) {
 			logger.error("All over now! Cannot find dataset table view: {} ", e);
 		}
