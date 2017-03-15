@@ -13,6 +13,8 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.commands.AbstractHandler;
@@ -52,6 +54,7 @@ public class ExplorerOSHandler extends AbstractHandler {
 						return Status.OK_STATUS;
 					}
 					
+					
 					Desktop desktop = Desktop.getDesktop();
 					desktop.open(path.toFile());
 				} catch (IOException e) {
@@ -62,6 +65,30 @@ public class ExplorerOSHandler extends AbstractHandler {
 		};
 		openfile.schedule();
 		return Boolean.TRUE;
+	}
+	
+	@Override
+	public boolean isEnabled() {
+		if (System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("linux")) {
+			ProcessBuilder whichProcessBuilder = new ProcessBuilder("which", "nautilus");
+			Process whichProcess = null;
+			try {
+				whichProcess = whichProcessBuilder.start();
+			} catch (IOException ioE) {
+				return false;
+			}
+			// wait for which to return
+			int whichResult = 1;
+			try {
+				whichResult = whichProcess.waitFor();
+			} catch (InterruptedException iE) {
+				return false;
+			}
+			return (whichResult == 0); 
+				
+		}
+		return true;
+		
 	}
 
 
