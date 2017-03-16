@@ -563,4 +563,10 @@
             name="File Navigator">
       </page>
    </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="uk.ac.diamond.sda.navigator.preference.FileNavigatorPreferenceInitializer">
+      </initializer>
+   </extension>
 </plugin>
