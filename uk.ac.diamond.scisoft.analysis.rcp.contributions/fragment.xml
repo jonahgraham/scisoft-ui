@@ -21,25 +21,6 @@
             class="uk.ac.diamond.scisoft.analysis.rcp.views.HDF5TreeView"
             id="uk.ac.diamond.scisoft.analysis.rcp.views.HDF5TreeView">
       </view>
-      <!-- These views are deprecated -->
-      <!--
-      <view
-            name="Colour Mapping"
-            icon="icons/chart_bar.png"
-            category="uk.ac.diamond.scisoft.analysis.rcp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView"
-            id="uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView"
-            allowMultiple="true">
-      </view>
-      <view
-            name="Transfer Function"
-            icon="icons/chart_bar.png"
-            category="uk.ac.diamond.scisoft.analysis.rcp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.TransferFunctionView"
-            id="uk.ac.diamond.scisoft.analysis.rcp.views.TransferFunctionView"
-            allowMultiple="false">
-      </view>
-      -->
       <view
              allowMultiple="false"
              category="uk.ac.diamond.scisoft.analysis.rcp"
@@ -85,42 +66,6 @@
             name="Perimeter Profile Plot"
             restorable="true">
       </view>
-      <!-- These views are deprecated -->
-      <!--
-      <view
-            name="Side Plot"
-            icon="icons/chart_line.png"
-            category="uk.ac.diamond.scisoft.analysis.rcp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView"
-            id="uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView"
-            allowMultiple="true">
-      </view>
-
-      <view
-            name="Data Window"
-            icon="icons/map_magnify.png"
-            category="uk.ac.diamond.scisoft.analysis.rcp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView"
-            id="uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView"
-            allowMultiple="true">
-      </view>      
-      <view
-            allowMultiple="true"
-            category="uk.ac.diamond.scisoft.analysis.rcp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView"
-            icon="icons/chart_curve_link.png"
-            id="gda.rcp.views.scan.StaticScanPlotView"
-            name="Static Plot"
-            restorable="true">
-      </view>
-      <view
-            name="Remote Volume Viewer"
-            icon="icons/box.png"
-            category="uk.ac.diamond.scisoft.analysis.rcp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.RemoteVolVizView"
-            id="uk.ac.diamond.scisoft.analysis.rcp.views.RemoteVolVizView">
-      </view>
-      -->
       <view
             name="Image Explorer"
             icon="icons/map_magnify.png"
@@ -189,9 +134,6 @@
          <perspectiveShortcut
                id="uk.ac.diamond.scisoft.dataexplorationperspective">
          </perspectiveShortcut>
-         <perspectiveShortcut
-               id="uk.ac.diamond.scisoft.diffractionviewerperspective">
-         </perspectiveShortcut>
       </perspectiveExtension>
    </extension>
    <extension
@@ -243,7 +185,7 @@
       			optional="false">
       		</commandParameter>
       </command>
-       <command
+      <command
       		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.GridOverviewAction"
       		id="uk.ac.diamond.scisoft.analysis.rcp.GridOverviewAction"
       		name="Overview Action">
@@ -658,62 +600,6 @@
             name="Label Decorations">
       </page-->
    </extension>
-   <!-- Sideplot extension is deprecated -->
-   <!--
-   <extension
-         point="uk.ac.diamond.scisoft.analysis.rcp.sidePlot">
-      <sideplot
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.LineProfile"
-            id="uk.ac.diamond.scisoft.analysis.rcp.LineProfile"
-            name="Line Profile">
-      </sideplot>
-      <sideplot
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.BoxProfile"
-            id="uk.ac.diamond.scisoft.analysis.rcp.BoxProfile"
-            name="Box Profile">
-      </sideplot>
-      <sideplot
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.SectorProfile"
-            id="uk.ac.diamond.scisoft.analysis.rcp.SectorProfile"
-            name="Sector Profile">
-      </sideplot>
-      <sideplot
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.MaskCreator"
-            id="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.MaskCreator"
-            name="Mask Creator">
-      </sideplot>
-      <sideplot
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.DiffractionViewer"
-            id="uk.ac.diamond.scisoft.analysis.rcp.DiffractionViewer"
-            name="Diffraction Viewer">
-      </sideplot>     
-      <sideplot
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.DerivativeViewer"
-            id="uk.ac.diamond.scisoft.analysis.rcp.FirstDerivative"
-            name="First Derivative"
-            plotMode="1D">
-      </sideplot>
-      <sideplot
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.GridProfile"
-            id="uk.ac.diamond.scisoft.analysis.rcp.GridProfile"
-            name="Grid Profile">
-      </sideplot>
-   </extension>
-   -->
-<!--   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView">
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.ViewGridSettingsAction"
-               icon="icons/application_form_edit.png"
-               id="uk.ac.diamond.scisoft.analysis.rcp.ViewGridSettingsAction"
-               label="Grid Scan Settings..."
-               tooltip="Opens the GDA preferences dialog">
-         </command>
-      </menuContribution>
-   </extension>
-   -->
    <extension
          point="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewDefault">
       <ViewDefaultRegister
