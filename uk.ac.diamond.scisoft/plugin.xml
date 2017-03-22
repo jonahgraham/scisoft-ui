@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.ui.startup">
       <startup
-            class="uk.ac.diamond.scisoft.JythonCreator">
+            class="uk.ac.diamond.scisoft.PythonInterpreterEarlyStartup">
       </startup>
    </extension>
    <extension

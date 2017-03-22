@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2012 Diamond Light Source Ltd.
+ * Copyright (c) 2012, 2017 Diamond Light Source Ltd.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -24,18 +24,13 @@ import java.util.TreeSet;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.IStartup;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManagerWithBuild;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -47,62 +42,12 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.osgi.FunctionFactoryStartup;
 import uk.ac.diamond.scisoft.analysis.osgi.LoaderFactoryStartup;
 import uk.ac.diamond.scisoft.jython.JythonPath;
 
-public class JythonCreator implements IStartup {
+public class JythonCreator {
 
 	private static Logger logger = LoggerFactory.getLogger(JythonCreator.class);
-
-	@Override
-	public void earlyStartup() {
-
-		// initialiseInterpreter only when 
-		// loader factory and function factory plugins 
-		// are known.
-		final Runnable runner = new Runnable() {
-			@Override
-			public void run() {
-				
-				try {
-					Thread.sleep(500); // 1/2 second
-				} catch (InterruptedException e) {
-					logger.error("Cannot wait on worker thread", e);
-				}
-
-				while(!LoaderFactoryStartup.isStarted() || 
-					  !FunctionFactoryStartup.isStarted()) {
-					
-					try {
-						Thread.sleep(500); // 1/2 second
-					} catch (InterruptedException e) {
-						logger.error("Cannot sleep on worker thread", e);
-					}
-				}
-				try {
-					initialiseConsole();
-					initialiseInterpreter(new NullProgressMonitor());
-				} catch (Exception e) {
-					logger.error("Cannot initialize the Jython interpreter.", e);
-				}
-			}
-		};
-
-		final Thread daemon = new Thread(runner);
-		daemon.setPriority(Thread.MIN_PRIORITY);
-		daemon.setDaemon(true);
-		daemon.start();
-	}
-
-	private void initialiseConsole() {
-		// need to set some preferences to get the Pydev features working.
-		IPreferenceStore pydevDebugPreferenceStore =  new ScopedPreferenceStore(InstanceScope.INSTANCE,"org.python.pydev.debug");
-
-		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS, "#Configuring Environment, please wait\nimport scisoftpy as dnp;import sys;sys.executable=''\n");
-		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS, "-Xmx512m");
-		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS, 4000);
-	}
 
 	/**
 	 * Name of interpreter that is set in the PyDev Jython Interpreter settings
@@ -122,7 +67,7 @@ public class JythonCreator implements IStartup {
 		"classpath__" // includes __classpath__ and __pyclasspath__
 	};
 
-	private void initialiseInterpreter(IProgressMonitor monitor) throws Exception {
+	public void initialiseInterpreter(IProgressMonitor monitor) throws Exception {
 		/*
 		 * The layout of plugins can vary between where a built product and
 		 * a product run from Ellipse:
